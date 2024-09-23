@@ -4,7 +4,7 @@ final class ColorStyles {
   ColorStyles._();
 
   //Primary Colors
-  static const Color black = Color(0x00000000);
+  static const Color black = Color(0xff000000);
   static const Color white = Color(0xffffffff);
   static const Color red = Color(0xffFE2E00);
 
@@ -21,9 +21,9 @@ final class ColorStyles {
   static const Color gray10 = Color(0xffF7F7F7);
 
   //Opacity Black
-  static Color black70 = const Color(0x00000000).withOpacity(0.7);
-  static Color black50 = const Color(0x00000000).withOpacity(0.5);
-  static Color black30 = const Color(0x00000000).withOpacity(0.3);
+  static Color black70 = const Color(0xff000000).withOpacity(0.7);
+  static Color black50 = const Color(0xff000000).withOpacity(0.5);
+  static Color black30 = const Color(0xff000000).withOpacity(0.3);
 
   //Opacity White
   static Color white70 = const Color(0xffffffff).withOpacity(0.7);
