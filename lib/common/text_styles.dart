@@ -8,7 +8,7 @@ final class TextStyles {
 
   //Title
   static const title02Bold = TextStyle(fontWeight: FontWeight.w700, fontSize: 16);
-  static const titleLargeSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
+  static const title02SemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
   static const titleMediumSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 15);
   static const titleSmallBold = TextStyle(fontWeight: FontWeight.w700, fontSize: 14);
 
