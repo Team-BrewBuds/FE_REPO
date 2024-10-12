@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 final class ButtonFactory {
   ButtonFactory._();
 
-  Widget buildOvalButton({required Function() onTapped, required String text, required OvalButtonStyle style}) {
+  static Widget buildOvalButton({required Function() onTapped, required String text, required OvalButtonStyle style}) {
     return InkWell(
       onTap: onTapped,
       child: Container(
@@ -25,7 +25,7 @@ final class ButtonFactory {
     );
   }
 
-  Widget buildRoundedButton({required Function() onTapped, required String text, required RoundedButtonStyle style}) {
+  static Widget buildRoundedButton({required Function() onTapped, required String text, required RoundedButtonStyle style}) {
     return InkWell(
       onTap: onTapped,
       child: Container(
