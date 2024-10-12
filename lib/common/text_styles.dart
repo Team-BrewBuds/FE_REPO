@@ -23,5 +23,6 @@ final class TextStyles {
   static const textMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
 
   static const captionMediumMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 12);
+  static const captionSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 10);
   static const captionXSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 8);
 }
