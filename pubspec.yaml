@@ -17,11 +17,15 @@ dependencies:
   provider: ^6.1.2
   go_router: ^14.2.7
   dio: ^5.7.0
+
   flutter_secure_storage:
   kakao_flutter_sdk:
   flutter_dotenv:
   flutter_naver_login: ^1.7.0
   sign_in_with_apple:
+
+  flutter_svg: ^2.0.10+1
+
 
 dev_dependencies:
   flutter_test:
@@ -30,13 +34,16 @@ dev_dependencies:
   flutter_lints: ^3.0.0
 
 flutter:
-
   uses-material-design: true
 
   assets:
+
     - .env
     - assets/images/
 
+
+
+    - assets/icons/
 
 
   fonts:

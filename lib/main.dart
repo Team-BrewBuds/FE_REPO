@@ -1,4 +1,7 @@
-// import 'package:brew_buds/firebase_options.dart';
+
+import 'package:brew_buds/di/router.dart';
+import 'package:brew_buds/firebase_options.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -26,7 +29,20 @@ class MyApp extends StatelessWidget {
       routerConfig: router,
       title: 'Brew Buds',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(fontFamily: 'Pretendard'),
+
+      theme: ThemeData(
+        fontFamily: 'Pretendard',
+        scaffoldBackgroundColor: Colors.white,
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          scrolledUnderElevation: 0,
+        ),
+        useMaterial3: true,
+      ),
+
     );
   }
 }
