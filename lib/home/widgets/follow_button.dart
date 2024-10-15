@@ -19,7 +19,7 @@ class FollowButton extends StatelessWidget {
       text: isFollowed ? '팔로잉' : '팔로우',
       style: isFollowed
           ? OvalButtonStyle.fill(color: ColorStyles.gray20, textColor: ColorStyles.gray80, size: OvalButtonSize.large)
-          : OvalButtonStyle.line(color: ColorStyles.red, textColor: ColorStyles.red, size: OvalButtonSize.large),
+          : OvalButtonStyle.fill(color: ColorStyles.red, textColor: ColorStyles.white, size: OvalButtonSize.large),
     );
   }
 }
