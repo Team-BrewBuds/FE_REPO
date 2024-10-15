@@ -10,7 +10,8 @@ final class TextStyles {
   static const title02Bold = TextStyle(fontWeight: FontWeight.w700, fontSize: 16);
   static const title02SemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
   static const titleMediumSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 15);
-  static const titleSmallBold = TextStyle(fontWeight: FontWeight.w700, fontSize: 14);
+  static const title01Bold = TextStyle(fontWeight: FontWeight.w700, fontSize: 14);
+  static const title01SemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 14);
 
   //Label
   static const labelMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
@@ -18,6 +19,8 @@ final class TextStyles {
   static const labelSmallRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 12);
   static const labelSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 12);
   static const labelSmallSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 12);
+
+  static const bodyRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
 
   //Text
   static const textMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
