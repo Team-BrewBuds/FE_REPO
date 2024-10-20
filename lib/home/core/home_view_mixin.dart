@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresenter> on State<T> {
+  final ScrollController scrollController = ScrollController();
+  bool get isShowRemandedBuddies => true;
+
   @override
   void initState() {
     super.initState();
@@ -21,10 +24,11 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       return Container(
         color: ColorStyles.gray20,
         child: CustomScrollView(
+          controller: scrollController,
           slivers: [
             buildListViewTitle(presenter),
-            _buildRefreshWidget(presenter),
-            _buildListView(presenter),
+            buildRefreshWidget(presenter),
+            buildListView(presenter),
           ],
         ),
       );
@@ -35,7 +39,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
 
   Widget buildListItem(Presenter presenter, int index);
 
-  Widget _buildRefreshWidget(Presenter presenter) {
+  Widget buildRefreshWidget(Presenter presenter) {
     return CupertinoSliverRefreshControl(
       onRefresh: presenter.onRefresh,
       builder: (BuildContext context,
@@ -58,11 +62,11 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     );
   }
 
-  SliverList _buildListView(Presenter presenter) {
+  SliverList buildListView(Presenter presenter) {
     return SliverList.separated(
       itemCount: presenter.feeds.length,
       itemBuilder: (context, index) {
-        if (index % 12 == 11) {
+        if (index % 12 == 11 && isShowRemandedBuddies) {
           return Column(
             children: [
               buildListItem(presenter, index),
@@ -74,9 +78,11 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
           return buildListItem(presenter, index);
         }
       },
-      separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
+      separatorBuilder: (context, index) => buildSeparatorWidget(index),
     );
   }
+
+  Widget buildSeparatorWidget(int index) => Container(height: 12, color: ColorStyles.gray20);
 
   Widget _buildRemandedBuddies(Presenter presenter) {
     return Container(
