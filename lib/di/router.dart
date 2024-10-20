@@ -1,6 +1,8 @@
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/all/home_all_view.dart';
 import 'package:brew_buds/home/home_screen.dart';
+import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
+import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
 import 'package:brew_buds/home/post/home_post_view.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
@@ -18,7 +20,8 @@ final router = GoRouter(
     StatefulShellRoute.indexedStack(
       builder: (context, state, bottomNavigationShell) => MainView(navigationShell: bottomNavigationShell),
       branches: [
-        StatefulShellBranch(//홈 화면
+        StatefulShellBranch(
+          //홈 화면
           routes: [
             StatefulShellRoute.indexedStack(
               builder: (context, state, topNavigationShell) => HomeView(navigationShell: topNavigationShell),
@@ -29,7 +32,8 @@ final router = GoRouter(
                     GoRoute(
                       path: '/home/all',
                       builder: (context, state) => ChangeNotifierProvider<HomeAllPresenter>(
-                        create: (_) => HomeAllPresenter(feeds: List<Feed>.from(dummyPosts)..addAll(dummyTastingRecord), remandedUsers: dummyUsers),
+                        create: (_) => HomeAllPresenter(
+                            feeds: List<Feed>.from(dummyPosts)..addAll(dummyTastingRecord), remandedUsers: dummyUsers),
                         child: HomeAllView(),
                       ),
                     ),
@@ -41,7 +45,8 @@ final router = GoRouter(
                     GoRoute(
                       path: '/home/tastingRecord',
                       builder: (context, state) => ChangeNotifierProvider<HomeTastingRecordPresenter>(
-                        create: (_) => HomeTastingRecordPresenter(tastingRecords: dummyTastingRecord, remandedUsers: dummyUsers),
+                        create: (_) =>
+                            HomeTastingRecordPresenter(tastingRecords: dummyTastingRecord, remandedUsers: dummyUsers),
                         child: HomeTastingRecordView(),
                       ),
                     ),
@@ -63,22 +68,37 @@ final router = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(//검색 화면
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/popular_post',
+              builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
+                create: (_) =>
+                    PopularPostsPresenter(popularPosts: List<Post>.from(dummyPosts)),
+                child: PopularPostsView(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          //검색 화면
           routes: [
             GoRoute(path: '/main2', builder: (context, state) => Container()),
           ],
         ),
-        StatefulShellBranch(//기록 화면
+        StatefulShellBranch(
+          //기록 화면
           routes: [
             GoRoute(path: '/main3', builder: (context, state) => Container()),
           ],
         ),
-        StatefulShellBranch(//프로필 화면
+        StatefulShellBranch(
+          //프로필 화면
           routes: [
             GoRoute(path: '/main4', builder: (context, state) => Container()),
           ],
         ),
       ],
-    )
+    ),
   ],
 );
