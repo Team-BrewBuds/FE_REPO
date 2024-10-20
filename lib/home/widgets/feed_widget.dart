@@ -134,14 +134,16 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
     return IconButtonFactory.buildHorizontalButtonWithIconWidget(
       iconWidget: SvgPicture.asset(
         widget.isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
+        height: 24,
+        width: 24,
         colorFilter: ColorFilter.mode(
           widget.isLiked ? ColorStyles.red : ColorStyles.gray70,
           BlendMode.srcIn,
         ),
       ),
       text: widget.likeCount,
-      onTapped: widget.onTapLikeButton,
-      style: const IconButtonStyle(textColor: ColorStyles.gray70, iconAlign: ButtonIconAlign.left),
+      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+      onTapped: widget.onTapLikeButton, iconAlign: ButtonIconAlign.left,
     );
   }
 
@@ -149,14 +151,17 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
     return IconButtonFactory.buildHorizontalButtonWithIconWidget(
       iconWidget: SvgPicture.asset(
         widget.isLeaveComment ? 'assets/icons/message_fill.svg' : 'assets/icons/message.svg',
+        height: 24,
+        width: 24,
         colorFilter: ColorFilter.mode(
           widget.isLeaveComment ? ColorStyles.red : ColorStyles.gray70,
           BlendMode.srcIn,
         ),
       ),
       text: widget.commentsCount,
+      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
       onTapped: widget.onTapCommentsButton,
-      style: const IconButtonStyle(textColor: ColorStyles.gray70, iconAlign: ButtonIconAlign.left),
+      iconAlign: ButtonIconAlign.left,
     );
   }
 
@@ -164,14 +169,17 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
     return IconButtonFactory.buildHorizontalButtonWithIconWidget(
       iconWidget: SvgPicture.asset(
         widget.isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
+        height: 24,
+        width: 24,
         colorFilter: ColorFilter.mode(
           widget.isSaved ? ColorStyles.red : ColorStyles.gray70,
           BlendMode.srcIn,
         ),
       ),
       text: '저장',
+      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+      iconAlign: ButtonIconAlign.left,
       onTapped: widget.onTapSaveButton,
-      style: const IconButtonStyle(textColor: ColorStyles.gray70, iconAlign: ButtonIconAlign.left),
     );
   }
 }
