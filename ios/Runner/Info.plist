@@ -44,6 +44,8 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+
+
 	<key>NAVER_KEY</key>
 	<string>NAVER_CLIENT_SECRET</string>
 	<key>NSAppTransportSecurity</key>
