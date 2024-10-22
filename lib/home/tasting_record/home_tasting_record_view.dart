@@ -5,7 +5,9 @@ import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_feed.d
 import 'package:flutter/material.dart';
 
 class HomeTastingRecordView extends StatefulWidget {
-  const HomeTastingRecordView({super.key});
+  final ScrollController? scrollController;
+
+  const HomeTastingRecordView({super.key, this.scrollController});
 
   @override
   State<HomeTastingRecordView> createState() => _HomeTastingRecordViewState();
@@ -13,6 +15,9 @@ class HomeTastingRecordView extends StatefulWidget {
 
 class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
     with HomeViewMixin<HomeTastingRecordView, HomeTastingRecordPresenter> {
+  @override
+  ScrollController? get scrollController => widget.scrollController;
+
   @override
   Widget buildListItem(HomeTastingRecordPresenter presenter, int index) {
     final tastingRecord = presenter.feeds[index];

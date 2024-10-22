@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresenter> on State<T> {
-  final ScrollController scrollController = ScrollController();
+  ScrollController? get scrollController;
+
   bool get isShowRemandedBuddies => true;
 
   @override
@@ -42,11 +43,13 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
   Widget buildRefreshWidget(Presenter presenter) {
     return CupertinoSliverRefreshControl(
       onRefresh: presenter.onRefresh,
-      builder: (BuildContext context,
-          RefreshIndicatorMode refreshState,
-          double pulledExtent,
-          double refreshTriggerPullDistance,
-          double refreshIndicatorExtent,) {
+      builder: (
+        BuildContext context,
+        RefreshIndicatorMode refreshState,
+        double pulledExtent,
+        double refreshTriggerPullDistance,
+        double refreshIndicatorExtent,
+      ) {
         switch (refreshState) {
           case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
             return Container(
@@ -94,19 +97,21 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const Text('카페 투어를 즐기는 버디', style: TextStyles.title01SemiBold),
-          Text('오늘은 새로운 버디와 카페 투어 어때요?', style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),),
+          Text(
+            '오늘은 새로운 버디와 카페 투어 어때요?',
+            style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
+          ),
           const SizedBox(height: 16),
           Expanded(
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: presenter.remandedUsers.length,
-              itemBuilder: (context, index) =>
-                  _buildRemandedBuddyProfile(
-                    imageUri: presenter.remandedUsers[index].thumbnailUri,
-                    nickName: presenter.remandedUsers[index].nickName,
-                    followCount: '${presenter.remandedUsers[index].followCount}',
-                    isFollowed: presenter.remandedUsers[index].isFollowed,
-                  ),
+              itemBuilder: (context, index) => _buildRemandedBuddyProfile(
+                imageUri: presenter.remandedUsers[index].thumbnailUri,
+                nickName: presenter.remandedUsers[index].nickName,
+                followCount: '${presenter.remandedUsers[index].followCount}',
+                isFollowed: presenter.remandedUsers[index].isFollowed,
+              ),
               separatorBuilder: (context, index) => const SizedBox(width: 8),
             ),
           ),
@@ -162,5 +167,3 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     );
   }
 }
-
-
