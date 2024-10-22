@@ -12,7 +12,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class HomePostView extends StatefulWidget {
-  const HomePostView({super.key});
+  final ScrollController? scrollController;
+
+  const HomePostView({super.key, this.scrollController});
 
   @override
   State<HomePostView> createState() => _HomePostViewState();
@@ -20,6 +22,9 @@ class HomePostView extends StatefulWidget {
 
 class _HomePostViewState extends State<HomePostView>
     with HomeViewMixin<HomePostView, HomePostPresenter>, PostTagsMixin<HomePostView> {
+  @override
+  ScrollController? get scrollController => widget.scrollController;
+
   @override
   Widget buildListItem(HomePostPresenter presenter, int index) {
     final post = presenter.feeds[index];
@@ -89,7 +94,7 @@ class _HomePostViewState extends State<HomePostView>
                 size: OvalButtonSize.medium,
               ),
             ),
-            SizedBox(width: 6),
+            const SizedBox(width: 6),
             Container(
               width: 1,
               height: 20,
@@ -97,7 +102,7 @@ class _HomePostViewState extends State<HomePostView>
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.only(left: 6, right: 16),
+                padding: const EdgeInsets.only(left: 6, right: 16),
                 scrollDirection: Axis.horizontal,
                 child: buildPostTagsTapBar(),
               ),

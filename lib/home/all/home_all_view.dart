@@ -12,13 +12,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeAllView extends StatefulWidget {
-  const HomeAllView({super.key});
+  final ScrollController? scrollController;
+
+  const HomeAllView({super.key, this.scrollController});
 
   @override
   State<HomeAllView> createState() => _HomeAllViewState();
 }
 
-class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllView, HomeAllPresenter>{
+class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllView, HomeAllPresenter> {
+  @override
+  ScrollController? get scrollController => widget.scrollController;
+
   @override
   Widget buildListItem(HomeAllPresenter presenter, int index) {
     final feed = presenter.feeds[index];
@@ -37,19 +42,19 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       OnlyText() => PostContentsType.onlyText(),
       ImageList() => PostContentsType.images(imageUriList: contents.imageUriList),
       SharedTastingRecordList() => PostContentsType.tastingRecords(
-        sharedTastingRecords: contents.sharedTastingRecordList
-            .map(
-              (tastingRecord) => (
-          thumbnailUri: tastingRecord.thumbnailUri,
-          coffeeBeanType: tastingRecord.coffeeBeanType.toString(),
-          name: tastingRecord.name,
-          body: tastingRecord.body,
-          rating: tastingRecord.rating,
-          tags: tastingRecord.tags,
-          ),
+          sharedTastingRecords: contents.sharedTastingRecordList
+              .map(
+                (tastingRecord) => (
+                  thumbnailUri: tastingRecord.thumbnailUri,
+                  coffeeBeanType: tastingRecord.coffeeBeanType.toString(),
+                  name: tastingRecord.name,
+                  body: tastingRecord.body,
+                  rating: tastingRecord.rating,
+                  tags: tastingRecord.tags,
+                ),
+              )
+              .toList(),
         )
-            .toList(),
-      )
     };
 
     return PostFeed(

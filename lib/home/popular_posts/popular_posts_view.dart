@@ -17,6 +17,9 @@ class PopularPostsView extends StatefulWidget {
 class _PopularPostsViewState extends State<PopularPostsView>
     with HomeViewMixin<PopularPostsView, PopularPostsPresenter>, PostTagsMixin<PopularPostsView> {
   @override
+  ScrollController? get scrollController => null;
+
+  @override
   bool get isShowRemandedBuddies => false;
 
   @override
@@ -33,7 +36,8 @@ class _PopularPostsViewState extends State<PopularPostsView>
           Expanded(
             child: PopularPost(
               title: '바스켓 크기에 따라서 맛 차이가 나나요?',
-              bodyText: '대충 내려서 맛있게 즐기고 있었는데 다른 곳 오니까 맛은 좋더라구요 어쩌구 저쩌구 어쩌구 저쩌구 어쩌구 저쩌구  어쩌구 저쩌구 어쩌구 저쩌구  어쩌구 저쩌구 어쩌구 저쩌구 ',
+              bodyText:
+                  '대충 내려서 맛있게 즐기고 있었는데 다른 곳 오니까 맛은 좋더라구요 어쩌구 저쩌구 어쩌구 저쩌구 어쩌구 저쩌구  어쩌구 저쩌구 어쩌구 저쩌구  어쩌구 저쩌구 어쩌구 저쩌구 ',
               likeCount: '30',
               isLiked: true,
               commentsCount: '30',
