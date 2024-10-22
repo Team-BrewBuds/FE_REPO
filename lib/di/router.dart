@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 const String initialPath = '/';
+final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
 
 final router = GoRouter(
   initialLocation: initialPath,
@@ -23,60 +24,81 @@ final router = GoRouter(
         StatefulShellBranch(
           //홈 화면
           routes: [
-            StatefulShellRoute.indexedStack(
-              builder: (context, state, topNavigationShell) => HomeView(navigationShell: topNavigationShell),
-              branches: [
-                StatefulShellBranch(
-                  //전체 피드
-                  routes: [
-                    GoRoute(
-                      path: '/home/all',
-                      builder: (context, state) => ChangeNotifierProvider<HomeAllPresenter>(
+            ShellRoute(
+              builder: (context, state, child) => HomeView(nestedScrollViewState: homeTabBarScrollState, child: child),
+              routes: [
+                GoRoute(
+                  path: '/home/all',
+                  pageBuilder: (context, state) {
+                    return CustomTransitionPage(
+                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
+                        return FadeThroughTransition(
+                          // FadeThroughTransition 애니메이션
+                          animation: primaryAnimation, // 주 애니메이션
+                          secondaryAnimation: secondaryAnimation, // 보조 애니메이션
+                          child: child, // 자식 위젯
+                        );
+                      },
+                      child: ChangeNotifierProvider<HomeAllPresenter>(
                         create: (_) => HomeAllPresenter(
-                            feeds: List<Feed>.from(dummyPosts)..addAll(dummyTastingRecord), remandedUsers: dummyUsers),
-                        child: HomeAllView(),
+                          feeds: List<Feed>.from(dummyPosts)..addAll(dummyTastingRecord),
+                          remandedUsers: dummyUsers,
+                        ),
+                        child: HomeAllView(scrollController: homeTabBarScrollState.currentState?.innerController),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-                StatefulShellBranch(
-                  //시음기록 피드
-                  routes: [
-                    GoRoute(
-                      path: '/home/tastingRecord',
-                      builder: (context, state) => ChangeNotifierProvider<HomeTastingRecordPresenter>(
-                        create: (_) =>
-                            HomeTastingRecordPresenter(tastingRecords: dummyTastingRecord, remandedUsers: dummyUsers),
-                        child: HomeTastingRecordView(),
+                GoRoute(
+                  path: '/home/tastingRecord',
+                  pageBuilder: (context, state) {
+                    return CustomTransitionPage(
+                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
+                        print('build');
+                        return FadeThroughTransition(
+                          // FadeThroughTransition 애니메이션
+                          animation: primaryAnimation, // 주 애니메이션
+                          secondaryAnimation: secondaryAnimation, // 보조 애니메이션
+                          child: child, // 자식 위젯
+                        );
+                      },
+                      child: ChangeNotifierProvider<HomeTastingRecordPresenter>(
+                        create: (_) => HomeTastingRecordPresenter(
+                          tastingRecords: dummyTastingRecord,
+                          remandedUsers: dummyUsers,
+                        ),
+                        child: HomeTastingRecordView(
+                            scrollController: homeTabBarScrollState.currentState?.innerController),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-                StatefulShellBranch(
-                  //게시글 피드
-                  routes: [
-                    GoRoute(
-                      path: '/home/post',
-                      builder: (context, state) => ChangeNotifierProvider<HomePostPresenter>(
-                        create: (_) => HomePostPresenter(posts: dummyPosts, remandedUsers: dummyUsers),
-                        child: HomePostView(),
+                GoRoute(
+                  path: '/home/post',
+                  pageBuilder: (context, state) {
+                    return CustomTransitionPage(
+                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
+                        return FadeThroughTransition(
+                          // FadeThroughTransition 애니메이션
+                          animation: primaryAnimation, // 주 애니메이션
+                          secondaryAnimation: secondaryAnimation, // 보조 애니메이션
+                          child: child, // 자식 위젯
+                        );
+                      },
+                      child: ChangeNotifierProvider<HomePostPresenter>(
+                        create: (_) {
+                          print('build');
+                          return HomePostPresenter(
+                            posts: dummyPosts,
+                            remandedUsers: dummyUsers,
+                          );
+                        },
+                        child: HomePostView(scrollController: homeTabBarScrollState.currentState?.innerController),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/popular_post',
-              builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
-                create: (_) =>
-                    PopularPostsPresenter(popularPosts: List<Post>.from(dummyPosts)),
-                child: PopularPostsView(),
-              ),
             ),
           ],
         ),
@@ -99,6 +121,13 @@ final router = GoRouter(
           ],
         ),
       ],
+    ),
+    GoRoute(
+      path: '/popular_post',
+      builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
+        create: (_) => PopularPostsPresenter(popularPosts: List<Post>.from(dummyPosts)),
+        child: PopularPostsView(),
+      ),
     ),
   ],
 );
