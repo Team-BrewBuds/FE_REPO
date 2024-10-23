@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../core/auth_service.dart';
 import '../models/login_model.dart';
@@ -25,12 +26,19 @@ class LoginPresenter {
         // 카카오 계정으로 로그인
         token = await UserApi.instance.loginWithKakaoAccount();
       }
-
       print('카카오 로그인 성공 ${token.accessToken}');
+
       // 사용자 정보 가져오기
       User user = await UserApi.instance.me();
       print('사용자 정보: ${user.kakaoAccount?.email}');
+
+      if (user.kakaoAccount?.email != null) {
+        // 서버로 token, email 정보 전송
+        await AuthService().sendTokenData(
+            user.kakaoAccount!.email!, token.accessToken, 'kakao');
+      }
     } catch (e) {
+      print(await KakaoSdk.origin);
       print('카카오 로그인 실패 $e');
     }
   }
@@ -39,16 +47,19 @@ class LoginPresenter {
     try {
       // 로그인 시도
       NaverLoginResult res = await FlutterNaverLogin.logIn();
-      final NaverLoginResult result = await FlutterNaverLogin.logIn();
       NaverAccessToken resAccess = await FlutterNaverLogin.currentAccessToken;
 
       print(resAccess);
 
       if (res.status == NaverLoginStatus.loggedIn) {
         print('네이버 로그인 성공');
-        print(res);
-        print('액세스 토큰: ${res.account.id}');
+        print('액세스 토큰: ${resAccess.accessToken}');
         // 필요한 사용자 정보 활용
+        print('이메일: ${res.account.email}');
+
+        // 서버로 token, email 정보 전송
+        await AuthService()
+            .sendTokenData(res.account.email, resAccess.accessToken, 'naver');
       } else {
         print('네이버 로그인 실패: ${res.errorMessage}');
       }
@@ -57,16 +68,16 @@ class LoginPresenter {
     }
   }
 
-Future<void> loginWithApple() async {
-  final credential = await SignInWithApple.getAppleIDCredential(
-    scopes: [
-      AppleIDAuthorizationScopes.email,
-      AppleIDAuthorizationScopes.fullName,
-    ],
-  );
-  print(credential.identityToken);
-}
-
+  Future<void> loginWithApple() async {
+    final credential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    );
+    print(credential.identityToken);
+    AuthService().sendTokenData('', credential.identityToken!, 'apple');
+  }
 
   void setEmail(String email) {
     model.email = email;
