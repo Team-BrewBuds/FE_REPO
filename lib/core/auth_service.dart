@@ -1,19 +1,22 @@
+import 'package:brew_buds/constants/api_constants.dart';
+import 'package:brew_buds/core/api_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
-  final Dio _dio = Dio();
+  final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = FlutterSecureStorage();
-  final String _baseUrl = 'https://your-api-url.com';
 
   AuthService() {
-    _dio.options.baseUrl = _baseUrl;
-    _dio.interceptors.add(InterceptorsWrapper(
+    _apiService.dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
         final token = await getToken();
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
+        print('HEADER - ${options.headers}');
         return handler.next(options);
       },
       onError: (DioError error, handler) async {
@@ -29,9 +32,30 @@ class AuthService {
     ));
   }
 
+// token 정보 서버로 전송
+  Future<void> sendTokenData(String email, String token, String platform) async {
+    try {
+      final response = await  _apiService.dio.post(ApiConstants.platformLogin(platform),
+        data: {
+          "access_token":token, //토큰.
+          "code":"string",
+          "id_token":token
+        },
+      );
+      print('Response: ${response.data}');
+    } catch (e) {
+      if(e is DioError){
+        if(e.response?.statusCode == 401){
+          print('Unauthorized: ${e.response?.data}');
+        }
+      }
+      print('Error: $e');
+    }
+  }
+
   Future<bool> login(String email, String password) async {
     try {
-      final response = await _dio.post('/login', data: {
+      final response = await _apiService.dio.post('/login', data: {
         'email': email,
         'password': password,
       });
@@ -51,6 +75,8 @@ class AuthService {
 
   Future<void> logout() async {
     await _storage.delete(key: 'auth_token');
+
+    print('(로그아웃) 토큰 삭제 완료');
     // 서버에 로그아웃 요청을 보낼 수도 있습니다.
     // await _dio.post('/logout');
   }
@@ -64,9 +90,11 @@ class AuthService {
     return await _storage.read(key: 'auth_token');
   }
 
+
+
   Future<bool> register(String email, String password) async {
     try {
-      final response = await _dio.post('/register', data: {
+      final response = await _apiService.dio.post(ApiConstants.signup, data: {
         'email': email,
         'password': password,
       });
@@ -79,7 +107,7 @@ class AuthService {
 
   Future<Map<String, dynamic>?> getUserProfile() async {
     try {
-      final response = await _dio.get('/profile');
+      final response = await _apiService.dio.get('/profile');
       return response.data;
     } on DioError catch (e) {
       print('Get profile error: ${e.message}');
@@ -92,7 +120,7 @@ class AuthService {
     if (refreshToken == null) return false;
 
     try {
-      final response = await _dio.post('/refresh', data: {
+      final response = await _apiService.dio.post(ApiConstants.refreshToken, data: {
         'refresh_token': refreshToken,
       });
 
@@ -114,7 +142,7 @@ class AuthService {
       method: requestOptions.method,
       headers: requestOptions.headers,
     );
-    return _dio.request<dynamic>(requestOptions.path,
+    return _apiService.dio.request<dynamic>(requestOptions.path,
         data: requestOptions.data,
         queryParameters: requestOptions.queryParameters,
         options: options);

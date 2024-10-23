@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -34,6 +35,10 @@ class LoginPage extends StatelessWidget {
           ElevatedButton(
             onPressed: presenter.loginWithApple,
             child: Text('LoginWithApple'),
+          ),
+          ElevatedButton(
+            onPressed: AuthService().logout,
+            child: Text('Logout'),
           ),
         ],
       ),

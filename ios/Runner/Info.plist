@@ -29,6 +29,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>$(NAVER_CLIENT_ID)</string>
 				<string>com.coffee.brewBuds</string>
 			</array>
 		</dict>
@@ -36,7 +37,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>KAKAO_APP_KEY</key>
-	<string>네이티브 앱 키를 여기에 입력하세요</string>
+	<string>$(KAKAO_NATIVE_APP_KEY)</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>kakaokompassauth</string>
@@ -45,14 +46,14 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 
-
 	<key>NAVER_KEY</key>
-	<string>NAVER_CLIENT_SECRET</string>
+	<string>$(NAVER_CLIENT_SECRET)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -71,11 +72,14 @@
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>naverConsumerKey</key>
-	<string>dl1tgmA2ZBD49wfrlaGg</string>
+	<string>$(NAVER_CLIENT_ID)</string>
+
 	<key>naverConsumerSecret</key>
-	<string>bp1KZUpaD3</string>
+	<string>$(NAVER_CLIENT_SECRET)</string>
+
 	<key>naverServiceAppName</key>
-	<string>brewbuds</string>
+	<string>Brewbuds</string>
+
 	<key>naverServiceAppUrlScheme</key>
 	<string>com.coffee.brewBuds</string>
 </dict>
