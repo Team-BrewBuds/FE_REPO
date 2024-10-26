@@ -27,7 +27,7 @@ class TastingRecordInFeed with _$TastingRecordInFeed, Feed {
     @JsonKey(name: 'star_rating') required double rating,
     @JsonKey(name: 'flavor', fromJson: _flavorFromJson) required List<String> flavors,
     required String tag,
-    @JsonKey(name: 'photos') @Default([]) List<String> imagesUri,
+    @JsonKey(name: 'photos', fromJson: _photosFromJson) @Default([]) List<String> imagesUri,
   }) = _TastingRecord;
 
   const TastingRecordInFeed._();
@@ -39,3 +39,7 @@ class TastingRecordInFeed with _$TastingRecordInFeed, Feed {
 }
 
 List<String> _flavorFromJson(String jsonData) => jsonData.split(',');
+
+List<String> _photosFromJson(dynamic photosJson) {
+  return (photosJson as List<dynamic>).map((photosJson) => photosJson['photo_url'] as String).toList();
+}
