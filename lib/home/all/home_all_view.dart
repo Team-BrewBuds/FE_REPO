@@ -2,12 +2,17 @@ import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/date_time_ext.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
+import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
+import 'package:brew_buds/home/widgets/post_feed/horizontal_tasting_record_list_view.dart';
 import 'package:brew_buds/home/widgets/post_feed/post_feed.dart';
+import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_button.dart';
+import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_feed.dart';
 import 'package:brew_buds/model/post_in_feed.dart';
 import 'package:brew_buds/model/tasting_record_in_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class HomeAllView extends StatefulWidget {
   final ScrollController? scrollController;
@@ -19,11 +24,28 @@ class HomeAllView extends StatefulWidget {
 }
 
 class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllView, HomeAllPresenter> {
+  int _currentIndex = 0;
+
   @override
-  ScrollController? get scrollController => widget.scrollController;
+  void initState() {
+    super.initState();
+    scrollController = widget.scrollController ?? ScrollController();
+    scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  _scrollListener() {
+    if (_currentIndex - context.read<HomeAllPresenter>().feeds.length < 4) paginationThrottle.setValue(null);
+  }
 
   @override
   Widget buildListItem(HomeAllPresenter presenter, int index) {
+    _currentIndex = index;
     final feed = presenter.feeds[index];
     if (feed is PostInFeed) {
       return _buildPostFeed(feed);
@@ -35,6 +57,29 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
   }
 
   Widget _buildPostFeed(PostInFeed post) {
+    final Widget? child;
+
+    if (post.imagesUri.isNotEmpty) {
+      child = HorizontalImageListView(imagesUrl: post.imagesUri);
+    } else if (post.tastingRecords.isNotEmpty) {
+      child = HorizontalTastingRecordListView(
+          items: post.tastingRecords
+              .map(
+                (tastingRecord) => (
+                  beanName: tastingRecord.beanName,
+                  beanType: tastingRecord.beanType,
+                  contents: tastingRecord.contents,
+                  rating: tastingRecord.rating,
+                  flavors: tastingRecord.flavors,
+                  imageUri: tastingRecord.thumbnailUri,
+                  onTap: () {},
+                ),
+              )
+              .toList());
+    } else {
+      child = null;
+    }
+
     return PostFeed(
       writerThumbnailUri: post.author.profileImageUri,
       writerNickName: post.author.nickname,
@@ -59,6 +104,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
         colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
       onTapMoreButton: () {},
+      child: child,
     );
   }
 
