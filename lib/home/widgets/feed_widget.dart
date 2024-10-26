@@ -80,7 +80,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
                 color: Color(0xffD9D9D9),
                 shape: BoxShape.circle,
               ),
-              child: Image.network(widget.writerThumbnailUri, fit: BoxFit.cover),
+              child: Image.network(widget.writerThumbnailUri, fit: BoxFit.cover, errorBuilder: (context, _, trace) => Container(),),
             ),
             const SizedBox(width: 8),
             Expanded(
