@@ -21,6 +21,7 @@ dependencies:
   carousel_slider: ^5.0.0
   smooth_page_indicator: ^1.2.0+3
   animations: ^2.0.11
+  flutter_dotenv: ^5.2.1
   json_annotation: ^4.9.0
   freezed_annotation: ^2.4.4
 
@@ -38,6 +39,7 @@ flutter:
 
   assets:
     - assets/icons/
+    - .env
 
   fonts:
     - family: Pretendard
