@@ -50,7 +50,15 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
     return Column(
       children: [
         TastingRecordCard(
-          image: Image.network(widget.thumbnailUri, fit: BoxFit.cover),
+          image: Image.network(
+            widget.thumbnailUri,
+            fit: BoxFit.cover,
+            errorBuilder: (context, _, trace) => Container(
+              child: Center(
+                child: Text('No Image'),
+              ),
+            ),
+          ),
           rating: widget.rating,
           type: widget.type,
           name: widget.name,
