@@ -2,18 +2,14 @@ import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_button_factory.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/home/widgets/feed_widget.dart';
-import 'package:brew_buds/home/widgets/post_feed/post_contents_type.dart';
-import 'package:brew_buds/home/widgets/slider_view.dart';
-import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_button.dart';
-import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';
 import 'package:flutter/material.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PostFeed extends FeedWidget {
   final String title;
   final String body;
   final String tagText;
   final Widget tagIcon;
+  final Widget? child;
   final void Function() onTapMoreButton;
 
   @override
@@ -40,6 +36,7 @@ class PostFeed extends FeedWidget {
     required this.body,
     required this.tagText,
     required this.tagIcon,
+    this.child,
     required this.onTapMoreButton,
   });
 }
@@ -57,7 +54,16 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
 
   @override
   Widget buildBody() {
-    return _buildTextBody();
+    if (widget.child != null) {
+      return Column(
+        children: [
+          widget.child!,
+          _buildTextBody(bodyMaxLines: 2),
+        ],
+      );
+    } else {
+      return _buildTextBody();
+    }
   }
 
   Widget _buildTextBody({int bodyMaxLines = 5}) {
@@ -93,95 +99,6 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
                 )
               : Container(),
         ],
-      ),
-    );
-  }
-
-  Widget _buildImageSlider(ImagesContents imageContents) {
-    final width = MediaQuery.of(context).size.width;
-    final height = width;
-    return Container(
-      height: height,
-      width: width,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: SliderView(
-              itemLength: itemLength,
-              itemBuilder: (context, index) => Image.network(imageContents.imageUriList[index], fit: BoxFit.cover),
-              onPageChanged: (index) {
-                setState(() {
-                  currentIndex = index;
-                });
-              },
-            ),
-          ),
-          Visibility(
-            visible: isVisibleIndicator,
-            child: Positioned(left: 0, right: 0, bottom: 16, child: _buildAnimatedSmoothIndicator()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSharedTastingRecordsListView(TastingRecordContents tastingRecordContents) {
-    final width = MediaQuery.of(context).size.width;
-    final height = width;
-    return Column(
-      children: [
-        SizedBox(
-          height: height,
-          width: width,
-          child: SliderView(
-            itemLength: itemLength,
-            itemBuilder: (context, index) => TastingRecordCard(
-              image: Image.network(tastingRecordContents.sharedTastingRecords[index].thumbnailUri, fit: BoxFit.cover),
-              rating: '${tastingRecordContents.sharedTastingRecords[index].rating}',
-              type: tastingRecordContents.sharedTastingRecords[index].coffeeBeanType,
-              name: tastingRecordContents.sharedTastingRecords[index].name,
-              tags: tastingRecordContents.sharedTastingRecords[index].tags,
-            ),
-            onPageChanged: (index) {
-              setState(() {
-                currentIndex = index;
-              });
-            },
-          ),
-        ),
-        Container(
-          color: ColorStyles.white,
-          child: TastingRecordButton(
-            name: tastingRecordContents.sharedTastingRecords[currentIndex].name,
-            bodyText: tastingRecordContents.sharedTastingRecords[currentIndex].body,
-            onTap: () {},
-          ),
-        ),
-        Visibility(
-          visible: isVisibleIndicator,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Center(child: _buildAnimatedSmoothIndicator()),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAnimatedSmoothIndicator() {
-    return Center(
-      child: AnimatedSmoothIndicator(
-        activeIndex: currentIndex,
-        count: itemLength, // Replace count
-        axisDirection: Axis.horizontal,
-        effect: const ExpandingDotsEffect(
-          dotHeight: 7,
-          dotWidth: 7,
-          spacing: 4,
-          dotColor: ColorStyles.gray60,
-          activeDotColor: ColorStyles.red,
-        ),
       ),
     );
   }
