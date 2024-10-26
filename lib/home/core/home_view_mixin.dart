@@ -2,17 +2,26 @@ import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/home/widgets/follow_button.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresenter> on State<T> {
-  ScrollController? get scrollController;
+  late final Throttle paginationThrottle;
+  late final ScrollController scrollController;
 
   bool get isShowRemandedBuddies => true;
 
   @override
   void initState() {
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+    )..values.listen((_) {
+        context.read<Presenter>().fetchMoreData();
+      });
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<Presenter>().initState();
@@ -69,7 +78,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     return SliverList.separated(
       itemCount: presenter.feeds.length,
       itemBuilder: (context, index) {
-        if (index % 12 == 11 && isShowRemandedBuddies) {
+        if (index % 12 == 11) {
           return Column(
             children: [
               buildListItem(presenter, index),
@@ -85,7 +94,9 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     );
   }
 
-  Widget buildSeparatorWidget(int index) => Container(height: 12, color: ColorStyles.gray20);
+  Widget buildSeparatorWidget(int index) {
+    return Container(height: 12, color: ColorStyles.gray20);
+  }
 
   // Widget _buildRemandedBuddies(Presenter presenter) {
   //   return Container(
