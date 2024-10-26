@@ -42,7 +42,6 @@ final router = GoRouter(
                       child: ChangeNotifierProvider<HomeAllPresenter>(
                         create: (_) => HomeAllPresenter(
                           feeds: List<Feed>.from(dummyPosts)..addAll(dummyTastingRecord),
-                          remandedUsers: dummyUsers,
                         ),
                         child: HomeAllView(scrollController: homeTabBarScrollState.currentState?.innerController),
                       ),
@@ -65,7 +64,6 @@ final router = GoRouter(
                       child: ChangeNotifierProvider<HomeTastingRecordPresenter>(
                         create: (_) => HomeTastingRecordPresenter(
                           tastingRecords: dummyTastingRecord,
-                          remandedUsers: dummyUsers,
                         ),
                         child: HomeTastingRecordView(
                             scrollController: homeTabBarScrollState.currentState?.innerController),
@@ -90,7 +88,6 @@ final router = GoRouter(
                           print('build');
                           return HomePostPresenter(
                             posts: dummyPosts,
-                            remandedUsers: dummyUsers,
                           );
                         },
                         child: HomePostView(scrollController: homeTabBarScrollState.currentState?.innerController),
@@ -125,7 +122,7 @@ final router = GoRouter(
     GoRoute(
       path: '/popular_post',
       builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
-        create: (_) => PopularPostsPresenter(popularPosts: List<Post>.from(dummyPosts)),
+        create: (_) => PopularPostsPresenter(popularPosts: List<PostInFeed>.from(dummyPosts)),
         child: PopularPostsView(),
       ),
     ),

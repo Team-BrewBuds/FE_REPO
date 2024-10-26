@@ -74,7 +74,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
             children: [
               buildListItem(presenter, index),
               Container(height: 12, color: ColorStyles.gray20),
-              _buildRemandedBuddies(presenter),
+              // _buildRemandedBuddies(presenter),
             ],
           );
         } else {
@@ -87,38 +87,38 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
 
   Widget buildSeparatorWidget(int index) => Container(height: 12, color: ColorStyles.gray20);
 
-  Widget _buildRemandedBuddies(Presenter presenter) {
-    return Container(
-      height: 300,
-      color: ColorStyles.white,
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('카페 투어를 즐기는 버디', style: TextStyles.title01SemiBold),
-          Text(
-            '오늘은 새로운 버디와 카페 투어 어때요?',
-            style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: presenter.remandedUsers.length,
-              itemBuilder: (context, index) => _buildRemandedBuddyProfile(
-                imageUri: presenter.remandedUsers[index].thumbnailUri,
-                nickName: presenter.remandedUsers[index].nickName,
-                followCount: '${presenter.remandedUsers[index].followCount}',
-                isFollowed: presenter.remandedUsers[index].isFollowed,
-              ),
-              separatorBuilder: (context, index) => const SizedBox(width: 8),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildRemandedBuddies(Presenter presenter) {
+  //   return Container(
+  //     height: 300,
+  //     color: ColorStyles.white,
+  //     padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+  //     child: Column(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       crossAxisAlignment: CrossAxisAlignment.stretch,
+  //       children: [
+  //         const Text('카페 투어를 즐기는 버디', style: TextStyles.title01SemiBold),
+  //         Text(
+  //           '오늘은 새로운 버디와 카페 투어 어때요?',
+  //           style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         Expanded(
+  //           child: ListView.separated(
+  //             scrollDirection: Axis.horizontal,
+  //             itemCount: presenter.remandedUsers.length,
+  //             itemBuilder: (context, index) => _buildRemandedBuddyProfile(
+  //               imageUri: presenter.remandedUsers[index].thumbnailUri,
+  //               nickName: presenter.remandedUsers[index].nickName,
+  //               followCount: '${presenter.remandedUsers[index].followCount}',
+  //               isFollowed: presenter.remandedUsers[index].isFollowed,
+  //             ),
+  //             separatorBuilder: (context, index) => const SizedBox(width: 8),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildRemandedBuddyProfile({
     required String imageUri,

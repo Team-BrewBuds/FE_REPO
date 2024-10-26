@@ -1,22 +1,15 @@
 import 'package:brew_buds/home/core/home_view_presenter.dart';
-import 'package:brew_buds/model/post.dart';
-import 'package:brew_buds/model/user.dart';
+import 'package:brew_buds/model/post_in_feed.dart';
 
-final class HomePostPresenter extends HomeViewPresenter<Post> {
-  final List<Post> _posts;
-  final List<User> _remandedUsers;
+final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
+  final List<PostInFeed> _posts;
 
   HomePostPresenter({
-    required List<Post> posts,
-    required List<User> remandedUsers,
-  })  : _posts = posts,
-        _remandedUsers = remandedUsers;
+    required List<PostInFeed> posts,
+  })  : _posts = posts;
 
   @override
-  List<Post> get feeds => _posts;
-
-  @override
-  List<User> get remandedUsers => _remandedUsers;
+  List<PostInFeed> get feeds => _posts;
 
   @override
   Future<void> fetchMoreData() {

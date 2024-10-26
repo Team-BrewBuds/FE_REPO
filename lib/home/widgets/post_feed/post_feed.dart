@@ -15,7 +15,6 @@ class PostFeed extends FeedWidget {
   final String tagText;
   final Widget tagIcon;
   final void Function() onTapMoreButton;
-  final PostContentsType postContentsType;
 
   @override
   FeedWidgetState createState() => _PostFeedState();
@@ -42,12 +41,11 @@ class PostFeed extends FeedWidget {
     required this.tagText,
     required this.tagIcon,
     required this.onTapMoreButton,
-    required this.postContentsType,
   });
 }
 
 class _PostFeedState extends FeedWidgetState<PostFeed> {
-  late final int itemLength;
+  late final int itemLength = 5;
   int currentIndex = 0;
 
   bool get isVisibleIndicator => itemLength > 1;
@@ -55,36 +53,11 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
   @override
   void initState() {
     super.initState();
-    final contentsType = widget.postContentsType;
-    itemLength = switch (contentsType) {
-      OnlyTextContents() => 0,
-      ImagesContents() => contentsType.imageUriList.length,
-      TastingRecordContents() => contentsType.sharedTastingRecords.length,
-    };
   }
 
   @override
   Widget buildBody() {
-    final contents = widget.postContentsType;
-
-    switch (contents) {
-      case OnlyTextContents():
-        return _buildTextBody();
-      case ImagesContents():
-        return Column(
-          children: [
-            _buildImageSlider(contents),
-            _buildTextBody(bodyMaxLines: 2),
-          ],
-        );
-      case TastingRecordContents():
-        return Column(
-          children: [
-            _buildTextBody(bodyMaxLines: 2),
-            _buildSharedTastingRecordsListView(contents),
-          ],
-        );
-    }
+    return _buildTextBody();
   }
 
   Widget _buildTextBody({int bodyMaxLines = 5}) {
