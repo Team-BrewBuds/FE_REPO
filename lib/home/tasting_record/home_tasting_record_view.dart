@@ -22,14 +22,14 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
   Widget buildListItem(HomeTastingRecordPresenter presenter, int index) {
     final tastingRecord = presenter.feeds[index];
     return TastingRecordFeed(
-      writerThumbnailUri: tastingRecord.writer.thumbnailUri,
-      writerNickName: tastingRecord.writer.nickName,
-      writingTime: tastingRecord.writingTime.differenceTheNow,
-      hits: '조회 ${tastingRecord.hits}',
-      isFollowed: tastingRecord.writer.isFollowed,
+      writerThumbnailUri: tastingRecord.author.profileImageUri,
+      writerNickName: tastingRecord.author.nickname,
+      writingTime: tastingRecord.createdAt.differenceTheNow,
+      hits: '조회 ${tastingRecord.viewCount}',
+      isFollowed: true,
       onTapProfile: () {},
       onTapFollowButton: () {},
-      isLiked: tastingRecord.isLike,
+      isLiked: tastingRecord.isLiked,
       likeCount: '${tastingRecord.likeCount > 999 ? '999+' : tastingRecord.likeCount}',
       isLeaveComment: tastingRecord.isLeaveComment,
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
@@ -39,10 +39,10 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
       onTapSaveButton: () {},
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',
-      type: tastingRecord.coffeeBeanType.toString(),
-      name: tastingRecord.name,
-      tags: tastingRecord.tags,
-      body: tastingRecord.body,
+      type: tastingRecord.beanType,
+      name: tastingRecord.beanName,
+      tags: tastingRecord.flavors,
+      body: tastingRecord.contents,
       onTapMoreButton: () {},
     );
   }

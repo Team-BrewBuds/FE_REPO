@@ -4,9 +4,7 @@ import 'package:brew_buds/common/date_time_ext.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/core/post_tags_mixin.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
-import 'package:brew_buds/home/widgets/post_feed/post_contents_type.dart';
 import 'package:brew_buds/home/widgets/post_feed/post_feed.dart';
-import 'package:brew_buds/model/post_contents.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -28,35 +26,16 @@ class _HomePostViewState extends State<HomePostView>
   @override
   Widget buildListItem(HomePostPresenter presenter, int index) {
     final post = presenter.feeds[index];
-    final contents = post.contents;
-    final PostContentsType postContentsType = switch (contents) {
-      OnlyText() => PostContentsType.onlyText(),
-      ImageList() => PostContentsType.images(imageUriList: contents.imageUriList),
-      SharedTastingRecordList() => PostContentsType.tastingRecords(
-          sharedTastingRecords: contents.sharedTastingRecordList
-              .map(
-                (tastingRecord) => (
-                  thumbnailUri: tastingRecord.thumbnailUri,
-                  coffeeBeanType: tastingRecord.coffeeBeanType.toString(),
-                  name: tastingRecord.name,
-                  body: tastingRecord.body,
-                  rating: tastingRecord.rating,
-                  tags: tastingRecord.tags,
-                ),
-              )
-              .toList(),
-        )
-    };
 
     return PostFeed(
-      writerThumbnailUri: post.writer.thumbnailUri,
-      writerNickName: post.writer.nickName,
-      writingTime: post.writingTime.differenceTheNow,
-      hits: '조회 ${post.hits}',
-      isFollowed: post.writer.isFollowed,
+      writerThumbnailUri: post.author.profileImageUri,
+      writerNickName: post.author.nickname,
+      writingTime: post.createdAt.differenceTheNow,
+      hits: '조회 ${post.viewCount}',
+      isFollowed: false,
       onTapProfile: () {},
       onTapFollowButton: () {},
-      isLiked: post.isLike,
+      isLiked: post.isLiked,
       likeCount: '${post.likeCount > 999 ? '999+' : post.likeCount}',
       isLeaveComment: post.isLeaveComment,
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
@@ -65,14 +44,13 @@ class _HomePostViewState extends State<HomePostView>
       onTapCommentsButton: () {},
       onTapSaveButton: () {},
       title: post.title,
-      body: post.body,
-      tagText: post.tag.toString(),
+      body: post.contents,
+      tagText: post.subject.toString(),
       tagIcon: SvgPicture.asset(
-        post.tag.iconPath,
+        post.subject.iconPath,
         colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
       onTapMoreButton: () {},
-      postContentsType: postContentsType,
     );
   }
 
