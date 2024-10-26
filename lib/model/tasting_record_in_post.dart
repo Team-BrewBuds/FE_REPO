@@ -18,9 +18,9 @@ class TastingRecordInPost with _$TastingRecordInPost {
     required String contents,
     @JsonKey(name: 'star_rating')
     required double rating,
-    @JsonKey(name: 'flavor')
+    @JsonKey(name: 'flavor', fromJson: _flavorFromJson)
     required List<String> flavors,
-    @JsonKey(name: 'photos')
+    @JsonKey(name: 'photos', fromJson: _photosFromJson)
     required List<String> imagesUri,
   }) = _TastingRecordInPost;
 
@@ -29,4 +29,10 @@ class TastingRecordInPost with _$TastingRecordInPost {
   String get thumbnailUri => imagesUri.firstOrNull ?? '';
 
   factory TastingRecordInPost.fromJson(Map<String, Object?> json) => _$TastingRecordInPostFromJson(json);
+}
+
+List<String> _flavorFromJson(String jsonData) => jsonData.split(',');
+
+List<String> _photosFromJson(dynamic photosJson) {
+  return (photosJson as List<dynamic>).map((photosJson) => photosJson['photo_url'] as String).toList();
 }

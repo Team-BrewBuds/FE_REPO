@@ -21,13 +21,17 @@ class PostInFeed with _$PostInFeed, Feed {
     @JsonKey(name: 'is_user_liked') required bool isLiked,
     @JsonKey(defaultValue: false) required bool isLeaveComment,
     @JsonKey(defaultValue: false) required bool isSaved,
-    required PostSubject subject,
+    @JsonKey(unknownEnumValue: PostSubject.normal) required PostSubject subject,
     required String title,
     @JsonKey(name: 'content') required String contents,
     required String tag,
-    @JsonKey(name: 'photos') @Default([]) List<String> imagesUri,
+    @JsonKey(name: 'photos', fromJson: _photosFromJson) @Default([]) List<String> imagesUri,
     @JsonKey(name: 'tasted_records') @Default([]) List<TastingRecordInPost> tastingRecords,
   }) = _Post;
 
   factory PostInFeed.fromJson(Map<String, Object?> json) => _$PostInFeedFromJson(json);
+}
+
+List<String> _photosFromJson(dynamic photosJson) {
+  return (photosJson as List<dynamic>).map((photosJson) => photosJson['photo_url'] as String).toList();
 }
