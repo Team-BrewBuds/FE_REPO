@@ -1,5 +1,5 @@
-import 'package:brew_buds/model/author.dart';
-import 'package:brew_buds/model/feed.dart';
+import 'package:brew_buds/model/user.dart';
+import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:brew_buds/model/tasting_record_in_post.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,7 +13,7 @@ part 'post_in_feed.g.dart';
 class PostInFeed with _$PostInFeed, Feed {
   const factory PostInFeed({
     required int id,
-    required Author author,
+    required User author,
     @JsonKey(name: 'created_at', fromJson: DateTime.parse) required DateTime createdAt,
     @JsonKey(name: 'view_cnt') required int viewCount,
     @JsonKey(name: 'like_cnt') required int likeCount,

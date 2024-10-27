@@ -118,7 +118,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
   }
 
   bool _calcOverFlow(int maxLines) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width - 32;
     final TextPainter bodyTextPainter = TextPainter(
       text: TextSpan(text: widget.body, style: TextStyles.labelMediumRegular),
       maxLines: maxLines,

@@ -16,7 +16,10 @@ class HomeTastingRecordView extends StatefulWidget {
 class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
     with HomeViewMixin<HomeTastingRecordView, HomeTastingRecordPresenter> {
   @override
-  ScrollController? get scrollController => widget.scrollController;
+  void initState() {
+    super.initState();
+    scrollController = widget.scrollController ?? ScrollController();
+  }
 
   @override
   Widget buildListItem(HomeTastingRecordPresenter presenter, int index) {

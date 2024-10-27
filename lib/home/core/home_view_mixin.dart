@@ -10,22 +10,39 @@ import 'package:provider/provider.dart';
 mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresenter> on State<T> {
   late final Throttle paginationThrottle;
   late final ScrollController scrollController;
+  int currentIndex = 0;
+  bool isLoading = false;
 
   bool get isShowRemandedBuddies => true;
 
   @override
   void initState() {
+    super.initState();
     paginationThrottle = Throttle(
       const Duration(seconds: 3),
       initialValue: null,
       checkEquality: false,
-    )..values.listen((_) {
-        context.read<Presenter>().fetchMoreData();
-      });
-    super.initState();
+    )..values.listen((_) => _fetchMoreData);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      scrollController.addListener(_scrollListener);
       context.read<Presenter>().initState();
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  _scrollListener() {
+    if (currentIndex - context.read<Presenter>().feeds.length < 4) {
+      paginationThrottle.setValue(null);
+    }
+  }
+
+  _fetchMoreData() {
+    context.read<Presenter>().fetchMoreData();
   }
 
   @override
@@ -83,7 +100,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
             children: [
               buildListItem(presenter, index),
               Container(height: 12, color: ColorStyles.gray20),
-              // _buildRemandedBuddies(presenter),
+              _buildRemandedBuddies(presenter),
             ],
           );
         } else {
@@ -98,38 +115,39 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     return Container(height: 12, color: ColorStyles.gray20);
   }
 
-  // Widget _buildRemandedBuddies(Presenter presenter) {
-  //   return Container(
-  //     height: 300,
-  //     color: ColorStyles.white,
-  //     padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
-  //     child: Column(
-  //       mainAxisAlignment: MainAxisAlignment.start,
-  //       crossAxisAlignment: CrossAxisAlignment.stretch,
-  //       children: [
-  //         const Text('카페 투어를 즐기는 버디', style: TextStyles.title01SemiBold),
-  //         Text(
-  //           '오늘은 새로운 버디와 카페 투어 어때요?',
-  //           style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
-  //         ),
-  //         const SizedBox(height: 16),
-  //         Expanded(
-  //           child: ListView.separated(
-  //             scrollDirection: Axis.horizontal,
-  //             itemCount: presenter.remandedUsers.length,
-  //             itemBuilder: (context, index) => _buildRemandedBuddyProfile(
-  //               imageUri: presenter.remandedUsers[index].thumbnailUri,
-  //               nickName: presenter.remandedUsers[index].nickName,
-  //               followCount: '${presenter.remandedUsers[index].followCount}',
-  //               isFollowed: presenter.remandedUsers[index].isFollowed,
-  //             ),
-  //             separatorBuilder: (context, index) => const SizedBox(width: 8),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+  Widget _buildRemandedBuddies(Presenter presenter) {
+    final remandedUsers = presenter.fetchRecommendedUsers();
+    return Container(
+      height: 300,
+      color: ColorStyles.white,
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('카페 투어를 즐기는 버디', style: TextStyles.title01SemiBold),
+          Text(
+            '오늘은 새로운 버디와 카페 투어 어때요?',
+            style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: remandedUsers.length,
+              itemBuilder: (context, index) => _buildRemandedBuddyProfile(
+                imageUri: remandedUsers[index].user.profileImageUri,
+                nickName: remandedUsers[index].user.nickname,
+                followCount: '${remandedUsers[index].followerCount}',
+                isFollowed: false,
+              ),
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildRemandedBuddyProfile({
     required String imageUri,

@@ -1,6 +1,6 @@
-import 'package:brew_buds/model/feed.dart';
-import 'package:brew_buds/model/post_in_feed.dart';
-import 'package:brew_buds/model/tasting_record_in_feed.dart';
+import 'package:brew_buds/model/feeds/feed.dart';
+import 'package:brew_buds/model/feeds/post_in_feed.dart';
+import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 

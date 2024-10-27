@@ -53,10 +53,8 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
           image: Image.network(
             widget.thumbnailUri,
             fit: BoxFit.cover,
-            errorBuilder: (context, _, trace) => Container(
-              child: Center(
-                child: Text('No Image'),
-              ),
+            errorBuilder: (context, _, trace) => const Center(
+              child: Text('No Image'),
             ),
           ),
           rating: widget.rating,
@@ -91,7 +89,7 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
   }
 
   bool _calcOverFlow(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
+    final width = MediaQuery.of(context).size.width - 32;
     final TextPainter bodyTextPainter = TextPainter(
       text: TextSpan(text: widget.body, style: TextStyles.labelMediumRegular),
       maxLines: 2,
