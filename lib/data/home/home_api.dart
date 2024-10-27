@@ -1,6 +1,7 @@
-import 'package:brew_buds/model/feed_page.dart';
-import 'package:brew_buds/model/post_feed_page.dart';
-import 'package:brew_buds/model/tasting_record_feed_page.dart';
+import 'package:brew_buds/model/pages/feed_page.dart';
+import 'package:brew_buds/model/pages/post_feed_page.dart';
+import 'package:brew_buds/model/pages/recommended_user_page.dart';
+import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -27,6 +28,9 @@ abstract class HomeApi {
     @Query('format') required String format,
     @Query('page') required int pageNo,
   });
+
+  @GET('/records/tasted_record')
+  Future<RecommendedUserPage> fetchRecommendedUserPage();
 
   factory HomeApi(Dio dio) = _HomeApi;
 }

@@ -1,17 +1,17 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 
-part 'author.freezed.dart';
+part 'user.freezed.dart';
 
-part 'author.g.dart';
+part 'user.g.dart';
 
 @freezed
-class Author with _$Author {
-  const factory Author({
+class User with _$User {
+  const factory User({
     required int id,
     @JsonKey(defaultValue: 'Unknown') required String nickname,
     @JsonKey(name: 'profile_image', defaultValue: '') required String profileImageUri,
   }) = _Author;
 
-  factory Author.fromJson(Map<String, Object?> json) => _$AuthorFromJson(json);
+  factory User.fromJson(Map<String, Object?> json) => _$UserFromJson(json);
 }

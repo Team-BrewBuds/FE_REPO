@@ -1,5 +1,5 @@
-import 'package:brew_buds/model/author.dart';
-import 'package:brew_buds/model/feed.dart';
+import 'package:brew_buds/model/user.dart';
+import 'package:brew_buds/model/feeds/feed.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -13,7 +13,7 @@ part 'tasting_record_in_feed.g.dart';
 class TastingRecordInFeed with _$TastingRecordInFeed, Feed {
   const factory TastingRecordInFeed({
     required int id,
-    required Author author,
+    required User author,
     @JsonKey(name: 'created_at', fromJson: DateTime.parse) required DateTime createdAt,
     @JsonKey(name: 'view_cnt') required int viewCount,
     @JsonKey(name: 'like_cnt') required int likeCount,

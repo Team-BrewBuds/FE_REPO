@@ -1,9 +1,11 @@
+import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/date_time_ext.dart';
+import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/home/core/home_view_mixin.dart';
-import 'package:brew_buds/home/core/post_tags_mixin.dart';
 import 'package:brew_buds/home/popular_posts/popular_post.dart';
 import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,52 +16,13 @@ class PopularPostsView extends StatefulWidget {
   State<PopularPostsView> createState() => _PopularPostsViewState();
 }
 
-class _PopularPostsViewState extends State<PopularPostsView>
-    with HomeViewMixin<PopularPostsView, PopularPostsPresenter>, PostTagsMixin<PopularPostsView> {
-  @override
-  ScrollController? get scrollController => null;
+class _PopularPostsViewState extends State<PopularPostsView> {
+  late final ScrollController scrollController;
 
   @override
-  bool get isShowRemandedBuddies => false;
-
-  @override
-  Widget buildListItem(PopularPostsPresenter presenter, int index) {
-    return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
-      decoration: BoxDecoration(
-        color: ColorStyles.white,
-        border: Border.all(color: ColorStyles.gray20),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: PopularPost(
-              title: '바스켓 크기에 따라서 맛 차이가 나나요?',
-              bodyText:
-                  '대충 내려서 맛있게 즐기고 있었는데 다른 곳 오니까 맛은 좋더라구요 어쩌구 저쩌구 어쩌구 저쩌구 어쩌구 저쩌구  어쩌구 저쩌구 어쩌구 저쩌구  어쩌구 저쩌구 어쩌구 저쩌구 ',
-              likeCount: '30',
-              isLiked: true,
-              commentsCount: '30',
-              hasComment: false,
-              tag: '정보',
-              writingTime: '3시간전',
-              hitsCount: '조회 9999+',
-              nickName: '커피의 신',
-              onTap: () {},
-              onTapLikeButton: () {},
-              onTapCommentButton: () {},
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            height: 80,
-            width: 80,
-            color: Colors.red,
-          )
-        ],
-      ),
-    );
+  void initState() {
+    scrollController = ScrollController();
+    super.initState();
   }
 
   @override
@@ -79,8 +42,35 @@ class _PopularPostsViewState extends State<PopularPostsView>
               controller: scrollController,
               slivers: [
                 buildListViewTitle(presenter),
-                buildRefreshWidget(presenter),
-                buildListView(presenter),
+                CupertinoSliverRefreshControl(
+                  onRefresh: presenter.onRefresh,
+                  builder: (
+                      BuildContext context,
+                      RefreshIndicatorMode refreshState,
+                      double pulledExtent,
+                      double refreshTriggerPullDistance,
+                      double refreshIndicatorExtent,
+                      ) {
+                    switch (refreshState) {
+                      case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
+                        return Container(
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          child: const Center(
+                            child: CupertinoActivityIndicator(),
+                          ),
+                        );
+                      default:
+                        return Container();
+                    }
+                  },
+                ),
+                SliverList.separated(
+                  itemCount: presenter.popularPosts.length,
+                  itemBuilder: (context, index) {
+                    return buildListItem(presenter, index);
+                  },
+                  separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray60),
+                ),
                 SliverToBoxAdapter(
                   child: SizedBox(
                     height: 200,
@@ -88,9 +78,7 @@ class _PopularPostsViewState extends State<PopularPostsView>
                     child: Center(
                       child: Text(
                         '주간 인기글을 모두 읽었어요',
-                        style: TextStyles.labelMediumMedium.copyWith(
-                          color: ColorStyles.gray60,
-                        ),
+                        style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.gray60),
                       ),
                     ),
                   ),
@@ -103,21 +91,82 @@ class _PopularPostsViewState extends State<PopularPostsView>
     );
   }
 
-  @override
-  SliverAppBar buildListViewTitle(PopularPostsPresenter presenter) {
-    return SliverAppBar(
-      leading: Container(),
-      leadingWidth: 0,
-      titleSpacing: 0,
-      floating: true,
-      title: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
-        scrollDirection: Axis.horizontal,
-        child: buildPostTagsTapBar(),
+  Widget buildListItem(PopularPostsPresenter presenter, int index) {
+    final popularPost = presenter.popularPosts[index];
+    return Container(
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
+      decoration: BoxDecoration(
+        color: ColorStyles.white,
+        border: Border.all(color: ColorStyles.gray20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: PopularPost(
+              title: popularPost.title,
+              bodyText: popularPost.contents,
+              likeCount: '${popularPost.likeCount > 999 ? '999+' : popularPost.likeCount}',
+              isLiked: popularPost.isLiked,
+              commentsCount: '${popularPost.commentsCount > 999 ? '999+' : popularPost.commentsCount}',
+              hasComment: false,
+              tag: popularPost.subject.toString(),
+              writingTime: popularPost.createdAt.differenceTheNow,
+              hitsCount: '조회 ${popularPost.viewCount > 9999 ? '9999+' : popularPost.viewCount}',
+              nickName: popularPost.author.nickname,
+              onTap: () {},
+              onTapLikeButton: () {},
+              onTapCommentButton: () {},
+            ),
+          ),
+          SizedBox(width: popularPost.imagesUri.isNotEmpty ? 8 : 0),
+          popularPost.imagesUri.isNotEmpty
+              ? SizedBox(
+                  height: 80,
+                  width: 80,
+                  child: Image.network(popularPost.imagesUri.first, fit: BoxFit.cover),
+                )
+              : Container()
+        ],
       ),
     );
   }
 
-  @override
-  Widget buildSeparatorWidget(int index) => Container();
+  SliverAppBar buildListViewTitle(PopularPostsPresenter presenter) {
+    return SliverAppBar(
+      titleSpacing: 0,
+      floating: true,
+      leading: Container(),
+      leadingWidth: 0,
+      title: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: List<Widget>.generate(presenter.postSubjectFilterList.length, (index) {
+              return ButtonFactory.buildOvalButton(
+                onTapped: () {
+                  scrollController.jumpTo(0);
+                  return presenter.onChangeSubject(index);
+                },
+                text: presenter.postSubjectFilterList[index],
+                style: index == presenter.currentFilterIndex
+                    ? OvalButtonStyle.fill(
+                        color: ColorStyles.black,
+                        textColor: ColorStyles.white,
+                        size: OvalButtonSize.medium,
+                      )
+                    : OvalButtonStyle.line(
+                        color: ColorStyles.gray70,
+                        textColor: ColorStyles.gray70,
+                        size: OvalButtonSize.medium,
+                      ),
+              );
+            }).separator(separatorWidget: const SizedBox(width: 6)).toList(),
+          ),
+        ),
+      ),
+    );
+  }
 }

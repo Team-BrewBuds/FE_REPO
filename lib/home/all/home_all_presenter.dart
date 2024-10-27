@@ -1,7 +1,8 @@
 import 'package:brew_buds/data/home/home_repository.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
-import 'package:brew_buds/model/feed.dart';
-import 'package:brew_buds/model/feed_page.dart';
+import 'package:brew_buds/model/feeds/feed.dart';
+import 'package:brew_buds/model/pages//feed_page.dart';
+import 'package:brew_buds/model/recommended_user.dart';
 
 final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
@@ -53,6 +54,7 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   Future<void> onRefresh() async {
     _currentTypeIndex = 0;
     _page = FeedPage.initial();
+    notifyListeners();
     while (feeds.isEmpty) {
       await fetchMoreData();
     }
