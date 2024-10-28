@@ -1,5 +1,10 @@
+import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/features/signup/models/signup_lists.dart';
+import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class SignUpEnjoy extends StatelessWidget {
   @override
@@ -16,151 +21,141 @@ class CoffeeLifestylePage extends StatefulWidget {
 }
 
 class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> {
-  final List<Map<String, String>> items = [
-    {
-      "title": "커피 투어",
-      "description": "내 취향의 원두를 찾기 위해서 커피 투어를 해요",
-      "png": "coffeeEnjoy"
-    },
-    {
-      "title": "커피 추출",
-      "description": "집이나 회사에서 직접 추출한 커피를 마셔요",
-      "png": "coffeeMaker"
-    },
-    {
-      "title": "커피 공부",
-      "description": "커피 관련 지식을 쌓고 자격증취득을 위해 공부해요",
-      "png": "cup"
-    },
-    {
-      "title": "커피 알바",
-      "description": "본업은 있지만 커피를 좋아해서 커피 알바를 해요",
-      "png": "partTime"
-    },
-    {
-      "title": "커피 근무",
-      "description": "커피 전문가가 되기 위해서 바리스타로 근무해요",
-      "png": "maker"
-    },
-    {
-      "title": "커피 운영",
-      "description": "커피 문화를 전달하기 위해서 카페를 직접 운영해요",
-      "png": "cafe"
-    },
-  ];
+  final SignUpLists lists = SignUpLists();
 
   List<bool> selectedItems = List.generate(6, (_) => false);
+  List<String> selectedChoices = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: IconButton(icon:Icon(Icons.arrow_back), onPressed: () => Navigator.of(context).pop(),),
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back),
+          onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+        ),
         title: Text('회원가입'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(right: 2),
-                    child: Container(
-                      width: 84.25,
-                      height: 2,
-                      decoration: BoxDecoration(color: Color(0xFFFE2D00)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(right: 2),
+                      child: Container(
+                        width: 84.25,
+                        height: 2,
+                        decoration: BoxDecoration(color: Color(0xFFFE2D00)),
+                      ),
                     ),
-                  ),Padding(
-                    padding: EdgeInsets.only(right: 2),
-                    child: Container(
-                      width: 84.25,
-                      height: 2,
-                      decoration: BoxDecoration(color: Color(0xFFFE2D00)),
+                    Padding(
+                      padding: EdgeInsets.only(right: 2),
+                      child: Container(
+                        width: 84.25,
+                        height: 2,
+                        decoration: BoxDecoration(color: Color(0xFFFE2D00)),
+                      ),
                     ),
-                  ),Padding(
-                    padding: EdgeInsets.only(right: 2),
-                    child: Container(
+                    Padding(
+                      padding: EdgeInsets.only(right: 2),
+                      child: Container(
+                        width: 84.25,
+                        height: 2,
+                        decoration: BoxDecoration(color: Color(0xFFCFCFCF)),
+                      ),
+                    ),
+                    Container(
                       width: 84.25,
                       height: 2,
                       decoration: BoxDecoration(color: Color(0xFFCFCFCF)),
-                    ),
-                  ),Container(
-                    width: 84.25,
-                    height: 2,
-                    decoration: BoxDecoration(color: Color(0xFFCFCFCF)),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                '커피 생활을 어떻게 즐기세요?',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  '커피 생활을 어떻게 즐기세요?',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text('최대 6개까지 선택할 수 있어요.'),
-            ),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.all(16),
-              itemCount: items.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text('최대 6개까지 선택할 수 있어요.'),
               ),
-              itemBuilder: (context, index) {
-                return GestureDetector(
+              GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.all(16),
+                itemCount: lists.enjoyItems.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.8,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemBuilder: (context, index) {
+                  return GestureDetector(
                     onTap: () {
                       setState(() {
                         selectedItems[index] = !selectedItems[index];
+                        // 선택된 아이템을 업데이트
+                        if (selectedItems[index]) {
+                          selectedChoices.add(lists.enjoyItems[index]['choice']!);
+                        } else {
+                          selectedChoices.remove(lists.enjoyItems[index]['choice']!);
+                        }
+
+                        print(selectedChoices);
                       });
                     },
                     child: Card(
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                         side: BorderSide(
                           color: selectedItems[index]
                               ? Colors.red
-                              : Colors.transparent,
+                              : ColorStyles.gray30,
                           width: 2,
                         ),
                       ),
-                      color: selectedItems[index] ? Color(0xFFFFF7F5) : null,
+                      color: selectedItems[index] ? Color(0xFFFFF7F5) : Colors.white,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Image.asset(
-                              "assets/images/${items[index]['png']}.png"),
+                              "assets/images/${lists.enjoyItems[index]['png']}.png"),
                           SizedBox(height: 10),
                           Text(
-                            items[index]['title']!,
+                            lists.enjoyItems[index]['title']!,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              items[index]['description']!,
+                              lists.enjoyItems[index]['description']!,
                               textAlign: TextAlign.center,
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
                         ],
                       ),
-                    ));
-              },
-            ),
-          ],
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Padding(
@@ -169,12 +164,16 @@ class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> {
           width: double.infinity,
           child: ElevatedButton(
             child: Text('다음'),
-            onPressed: () {
+            onPressed: selectedChoices.isNotEmpty ? () {
+              context.read<SignUpProvider>().getCoffeeLife(selectedChoices);
               context.push("/signup/cert");
-            },
+            } : null, // 선택된 아이템이 없으면 비활성화
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 15),
-            ),
+                padding: EdgeInsets.symmetric(vertical: 15),
+                backgroundColor: selectedChoices.isNotEmpty ? Colors.black : ColorStyles.gray30,
+                foregroundColor: ColorStyles.white,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10))),
           ),
         ),
       ),

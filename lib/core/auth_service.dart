@@ -35,6 +35,7 @@ class AuthService {
 // token 정보 서버로 전송
   Future<void> sendTokenData(String email, String token, String platform) async {
     try {
+      final String jwdToken ;
       final response = await  _apiService.dio.post(ApiConstants.platformLogin(platform),
         data: {
           "access_token":token, //토큰.
@@ -42,7 +43,15 @@ class AuthService {
           "id_token":token
         },
       );
+
       print('Response: ${response.data}');
+
+      jwdToken = response.data['access'];
+      print(_storage);
+      await _storage.write(key: 'access_token', value: jwdToken);
+  
+
+
     } catch (e) {
       if(e is DioError){
         if(e.response?.statusCode == 401){
@@ -90,14 +99,11 @@ class AuthService {
     return await _storage.read(key: 'auth_token');
   }
 
-
-
-  Future<bool> register(String email, String password) async {
+  Future<bool> register(Map<String,dynamic> data) async {
     try {
-      final response = await _apiService.dio.post(ApiConstants.signup, data: {
-        'email': email,
-        'password': password,
-      });
+
+      final response = await _apiService.dio.post(ApiConstants.signup, data: data
+      );
       return response.statusCode == 201;
     } on DioError catch (e) {
       print('Registration error: ${e.message}');
@@ -121,7 +127,7 @@ class AuthService {
 
     try {
       final response = await _apiService.dio.post(ApiConstants.refreshToken, data: {
-        'refresh_token': refreshToken,
+        'refresh': refreshToken,
       });
 
       if (response.statusCode == 200) {

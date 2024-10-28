@@ -1,5 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../../../common/color_styles.dart';
+import '../provider/SignUpProvider.dart';
 
 class SignUpCert extends StatefulWidget {
   @override
@@ -14,7 +19,7 @@ class _MembershipScreenState extends State<SignUpCert> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(CupertinoIcons.back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text('회원가입', style: TextStyle(color: Colors.black)),
@@ -42,21 +47,24 @@ class _MembershipScreenState extends State<SignUpCert> {
                     height: 2,
                     decoration: BoxDecoration(color: Color(0xFFFE2D00)),
                   ),
-                ),Padding(
+                ),
+                Padding(
                   padding: EdgeInsets.only(right: 2),
                   child: Container(
                     width: 84.25,
                     height: 2,
                     decoration: BoxDecoration(color: Color(0xFFFE2D00)),
                   ),
-                ),Padding(
+                ),
+                Padding(
                   padding: EdgeInsets.only(right: 2),
                   child: Container(
                     width: 84.25,
                     height: 2,
                     decoration: BoxDecoration(color: Color(0xFFFE2D00)),
                   ),
-                ),Container(
+                ),
+                Container(
                   width: 84.25,
                   height: 2,
                   decoration: BoxDecoration(color: Color(0xFFCFCFCF)),
@@ -83,15 +91,24 @@ class _MembershipScreenState extends State<SignUpCert> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        child: Text('있어요', style: TextStyle(color: hasCertificate == true ? Colors.white : Colors.black)),
+                        child: Text('있어요',
+                            style: TextStyle(
+                                color: hasCertificate == true
+                                    ? Colors.white
+                                    : Colors.black)),
                         onPressed: () {
                           setState(() {
                             hasCertificate = true;
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: hasCertificate == true ? Colors.red : Colors.white,
-                          side: BorderSide(color: hasCertificate == true ? Colors.red : Colors.grey),
+                          backgroundColor: hasCertificate == true
+                              ? Colors.red
+                              : Colors.white,
+                          side: BorderSide(
+                              color: hasCertificate == true
+                                  ? Colors.red
+                                  : Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -101,15 +118,24 @@ class _MembershipScreenState extends State<SignUpCert> {
                     SizedBox(width: 16),
                     Expanded(
                       child: ElevatedButton(
-                        child: Text('없어요', style: TextStyle(color: hasCertificate == false ? Colors.white : Colors.black)),
+                        child: Text('없어요',
+                            style: TextStyle(
+                                color: hasCertificate == false
+                                    ? Colors.white
+                                    : Colors.black)),
                         onPressed: () {
                           setState(() {
                             hasCertificate = false;
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: hasCertificate == false ? Colors.red : Colors.white,
-                          side: BorderSide(color: hasCertificate == false ? Colors.red : Colors.grey),
+                          backgroundColor: hasCertificate == false
+                              ? Colors.red
+                              : Colors.white,
+                          side: BorderSide(
+                              color: hasCertificate == false
+                                  ? Colors.red
+                                  : Colors.grey),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -123,18 +149,30 @@ class _MembershipScreenState extends State<SignUpCert> {
           ),
           Spacer(),
           Padding(
-            padding: const EdgeInsets.only(bottom: 32.0,left: 16,right: 16),
+            padding: const EdgeInsets.only(bottom: 32.0, left: 16, right: 16),
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                child: Text('다음', style: TextStyle(color: Colors.white)),
-                onPressed: hasCertificate != null ? () {
-                  context.push("/signup/select");
-                } : null,
+                child: Text('다음'),
+                onPressed: hasCertificate != null
+                    ? () {
+                        context.read<SignUpProvider>().getIsCertificated(hasCertificate!);
+                        context.push("/signup/select");
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: hasCertificate != null ? Colors.black : Colors.grey,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                ),
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor:
+                    hasCertificate != null ? Colors.black : ColorStyles.gray30,
+                    foregroundColor: hasCertificate != null ? Colors.white : ColorStyles.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10))),
+
+                // ElevatedButton.styleFrom(
+                //   foregroundColor:  ColorStyles.gray60,
+                //   backgroundColor: hasCertificate != null ? Colors.black : ColorStyles.gray30,
+                //   padding: EdgeInsets.symmetric(vertical: 16),
+                // ),
               ),
             ),
           ),
@@ -143,4 +181,3 @@ class _MembershipScreenState extends State<SignUpCert> {
     );
   }
 }
-

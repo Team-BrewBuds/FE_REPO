@@ -1,6 +1,7 @@
 import 'package:brew_buds/features/signup/views/signup_cert_page.dart';
 import 'package:brew_buds/features/signup/views/signup_page.dart';
 import 'package:brew_buds/features/signup/views/signup_page_enjoy.dart';
+import 'package:brew_buds/features/signup/views/signup_page_finish.dart';
 import 'package:brew_buds/features/signup/views/signup_select_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,6 +10,8 @@ import 'core/auth_service.dart';
 import 'features/login/models/login_model.dart';
 import 'features/login/presenter/login_presenter.dart';
 import 'features/login/views/login_page.dart';
+import 'features/login/views/login_page_first.dart';
+import 'features/login/views/login_page_sns.dart';
 
 final GoRouter router = GoRouter(
   routes: <RouteBase>[
@@ -21,12 +24,20 @@ final GoRouter router = GoRouter(
                 onPressed: () {
                   context.go('/signup');
                 },
-                child: Text("Hi")),
+                child: Text("회원가입")),
+            // Container(
+            //   child: ElevatedButton(
+            //     child: Text("HI"),
+            //     onPressed: () {
+            //       context.go("/login");
+            //     },
+            //   ),
+            // ),
             Container(
               child: ElevatedButton(
-                child: Text("Hi"),
+                child: Text("로그인"),
                 onPressed: () {
-                  context.go("/login");
+                  context.go("/login2");
                 },
               ),
             ),
@@ -35,12 +46,21 @@ final GoRouter router = GoRouter(
       },
       routes: <RouteBase>[
         GoRoute(
-          path: 'login',
+          path: '/login/sns',
           builder: (BuildContext context, GoRouterState state) {
             final authService = AuthService();
             final loginModel = LoginModel();
             final loginPresenter = LoginPresenter(loginModel, authService);
-            return LoginPage(presenter: loginPresenter);
+            return snsLogin(presenter: loginPresenter);
+          },
+        ),
+        GoRoute(
+          path: 'login2',
+          builder: (BuildContext context, GoRouterState state) {
+            // final authService = AuthService();
+            // final loginModel = LoginModel();
+            // final loginPresenter = LoginPresenter(loginModel, authService);
+            return LoginPageFirst();
           },
         ),
         GoRoute(
@@ -65,6 +85,12 @@ final GoRouter router = GoRouter(
           path: 'signup/select',
           builder: (BuildContext context, GoRouterState state) {
             return SignUpSelect();
+          },
+        ),
+        GoRoute(
+          path: 'signup/finish',
+          builder: (BuildContext context, GoRouterState state) {
+            return SignupPageFinish();
           },
         ),
       ],
