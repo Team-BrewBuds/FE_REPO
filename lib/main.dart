@@ -1,11 +1,12 @@
 
 // import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
-
+import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'features/signup/provider/SignUpProvider.dart';
 import 'router.dart'; // 라우터 파일 임포트
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 
@@ -19,7 +20,16 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => SignUpProvider())
+      ],
+       child:  const MyApp()
+    )
+
+  );
 }
 
 class MyApp extends StatelessWidget {

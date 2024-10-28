@@ -1,7 +1,11 @@
 import 'dart:convert';
 
+import 'package:brew_buds/features/signup/views/signup_page.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get/get.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../core/auth_service.dart';
 import '../models/login_model.dart';
@@ -34,8 +38,10 @@ class LoginPresenter {
 
       if (user.kakaoAccount?.email != null) {
         // 서버로 token, email 정보 전송
-        await AuthService().sendTokenData(
-            user.kakaoAccount!.email!, token.accessToken, 'kakao');
+        await AuthService().sendTokenData(user.kakaoAccount!.email!, token.accessToken, 'kakao');
+;
+
+
       }
     } catch (e) {
       print(await KakaoSdk.origin);
