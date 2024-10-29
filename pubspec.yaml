@@ -27,6 +27,7 @@ dependencies:
   flutter_svg: ^2.0.10+1
   velocity_x: ^4.2.1
   get: ^4.6.6
+  flutter_native_splash: ^2.4.2
 
 
 dev_dependencies:
