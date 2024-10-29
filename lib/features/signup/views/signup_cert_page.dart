@@ -156,15 +156,20 @@ class _MembershipScreenState extends State<SignUpCert> {
                 child: Text('다음'),
                 onPressed: hasCertificate != null
                     ? () {
-                        context.read<SignUpProvider>().getIsCertificated(hasCertificate!);
+                        context
+                            .read<SignUpProvider>()
+                            .getIsCertificated(hasCertificate!);
                         context.push("/signup/select");
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor:
-                    hasCertificate != null ? Colors.black : ColorStyles.gray30,
-                    foregroundColor: hasCertificate != null ? Colors.white : ColorStyles.white,
+                    backgroundColor: hasCertificate != null
+                        ? Colors.black
+                        : ColorStyles.gray30,
+                    foregroundColor: hasCertificate != null
+                        ? Colors.white
+                        : ColorStyles.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10))),
 

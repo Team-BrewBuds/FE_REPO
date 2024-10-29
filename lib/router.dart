@@ -25,19 +25,11 @@ final GoRouter router = GoRouter(
                   context.go('/signup');
                 },
                 child: Text("회원가입")),
-            // Container(
-            //   child: ElevatedButton(
-            //     child: Text("HI"),
-            //     onPressed: () {
-            //       context.go("/login");
-            //     },
-            //   ),
-            // ),
             Container(
               child: ElevatedButton(
                 child: Text("로그인"),
                 onPressed: () {
-                  context.go("/login2");
+                  context.go("/login");
                 },
               ),
             ),
@@ -55,11 +47,8 @@ final GoRouter router = GoRouter(
           },
         ),
         GoRoute(
-          path: 'login2',
+          path: 'login',
           builder: (BuildContext context, GoRouterState state) {
-            // final authService = AuthService();
-            // final loginModel = LoginModel();
-            // final loginPresenter = LoginPresenter(loginModel, authService);
             return LoginPageFirst();
           },
         ),

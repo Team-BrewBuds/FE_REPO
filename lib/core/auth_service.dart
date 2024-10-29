@@ -1,8 +1,8 @@
+import 'dart:math';
+
 import 'package:brew_buds/constants/api_constants.dart';
 import 'package:brew_buds/core/api_service.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthService {
@@ -33,28 +33,44 @@ class AuthService {
   }
 
 // token 정보 서버로 전송
-  Future<void> sendTokenData(String email, String token, String platform) async {
+  Future<void> sendTokenData(
+      String email, String token, String platform) async {
     try {
-      final String jwdToken ;
-      final response = await  _apiService.dio.post(ApiConstants.platformLogin(platform),
+      final String jwtToken;
+      final response = await _apiService.dio.post(
+        ApiConstants.platformLogin(platform),
         data: {
-          "access_token":token, //토큰.
-          "code":"string",
-          "id_token":token
+          "access_token": token, //토큰.
+          "code": "string",
+          "id_token": token
         },
       );
+      if (response.statusCode == 200) {
 
-      print('Response: ${response.data}');
+        print('Response: ${response.data}');
+        jwtToken = response.data['access'];
+        print('jwtToken: ${jwtToken}');
 
-      jwdToken = response.data['access'];
-      print(_storage);
-      await _storage.write(key: 'access_token', value: jwdToken);
-  
+        await _storage.write(key: 'auth_token', value: jwtToken);
 
+        Map<String,dynamic> data = {
+          "nickname": "닉닉",         // 2~12자의 한글 또는 숫자
+          "birth_year": "1999",                  // 4자리 숫자로 된 출생 연도
+          "gender": "여",                          // 성별 ('남' 또는 '여')
+          "coffee_life": ["cafe_tour", "coffee_study"],      // 중복 선택 가능한 커피 생활 (6개 중에서 선택)
+          "is_certificated": true   ,            // 커피 자격증 여부 (있다: true, 없다: false)
+          "preferred_bean_taste": { // 선호하는 원두 맛
+        "body": 4, // 바디감 (1~5)
+        "acidity": 3, // 산미 (1~5)
+        "bitterness": 2, // 쓴맛 (1~5)
+        "sweetness": 5 // 단맛 (1~5)
+        }};
+        register(data);
 
+      }
     } catch (e) {
-      if(e is DioError){
-        if(e.response?.statusCode == 401){
+      if (e is DioError) {
+        if (e.response?.statusCode == 401) {
           print('Unauthorized: ${e.response?.data}');
         }
       }
@@ -99,12 +115,12 @@ class AuthService {
     return await _storage.read(key: 'auth_token');
   }
 
-  Future<bool> register(Map<String,dynamic> data) async {
+  Future<bool> register(Map<String, dynamic> data) async {
     try {
-
-      final response = await _apiService.dio.post(ApiConstants.signup, data: data
-      );
+      final response = await _apiService.dio.post(ApiConstants.signup, data: data);
+      print(response.statusMessage);
       return response.statusCode == 201;
+
     } on DioError catch (e) {
       print('Registration error: ${e.message}');
       return false;
@@ -122,17 +138,19 @@ class AuthService {
   }
 
   Future<bool> refreshToken() async {
-    final refreshToken = await _storage.read(key: 'refresh_token');
+    final refreshToken = await _storage.read(key: 'refresh');
     if (refreshToken == null) return false;
 
     try {
-      final response = await _apiService.dio.post(ApiConstants.refreshToken, data: {
+      final response =
+          await _apiService.dio.post(ApiConstants.refreshToken, data: {
         'refresh': refreshToken,
       });
 
       if (response.statusCode == 200) {
         final newToken = response.data['token'];
         await _storage.write(key: 'auth_token', value: newToken);
+
         return true;
       } else {
         return false;

@@ -124,8 +124,7 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(16.0),
-          child: Consumer<SignUpProvider>(
-              builder: (context, validator, child) {
+          child: Consumer<SignUpProvider>(builder: (context, validator, child) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -138,8 +137,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: Container(
                           width: 84.25,
                           height: 2,
-                          decoration:
-                              BoxDecoration(color: ColorStyles.red10),
+                          decoration: BoxDecoration(color: ColorStyles.red10),
                         ),
                       ),
                       Padding(
@@ -147,8 +145,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: Container(
                           width: 84.25,
                           height: 2,
-                          decoration:
-                              BoxDecoration(color: Color(0xFFCFCFCF)),
+                          decoration: BoxDecoration(color: Color(0xFFCFCFCF)),
                         ),
                       ),
                       Padding(
@@ -156,8 +153,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: Container(
                           width: 84.25,
                           height: 2,
-                          decoration:
-                              BoxDecoration(color: Color(0xFFCFCFCF)),
+                          decoration: BoxDecoration(color: Color(0xFFCFCFCF)),
                         ),
                       ),
                       Container(
@@ -170,8 +166,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 Text(
                   '버디님에 대해 알려주세요',
-                  style:
-                      TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20),
                 Text('닉네임'),
@@ -186,11 +181,9 @@ class _SignUpPageState extends State<SignUpPage> {
                             : IconButton(
                                 icon: _nicknameController.text.length > 1
                                     ? Icon(
-                                        CupertinoIcons
-                                            .check_mark_circled_solid,
+                                        CupertinoIcons.check_mark_circled_solid,
                                         color: Colors.green[400])
-                                    : Icon(
-                                        CupertinoIcons.clear_circled_solid,
+                                    : Icon(CupertinoIcons.clear_circled_solid,
                                         color: Colors.grey[400]),
                                 onPressed: () {
                                   _nicknameController.clear();
@@ -238,11 +231,9 @@ class _SignUpPageState extends State<SignUpPage> {
                             : IconButton(
                                 icon: validator.ageError == null
                                     ? Icon(
-                                        CupertinoIcons
-                                            .check_mark_circled_solid,
+                                        CupertinoIcons.check_mark_circled_solid,
                                         color: Colors.green[400])
-                                    : Icon(
-                                        CupertinoIcons.clear_circled_solid,
+                                    : Icon(CupertinoIcons.clear_circled_solid,
                                         color: Colors.grey[400]),
                                 onPressed: () {
                                   _ageController.clear();
@@ -267,57 +258,56 @@ class _SignUpPageState extends State<SignUpPage> {
             );
           }),
         ),
-        bottomNavigationBar:
-        Padding(
-            padding:
-                const EdgeInsets.only(bottom: 46.0, left: 16, right: 16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                child: '다음'.text.size(15).make(),
-                onPressed: () {
-                  if(context.read<SignUpProvider>().
-                  ableCondition(_nicknameController.text,_ageController.text,_selectedIndex)){
-                    context.read<SignUpProvider>().getUserData(_nicknameController.text, _ageController.text, _selectedIndex);
-                    context.push('/signup/enjoy');
-                  }
-
-                },
-                style: ButtonStyle(
-                  elevation: WidgetStateProperty.all(0),
-                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(bottom: 46.0, left: 16, right: 16),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              child: '다음'.text.size(15).make(),
+              onPressed: () {
+                if (context.read<SignUpProvider>().ableCondition(
+                    _nicknameController.text,
+                    _ageController.text,
+                    _selectedIndex)) {
+                  context.read<SignUpProvider>().getUserData(
+                      _nicknameController.text,
+                      _ageController.text,
+                      _selectedIndex);
+                  context.push('/signup/enjoy');
+                }
+              },
+              style: ButtonStyle(
+                elevation: WidgetStateProperty.all(0),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: WidgetStateProperty.all<EdgeInsets>(
-                    EdgeInsets.symmetric(vertical: 15),
-                  ),
-                  backgroundColor:
-                  WidgetStateProperty.resolveWith<Color?>(
-                    (Set<MaterialState> states) {
-                      if (context.read<SignUpProvider>().ageError == null &&
-                          _ageController.text.isNotEmpty &&
-                          _nicknameController.text.length > 1 &&
-                          _selectedIndex != -1) {
-                        return Colors.black; // 조건이 참일 때 색상
-                      }
-                      return ColorStyles.gray30; // 조건이 거짓일 때 색상
-                    },
-                  ),
-                  foregroundColor: WidgetStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.focused)) {
-                        return Colors.white; // 포커스 시 텍스트 색상
-                      }
-                      return ColorStyles.white; // 기본 텍스트 색상
-                    },
-                  ),
+                ),
+                padding: WidgetStateProperty.all<EdgeInsets>(
+                  EdgeInsets.symmetric(vertical: 15),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                  (Set<MaterialState> states) {
+                    if (context.read<SignUpProvider>().ageError == null &&
+                        _ageController.text.isNotEmpty &&
+                        _nicknameController.text.length > 1 &&
+                        _selectedIndex != -1) {
+                      return Colors.black; // 조건이 참일 때 색상
+                    }
+                    return ColorStyles.gray30; // 조건이 거짓일 때 색상
+                  },
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith<Color>(
+                  (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.focused)) {
+                      return Colors.white; // 포커스 시 텍스트 색상
+                    }
+                    return ColorStyles.white; // 기본 텍스트 색상
+                  },
                 ),
               ),
             ),
-          )
-
-    );
+          ),
+        ));
   }
 }
