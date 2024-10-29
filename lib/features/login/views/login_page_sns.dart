@@ -1,10 +1,10 @@
+import 'package:brew_buds/core/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../presenter/login_presenter.dart';
 
 class snsLogin extends StatelessWidget {
-
   final LoginPresenter presenter;
 
   const snsLogin({super.key, required this.presenter});
@@ -14,18 +14,19 @@ class snsLogin extends StatelessWidget {
     final height = 55.0;
     final width = 353.0;
     return Scaffold(
-      appBar: AppBar(
-
-      ),
+      appBar: AppBar(),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('간편로그인으로\n빠르게 가입하세요.',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),),
-            SizedBox(height: 30,),
-
+            Text(
+              '간편로그인으로\n빠르게 가입하세요.',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 30,
+            ),
             Column(
               children: [
                 SizedBox(
@@ -53,7 +54,6 @@ class snsLogin extends StatelessWidget {
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 22,
-
                           ),
                         ),
                         SizedBox(width: 8),
@@ -61,7 +61,9 @@ class snsLogin extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 SizedBox(
                   width: width, // 버튼 가로 크기 통일
                   height: height, // 버튼 높이 통일
@@ -82,25 +84,27 @@ class snsLogin extends StatelessWidget {
                           'assets/images/login/naver_btn.png',
                           // height: height, width: width,
                         ),
-                        Text('네이버로 로그인', style: TextStyle(
-                          color: Colors.white,fontSize: 22
-                        ),),
+                        Text(
+                          '네이버로 로그인',
+                          style: TextStyle(color: Colors.white, fontSize: 22),
+                        ),
                         SizedBox(width: 8),
                       ],
                     ),
                   ),
                 ),
-
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 SignInWithAppleButton(
                     onPressed: presenter.loginWithApple,
                     style: SignInWithAppleButtonStyle.black,
                     text: 'Apple로 로그인',
-                    height: height)
-
+                    height: height),
+                ElevatedButton(onPressed: AuthService().logout, child: Text('logout')),
+                ElevatedButton(onPressed: AuthService().refreshToken, child: Text('r'))
               ],
             )
-
           ],
         ),
       ),

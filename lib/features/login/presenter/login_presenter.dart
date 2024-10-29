@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../core/auth_service.dart';
+import '../../../di/router.dart';
 import '../models/login_model.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
@@ -39,8 +40,6 @@ class LoginPresenter {
       if (user.kakaoAccount?.email != null) {
         // 서버로 token, email 정보 전송
         await AuthService().sendTokenData(user.kakaoAccount!.email!, token.accessToken, 'kakao');
-;
-
 
       }
     } catch (e) {
