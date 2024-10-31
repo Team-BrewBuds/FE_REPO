@@ -1,6 +1,23 @@
-class SignUpLists  {
+class SignUpLists {
+  //첫 로그인 이미지
+  final List<String> images = [
+    'assets/images/cafe.png',
+    'assets/images/coffeeEnjoy.png',
+    'assets/images/maker.png',
+  ];
+
+  // 첫 로그인 멘트
+  List<String> title_data = ["시음 기록", "원두 검색", "원두 추천",];
+
+  List<String> content_data = ["오늘 경함한 원두의 맛을 기록해 보세요.",
+    "오늘 경험할 원두를 필터로 검색해 보세요.",
+    "내 커피 취향에 맞는 원두 추천을 받아보세요."
+  ];
+
+  //회원가입 선택사항 리스트
   final List<String> categories = ['바디감', '산미', '쓴맛', '단맛'];
 
+  //회원가입 선택사항 리스트 #2
   final List<List<String>> labels = [
     ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'],
     ['약한', '약간 약한', '보통', '약간 강한', '강한'],
@@ -8,9 +25,16 @@ class SignUpLists  {
     ['약한', '약간 약한', '보통', '약간 강한', '강한'],
   ];
 
-  final List<String> categories_en = ['body', 'acidity', 'bitterness', 'sweetness'];
+//회원가입 선택사항 리스트 #3
+  final List<String> categories_en = [
+    'body',
+    'acidity',
+    'bitterness',
+    'sweetness'
+  ];
 
-  final List<double> strength = [1,2,3,4,5];
+//회원가입 선택사항 리스트 #4
+  final List<double> strength = [1, 2, 3, 4, 5];
 
   // 커피생활 리스트
   final List<Map<String, String>> enjoyItems = [
@@ -37,7 +61,6 @@ class SignUpLists  {
       "description": "본업은 있지만 커피를 좋아해서 커피 알바를 해요",
       "png": "partTime",
       "choice": "cafe_alba"
-
     },
     {
       "title": "커피 근무",

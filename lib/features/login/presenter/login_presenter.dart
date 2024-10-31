@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../core/auth_service.dart';
 import '../../../di/router.dart';
@@ -18,12 +19,11 @@ class LoginPresenter {
 
   LoginPresenter(this.model, this.authService);
 
-  Future<void> loginWithKakao() async {
+  Future<bool> loginWithKakao() async {
     try {
       // 카카오톡이 설치되어 있는지 확인
       bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
-
       if (isInstalled) {
         // 카카오톡으로 로그인
         token = await UserApi.instance.loginWithKakaoTalk();
@@ -39,16 +39,17 @@ class LoginPresenter {
 
       if (user.kakaoAccount?.email != null) {
         // 서버로 token, email 정보 전송
-        await AuthService().sendTokenData(user.kakaoAccount!.email!, token.accessToken, 'kakao');
-
+       return await AuthService().sendTokenData(user.kakaoAccount!.email!, token.accessToken, 'kakao') ? true : false;
       }
     } catch (e) {
       print(await KakaoSdk.origin);
       print('카카오 로그인 실패 $e');
-    }
+
+  }
+    return false;
   }
 
-  Future<void> loginWithNaver() async {
+  Future<bool> loginWithNaver() async {
     try {
       // 로그인 시도
       NaverLoginResult res = await FlutterNaverLogin.logIn();
@@ -62,26 +63,47 @@ class LoginPresenter {
         // 필요한 사용자 정보 활용
         print('이메일: ${res.account.email}');
 
-        // 서버로 token, email 정보 전송
-        await AuthService()
-            .sendTokenData(res.account.email, resAccess.accessToken, 'naver');
+        if (res.account.email != null) {
+          // 서버로 token, email 정보 전송
+          return  await AuthService()
+              .sendTokenData(res.account.email, resAccess.accessToken, 'naver') ? true : false;
+        }
+
       } else {
         print('네이버 로그인 실패: ${res.errorMessage}');
       }
+
+      return true;
     } catch (e) {
       print('네이버 로그인 에러: $e');
     }
+    return false;
   }
 
-  Future<void> loginWithApple() async {
-    final credential = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-    );
-    print(credential.identityToken);
-    AuthService().sendTokenData('', credential.identityToken!, 'apple');
+  Future<bool> loginWithApple() async {
+
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      print(credential.identityToken);
+
+      if (credential.identityToken != null) {
+        // 서버로 token, email 정보 전송
+        return await AuthService().sendTokenData('', credential.identityToken!, 'apple') ? true : false;
+      }
+
+
+      return true;
+    } catch (e) {
+      print('애플 로그인 에러: $e');
+    }
+
+    return false;
+
   }
 
   void setEmail(String email) {
