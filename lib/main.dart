@@ -1,6 +1,8 @@
 
 // import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,8 +13,14 @@ import 'router.dart'; // 라우터 파일 임포트
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+
   await dotenv.load(fileName: ".env");
+
+  //카카오 앱키
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
   javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT'],
   );
@@ -30,10 +38,18 @@ void main() async {
     )
 
   );
+
+  FlutterNativeSplash.remove();
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+
+
+
 
   @override
   Widget build(BuildContext context) {

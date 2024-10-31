@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:brew_buds/constants/api_constants.dart';
 import 'package:brew_buds/core/api_service.dart';
+import 'package:brew_buds/di/router.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 
 class AuthService {
   final ApiService _apiService = ApiService();
@@ -33,7 +35,7 @@ class AuthService {
   }
 
 // token 정보 서버로 전송
-  Future<void> sendTokenData(
+  Future<bool> sendTokenData(
       String email, String token, String platform) async {
     try {
       final String jwtToken;
@@ -50,22 +52,9 @@ class AuthService {
         print('Response: ${response.data}');
         jwtToken = response.data['access'];
         print('jwtToken: ${jwtToken}');
-
         await _storage.write(key: 'auth_token', value: jwtToken);
 
-        Map<String,dynamic> data = {
-          "nickname": "닉닉",         // 2~12자의 한글 또는 숫자
-          "birth_year": "1999",                  // 4자리 숫자로 된 출생 연도
-          "gender": "여",                          // 성별 ('남' 또는 '여')
-          "coffee_life": ["cafe_tour", "coffee_study"],      // 중복 선택 가능한 커피 생활 (6개 중에서 선택)
-          "is_certificated": true   ,            // 커피 자격증 여부 (있다: true, 없다: false)
-          "preferred_bean_taste": { // 선호하는 원두 맛
-        "body": 4, // 바디감 (1~5)
-        "acidity": 3, // 산미 (1~5)
-        "bitterness": 2, // 쓴맛 (1~5)
-        "sweetness": 5 // 단맛 (1~5)
-        }};
-        register(data);
+        return true;
 
       }
     } catch (e) {
@@ -75,7 +64,9 @@ class AuthService {
         }
       }
       print('Error: $e');
+
     }
+    return false;
   }
 
   Future<bool> login(String email, String password) async {

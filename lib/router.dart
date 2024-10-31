@@ -18,23 +18,7 @@ final GoRouter router = GoRouter(
     GoRoute(
       path: '/',
       builder: (BuildContext context, GoRouterState state) {
-        return Row(
-          children: [
-            ElevatedButton(
-                onPressed: () {
-                  context.go('/signup');
-                },
-                child: Text("회원가입")),
-            Container(
-              child: ElevatedButton(
-                child: Text("로그인"),
-                onPressed: () {
-                  context.go("/login");
-                },
-              ),
-            ),
-          ],
-        );
+        return const LoginPageFirst();
       },
       routes: <RouteBase>[
         GoRoute(
@@ -44,12 +28,6 @@ final GoRouter router = GoRouter(
             final loginModel = LoginModel();
             final loginPresenter = LoginPresenter(loginModel, authService);
             return snsLogin(presenter: loginPresenter);
-          },
-        ),
-        GoRoute(
-          path: 'login',
-          builder: (BuildContext context, GoRouterState state) {
-            return LoginPageFirst();
           },
         ),
         GoRoute(

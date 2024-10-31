@@ -156,15 +156,14 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                 onPressed: () {
 
                   if (_isAllSelected()) {
-                    signProvider
-                        .getPreferredBeanTaste(mapData()); // provider에 값 저장
+                    signProvider.getPreferredBeanTaste(mapData()); // provider에 값 저장
                     try {
-                      Map<String, dynamic> data =
-                          signProvider.toJson(); // 모든 설문 json 형식으로 데이터 형성.
+                      Map<String, dynamic> data = signProvider.toJson(); // 모든 설문 json 형식으로 데이터 형성.
                       if (data != null) {
                         print(jsonEncode(data));
+                        // 닉네임 검사 로직 추가 해야함 ( 백엔드 기능 추가 필요)
                         AuthService().register(data);
-                        // context.push('/signup/finish');
+                        context.push('/signup/finish');
                       }
                     } catch (e) {
                       print(e);
