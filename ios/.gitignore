@@ -9,6 +9,9 @@
 .tags*
 **/.vagrant/
 **/DerivedData/
+
+Runner/Config.xcconfig
+
 Icon?
 **/Pods/
 **/.symlinks/

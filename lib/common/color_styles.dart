@@ -7,6 +7,7 @@ final class ColorStyles {
   static const Color black = Color(0xff000000);
   static const Color white = Color(0xffffffff);
   static const Color red = Color(0xffFE2E00);
+  static const Color red10 =  Color(0xFFFE2D00);
 
   //Grayscale
   static const Color gray = Color(0xffFE2E00);
