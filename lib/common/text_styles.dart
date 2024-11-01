@@ -24,7 +24,6 @@ final class TextStyles {
 
   //Text
   static const textMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
-
   static const captionMediumSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 12);
   static const captionMediumMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 12);
   static const captionMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 12);
@@ -33,4 +32,6 @@ final class TextStyles {
   static const captionSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 10);
   static const captionSmallRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 10);
   static const captionXSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 8);
+  
+  static const textlightRegular = TextStyle(fontWeight: FontWeight.w400,fontSize: 16,fontFamily: 'Pretendard',color:Color(0xFFAAAAAA), letterSpacing: -0.13);
 }
