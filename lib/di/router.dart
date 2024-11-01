@@ -10,6 +10,7 @@ import 'package:brew_buds/home/post/home_post_view.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
+import 'package:brew_buds/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:go_router/go_router.dart';
@@ -18,6 +19,7 @@ import 'package:provider/provider.dart';
 const String initialPath = '/home/all';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
+const String initialPath = '/profile';
 
 final router = GoRouter(
   initialLocation: initialPath,
@@ -109,7 +111,7 @@ final router = GoRouter(
         StatefulShellBranch(
           //프로필 화면
           routes: [
-            GoRoute(path: '/main4', builder: (context, state) => Container()),
+            GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
           ],
         ),
       ],
