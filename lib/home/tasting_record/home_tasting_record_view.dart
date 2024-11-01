@@ -27,9 +27,9 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
     return TastingRecordFeed(
       writerThumbnailUri: tastingRecord.author.profileImageUri,
       writerNickName: tastingRecord.author.nickname,
-      writingTime: tastingRecord.createdAt.differenceTheNow,
+      writingTime: tastingRecord.createdAt,
       hits: '조회 ${tastingRecord.viewCount}',
-      isFollowed: true,
+      isFollowed: tastingRecord.author.isFollowed,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: tastingRecord.isLiked,
@@ -38,7 +38,9 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
       onTapLikeButton: () {},
-      onTapCommentsButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
+      },
       onTapSaveButton: () {},
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',

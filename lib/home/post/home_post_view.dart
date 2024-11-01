@@ -62,9 +62,9 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
     return PostFeed(
       writerThumbnailUri: post.author.profileImageUri,
       writerNickName: post.author.nickname,
-      writingTime: post.createdAt.differenceTheNow,
+      writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
-      isFollowed: false,
+      isFollowed: post.author.isFollowed,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: post.isLiked,
@@ -73,7 +73,9 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
       onTapLikeButton: () {},
-      onTapCommentsButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: true, id: post.id);
+      },
       onTapSaveButton: () {},
       title: post.title,
       body: post.contents,

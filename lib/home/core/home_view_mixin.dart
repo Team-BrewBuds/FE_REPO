@@ -1,5 +1,8 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/data/comments/comments_repository.dart';
+import 'package:brew_buds/home/comments/comments_presenter.dart';
+import 'package:brew_buds/home/comments/comments_view.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/home/widgets/follow_button.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -22,7 +25,11 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       const Duration(seconds: 3),
       initialValue: null,
       checkEquality: false,
-    )..values.listen((_) => _fetchMoreData);
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       scrollController.addListener(_scrollListener);
       context.read<Presenter>().initState();
@@ -32,11 +39,13 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
   @override
   void dispose() {
     scrollController.removeListener(_scrollListener);
+    paginationThrottle.cancel();
     super.dispose();
   }
 
   _scrollListener() {
-    if (currentIndex - context.read<Presenter>().feeds.length < 4) {
+    final presenter = context.read<Presenter>();
+    if (presenter.feeds.length - currentIndex < 4 && presenter.hasNext) {
       paginationThrottle.setValue(null);
     }
   }
@@ -95,6 +104,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     return SliverList.separated(
       itemCount: presenter.feeds.length,
       itemBuilder: (context, index) {
+        currentIndex += 1;
         if (index % 12 == 11) {
           return Column(
             children: [
@@ -118,7 +128,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
   Widget _buildRemandedBuddies(Presenter presenter) {
     final remandedUsers = presenter.fetchRecommendedUsers();
     return Container(
-      height: 300,
+      height: 304,
       color: ColorStyles.white,
       padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
       child: Column(
@@ -193,6 +203,31 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
           FollowButton(onTap: () {}, isFollowed: isFollowed),
         ],
       ),
+    );
+  }
+
+  showCommentsBottomSheet({required bool isPost, required int id}) {
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return ChangeNotifierProvider<CommentsPresenter>(
+            create: (_) => CommentsPresenter(
+                  isPost: isPost,
+                  id: id,
+                  repository: CommentsRepository.instance,
+                ),
+            child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7));
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
     );
   }
 }

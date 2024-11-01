@@ -8,6 +8,7 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
   final HomeRepository _repository;
   int _currentTypeIndex = 0;
+  int _currentPage = 0;
   FeedPage _page = FeedPage.initial();
 
   HomeAllPresenter({
@@ -24,19 +25,19 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   Future<void> fetchMoreData() async {
     final result = await _repository.fetchFeedPage(
       feedType: _feedTypeList[_currentTypeIndex],
-      pageNo: _page.currentPage + 1,
+      pageNo: _currentPage + 1,
     );
     if (result.hasNext == false) {
       _currentTypeIndex += 1;
+      _currentPage = 0;
       _page = _page.copyWith(
         feeds: _page.feeds + result.feeds,
-        currentPage: 0,
         hasNext: true,
       );
     } else {
+      _currentPage += 1;
       _page = _page.copyWith(
         feeds: _page.feeds + result.feeds,
-        currentPage: result.currentPage,
         hasNext: result.hasNext,
       );
     }
@@ -53,6 +54,7 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   @override
   Future<void> onRefresh() async {
     _currentTypeIndex = 0;
+    _currentPage = 0;
     _page = FeedPage.initial();
     notifyListeners();
     while (feeds.isEmpty) {
