@@ -1,12 +1,20 @@
+import 'dart:math';
+
+import 'package:animations/animations.dart';
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/home/widgets/alarm.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:provider/provider.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 class HomeView extends StatefulWidget {
   final GlobalKey<NestedScrollViewState> nestedScrollViewState;
@@ -25,6 +33,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   bool isRefresh = false;
   int currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -47,7 +56,10 @@ class _HomeViewState extends State<HomeView> {
                       width: 130,
                     ),
                     const Spacer(),
-                    const Alarm(hasNewAlarm: false),
+                    Alarm(
+                      hasNewAlarm: false,
+                      onTapped: () {},
+                    ),
                   ],
                 ),
               ),

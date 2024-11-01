@@ -1,5 +1,4 @@
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/date_time_ext.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
@@ -66,9 +65,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
     return PostFeed(
       writerThumbnailUri: post.author.profileImageUri,
       writerNickName: post.author.nickname,
-      writingTime: post.createdAt.differenceTheNow,
+      writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
-      isFollowed: false,
+      isFollowed: post.author.isFollowed,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: post.isLiked,
@@ -77,7 +76,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
       onTapLikeButton: () {},
-      onTapCommentsButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: true, id: post.id);
+      },
       onTapSaveButton: () {},
       title: post.title,
       body: post.contents,
@@ -95,9 +96,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
     return TastingRecordFeed(
       writerThumbnailUri: tastingRecord.author.profileImageUri,
       writerNickName: tastingRecord.author.nickname,
-      writingTime: tastingRecord.createdAt.differenceTheNow,
+      writingTime: tastingRecord.createdAt,
       hits: '조회 ${tastingRecord.viewCount}',
-      isFollowed: true,
+      isFollowed: tastingRecord.author.isFollowed,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: tastingRecord.isLiked,
@@ -106,7 +107,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
       onTapLikeButton: () {},
-      onTapCommentsButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
+      },
       onTapSaveButton: () {},
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',

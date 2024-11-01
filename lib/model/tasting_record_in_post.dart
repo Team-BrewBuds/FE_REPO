@@ -10,18 +10,12 @@ part 'tasting_record_in_post.g.dart';
 class TastingRecordInPost with _$TastingRecordInPost {
   const factory TastingRecordInPost({
     required int id,
-    @JsonKey(name: 'bean_name')
-    required String beanName,
-    @JsonKey(name: 'bean_type')
-    required String beanType,
-    @JsonKey(name: 'content')
-    required String contents,
-    @JsonKey(name: 'star_rating')
-    required double rating,
-    @JsonKey(name: 'flavor', fromJson: _flavorFromJson)
-    required List<String> flavors,
-    @JsonKey(name: 'photos', fromJson: _photosFromJson)
-    required List<String> imagesUri,
+    @JsonKey(name: 'bean_name') required String beanName,
+    @JsonKey(name: 'bean_type') required String beanType,
+    @JsonKey(name: 'content') required String contents,
+    @JsonKey(name: 'star_rating') required double rating,
+    @JsonKey(name: 'flavor', fromJson: _flavorFromJson) required List<String> flavors,
+    @JsonKey(name: 'photos', fromJson: _photosFromJson) required List<String> imagesUri,
   }) = _TastingRecordInPost;
 
   const TastingRecordInPost._();

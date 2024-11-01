@@ -12,13 +12,12 @@ part 'feed_page.g.dart';
 class FeedPage with _$FeedPage {
   const factory FeedPage({
     @JsonKey(name: 'results', fromJson: _feedFromJson) required List<Feed> feeds,
-    @JsonKey(name: 'has_next') required bool hasNext,
-    @JsonKey(name: 'current_page') required int currentPage,
+    @JsonKey(name: 'next', fromJson: _hasNextFromJson) required bool hasNext,
   }) = _FeedPage;
 
   const FeedPage._();
 
-  factory FeedPage.initial() => const FeedPage(feeds: [], hasNext: true, currentPage: 0);
+  factory FeedPage.initial() => const FeedPage(feeds: [], hasNext: true);
 
   factory FeedPage.fromJson(Map<String, Object?> json) => _$FeedPageFromJson(json);
 }
@@ -32,3 +31,5 @@ List<Feed> _feedFromJson(dynamic result) {
     }
   }).toList();
 }
+
+bool _hasNextFromJson(dynamic json) => json != null;
