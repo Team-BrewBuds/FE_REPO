@@ -21,22 +21,21 @@ void main() async {
   await dotenv.load(fileName: ".env");
 
   //카카오 앱키
-  KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
-  javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT'],
+  KakaoSdk.init(
+    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
+    javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT'],
   );
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await dotenv.load(fileName: ".env");
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => SignUpProvider())
+        ChangeNotifierProvider(create: (context) => SignUpProvider()),
       ],
-       child:  const MyApp()
+      child: const MyApp(),
     )
-
   );
 
   FlutterNativeSplash.remove();
@@ -46,10 +45,6 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +64,6 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-
     );
   }
 }

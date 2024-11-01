@@ -7,22 +7,31 @@ final class TextStyles {
   static const headlineLargeBold = TextStyle(fontWeight: FontWeight.w700, fontSize: 24);
 
   //Title
-  static const titleLargeBold = TextStyle(fontWeight: FontWeight.w700, fontSize: 16);
-  static const titleLargeSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
+  static const title02Bold = TextStyle(fontWeight: FontWeight.w700, fontSize: 16);
+  static const title02SemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 16);
   static const titleMediumSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 15);
-  static const titleSmallBold = TextStyle(fontWeight: FontWeight.w700, fontSize: 14);
+  static const title01Bold = TextStyle(fontWeight: FontWeight.w700, fontSize: 14);
+  static const title01SemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 14);
 
   //Label
   static const labelMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
   static const labelMediumMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 13);
-  static const labelSmallRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 12);
-  static const labelSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 12);
-  static const labelSmallSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 12);
+  static const labelSmallRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
+  static const labelSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 13);
+  static const labelSmallSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 13);
+
+  static const bodyRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
 
   //Text
   static const textMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 13);
+  static const captionMediumSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 12);
+  static const captionMediumMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 12);
+  static const captionMediumRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 12);
+
+  static const captionSmallSemiBold = TextStyle(fontWeight: FontWeight.w600, fontSize: 10);
+  static const captionSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 10);
+  static const captionSmallRegular = TextStyle(fontWeight: FontWeight.w400, fontSize: 10);
+  static const captionXSmallMedium = TextStyle(fontWeight: FontWeight.w500, fontSize: 8);
+  
   static const textlightRegular = TextStyle(fontWeight: FontWeight.w400,fontSize: 16,fontFamily: 'Pretendard',color:Color(0xFFAAAAAA), letterSpacing: -0.13);
-
-
-
 }
