@@ -162,7 +162,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                       if (data != null) {
                         print(jsonEncode(data));
                         // 닉네임 검사 로직 추가 해야함 ( 백엔드 기능 추가 필요)
-                        AuthService().register(data);
+                        AuthService().register(data);  // api 호출
                         context.push('/signup/finish');
                       }
                     } catch (e) {

@@ -115,22 +115,14 @@ class _SNSLoginState extends State<SNSLogin> {
                                   case 'kakao':
                                     if (await widget.presenter.loginWithKakao()) {
                                       context.push("/signup");
-                                    } else {
-                                      context.push("/");
                                     }
-                                    break;
                                   case 'naver':
                                     if (await widget.presenter.loginWithNaver()) {
                                       context.push("/signup");
-                                    } else {
-                                      context.push("/");
                                     }
-                                    break;
                                   case 'apple':
                                     if (await widget.presenter.loginWithApple()) {
                                       context.push("/signup");
-                                    } else {
-                                      context.push("/");
                                     }
                                 }
                               }
@@ -152,6 +144,10 @@ class _SNSLoginState extends State<SNSLogin> {
         );
       },
     );
+  }
+
+  void _loginSuccess() {
+
   }
 
   @override
@@ -263,4 +259,6 @@ class _SNSLoginState extends State<SNSLogin> {
       ),
     );
   }
+
+
 }

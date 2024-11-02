@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:velocity_x/velocity_x.dart';
@@ -16,7 +19,6 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   final SignUpLists _lists = SignUpLists();
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  String? _storedValue; // 저장된 값
 
   @override
   void initState() {
@@ -25,12 +27,15 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   }
 
   Future<void> _checkStorage() async {
-    // 특정 키의 값을 가져옵니다.
+    // 로컬 스토리지 토큰 확인 여부
     String? value = await _storage.read(key: 'auth_token');
 
-    setState(() {
-      _storedValue = value; // 상태 업데이트
-    });
+    if(value != null){
+      _storage.deleteAll();  //로그인 전 토큰 남아있으면 모두 삭제.
+    } else {
+      log('storage token is $value');
+    }
+
   }
 
   @override
