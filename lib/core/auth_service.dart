@@ -1,12 +1,15 @@
 import 'package:brew_buds/constants/api_constants.dart';
 import 'package:brew_buds/core/api_service.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
 import 'dart:developer';
 
 class AuthService {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  late String auth_token;
+  late String refrest_token;
 
   AuthService() {
     _apiService.dio.interceptors.add(
@@ -32,24 +35,30 @@ class AuthService {
     );
   }
 
-// token 정보 서버로 전송
-  Future<bool> sendTokenData(String email, String token, String platform) async {
+// Accesstoken 정보 서버로 전송
+  Future<bool> sendTokenData(String token, String platform) async {
     try {
-      final String jwtToken;
       final response = await _apiService.dio.post(
         ApiConstants.platformLogin(platform),
         data: {
-          "access_token": token, //토큰.
-          "code": "string",
-          "id_token": token
+          "access_token": token, //카카오, 네이버 토큰.
+          "id_token":token // 애플 토큰.
         },
       );
-      if (response.statusCode == 200) {
-        jwtToken = response.data['access'];
-        await _storage.write(key: 'auth_token', value: jwtToken);
 
+      if (response.statusCode == 200) {
+
+        auth_token = response.data.entries.elementAt(0).value; // token 가져오기
+        refrest_token = response.data.entries.elementAt(1).value; // refrest_token 가져오기
+
+        // 서버에서 받은 각 토큰 로컬스토리지에 저장.
+        await _storage.write(key: 'auth_token', value: auth_token);
+        await _storage.write(key: 'refresh', value: refrest_token);
         return true;
-      } else {
+
+      }
+      else {
+        log('error');
         return false;
       }
     } on DioException catch (e) {

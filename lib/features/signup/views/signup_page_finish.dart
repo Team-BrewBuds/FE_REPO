@@ -28,10 +28,6 @@ class _SignupPageFinishState extends State<SignupPageFinish> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(CupertinoIcons.back),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
         ),
         body: SingleChildScrollView(
           child: Center(
@@ -48,7 +44,7 @@ class _SignupPageFinishState extends State<SignupPageFinish> {
                     Text('환영합니다.', style: TextStyle(fontSize: 20,fontWeight:FontWeight.w500 )),
                     // SizedBox(height: 10,),
                     Text('지금부터 커피 생활을 쉽게 공유하고', style: TextStyles.textlightRegular,),
-                    Text('${signProvicer.signUpData.nickname}님의 커피 취향을 빠르게 알아가세요',
+                    Text('${signProvicer.signUpData.nickname}님의 커피 취향을 빠르게 알아가세요.',
                     style: TextStyles.textlightRegular,)
 
                   ],
@@ -71,7 +67,7 @@ class _SignupPageFinishState extends State<SignupPageFinish> {
                   "sweetness": 5
                 };
                 context.read<SignUpProvider>().getPreferredBeanTaste(data);
-                context.push('/signup/finish');
+                // context.push('/'); 완료시 home 링크 삽입해야함.
               },
               style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 15),
