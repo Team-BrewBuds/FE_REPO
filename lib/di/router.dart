@@ -19,7 +19,6 @@ import 'package:provider/provider.dart';
 const String initialPath = '/home/all';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
-const String initialPath = '/profile';
 
 final router = GoRouter(
   initialLocation: initialPath,

@@ -1,44 +1,42 @@
 import 'package:brew_buds/core/auth_service.dart';
+import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
-import '../presenter/login_presenter.dart';
 
 class LoginPage extends StatelessWidget {
   final LoginPresenter presenter;
 
-  LoginPage({Key? key, required this.presenter}) : super(key: key);
+  const LoginPage({Key? key, required this.presenter}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Login')),
+      appBar: AppBar(title: const Text('Login')),
       body: Column(
         children: [
           TextField(
             onChanged: presenter.setEmail,
-            decoration: InputDecoration(labelText: 'Email'),
+            decoration: const InputDecoration(labelText: 'Email'),
           ),
           TextField(
             onChanged: presenter.setPassword,
             obscureText: true,
-            decoration: InputDecoration(labelText: 'Password'),
+            decoration: const InputDecoration(labelText: 'Password'),
           ),
           ElevatedButton(
             onPressed: presenter.loginWithKakao,
-            child: Text('LoginWithKaKao'),
+            child: const Text('LoginWithKaKao'),
           ),
           ElevatedButton(
             onPressed: presenter.loginWithNaver,
-            child: Text('LoginWithNaver'),
+            child: const Text('LoginWithNaver'),
           ),
           ElevatedButton(
             onPressed: presenter.loginWithApple,
-            child: Text('LoginWithApple'),
+            child: const Text('LoginWithApple'),
           ),
           ElevatedButton(
             onPressed: AuthService().logout,
-            child: Text('Logout'),
+            child: const Text('Logout'),
           ),
         ],
       ),
