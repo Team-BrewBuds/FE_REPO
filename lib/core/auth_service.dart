@@ -1,42 +1,39 @@
-import 'dart:math';
-
 import 'package:brew_buds/constants/api_constants.dart';
 import 'package:brew_buds/core/api_service.dart';
-import 'package:brew_buds/di/router.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
+import 'dart:developer';
 
 class AuthService {
   final ApiService _apiService = ApiService();
-  final FlutterSecureStorage _storage = FlutterSecureStorage();
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   AuthService() {
-    _apiService.dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await getToken();
-        if (token != null) {
-          options.headers['Authorization'] = 'Bearer $token';
-        }
-        print('HEADER - ${options.headers}');
-        return handler.next(options);
-      },
-      onError: (DioError error, handler) async {
-        if (error.response?.statusCode == 401) {
-          // Token might be expired, try to refresh it
-          if (await refreshToken()) {
-            // Retry the original request
-            return handler.resolve(await _retry(error.requestOptions));
+    _apiService.dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await getToken();
+          if (token != null) {
+            options.headers['Authorization'] = 'Bearer $token';
           }
-        }
-        return handler.next(error);
-      },
-    ));
+          return handler.next(options);
+        },
+        onError: (DioException error, handler) async {
+          if (error.response?.statusCode == 401) {
+            // Token might be expired, try to refresh it
+            if (await refreshToken()) {
+              // Retry the original request
+              return handler.resolve(await _retry(error.requestOptions));
+            }
+          }
+          return handler.next(error);
+        },
+      ),
+    );
   }
 
 // token 정보 서버로 전송
-  Future<bool> sendTokenData(
-      String email, String token, String platform) async {
+  Future<bool> sendTokenData(String email, String token, String platform) async {
     try {
       final String jwtToken;
       final response = await _apiService.dio.post(
@@ -48,33 +45,22 @@ class AuthService {
         },
       );
       if (response.statusCode == 200) {
-
-        print('Response: ${response.data}');
         jwtToken = response.data['access'];
-        print('jwtToken: ${jwtToken}');
         await _storage.write(key: 'auth_token', value: jwtToken);
 
         return true;
-
+      } else {
+        return false;
       }
-    } catch (e) {
-      if (e is DioError) {
-        if (e.response?.statusCode == 401) {
-          print('Unauthorized: ${e.response?.data}');
-        }
-      }
-      print('Error: $e');
-
+    } on DioException catch (e) {
+      log('Token error: ${e.message}');
+      return false;
     }
-    return false;
   }
 
   Future<bool> login(String email, String password) async {
     try {
-      final response = await _apiService.dio.post('/login', data: {
-        'email': email,
-        'password': password,
-      });
+      final response = await _apiService.dio.post('/login', data: {'email': email, 'password': password});
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
@@ -83,8 +69,8 @@ class AuthService {
       } else {
         return false;
       }
-    } on DioError catch (e) {
-      print('Login error: ${e.message}');
+    } on DioException catch (e) {
+      log('Login error: ${e.message}');
       return false;
     }
   }
@@ -92,7 +78,7 @@ class AuthService {
   Future<void> logout() async {
     await _storage.delete(key: 'auth_token');
 
-    print('(로그아웃) 토큰 삭제 완료');
+    log('(로그아웃) 토큰 삭제 완료');
     // 서버에 로그아웃 요청을 보낼 수도 있습니다.
     // await _dio.post('/logout');
   }
@@ -109,11 +95,10 @@ class AuthService {
   Future<bool> register(Map<String, dynamic> data) async {
     try {
       final response = await _apiService.dio.post(ApiConstants.signup, data: data);
-      print(response.statusMessage);
+      log(response.statusMessage ?? '');
       return response.statusCode == 201;
-
-    } on DioError catch (e) {
-      print('Registration error: ${e.message}');
+    } on DioException catch (e) {
+      log('Registration error: ${e.message}');
       return false;
     }
   }
@@ -122,8 +107,8 @@ class AuthService {
     try {
       final response = await _apiService.dio.get('/profile');
       return response.data;
-    } on DioError catch (e) {
-      print('Get profile error: ${e.message}');
+    } on DioException catch (e) {
+      log('Get profile error: ${e.message}');
       return null;
     }
   }
@@ -133,8 +118,7 @@ class AuthService {
     if (refreshToken == null) return false;
 
     try {
-      final response =
-          await _apiService.dio.post(ApiConstants.refreshToken, data: {
+      final response = await _apiService.dio.post(ApiConstants.refreshToken, data: {
         'refresh': refreshToken,
       });
 
@@ -146,8 +130,8 @@ class AuthService {
       } else {
         return false;
       }
-    } on DioError catch (e) {
-      print('Token refresh error: ${e.message}');
+    } on DioException catch (e) {
+      log('Token refresh error: ${e.message}');
       return false;
     }
   }
@@ -157,9 +141,11 @@ class AuthService {
       method: requestOptions.method,
       headers: requestOptions.headers,
     );
-    return _apiService.dio.request<dynamic>(requestOptions.path,
-        data: requestOptions.data,
-        queryParameters: requestOptions.queryParameters,
-        options: options);
+    return _apiService.dio.request<dynamic>(
+      requestOptions.path,
+      data: requestOptions.data,
+      queryParameters: requestOptions.queryParameters,
+      options: options,
+    );
   }
 }

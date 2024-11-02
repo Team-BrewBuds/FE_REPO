@@ -1,16 +1,9 @@
-import 'dart:convert';
+import 'dart:developer';
 
-import 'package:brew_buds/features/signup/views/signup_page.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:brew_buds/core/auth_service.dart';
+import 'package:brew_buds/features/login/models/login_model.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import '../../../core/auth_service.dart';
-import '../../../di/router.dart';
-import '../models/login_model.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class LoginPresenter {
@@ -31,21 +24,17 @@ class LoginPresenter {
         // 카카오 계정으로 로그인
         token = await UserApi.instance.loginWithKakaoAccount();
       }
-      print('카카오 로그인 성공 ${token.accessToken}');
 
       // 사용자 정보 가져오기
       User user = await UserApi.instance.me();
-      print('사용자 정보: ${user.kakaoAccount?.email}');
 
       if (user.kakaoAccount?.email != null) {
         // 서버로 token, email 정보 전송
-       return await AuthService().sendTokenData(user.kakaoAccount!.email!, token.accessToken, 'kakao') ? true : false;
+        return await AuthService().sendTokenData(user.kakaoAccount!.email!, token.accessToken, 'kakao') ? true : false;
       }
     } catch (e) {
-      print(await KakaoSdk.origin);
-      print('카카오 로그인 실패 $e');
-
-  }
+      log(await KakaoSdk.origin);
+    }
     return false;
   }
 
@@ -55,33 +44,20 @@ class LoginPresenter {
       NaverLoginResult res = await FlutterNaverLogin.logIn();
       NaverAccessToken resAccess = await FlutterNaverLogin.currentAccessToken;
 
-      print(resAccess);
-
       if (res.status == NaverLoginStatus.loggedIn) {
-        print('네이버 로그인 성공');
-        print('액세스 토큰: ${resAccess.accessToken}');
-        // 필요한 사용자 정보 활용
-        print('이메일: ${res.account.email}');
-
-        if (res.account.email != null) {
-          // 서버로 token, email 정보 전송
-          return  await AuthService()
-              .sendTokenData(res.account.email, resAccess.accessToken, 'naver') ? true : false;
-        }
-
+        return await AuthService().sendTokenData(res.account.email, resAccess.accessToken, 'naver') ? true : false;
       } else {
-        print('네이버 로그인 실패: ${res.errorMessage}');
+        log('네이버 로그인 실패: ${res.errorMessage}');
       }
 
       return true;
     } catch (e) {
-      print('네이버 로그인 에러: $e');
+      log('네이버 로그인 에러: $e');
     }
     return false;
   }
 
   Future<bool> loginWithApple() async {
-
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -89,21 +65,17 @@ class LoginPresenter {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      print(credential.identityToken);
 
       if (credential.identityToken != null) {
-        // 서버로 token, email 정보 전송
         return await AuthService().sendTokenData('', credential.identityToken!, 'apple') ? true : false;
       }
 
-
       return true;
     } catch (e) {
-      print('애플 로그인 에러: $e');
+      log('애플 로그인 에러: $e');
     }
 
     return false;
-
   }
 
   void setEmail(String email) {

@@ -27,7 +27,7 @@ final GoRouter router = GoRouter(
             final authService = AuthService();
             final loginModel = LoginModel();
             final loginPresenter = LoginPresenter(loginModel, authService);
-            return snsLogin(presenter: loginPresenter);
+            return SNSLogin(presenter: loginPresenter);
           },
         ),
         GoRoute(

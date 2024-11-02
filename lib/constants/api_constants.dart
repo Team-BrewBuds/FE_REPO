@@ -13,6 +13,4 @@ class ApiConstants {
   static String platformLogin(String platform) {
     return '/profiles/login/$platform/finish/';   // sns 로그인 api ,kakao,apple,naver
   }
-
-
 }
