@@ -43,8 +43,8 @@ class LoginPresenter {
     try {
       // 로그인 시도
       NaverLoginResult res = await FlutterNaverLogin.logIn();
+      NaverAccessToken resAccess = await FlutterNaverLogin.currentAccessToken;
 
-      NaverAccessToken resAccess = await FlutterNaverLogin.refreshAccessTokenWithRefreshToken();
 
       if (res.status == NaverLoginStatus.loggedIn) {
         return await AuthService().sendTokenData(resAccess.accessToken, 'naver') ? true : false;
@@ -52,7 +52,6 @@ class LoginPresenter {
         log('네이버 로그인 실패: ${res.errorMessage}');
       }
 
-      return true;
     } catch (e) {
       log('네이버 로그인 에러: $e');
     }
