@@ -5,6 +5,8 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
 import 'dart:developer';
 
+import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+
 class AuthService {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
@@ -62,7 +64,7 @@ class AuthService {
         return false;
       }
     } on DioException catch (e) {
-      log('Token error: ${e.message}');
+      log('error message: ${e.response?.data}');
       return false;
     }
   }
@@ -86,6 +88,7 @@ class AuthService {
 
   Future<void> logout() async {
     await _storage.delete(key: 'auth_token');
+    await FlutterNaverLogin.logOutAndDeleteToken(); //네이버 토큰 삭제
 
     log('(로그아웃) 토큰 삭제 완료');
     // 서버에 로그아웃 요청을 보낼 수도 있습니다.
