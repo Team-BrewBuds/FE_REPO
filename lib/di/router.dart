@@ -21,10 +21,13 @@ import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart
 import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
 import 'package:brew_buds/profile/profile_screen.dart';
+import 'package:brew_buds/profile/views/setting_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../profile/views/profile_edit_screen.dart';
 
 const String initialPath = '/login';
 
@@ -180,5 +183,14 @@ final router = GoRouter(
         child: const PopularPostsView(),
       ),
     ),
+    GoRoute(
+      path: '/setting',
+      builder: (context, state) => const SettingScreen()
+      ),
+    GoRoute(
+        path: '/profile_edit',
+        builder: (context, state) => const ProfileEditScreen()
+    ),
+
   ],
 );
