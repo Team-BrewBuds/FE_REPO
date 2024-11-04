@@ -44,6 +44,7 @@ class _SNSLoginState extends State<SNSLogin> {
                         children: [
                           const Expanded(
                             child: Text(
+                              textAlign: TextAlign.center,
                               '서비스 이용약관에 동의해주세요',
                               style: TextStyle(fontSize: 16),
                             ),
@@ -70,7 +71,6 @@ class _SNSLoginState extends State<SNSLogin> {
                                   value: isAllChecked,
                                   checkColor: Colors.red,
                                   activeColor: Colors.white,
-                                  tileColor: Colors.blue,
                                   title: const Text('약관 전체 동의'),
                                   onChanged: (bool? value) {
                                     setState(
@@ -82,13 +82,12 @@ class _SNSLoginState extends State<SNSLogin> {
                                     );
                                   },
                                 ),
-                              );
+                              ); // 약관 전체 동의 행
                             } else {
                               return CheckboxListTile(
                                 controlAffinity: ListTileControlAffinity.leading,
                                 checkColor: Colors.red,
                                 activeColor: Colors.white,
-                                tileColor: Colors.blue,
                                 value: _checked[index],
                                 title: Text(_terms[index]),
                                 onChanged: (bool? value) {
@@ -98,7 +97,7 @@ class _SNSLoginState extends State<SNSLogin> {
                                     },
                                   );
                                 },
-                              );
+                              ); // 나머지 모든 행
                             }
                           },
                         ),
@@ -157,7 +156,7 @@ class _SNSLoginState extends State<SNSLogin> {
     _checked = List<bool>.filled(_terms.length, false);
   }
 
-  bool get isAllChecked => _checked.sublist(0, 3).every((element) => element);
+  bool get isAllChecked => _checked.sublist(0, 4).every((element) => element);
 
   @override
   Widget build(BuildContext context) {
