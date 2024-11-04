@@ -56,7 +56,7 @@ class TastingRecordCard extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   name,
-                  style: TextStyles.headlineLargeBold.copyWith(color: ColorStyles.white),
+                  style: TextStyles.title05Bold.copyWith(color: ColorStyles.white),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

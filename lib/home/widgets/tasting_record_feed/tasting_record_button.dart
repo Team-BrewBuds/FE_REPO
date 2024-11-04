@@ -47,7 +47,7 @@ class TastingRecordButton extends StatelessWidget {
                   ),
                   Text(
                     bodyText,
-                    style: TextStyles.textMediumRegular,
+                    style: TextStyles.bodyRegular,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

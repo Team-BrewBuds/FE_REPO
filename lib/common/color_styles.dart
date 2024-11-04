@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 final class ColorStyles {
   ColorStyles._();
 
+  static const Color background = Color(0xffFFF7F5);
+
   //Primary Colors
   static const Color black = Color(0xff000000);
   static const Color white = Color(0xffffffff);
   static const Color red = Color(0xffFE2E00);
   static const Color red10 =  Color(0xFFFE2D00);
+  static const Color orange =  Color(0xFFFF5C31);
 
   //Grayscale
   static const Color gray = Color(0xffFE2E00);

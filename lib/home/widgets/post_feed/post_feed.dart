@@ -86,7 +86,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
           const SizedBox(height: 12, width: double.infinity),
           Text(
             widget.body,
-            style: TextStyles.labelMediumRegular,
+            style: TextStyles.bodyRegular,
             maxLines: bodyMaxLines,
             overflow: TextOverflow.ellipsis,
           ),
@@ -120,7 +120,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
   bool _calcOverFlow(int maxLines) {
     final width = MediaQuery.of(context).size.width - 32;
     final TextPainter bodyTextPainter = TextPainter(
-      text: TextSpan(text: widget.body, style: TextStyles.labelMediumRegular),
+      text: TextSpan(text: widget.body, style: TextStyles.bodyRegular),
       maxLines: maxLines,
       textDirection: TextDirection.ltr,
     )..layout(minWidth: 0, maxWidth: width);

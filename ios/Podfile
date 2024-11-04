@@ -1,4 +1,4 @@
-platform :ios, '13.0'
+platform :ios, '16.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -35,7 +35,7 @@ target 'Runner' do
   # 네이버 로그인 SDK 추가 (최신 버전으로 업데이트)
 # pod 'NaverThirdPartyLogin', :path => "#{File.dirname(__FILE__)}/naveridlogin-sdk-ios"
   pod 'naveridlogin-sdk-ios'
-  pod 'Firebase/CoreOnly', '~> 11.2.0'
+  pod 'Firebase/CoreOnly', '~> 11.0.0'
 
 
   target 'RunnerTests' do
@@ -50,7 +50,7 @@ post_install do |installer|
 
     # iOS 배포 타겟 버전을 12.0 이상으로 설정
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
     end
   end
 end
