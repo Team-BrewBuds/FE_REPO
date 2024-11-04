@@ -110,11 +110,9 @@ class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> {
                         selectedItems[index] = !selectedItems[index];
                         // 선택된 아이템을 업데이트
                         if (selectedItems[index]) {
-                          selectedChoices
-                              .add(lists.enjoyItems[index]['choice']!);
+                          selectedChoices.add(lists.enjoyItems[index]['choice']!);
                         } else {
-                          selectedChoices
-                              .remove(lists.enjoyItems[index]['choice']!);
+                          selectedChoices.remove(lists.enjoyItems[index]['choice']!);
                         }
 
                         print(selectedChoices);
@@ -125,20 +123,15 @@ class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                         side: BorderSide(
-                          color: selectedItems[index]
-                              ? Colors.red
-                              : ColorStyles.gray30,
+                          color: selectedItems[index] ? Colors.red : ColorStyles.gray30,
                           width: 2,
                         ),
                       ),
-                      color: selectedItems[index]
-                          ? Color(0xFFFFF7F5)
-                          : Colors.white,
+                      color: selectedItems[index] ? Color(0xFFFFF7F5) : Colors.white,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset(
-                              "assets/images/${lists.enjoyItems[index]['png']}.png"),
+                          Image.asset("assets/images/${lists.enjoyItems[index]['png']}.png"),
                           SizedBox(height: 10),
                           Text(
                             lists.enjoyItems[index]['title']!,
@@ -170,20 +163,15 @@ class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> {
             child: Text('다음'),
             onPressed: selectedChoices.isNotEmpty
                 ? () {
-                    context
-                        .read<SignUpProvider>()
-                        .getCoffeeLife(selectedChoices);
+                    context.read<SignUpProvider>().getCoffeeLife(selectedChoices);
                     context.push("/signup/cert");
                   }
                 : null, // 선택된 아이템이 없으면 비활성화
             style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 15),
-                backgroundColor: selectedChoices.isNotEmpty
-                    ? Colors.black
-                    : ColorStyles.gray30,
+                backgroundColor: selectedChoices.isNotEmpty ? Colors.black : ColorStyles.gray30,
                 foregroundColor: ColorStyles.white,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10))),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
           ),
         ),
       ),

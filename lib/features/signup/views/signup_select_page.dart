@@ -1,15 +1,11 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:brew_buds/core/auth_service.dart';
-import 'package:brew_buds/di/router.dart';
-import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
 import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -37,8 +33,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
         _preferred[lists.categories_en[i]] = [selectedIndices[i]!];
       }
     }
-    Map<String, int> incrementedMap =
-        _preferred.map((key, value) => MapEntry(key, value[0] + 1));
+    Map<String, int> incrementedMap = _preferred.map((key, value) => MapEntry(key, value[0] + 1));
     return incrementedMap;
   }
 
@@ -84,8 +79,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                             child: Container(
                               width: 84.25,
                               height: 2,
-                              decoration:
-                                  BoxDecoration(color: Color(0xFFFE2D00)),
+                              decoration: BoxDecoration(color: Color(0xFFFE2D00)),
                             ),
                           )),
                 ),
@@ -134,9 +128,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 20),
-                      Text(lists.categories[index],
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(lists.categories[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       SizedBox(height: 10),
                       _buildSelector(index),
                     ],
@@ -156,15 +148,13 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
               return ElevatedButton(
                 child: Text('다음'),
                 onPressed: () {
-
                   if (_isAllSelected()) {
                     signProvider.getPreferredBeanTaste(mapData()); // provider에 값 저장
                     try {
-
                       Map<String, dynamic> data = signProvider.toJson(); // 모든 설문 json 형식으로 데이터 형성.
                       if (data != null) {
                         // 닉네임 검사 로직 추가 해야함 ( 백엔드 기능 추가 필요)
-                        AuthService().register(data);  // api 호출 이때 db에 저장.
+                        AuthService().register(data); // api 호출 이때 db에 저장.
                         context.push('/signup/finish');
                       }
                     } on DioException catch (e) {
@@ -174,11 +164,9 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(vertical: 15),
-                  backgroundColor:
-                      _isAllSelected() ? Colors.black : ColorStyles.gray30,
+                  backgroundColor: _isAllSelected() ? Colors.black : ColorStyles.gray30,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               );
             },
@@ -236,10 +224,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                           ? BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: isSelected
-                                      ? ColorStyles.gray
-                                      : Colors.grey),
+                              border: Border.all(color: isSelected ? ColorStyles.gray : Colors.grey),
                             )
                           : null,
                       child: Center(

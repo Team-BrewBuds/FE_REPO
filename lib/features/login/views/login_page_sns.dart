@@ -145,9 +145,7 @@ class _SNSLoginState extends State<SNSLogin> {
     );
   }
 
-  void _loginSuccess() {
-
-  }
+  void _loginSuccess() {}
 
   @override
   void initState() {
@@ -258,6 +256,4 @@ class _SNSLoginState extends State<SNSLogin> {
       ),
     );
   }
-
-
 }

@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/features/login/models/login_model.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
@@ -38,20 +37,16 @@ class LoginPresenter {
   }
 
   Future<bool> loginWithNaver() async {
-
-
     try {
       // 로그인 시도
       NaverLoginResult res = await FlutterNaverLogin.logIn();
       NaverAccessToken resAccess = await FlutterNaverLogin.currentAccessToken;
-
 
       if (res.status == NaverLoginStatus.loggedIn) {
         return await AuthService().sendTokenData(resAccess.accessToken, 'naver') ? true : false;
       } else {
         log('네이버 로그인 실패: ${res.errorMessage}');
       }
-
     } catch (e) {
       log('네이버 로그인 에러: $e');
     }
@@ -70,7 +65,6 @@ class LoginPresenter {
         return await AuthService().sendTokenData(credential.identityToken!, 'apple') ? true : false;
       }
       return true;
-
     } catch (e) {
       log('애플 로그인 에러: $e');
     }
