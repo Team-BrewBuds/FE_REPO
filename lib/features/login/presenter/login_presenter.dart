@@ -58,7 +58,7 @@ class LoginPresenter {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
+          // AppleIDAuthorizationScopes.fullName,
         ],
       );
       if (credential.identityToken != null) {
@@ -92,3 +92,11 @@ class LoginPresenter {
     }
   }
 }
+
+/*
+ 토큰을 왜 회원가입이 되지 않은 상태에서 저장하는지
+
+ 소셜 로그인 -> API 호출 -> 토큰 -> 회원가입 API 호출
+
+ 소셜 로그인 -> 회원가입 작성 -> API 토큰 발생 -> 회원가입 API 호출
+ */

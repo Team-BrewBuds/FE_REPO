@@ -69,7 +69,7 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
             children: [
               Text(
                 widget.body,
-                style: TextStyles.labelMediumRegular,
+                style: TextStyles.bodyRegular,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -91,7 +91,7 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
   bool _calcOverFlow(BuildContext context) {
     final width = MediaQuery.of(context).size.width - 32;
     final TextPainter bodyTextPainter = TextPainter(
-      text: TextSpan(text: widget.body, style: TextStyles.labelMediumRegular),
+      text: TextSpan(text: widget.body, style: TextStyles.bodyRegular),
       maxLines: 2,
       textDirection: TextDirection.ltr,
     )..layout(minWidth: 0, maxWidth: width);

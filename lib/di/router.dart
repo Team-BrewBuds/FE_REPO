@@ -1,5 +1,15 @@
+import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/data/home/home_repository.dart';
 import 'package:brew_buds/data/popular_posts/popular_posts_repository.dart';
+import 'package:brew_buds/features/login/models/login_model.dart';
+import 'package:brew_buds/features/login/presenter/login_presenter.dart';
+import 'package:brew_buds/features/login/views/login_page_first.dart';
+import 'package:brew_buds/features/login/views/login_page_sns.dart';
+import 'package:brew_buds/features/signup/views/signup_cert_page.dart';
+import 'package:brew_buds/features/signup/views/signup_page.dart';
+import 'package:brew_buds/features/signup/views/signup_page_enjoy.dart';
+import 'package:brew_buds/features/signup/views/signup_page_finish.dart';
+import 'package:brew_buds/features/signup/views/signup_select_page.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/all/home_all_view.dart';
 import 'package:brew_buds/home/home_screen.dart';
@@ -16,18 +26,66 @@ import 'package:animations/animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-const String initialPath = '/home/all';
+const String initialPath = '/login';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
 
 final router = GoRouter(
-  initialLocation: initialPath,
+  initialLocation: '/home/all',
   routes: [
+    GoRoute(
+      path: '/login',
+      builder: (BuildContext context, GoRouterState state) {
+        return const LoginPageFirst();
+      },
+      routes: <RouteBase>[
+        GoRoute(
+          path: 'sns',
+          builder: (BuildContext context, GoRouterState state) {
+            final authService = AuthService();
+            final loginModel = LoginModel();
+            final loginPresenter = LoginPresenter(loginModel, authService);
+            return SNSLogin(presenter: loginPresenter);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/signup',
+      builder: (BuildContext context, GoRouterState state) {
+        return Signup();
+      },
+      routes: [
+        GoRoute(
+          path: 'enjoy',
+          builder: (BuildContext context, GoRouterState state) {
+            return SignUpEnjoy();
+          },
+        ),
+        GoRoute(
+          path: 'cert',
+          builder: (BuildContext context, GoRouterState state) {
+            return const SignUpCert();
+          },
+        ),
+        GoRoute(
+          path: 'select',
+          builder: (BuildContext context, GoRouterState state) {
+            return SignUpSelect();
+          },
+        ),
+        GoRoute(
+          path: 'finish',
+          builder: (BuildContext context, GoRouterState state) {
+            return SignupPageFinish();
+          },
+        ),
+      ],
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, bottomNavigationShell) => MainView(navigationShell: bottomNavigationShell),
       branches: [
-        StatefulShellBranch(
-          //홈 화면
+        StatefulShellBranch(//홈 화면
           routes: [
             ShellRoute(
               builder: (context, state, child) => HomeView(nestedScrollViewState: homeTabBarScrollState, child: child),
@@ -110,7 +168,7 @@ final router = GoRouter(
         StatefulShellBranch(
           //프로필 화면
           routes: [
-            GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
+            GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen()),
           ],
         ),
       ],
@@ -119,7 +177,7 @@ final router = GoRouter(
       path: '/popular_post',
       builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
         create: (_) => PopularPostsPresenter(repository: PopularPostsRepository.instance),
-        child: PopularPostsView(),
+        child: const PopularPostsView(),
       ),
     ),
   ],

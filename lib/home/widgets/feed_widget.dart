@@ -99,7 +99,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
                     child: Text(
                       //작성 시간 및 조회수
                       '${widget.writingTime}・${widget.hits}',
-                      style: TextStyles.labelSmallRegular.copyWith(color: ColorStyles.gray50),
+                      style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
                     ),
                   )
                 ],
