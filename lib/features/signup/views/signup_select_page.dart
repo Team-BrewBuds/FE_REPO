@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
 import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_connect/http/src/utils/utils.dart';
@@ -158,15 +160,15 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                   if (_isAllSelected()) {
                     signProvider.getPreferredBeanTaste(mapData()); // provider에 값 저장
                     try {
+
                       Map<String, dynamic> data = signProvider.toJson(); // 모든 설문 json 형식으로 데이터 형성.
                       if (data != null) {
-                        print(jsonEncode(data));
                         // 닉네임 검사 로직 추가 해야함 ( 백엔드 기능 추가 필요)
-                        AuthService().register(data);  // api 호출
+                        AuthService().register(data);  // api 호출 이때 db에 저장.
                         context.push('/signup/finish');
                       }
-                    } catch (e) {
-                      print(e);
+                    } on DioException catch (e) {
+                      log('회원가입 에러: $e');
                     }
                   }
                 },
