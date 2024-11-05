@@ -12,14 +12,14 @@ import 'package:velocity_x/velocity_x.dart';
 
 import '../../features/login/presenter/login_presenter.dart';
 
-class SettingScreen extends StatefulWidget {
-  const SettingScreen({super.key});
+class SettingView extends StatefulWidget {
+  const SettingView({super.key});
 
   @override
-  State<SettingScreen> createState() => _SettingScreenState();
+  State<SettingView> createState() => _SettingViewState();
 }
 
-class _SettingScreenState extends State<SettingScreen> {
+class _SettingViewState extends State<SettingView> {
   List<String> setting =['사용자 설정','알림설정','차단 관리'];
   List<String> account =['계정','계정 정보','맞춤 정보'];
   List<String> backup =['지원','공지사항','도움말','개선 및 의견 남기기','앱 평가하기', '원두 등록 요청','1:1문의'];

@@ -60,6 +60,7 @@ flutter:
     - assets/images/login/
     - assets/icons/
 
+
   fonts:
     - family: Pretendard
       fonts:
