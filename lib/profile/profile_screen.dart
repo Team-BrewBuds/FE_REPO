@@ -13,9 +13,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Placeholder(
       child: TextButton(onPressed: (){
-        GoRouter.of(context).push('/profile_edit');
+        GoRouter.of(context).push('/profile_fitInfo');
       }
-   , child: const Text('profile_edit')),
+   , child: const Text('profile_fitInfo')),
     );
   }
 }
