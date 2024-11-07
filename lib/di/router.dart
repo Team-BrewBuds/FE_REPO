@@ -27,9 +27,10 @@ import 'package:animations/animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../profile/profile_edit/profile_edit_presenter.dart';
-import '../profile/profile_edit/profile_edit_view.dart';
-import '../profile/views/profile_fitInfo_view.dart';
+import 'package:brew_buds/profile/presenter/edit_presenter.dart';
+import '../profile/views/edit_view.dart';
+import '../profile/views/fitInfo_view.dart';
+
 
 const String initialPath = '/login';
 
@@ -214,8 +215,6 @@ final router = GoRouter(
                 create: (_) => ProfileEditPresenter(),
                 child: const ProfileEditScreen())),
 
-    GoRoute(
-        path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
 
 
 

@@ -5,7 +5,7 @@ import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
-import 'package:brew_buds/profile/profile_edit/edit_presenter.dart';
+import 'package:brew_buds/profile/presenter/edit_presenter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
