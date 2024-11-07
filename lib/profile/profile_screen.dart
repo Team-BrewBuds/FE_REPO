@@ -11,11 +11,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return Placeholder(
-      child: TextButton(onPressed: (){
-        GoRouter.of(context).push('/profile_fitInfo');
-      }
-   , child: const Text('profile_fitInfo')),
-    );
+    return Placeholder();
+
   }
 }
