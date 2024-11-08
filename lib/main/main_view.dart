@@ -34,7 +34,7 @@ class _MainViewState extends State<MainView> {
               ),
               BottomNavigationBarItem(
                 icon: _createSvgIcon(path: 'assets/icons/search.svg'),
-                activeIcon: _createSvgIcon(path: 'assets/icons/search_red.svg', isActive: true),
+                activeIcon: _createSvgIcon(path: 'assets/icons/search_fill.svg', isActive: true),
                 label: '검색',
               ),
               BottomNavigationBarItem(
