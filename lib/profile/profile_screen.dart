@@ -11,7 +11,38 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return Placeholder();
+    return Scaffold(
+      body:
+      Center(
+        child: Column(children: [
+          SizedBox(height: 30,),
+
+          Container(
+            child: ElevatedButton(onPressed: (){
+              context.push('/profile_fitInfo');
+            }, child: Text('fit')),
+          ),
+          Container(
+            child: ElevatedButton(onPressed: (){
+              context.push('/profile_accountInfo');
+            }, child: Text('account')),
+          ),
+          Container(
+            child: ElevatedButton(onPressed: (){
+              context.push('/profile_setting');
+            }, child: Text('set')),
+          ),
+          Container(
+            child: ElevatedButton(onPressed: (){
+              context.push('/profile_edit');
+            }, child: Text('hi')),
+          ),
+        ]),
+      )
+
+
+
+    );
 
   }
 }

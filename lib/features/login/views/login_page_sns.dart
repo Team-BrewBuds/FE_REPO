@@ -113,7 +113,7 @@ class _SNSLoginState extends State<SNSLogin> {
                                 switch (name) {
                                   case 'kakao':
                                     if (await widget.presenter.loginWithKakao()) {
-                                      context.push("/signup");
+                                      context.push("/home/all");
                                     }
                                   case 'naver':
                                     if (await widget.presenter.loginWithNaver()) {

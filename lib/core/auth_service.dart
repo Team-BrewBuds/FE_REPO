@@ -56,6 +56,8 @@ class AuthService {
         // 서버에서 받은 각 토큰 로컬스토리지에 저장.
         await _storage.write(key: 'auth_token', value: auth_token);
         await _storage.write(key: 'refresh', value: refrest_token);
+
+        log('${_storage.read(key:'auth_token')}');
         return true;
 
       }
