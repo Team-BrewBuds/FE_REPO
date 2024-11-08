@@ -5,6 +5,8 @@ import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+
+
 part 'home_api.g.dart';
 
 @RestApi()
@@ -31,6 +33,7 @@ abstract class HomeApi {
 
   @GET('/records/tasted_record')
   Future<RecommendedUserPage> fetchRecommendedUserPage();
+
 
   factory HomeApi(Dio dio) = _HomeApi;
 }

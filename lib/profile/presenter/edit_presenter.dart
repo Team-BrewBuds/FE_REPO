@@ -1,16 +1,25 @@
 import 'dart:developer';
 
+import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/features/signup/views/signup_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 
+import '../../data/profile/profile_repository.dart';
 import '../../features/signup/models/signup_lists.dart';
+import '../../model/profile.dart';
 
 final class ProfileEditPresenter extends ChangeNotifier {
   // 커피 생활 선택에 필요한 리스트
+  final ProfileRepository _repository;
   final SignUpLists _lists = SignUpLists();
   List<bool> _selectedItems = List.generate(6, (_) => false);
   List<String> _selectedChoices = [];
+
+  ProfileEditPresenter({
+    required ProfileRepository repository ,
+}) : _repository = repository;
 
 
 
@@ -35,6 +44,11 @@ final class ProfileEditPresenter extends ChangeNotifier {
     _selectedChoices.clear();
     _selectedItems = List.generate(_selectedItems.length, (index) => false);
     notifyListeners();
+  }
+
+
+  void getProfileInfo(){
+    _repository.fetchProfile();
   }
 
 

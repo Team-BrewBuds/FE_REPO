@@ -3,18 +3,20 @@ import 'dart:io';
 
 import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/core/auth_service.dart';
+import 'package:brew_buds/data/profile/profile_repository.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
+import 'package:brew_buds/model/profile.dart';
 import 'package:brew_buds/profile/presenter/edit_presenter.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:provider/provider.dart';
 import '../../common/text_styles.dart';
-import '../../features/signup/models/signup_lists.dart';
+
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -25,8 +27,8 @@ class ProfileEditScreen extends StatefulWidget {
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
-
-  final TextEditingController _nickNameTextController = TextEditingController( );
+  final ProfileRepository _repository = ProfileRepository();
+  late TextEditingController _nickNameTextController = TextEditingController();
   final TextEditingController _infoTextController = TextEditingController();
   final TextEditingController _linkTextController = TextEditingController();
   late List<TextEditingController> _coffeLifeTextController = [];
@@ -37,6 +39,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
 
 
+// 프로필 이미지 선택
   Future<void> _pickImage() async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 60);
@@ -48,12 +51,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+
+// 프로필 정보 가져오기
+  Future<void> getProfile() async{
+    Profile profile = await _repository.fetchProfile();
+
+    setState(() {
+      _nickNameTextController.text = profile.nickname;
+    });
+
+
+  }
+
+
+
   @override
   void initState() {
-
-    // TODO: implement initState
     super.initState();
-    log('');
+    _nickNameTextController = TextEditingController();
+    getProfile();
+
 
 
   }
@@ -78,8 +95,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ],
       ),
       body: Consumer<ProfileEditPresenter>(
-        builder: (BuildContext context, ProfileEditPresenter provider,
-            Widget? child) {
+        builder: (BuildContext context, ProfileEditPresenter provider, Widget? child) {
           return SingleChildScrollView(
             child: Container(
               child: Padding(
@@ -127,9 +143,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ),
                     TextFormField(
                         controller: _nickNameTextController,
-
                         cursorColor: ColorStyles.gray40,
-                        decoration: _TextFormFieldStyles.getInputDecoration()),
+                        decoration: _TextFormFieldStyles.getInputDecoration(
+                          hintText: _nickNameTextController.text
+                        // labelText: _nickNameTextController.text,
+                        )),
                     const SizedBox(
                       height: 10,
                     ),
@@ -456,8 +474,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
 class _TextFormFieldStyles {
   static InputDecoration getInputDecoration(
-      {EdgeInsets? padding, String? hintText}) {
+      {EdgeInsets? padding, String? hintText , String ? labelText}) {
     return InputDecoration(
+      labelText: labelText,
       hintText: hintText,
       hintStyle: TextStyle(color: ColorStyles.gray40, fontSize: 13),
       contentPadding: padding,
