@@ -51,5 +51,11 @@ final class ProfileEditPresenter extends ChangeNotifier {
     _repository.fetchProfile();
   }
 
+  void editProfile(){
+    Map<String,dynamic> map = {};
+    // Profile _pro = Profile(nickname: nickname)
+     _repository.fetchUpdateProfile(map);
+  }
+
 
 }

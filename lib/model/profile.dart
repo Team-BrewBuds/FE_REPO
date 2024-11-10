@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'user.dart';
+
 part 'profile.freezed.dart';
 
 part 'profile.g.dart';
@@ -12,11 +14,16 @@ class Profile with _$Profile {
     @JsonKey()  Map<String,Map<String,dynamic>>? coffLife,
     @JsonKey(defaultValue: 0)  int ?followingCnt,
     @JsonKey(defaultValue: 0) int ?followerCnt,
-    @JsonKey(defaultValue: 0)  int ?postCnt
+    @JsonKey(defaultValue: 0)  int ?postCnt,
 
 
   }) = _Profile;
 
 
   factory Profile.fromJson(Map<String, Object?> json) => _$ProfileFromJson(json);
+
+
+
+
+
 }

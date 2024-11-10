@@ -17,7 +17,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../common/text_styles.dart';
 
-
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
 
@@ -26,7 +25,6 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-
   final ProfileRepository _repository = ProfileRepository();
   late TextEditingController _nickNameTextController = TextEditingController();
   final TextEditingController _infoTextController = TextEditingController();
@@ -36,8 +34,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // 프로필 이미지 변경
   final ImagePicker _picker = ImagePicker();
   File? _profileFile;
-
-
 
 // 프로필 이미지 선택
   Future<void> _pickImage() async {
@@ -51,28 +47,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-
 // 프로필 정보 가져오기
-  Future<void> getProfile() async{
+  Future<void> getProfile() async {
     Profile profile = await _repository.fetchProfile();
 
     setState(() {
       _nickNameTextController.text = profile.nickname;
     });
-
-
   }
-
-
 
   @override
   void initState() {
     super.initState();
     _nickNameTextController = TextEditingController();
     getProfile();
-
-
-
   }
 
   @override
@@ -86,7 +74,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+                // ProfileEditPresenter(repository: _repository).editProfile();
+              },
               child: Text(
                 '저장',
                 style: TextStyle(color: ColorStyles.red, fontSize: 20),
@@ -95,7 +85,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ],
       ),
       body: Consumer<ProfileEditPresenter>(
-        builder: (BuildContext context, ProfileEditPresenter provider, Widget? child) {
+        builder: (BuildContext context, ProfileEditPresenter provider,
+            Widget? child) {
           return SingleChildScrollView(
             child: Container(
               child: Padding(
@@ -109,25 +100,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         alignment: Alignment.bottomRight,
                         children: [
                           ClipRRect(
-                              borderRadius: BorderRadius.circular(50.0),
-                              child: _profileFile != null
-                                  ? Image.file(
-                                      _profileFile!,
-                                      width: 100.0,
-                                      height: 100.0,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const Text('') // child: Image.
-                              ),
+                            borderRadius: BorderRadius.circular(100.0),
+                            child: Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100.0),
+                                  border: Border.all(
+                                      width: 0.5, color: ColorStyles.black),
+                                ),
+                                child: Container()),
+                          ),
                           GestureDetector(
                             onTap: _pickImage, // 카메라 클릭 시 이미지 선택
                             child: Container(
+                              width: 30, height: 30,
                               decoration: BoxDecoration(
-                                color: Colors.grey, // 아이콘 배경 색상
-                                shape: BoxShape.circle,
-                              ),
-                              padding: EdgeInsets.all(8.0), // 아이콘 여백
+                                  color: ColorStyles.gray40, // 아이콘 배경 색상
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.black, width: 0.5)),
+                              // padding: EdgeInsets.all(10.0), // 아이콘 여백
                               child: Icon(
+                                size: 20.0,
                                 Icons.camera_alt, // 카메라 아이콘
                                 color: Colors.black, // 아이콘 색상
                               ),
@@ -145,9 +140,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         controller: _nickNameTextController,
                         cursorColor: ColorStyles.gray40,
                         decoration: _TextFormFieldStyles.getInputDecoration(
-                          hintText: _nickNameTextController.text
-                        // labelText: _nickNameTextController.text,
-                        )),
+                            hintText: _nickNameTextController.text
+                            // labelText: _nickNameTextController.text,
+                            )),
                     const SizedBox(
                       height: 10,
                     ),
@@ -203,31 +198,45 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       children: [
                         Expanded(
                           child: Container(
-                              height: 25.0,
-                              child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: provider.selectedChoices.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 2.0),
-                                      child: ButtonFactory.buildOvalButton(
-                                          onTapped: () {},
-                                          text: provider.selectedChoices[index],
-                                          style: OvalButtonStyle.fill(
-                                            color: ColorStyles.black,
-                                            textColor: ColorStyles.white,
-                                            size: OvalButtonSize.medium,
-                                          )),
-                                    );
-                                  })),
+                              height: 45.0,
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: ColorStyles.gray40, width: 0.5)),
+                              child: Row(
+
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: provider.selectedChoices.length,
+                                        padding: EdgeInsets.all(8.0),
+                                        itemBuilder: (context, index) {
+                                          return Container(
+                                            margin:
+                                            EdgeInsets.symmetric(horizontal: 2.0),
+                                            child: ButtonFactory.buildOvalButton(
+                                                onTapped: () {},
+                                                text: provider.selectedChoices[index],
+                                                style: OvalButtonStyle.fill(
+                                                  color: ColorStyles.black,
+                                                  textColor: ColorStyles.white,
+                                                  size: OvalButtonSize.medium,
+                                                )),
+                                          );
+                                        }),
+                                  ),
+                                  SizedBox(
+                                    child: IconButton(
+                                        onPressed: provider.clearChoices,
+                                        icon: SvgPicture.asset(
+                                            'assets/icons/x_round.svg')),
+                                  ),
+                                ],
+                              )),
                         ),
                         SizedBox(width: 5),
-                        SizedBox(
-                          child: IconButton(
-                              onPressed: provider.clearChoices,
-                              icon: SvgPicture.asset('assets/icons/x_round.svg')),
-                        ),
 
                         // 정보 설정 버튼
                         SizedBox(
@@ -474,7 +483,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
 class _TextFormFieldStyles {
   static InputDecoration getInputDecoration(
-      {EdgeInsets? padding, String? hintText , String ? labelText}) {
+      {EdgeInsets? padding, String? hintText, String? labelText}) {
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
