@@ -34,7 +34,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Container(
             child: ElevatedButton(onPressed: (){
-              context.push('/profile_edit');
+              context.push('/profile_block');
             }, child: Text('hi')),
           ),
         ]),

@@ -1,3 +1,4 @@
+import 'package:brew_buds/model/profile_detail.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'user.dart';
@@ -15,6 +16,7 @@ class Profile with _$Profile {
     @JsonKey(defaultValue: 0)  int ?followingCnt,
     @JsonKey(defaultValue: 0) int ?followerCnt,
     @JsonKey(defaultValue: 0)  int ?postCnt,
+    @JsonKey() ProfileDetail ? profileDetail,
 
 
   }) = _Profile;
