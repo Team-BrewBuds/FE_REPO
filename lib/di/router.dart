@@ -30,6 +30,7 @@ import 'package:provider/provider.dart';
 
 import 'package:brew_buds/profile/presenter/edit_presenter.dart';
 import '../profile/views/account_info_view.dart';
+import '../profile/views/block.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
@@ -218,8 +219,12 @@ final router = GoRouter(
         path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
     GoRoute(
         path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
-
-
+    GoRoute(
+        path: '/profile_block',
+        builder: (context, state) =>
+            ChangeNotifierProvider<ProfileEditPresenter>(
+                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
+                child: const BlockView())),
 
 
 
