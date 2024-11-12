@@ -2,6 +2,7 @@ import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/profile/widgets/sort_criteria_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -272,7 +273,44 @@ class _ProfileViewState extends State<ProfileView> {
           child: Row(
             children: [
               _buildIcon(
-                onTap: () {},
+                onTap: () {
+                  showGeneralDialog(
+                    barrierLabel: "Barrier",
+                    barrierDismissible: true,
+                    barrierColor: Colors.black.withOpacity(0.5),
+                    transitionDuration: const Duration(milliseconds: 300),
+                    context: context,
+                    pageBuilder: (_, __, ___) {
+                      return SortCriteriaBottomSheet(
+                        itemCount: 3,
+                        itemBuilder: (index) {
+                          return InkWell(
+                            onTap: () {},
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 20,
+                                horizontal: 16,
+                              ),
+                              child: Row(
+                                children: [
+                                  Text('최근 찜한 순', style: TextStyles.labelMediumMedium),
+                                  Spacer(),
+                                  Icon(Icons.check, size: 15, color: ColorStyles.red),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    transitionBuilder: (_, anim, __, child) {
+                      return SlideTransition(
+                        position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
+                        child: child,
+                      );
+                    },
+                  );
+                },
                 text: '최근저장순',
                 iconPath: 'assets/icons/arrow_up_down.svg',
                 isLeftIcon: true,
