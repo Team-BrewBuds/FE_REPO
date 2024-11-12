@@ -20,6 +20,7 @@ final class ButtonFactory {
         child: Text(
           text,
           style: style.size.textStyle.copyWith(color: style.textColor),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -30,7 +31,7 @@ final class ButtonFactory {
       onTap: onTapped,
       child: Container(
         width: style.size.width,
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
         decoration: BoxDecoration(
             color: style.backgroundColor,
             borderRadius: BorderRadius.circular(8),
@@ -41,6 +42,7 @@ final class ButtonFactory {
         child: Text(
           text,
           style: TextStyles.labelMediumMedium.copyWith(color: style.textColor),
+          textAlign: TextAlign.center,
         ),
       ),
     );
