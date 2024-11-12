@@ -43,187 +43,9 @@ class _ProfileViewState extends State<ProfileView> {
         child: CustomScrollView(
           controller: scrollController,
           slivers: [
-            SliverAppBar(
-              titleSpacing: 0,
-              pinned: true,
-              title: Padding(
-                padding: const EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 12),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('출근하자마자커피한잔'),
-                    const Spacer(),
-                    InkWell(
-                      onTap: () {},
-                      child: SvgPicture.asset(
-                        'assets/icons/setting.svg',
-                        fit: BoxFit.cover,
-                        height: 24,
-                        width: 24,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          height: 80,
-                          width: 80,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFD9D9D9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Container(),
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Text(
-                                      '000',
-                                      style: TextStyles.captionMediumMedium,
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      '시음기록',
-                                      style: TextStyles.captionMediumRegular,
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      '000',
-                                      style: TextStyles.captionMediumMedium,
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      '팔로워',
-                                      style: TextStyles.captionMediumRegular,
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  children: [
-                                    Text(
-                                      '000',
-                                      style: TextStyles.captionMediumMedium,
-                                    ),
-                                    SizedBox(height: 6),
-                                    Text(
-                                      '팔로잉',
-                                      style: TextStyles.captionMediumRegular,
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
-                          decoration: const BoxDecoration(
-                            color: ColorStyles.gray20,
-                            borderRadius: BorderRadius.all(Radius.circular(40)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
-                              InkWell(
-                                onTap: () {},
-                                child: SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
-                              )
-                            ],
-                          ),
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        ButtonFactory.buildRoundedButton(
-                          onTapped: () {},
-                          text: '취향 리포트 보기',
-                          style: RoundedButtonStyle.fill(
-                            size: RoundedButtonSize.medium,
-                            color: ColorStyles.black,
-                            textColor: ColorStyles.white,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ButtonFactory.buildRoundedButton(
-                          onTapped: () {},
-                          text: '프로필 편집',
-                          style: RoundedButtonStyle.fill(
-                            size: RoundedButtonSize.medium,
-                            color: ColorStyles.gray30,
-                            textColor: ColorStyles.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            SliverAppBar(
-              floating: true,
-              titleSpacing: 0,
-              title: TabBar(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-                indicatorWeight: 2,
-                indicatorPadding: const EdgeInsets.only(top: 4),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorColor: ColorStyles.black,
-                labelPadding: const EdgeInsets.only(top: 8),
-                labelStyle: TextStyles.title01SemiBold,
-                labelColor: ColorStyles.black,
-                unselectedLabelStyle: TextStyles.title01SemiBold,
-                unselectedLabelColor: ColorStyles.gray50,
-                dividerHeight: 0,
-                overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-                tabs: const [
-                  Tab(text: '시음기록', height: 31),
-                  Tab(text: '게시글', height: 31),
-                  Tab(text: '찜한 원두', height: 31),
-                  Tab(text: '저장한 노트', height: 31),
-                ],
-                onTap: (index) {
-                  if (currentIndex == index) {
-                    setState(() {
-                      isRefresh = true;
-                    });
-                    Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-                      setState(() {
-                        isRefresh = false;
-                      });
-                    });
-                  } else {
-                    setState(() {
-                      currentIndex = index;
-                    });
-                  }
-                },
-              ),
-            ),
+            _buildTitle(),
+            _buildProfile(),
+            _buildTabBar(),
             SliverToBoxAdapter(child: Container(height: 1, width: double.infinity, color: ColorStyles.gray30)),
             currentIndex == 0 || currentIndex == 2 ? _buildFilter() : const SliverToBoxAdapter(),
             SliverFillRemaining(child: isRefresh ? Container() : _buildGridView()),
@@ -248,6 +70,196 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  SliverAppBar _buildTitle() {
+    return SliverAppBar(
+      titleSpacing: 0,
+      pinned: true,
+      title: Padding(
+        padding: const EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text('출근하자마자커피한잔'),
+            const Spacer(),
+            InkWell(
+              onTap: () {},
+              child: SvgPicture.asset(
+                'assets/icons/setting.svg',
+                fit: BoxFit.cover,
+                height: 24,
+                width: 24,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SliverToBoxAdapter _buildProfile() {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  height: 80,
+                  width: 80,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFD9D9D9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(),
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              '000',
+                              style: TextStyles.captionMediumMedium,
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              '시음기록',
+                              style: TextStyles.captionMediumRegular,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              '000',
+                              style: TextStyles.captionMediumMedium,
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              '팔로워',
+                              style: TextStyles.captionMediumRegular,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              '000',
+                              style: TextStyles.captionMediumMedium,
+                            ),
+                            SizedBox(height: 6),
+                            Text(
+                              '팔로잉',
+                              style: TextStyles.captionMediumRegular,
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.gray20,
+                    borderRadius: BorderRadius.all(Radius.circular(40)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
+                      InkWell(
+                        onTap: () {},
+                        child: SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
+                      )
+                    ],
+                  ),
+                ),
+                const Spacer(),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                ButtonFactory.buildRoundedButton(
+                  onTapped: () {},
+                  text: '취향 리포트 보기',
+                  style: RoundedButtonStyle.fill(
+                    size: RoundedButtonSize.medium,
+                    color: ColorStyles.black,
+                    textColor: ColorStyles.white,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ButtonFactory.buildRoundedButton(
+                  onTapped: () {},
+                  text: '프로필 편집',
+                  style: RoundedButtonStyle.fill(
+                    size: RoundedButtonSize.medium,
+                    color: ColorStyles.gray30,
+                    textColor: ColorStyles.black,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SliverAppBar _buildTabBar() {
+    return SliverAppBar(
+      floating: true,
+      titleSpacing: 0,
+      title: TabBar(
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+        indicatorWeight: 2,
+        indicatorPadding: const EdgeInsets.only(top: 4),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicatorColor: ColorStyles.black,
+        labelPadding: const EdgeInsets.only(top: 8),
+        labelStyle: TextStyles.title01SemiBold,
+        labelColor: ColorStyles.black,
+        unselectedLabelStyle: TextStyles.title01SemiBold,
+        unselectedLabelColor: ColorStyles.gray50,
+        dividerHeight: 0,
+        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        tabs: const [
+          Tab(text: '시음기록', height: 31),
+          Tab(text: '게시글', height: 31),
+          Tab(text: '찜한 원두', height: 31),
+          Tab(text: '저장한 노트', height: 31),
+        ],
+        onTap: (index) {
+          if (currentIndex == index) {
+            setState(() {
+              isRefresh = true;
+            });
+            Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
+              setState(() {
+                isRefresh = false;
+              });
+            });
+          } else {
+            setState(() {
+              currentIndex = index;
+            });
+          }
+        },
+      ),
+    );
+  }
+
   SliverAppBar _buildFilter() {
     return SliverAppBar(
       titleSpacing: 0,
@@ -259,162 +271,84 @@ class _ProfileViewState extends State<ProfileView> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 8, bottom: 4, left: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/arrow_up_down.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 2),
-                      const Text('최근저장순', style: TextStyles.captionMediumRegular),
-                    ],
-                  ),
-                ),
+                text: '최근저장순',
+                iconPath: 'assets/icons/arrow_up_down.svg',
+                isLeftIcon: true,
               ),
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 8, bottom: 4, left: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/union.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 2),
-                      const Text('필터', style: TextStyles.captionMediumRegular),
-                    ],
-                  ),
-                ),
+                text: '필터',
+                iconPath: 'assets/icons/union.svg',
+                isLeftIcon: true,
               ),
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 4, bottom: 4, left: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('원두유형', style: TextStyles.captionMediumRegular),
-                      const SizedBox(width: 2),
-                      SvgPicture.asset(
-                        'assets/icons/down.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                  ),
-                ),
+                text: '원두유형',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
               ),
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 4, bottom: 4, left: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('생산 국가', style: TextStyles.captionMediumRegular),
-                      const SizedBox(width: 2),
-                      SvgPicture.asset(
-                        'assets/icons/down.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                  ),
-                ),
+                text: '생산 국가',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
               ),
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 4, bottom: 4, left: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('평균 별점', style: TextStyles.captionMediumRegular),
-                      const SizedBox(width: 2),
-                      SvgPicture.asset(
-                        'assets/icons/down.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                  ),
-                ),
+                text: '평균 별점',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
               ),
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 4, bottom: 4, left: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('로스팅 포인트', style: TextStyles.captionMediumRegular),
-                      const SizedBox(width: 2),
-                      SvgPicture.asset(
-                        'assets/icons/down.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                  ),
-                ),
+                text: '로스팅 포인트',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
               ),
-              InkWell(
+              _buildIcon(
                 onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, right: 4, bottom: 4, left: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: ColorStyles.gray70, width: 1),
-                    borderRadius: const BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('디카페인', style: TextStyles.captionMediumRegular),
-                      const SizedBox(width: 2),
-                      SvgPicture.asset(
-                        'assets/icons/down.svg',
-                        height: 18,
-                        width: 18,
-                        fit: BoxFit.cover,
-                      ),
-                    ],
-                  ),
-                ),
+                text: '디카페인',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
               ),
             ].separator(separatorWidget: const SizedBox(width: 4)).toList(),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIcon({
+    required void Function() onTap,
+    required String text,
+    required String iconPath,
+    required bool isLeftIcon,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: 4,
+          right: isLeftIcon ? 8 : 4,
+          bottom: 4,
+          left: isLeftIcon ? 4 : 8,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(color: ColorStyles.gray70, width: 1),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+        ),
+        child: Row(
+          children: [
+            isLeftIcon
+                ? SvgPicture.asset(iconPath, height: 18, width: 18, fit: BoxFit.cover)
+                : Text(text, style: TextStyles.captionMediumRegular),
+            const SizedBox(width: 2),
+            isLeftIcon
+                ? Text(text, style: TextStyles.captionMediumRegular)
+                : SvgPicture.asset(iconPath, height: 18, width: 18, fit: BoxFit.cover),
+          ],
         ),
       ),
     );
