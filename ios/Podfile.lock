@@ -1,4 +1,6 @@
 PODS:
+  - camera_avfoundation (0.0.1):
+    - Flutter
   - Firebase/CoreOnly (11.0.0):
     - FirebaseCore (= 11.0.0)
   - firebase_core (3.4.0):
@@ -47,6 +49,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
   - Firebase/CoreOnly (~> 11.0.0)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
@@ -71,6 +74,8 @@ SPEC REPOS:
     - naveridlogin-sdk-ios
 
 EXTERNAL SOURCES:
+  camera_avfoundation:
+    :path: ".symlinks/plugins/camera_avfoundation/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
@@ -97,6 +102,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
+  camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
   firebase_core: ceec591a66629daaee82d3321551692c4a871493
   FirebaseCore: 3cf438f431f18c12cdf2aaf64434648b63f7e383
