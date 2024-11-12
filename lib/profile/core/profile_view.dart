@@ -2,9 +2,12 @@ import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/profile/core/profile_presenter.dart';
 import 'package:brew_buds/profile/widgets/sort_criteria_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class ProfileView extends StatefulWidget {
   final Widget child;
@@ -41,16 +44,18 @@ class _ProfileViewState extends State<ProfileView> {
       length: 4,
       initialIndex: 0,
       child: SafeArea(
-        child: CustomScrollView(
-          controller: scrollController,
-          slivers: [
-            _buildTitle(),
-            _buildProfile(),
-            _buildTabBar(),
-            SliverToBoxAdapter(child: Container(height: 1, width: double.infinity, color: ColorStyles.gray30)),
-            currentIndex == 0 || currentIndex == 2 ? _buildFilter() : const SliverToBoxAdapter(),
-            SliverFillRemaining(child: isRefresh ? Container() : _buildGridView()),
-          ],
+        child: Consumer<ProfilePresenter>(
+          builder: (context, presenter, _) => CustomScrollView(
+            controller: scrollController,
+            slivers: [
+              _buildTitle(),
+              _buildProfile(),
+              _buildTabBar(),
+              SliverToBoxAdapter(child: Container(height: 1, width: double.infinity, color: ColorStyles.gray30)),
+              currentIndex == 0 || currentIndex == 2 ? _buildFilter(presenter) : const SliverToBoxAdapter(),
+              SliverFillRemaining(child: isRefresh ? Container() : _buildGridView()),
+            ],
+          ),
         ),
       ),
     );
@@ -261,7 +266,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  SliverAppBar _buildFilter() {
+  SliverAppBar _buildFilter(ProfilePresenter presenter) {
     return SliverAppBar(
       titleSpacing: 0,
       floating: true,
@@ -285,17 +290,29 @@ class _ProfileViewState extends State<ProfileView> {
                         itemCount: 3,
                         itemBuilder: (index) {
                           return InkWell(
-                            onTap: () {},
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(
+                            onTap: () {
+                              presenter.onChangeSortCriteriaIndex(index);
+                              context.pop();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
                                 vertical: 20,
                                 horizontal: 16,
                               ),
                               child: Row(
                                 children: [
-                                  Text('최근 찜한 순', style: TextStyles.labelMediumMedium),
-                                  Spacer(),
-                                  Icon(Icons.check, size: 15, color: ColorStyles.red),
+                                  Text(
+                                    presenter.sortCriteriaList[index].columnString,
+                                    style: TextStyles.labelMediumMedium.copyWith(
+                                      color: presenter.currentSortCriteriaIndex == index
+                                          ? ColorStyles.red
+                                          : ColorStyles.black,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  presenter.currentSortCriteriaIndex == index
+                                      ? const Icon(Icons.check, size: 15, color: ColorStyles.red)
+                                      : Container(),
                                 ],
                               ),
                             ),
@@ -311,7 +328,7 @@ class _ProfileViewState extends State<ProfileView> {
                     },
                   );
                 },
-                text: '최근저장순',
+                text: presenter.currentSortCriteria,
                 iconPath: 'assets/icons/arrow_up_down.svg',
                 isLeftIcon: true,
               ),
