@@ -22,6 +22,8 @@ import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart
 import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
 import 'package:brew_buds/profile/profile_screen.dart';
+import 'package:brew_buds/profile/views/account_out_view.dart';
+import 'package:brew_buds/profile/views/alarm_view.dart';
 import 'package:brew_buds/profile/views/setting_view.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -30,7 +32,7 @@ import 'package:provider/provider.dart';
 
 import 'package:brew_buds/profile/presenter/edit_presenter.dart';
 import '../profile/views/account_info_view.dart';
-import '../profile/views/block.dart';
+import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
@@ -225,6 +227,11 @@ final router = GoRouter(
             ChangeNotifierProvider<ProfileEditPresenter>(
                 create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
                 child: const BlockView())),
+
+    GoRoute(
+        path: '/account_out', builder: (context, state) => const AccountOutView()),
+    GoRoute(
+        path: '/alarm', builder: (context, state) => const AlarmView()),
 
 
 
