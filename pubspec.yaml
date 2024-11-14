@@ -37,6 +37,9 @@ dependencies:
   get: ^4.6.6
   flutter_native_splash:
   image_picker: ^1.1.2
+  photo_manager: ^3.6.2
+  photo_manager_image_provider: ^2.2.0
+  camera: ^0.11.0+2
 
 flutter_native_splash:
   color: "#42a5f5"
@@ -57,6 +60,7 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/images/coffee.jpeg
     - assets/images/login/
     - assets/icons/
 

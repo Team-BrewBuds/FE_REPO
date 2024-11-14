@@ -1,20 +1,27 @@
 import 'package:animations/animations.dart';
+import 'package:brew_buds/model/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../common/color_styles.dart';
 import '../../common/text_styles.dart';
+import '../../data/profile/profile_repository.dart';
 
 class ProfileAccountInfoView extends StatefulWidget {
   const ProfileAccountInfoView({super.key});
 
+
+
   @override
   State<ProfileAccountInfoView> createState() => _ProfileAccountInfoViewState();
+
 }
 
 class _ProfileAccountInfoViewState extends State<ProfileAccountInfoView> {
   List<String> title = ['가입일', '로그인 유형', '성별', '태어난 연도'];
   List<String> user = ['2024년 11월 6일', '카카오', '남성', '1999'];
+  final ProfileRepository _repository = ProfileRepository();
+
 
   @override
   Widget build(BuildContext context) {
