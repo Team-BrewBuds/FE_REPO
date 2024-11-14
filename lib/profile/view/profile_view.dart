@@ -2,8 +2,9 @@ import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/profile/core/profile_presenter.dart';
-import 'package:brew_buds/profile/widgets/filter_bottom_sheet.dart';
+import 'package:brew_buds/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/profile/presenter/filter_presenter.dart';
+import 'package:brew_buds/profile/view/filter_bottom_sheet.dart';
 import 'package:brew_buds/profile/widgets/sort_criteria_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -342,7 +343,10 @@ class _ProfileViewState extends State<ProfileView> {
                     transitionDuration: const Duration(milliseconds: 300),
                     context: context,
                     pageBuilder: (_, __, ___) {
-                      return FilterBottomSheet();
+                      return ChangeNotifierProvider<FilterPresenter>(
+                        create: (_) => FilterPresenter(),
+                        child: FilterBottomSheet(),
+                      );
                     },
                     transitionBuilder: (_, anim, __, child) {
                       return SlideTransition(

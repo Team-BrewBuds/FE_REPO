@@ -4,9 +4,11 @@ import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/rendering/viewport_offset.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -22,41 +24,49 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
   late final ScrollController scrollController;
   final _scrollViewKey = GlobalKey();
   final _tabKeys = List<GlobalKey>.generate(5, (index) => GlobalKey());
-  bool _isAnimated = false;
-  SfRangeValues values = const SfRangeValues(1, 5);
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 5, vsync: this, initialIndex: 0);
     scrollController = ScrollController();
-    scrollController.addListener(() {
-      final RenderBox scrollViewBox = _scrollViewKey.currentContext?.findRenderObject() as RenderBox;
-      final Offset scrollViewOffset = scrollViewBox.localToGlobal(Offset.zero);
-      final currentIndex = tabController.index;
-      switch (scrollController.position.userScrollDirection) {
-        case ScrollDirection.idle:
-          break;
-        case ScrollDirection.forward:
-          if (currentIndex > 0) {
-            final RenderBox viewBox = _tabKeys[currentIndex].currentContext?.findRenderObject() as RenderBox;
-            Offset? offset = viewBox.localToGlobal(Offset.zero);
-            if (offset.dy - scrollViewOffset.dy > 0) {
-              tabController.animateTo(currentIndex - 1);
-            }
+    scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    scrollController.dispose();
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  _scrollListener() {
+    final RenderBox scrollViewBox = _scrollViewKey.currentContext?.findRenderObject() as RenderBox;
+    final Offset scrollViewOffset = scrollViewBox.localToGlobal(Offset.zero);
+    final currentIndex = tabController.index;
+    switch (scrollController.position.userScrollDirection) {
+      case ScrollDirection.idle:
+        break;
+      case ScrollDirection.forward:
+        if (currentIndex > 0) {
+          final RenderBox viewBox = _tabKeys[currentIndex].currentContext?.findRenderObject() as RenderBox;
+          Offset? offset = viewBox.localToGlobal(Offset.zero);
+          if (offset.dy - scrollViewOffset.dy > 0) {
+            tabController.animateTo(currentIndex - 1);
           }
-          break;
-        case ScrollDirection.reverse:
-          if (currentIndex < 4) {
-            final RenderBox viewBox = _tabKeys[currentIndex + 1].currentContext?.findRenderObject() as RenderBox;
-            Offset? offset = viewBox.localToGlobal(Offset.zero);
-            if (offset.dy - scrollViewOffset.dy <= 0) {
-              tabController.animateTo(currentIndex + 1);
-            }
+        }
+        break;
+      case ScrollDirection.reverse:
+        if (currentIndex < 4) {
+          final RenderBox viewBox = _tabKeys[currentIndex + 1].currentContext?.findRenderObject() as RenderBox;
+          Offset? offset = viewBox.localToGlobal(Offset.zero);
+          if (offset.dy - scrollViewOffset.dy <= 0) {
+            tabController.animateTo(currentIndex + 1);
           }
-          break;
-      }
-    });
+        }
+        break;
+    }
   }
 
   @override
@@ -108,23 +118,25 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                   ),
                   Container(height: 2, color: ColorStyles.gray20),
                   Expanded(
-                    child: SingleChildScrollView(
-                      key: _scrollViewKey,
-                      controller: scrollController,
-                      child: Column(
-                        children: [
-                          _buildKindFilter(_tabKeys[0]),
-                          Container(height: 8, color: ColorStyles.gray20),
-                          _buildOriginFilter(_tabKeys[1]),
-                          Container(height: 8, color: ColorStyles.gray20),
-                          _buildRatingFilter(_tabKeys[2]),
-                          Container(height: 8, color: ColorStyles.gray20),
-                          _buildDecafFilter(_tabKeys[3]),
-                          Container(height: 8, color: ColorStyles.gray20),
-                          _buildRoastingPointFilter(_tabKeys[4]),
-                        ],
-                      ),
-                    ),
+                    child: Consumer<FilterPresenter>(builder: (context, presenter, _) {
+                      return SingleChildScrollView(
+                        key: _scrollViewKey,
+                        controller: scrollController,
+                        child: Column(
+                          children: [
+                            _buildKindFilter(_tabKeys[0], presenter),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildOriginFilter(_tabKeys[1], presenter),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildRatingFilter(_tabKeys[2], presenter),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildDecafFilter(_tabKeys[3], presenter),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildRoastingPointFilter(_tabKeys[4], presenter),
+                          ],
+                        ),
+                      );
+                    }),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
@@ -163,9 +175,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildKindFilter(GlobalKey key) {
+  Widget _buildKindFilter(GlobalKey key, FilterPresenter presenter) {
     return Padding(
-      key: _tabKeys[0],
+      key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,22 +189,33 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           const SizedBox(height: 20),
           Row(
             children: [
-              Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
+              InkWell(
+                onTap: () {
+                  presenter.onChangeAllTypeState();
+                },
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
                     color: Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: ColorStyles.red, width: 1)),
-                child: Center(
-                  child: Container(
-                    height: 12,
-                    width: 12,
-                    decoration: const BoxDecoration(
-                      color: ColorStyles.red,
-                      shape: BoxShape.circle,
+                    border: Border.all(
+                      color: presenter.isAllSelectedType ? ColorStyles.red : ColorStyles.gray50,
+                      width: 1,
                     ),
                   ),
+                  child: presenter.isAllSelectedType
+                      ? Center(
+                          child: Container(
+                            height: 12,
+                            width: 12,
+                            decoration: const BoxDecoration(
+                              color: ColorStyles.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        )
+                      : Container(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -202,43 +225,65 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           const SizedBox(height: 16),
           Row(
             children: [
-              Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
+              InkWell(
+                onTap: () {
+                  presenter.onChangeSingleOriginState();
+                },
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
                     color: Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: ColorStyles.red, width: 1)),
-                child: Center(
-                  child: Container(
-                    height: 12,
-                    width: 12,
-                    decoration: const BoxDecoration(
-                      color: ColorStyles.red,
-                      shape: BoxShape.circle,
+                    border: Border.all(
+                      color: presenter.isSelectedSingleOrigin ? ColorStyles.red : ColorStyles.gray50,
+                      width: 1,
                     ),
                   ),
+                  child: presenter.isSelectedSingleOrigin
+                      ? Center(
+                          child: Container(
+                            height: 12,
+                            width: 12,
+                            decoration: const BoxDecoration(
+                              color: ColorStyles.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        )
+                      : Container(),
                 ),
               ),
               const SizedBox(width: 12),
               const Text('싱글오리진', style: TextStyles.labelMediumMedium),
               const SizedBox(width: 80),
-              Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
+              InkWell(
+                onTap: () {
+                  presenter.onChangeBlendState();
+                },
+                child: Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
                     color: Colors.transparent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: ColorStyles.red, width: 1)),
-                child: Center(
-                  child: Container(
-                    height: 12,
-                    width: 12,
-                    decoration: const BoxDecoration(
-                      color: ColorStyles.red,
-                      shape: BoxShape.circle,
+                    border: Border.all(
+                      color: presenter.isSelectedBlend ? ColorStyles.red : ColorStyles.gray50,
+                      width: 1,
                     ),
                   ),
+                  child: presenter.isSelectedBlend
+                      ? Center(
+                          child: Container(
+                            height: 12,
+                            width: 12,
+                            decoration: const BoxDecoration(
+                              color: ColorStyles.red,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        )
+                      : Container(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -250,39 +295,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildOriginFilter(GlobalKey key) {
-    final List<List<String>> origins = [
-      [
-        '과테말라',
-        '니카라과',
-        '멕시코',
-        '볼리비아',
-        '브라질',
-        '에콰도르',
-        '엘살바도르',
-        '온두라스',
-        '자메이카',
-        '코스타리카',
-        '콜롬비아',
-        '파나마',
-        '페루',
-      ],
-      [
-        '르완다',
-        '에티오피아',
-        '케냐',
-      ],
-      [
-        '수마트라',
-        '예맨',
-        '인도',
-        '인도네시아',
-        '파푸아뉴기니',
-        '하와이',
-      ],
-    ];
+  Widget _buildOriginFilter(GlobalKey key, FilterPresenter presenter) {
     return Padding(
-      key: _tabKeys[1],
+      key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,119 +308,71 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           ),
           const SizedBox(height: 20),
           Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                '중남미',
-                style: TextStyles.title01SemiBold,
-              ),
-              const SizedBox(height: 12),
-              Column(
-                children: List<Widget>.generate(
-                  (origins[0].length / 5).ceil(),
-                  (columnIndex) => Row(
-                    children: List<Widget>.generate(
-                      min(5, origins[0].length - (columnIndex * 5)),
-                      (rowIndex) => InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                          decoration: BoxDecoration(
-                              color: ColorStyles.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: ColorStyles.gray50,
-                                width: 1,
-                              )),
-                          child: Text(
-                            origins[0][columnIndex * 5 + rowIndex],
-                            style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
+            children: presenter.continent
+                .map(
+                  (continent) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        continent.toString(),
+                        style: TextStyles.title01SemiBold,
                       ),
-                    ).separator(separatorWidget: SizedBox(width: 6)).toList(),
-                  ),
-                ).separator(separatorWidget: SizedBox(height: 8)).toList(),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '아프리카',
-                style: TextStyles.title01SemiBold,
-              ),
-              const SizedBox(height: 12),
-              Column(
-                children: List<Widget>.generate(
-                  (origins[1].length / 5).ceil(),
-                  (columnIndex) => Row(
-                    children: List<Widget>.generate(
-                      min(5, origins[1].length - (columnIndex * 5)),
-                      (rowIndex) => InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                          decoration: BoxDecoration(
-                              color: ColorStyles.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: ColorStyles.gray50,
-                                width: 1,
-                              )),
-                          child: Text(
-                            origins[1][columnIndex * 5 + rowIndex],
-                            style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
-                            textAlign: TextAlign.center,
+                      const SizedBox(height: 12),
+                      Column(
+                        children: List<Widget>.generate(
+                          (continent.countries().length / 5).ceil(),
+                          (columnIndex) => Row(
+                            children: List<Widget>.generate(
+                              min(5, continent.countries().length - (columnIndex * 5)),
+                              (rowIndex) => InkWell(
+                                onTap: () {
+                                  presenter.onChangeStateOrigin(continent.countries()[columnIndex * 5 + rowIndex]);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                  decoration: BoxDecoration(
+                                      color:
+                                          presenter.isSelectedOrigin(continent.countries()[columnIndex * 5 + rowIndex])
+                                              ? ColorStyles.background
+                                              : ColorStyles.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: presenter
+                                                .isSelectedOrigin(continent.countries()[columnIndex * 5 + rowIndex])
+                                            ? ColorStyles.red
+                                            : ColorStyles.gray50,
+                                        width: 1,
+                                      )),
+                                  child: Text(
+                                    continent.countries()[columnIndex * 5 + rowIndex].toString(),
+                                    style: TextStyles.captionMediumMedium.copyWith(
+                                      color:
+                                          presenter.isSelectedOrigin(continent.countries()[columnIndex * 5 + rowIndex])
+                                              ? ColorStyles.red
+                                              : ColorStyles.black,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ).separator(separatorWidget: const SizedBox(width: 6)).toList(),
                           ),
-                        ),
-                      ),
-                    ).separator(separatorWidget: SizedBox(width: 6)).toList(),
+                        ).separator(separatorWidget: const SizedBox(height: 8)).toList(),
+                      )
+                    ],
                   ),
-                ).separator(separatorWidget: SizedBox(height: 8)).toList(),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                '기타',
-                style: TextStyles.title01SemiBold,
-              ),
-              const SizedBox(height: 12),
-              Column(
-                children: List<Widget>.generate(
-                  (origins[2].length / 5).ceil(),
-                  (columnIndex) => Row(
-                    children: List<Widget>.generate(
-                      min(5, origins[2].length - (columnIndex * 5)),
-                      (rowIndex) => InkWell(
-                        onTap: () {},
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                          decoration: BoxDecoration(
-                              color: ColorStyles.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: ColorStyles.gray50,
-                                width: 1,
-                              )),
-                          child: Text(
-                            origins[2][columnIndex * 5 + rowIndex],
-                            style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray50),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ).separator(separatorWidget: SizedBox(width: 6)).toList(),
-                  ),
-                ).separator(separatorWidget: SizedBox(height: 8)).toList(),
-              ),
-            ],
+                )
+                .separator(separatorWidget: const SizedBox(height: 16))
+                .toList(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRatingFilter(GlobalKey key) {
+  Widget _buildRatingFilter(GlobalKey key, FilterPresenter presenter) {
     return Padding(
-      key: _tabKeys[2],
+      key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,10 +383,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           ),
           const SizedBox(height: 8),
           Container(
-            margin: EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
             child: Column(
               children: [
-                const Text('0.5 ~ 5.0', style: TextStyles.title02Bold),
+                Text(presenter.ratingString, style: TextStyles.title02Bold),
                 const SizedBox(height: 36),
                 SfRangeSliderTheme(
                   data: SfRangeSliderThemeData(
@@ -432,11 +399,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     thumbStrokeColor: ColorStyles.gray50,
                     thumbStrokeWidth: 2,
                     thumbRadius: 10,
-                    tickOffset: Offset(0, -6),
-                    tickSize: Size(1, 10),
+                    tickOffset: const Offset(0, -6),
+                    tickSize: const Size(1, 10),
                     activeTickColor: ColorStyles.red,
                     inactiveTickColor: ColorStyles.gray40,
-                    labelOffset: Offset(0, 8),
+                    labelOffset: const Offset(0, 8),
                     activeLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
                     inactiveLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
                   ),
@@ -450,11 +417,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     labelFormatterCallback: (dynamic actualValue, String formattedText) {
                       return actualValue == 0.5 || actualValue == 5.0 ? '$actualValue' : '';
                     },
-                    values: values,
+                    values: presenter.ratingValues,
                     onChanged: (newValues) {
-                      setState(() {
-                        values = newValues;
-                      });
+                      presenter.onChangeRatingValues(newValues);
                     },
                   ),
                 ),
@@ -466,7 +431,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildDecafFilter(GlobalKey key) {
+  Widget _buildDecafFilter(GlobalKey key, FilterPresenter presenter) {
     return Container(
       key: key,
       width: double.infinity,
@@ -480,19 +445,23 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           ),
           const SizedBox(height: 16),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              presenter.onChangeIsDecaf();
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
               decoration: BoxDecoration(
-                  color: ColorStyles.white,
+                  color: presenter.isDecaf ? ColorStyles.background : ColorStyles.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: ColorStyles.gray50,
+                    color: presenter.isDecaf ? ColorStyles.red : ColorStyles.gray50,
                     width: 1,
                   )),
               child: Text(
                 '디카페인',
-                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
+                style: TextStyles.captionMediumMedium.copyWith(
+                  color: presenter.isDecaf ? ColorStyles.red : ColorStyles.black,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -502,7 +471,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildRoastingPointFilter(GlobalKey key) {
+  Widget _buildRoastingPointFilter(GlobalKey key, FilterPresenter presenter) {
     return Padding(
       key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
@@ -515,10 +484,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           ),
           const SizedBox(height: 32),
           Container(
-            margin: EdgeInsets.all(12),
+            margin: const EdgeInsets.all(12),
             child: Column(
               children: [
-                const Text('라이트 ~ 무거운', style: TextStyles.title02Bold),
+                Text(presenter.roastingPointString, style: TextStyles.title02Bold),
                 const SizedBox(height: 36),
                 SfRangeSliderTheme(
                   data: SfRangeSliderThemeData(
@@ -531,11 +500,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     thumbStrokeColor: ColorStyles.gray50,
                     thumbStrokeWidth: 2,
                     thumbRadius: 10,
-                    tickOffset: Offset(0, -6),
-                    tickSize: Size(1, 10),
+                    tickOffset: const Offset(0, -6),
+                    tickSize: const Size(1, 10),
                     activeTickColor: ColorStyles.red,
                     inactiveTickColor: ColorStyles.gray40,
-                    labelOffset: Offset(0, 8),
+                    labelOffset: const Offset(0, 8),
                     activeLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
                     inactiveLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
                   ),
@@ -546,16 +515,17 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     interval: 1,
                     stepSize: 1,
                     showLabels: true,
-                    values: values,
+                    values: presenter.roastingPointValues,
+                    labelFormatterCallback: (dynamic num, String label) {
+                      return presenter.toRoastingPointString(num);
+                    },
                     onChangeStart: (_) {
-                      if(tabController.index != 4) {
+                      if (tabController.index != 4) {
                         tabController.animateTo(4);
                       }
                     },
                     onChanged: (newValues) {
-                      setState(() {
-                        values = newValues;
-                      });
+                      presenter.onChangeRoastingPointValues(newValues);
                     },
                   ),
                 ),
