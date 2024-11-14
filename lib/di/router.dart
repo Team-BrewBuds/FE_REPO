@@ -1,6 +1,7 @@
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/data/home/home_repository.dart';
 import 'package:brew_buds/data/popular_posts/popular_posts_repository.dart';
+import 'package:brew_buds/data/profile/profile_repository.dart';
 import 'package:brew_buds/features/login/models/login_model.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
@@ -21,6 +22,8 @@ import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart
 import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
 import 'package:brew_buds/profile/profile_screen.dart';
+import 'package:brew_buds/profile/views/account_out_view.dart';
+import 'package:brew_buds/profile/views/alarm_view.dart';
 import 'package:brew_buds/profile/views/setting_view.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -28,6 +31,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:brew_buds/profile/presenter/edit_presenter.dart';
+import '../profile/views/account_info_view.dart';
+import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
@@ -38,7 +43,7 @@ final GlobalKey<NestedScrollViewState> homeTabBarScrollState =
     GlobalKey<NestedScrollViewState>();
 
 final router = GoRouter(
-  initialLocation: '/home/all',
+  initialLocation: initialPath,
   routes: [
     GoRoute(
       path: '/login',
@@ -113,8 +118,7 @@ final router = GoRouter(
                         );
                       },
                       child: ChangeNotifierProvider<HomeAllPresenter>(
-                        create: (_) => HomeAllPresenter(
-                            repository: HomeRepository.instance),
+                        create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
                         child: HomeAllView(
                             scrollController: homeTabBarScrollState
                                 .currentState?.innerController),
@@ -135,8 +139,7 @@ final router = GoRouter(
                         );
                       },
                       child: ChangeNotifierProvider<HomeTastingRecordPresenter>(
-                        create: (_) => HomeTastingRecordPresenter(
-                            repository: HomeRepository.instance),
+                        create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
                         child: HomeTastingRecordView(
                           scrollController: homeTabBarScrollState
                               .currentState?.innerController,
@@ -212,8 +215,23 @@ final router = GoRouter(
         path: '/profile_edit',
         builder: (context, state) =>
             ChangeNotifierProvider<ProfileEditPresenter>(
-                create: (_) => ProfileEditPresenter(),
+                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
                 child: const ProfileEditScreen())),
+    GoRoute(
+        path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
+    GoRoute(
+        path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
+    GoRoute(
+        path: '/profile_block',
+        builder: (context, state) =>
+            ChangeNotifierProvider<ProfileEditPresenter>(
+                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
+                child: const BlockView())),
+
+    GoRoute(
+        path: '/account_out', builder: (context, state) => const AccountOutView()),
+    GoRoute(
+        path: '/alarm', builder: (context, state) => const AlarmView()),
 
 
 
