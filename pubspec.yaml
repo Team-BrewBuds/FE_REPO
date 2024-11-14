@@ -36,6 +36,8 @@ dependencies:
   velocity_x: ^4.2.1
   get: ^4.6.6
   flutter_native_splash:
+  syncfusion_flutter_sliders: 25.2.4
+  syncfusion_flutter_core: ^25.2.7
 
 flutter_native_splash:
   color: "#42a5f5"
