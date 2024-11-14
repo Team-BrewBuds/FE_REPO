@@ -3,18 +3,24 @@ import 'dart:io';
 
 import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/core/auth_service.dart';
+import 'package:brew_buds/data/profile/profile_repository.dart';
+import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
+import 'package:brew_buds/features/login/views/login_page_first.dart';
+import 'package:brew_buds/model/profile.dart';
 import 'package:brew_buds/profile/presenter/edit_presenter.dart';
+import 'package:camera/camera.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import '../../common/text_styles.dart';
-import '../../features/signup/models/signup_lists.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -24,9 +30,8 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-
-
-  final TextEditingController _nickNameTextController = TextEditingController( );
+  final ProfileRepository _repository = ProfileRepository();
+  late TextEditingController _nickNameTextController = TextEditingController();
   final TextEditingController _infoTextController = TextEditingController();
   final TextEditingController _linkTextController = TextEditingController();
   late List<TextEditingController> _coffeLifeTextController = [];
@@ -35,8 +40,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _profileFile;
 
-
-
+// 프로필 이미지 선택
   Future<void> _pickImage() async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery, imageQuality: 60);
@@ -48,13 +52,25 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+
+
+// 프로필 닉네임  가져오기
+  Future<void> getProfile() async {
+    Profile profile = await _repository.fetchProfile();
+
+    setState(() {
+      _nickNameTextController.text = profile.nickname;
+
+    });
+  }
+
+
+
   @override
   void initState() {
-
-    // TODO: implement initState
     super.initState();
-
-
+    _nickNameTextController = TextEditingController();
+    getProfile();
   }
 
   @override
@@ -68,7 +84,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+              },
               child: Text(
                 '저장',
                 style: TextStyle(color: ColorStyles.red, fontSize: 20),
@@ -92,25 +109,34 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         alignment: Alignment.bottomRight,
                         children: [
                           ClipRRect(
-                              borderRadius: BorderRadius.circular(50.0),
-                              child: _profileFile != null
-                                  ? Image.file(
-                                      _profileFile!,
-                                      width: 100.0,
-                                      height: 100.0,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : const Text('') // child: Image.
-                              ),
-                          GestureDetector(
-                            onTap: _pickImage, // 카메라 클릭 시 이미지 선택
+                            borderRadius: BorderRadius.circular(100.0),
                             child: Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100.0),
+                                  border: Border.all(
+                                      width: 0.5, color: ColorStyles.black),
+                                ),
+                                child: Container()),
+                          ),
+                          GestureDetector(
+                            onTap:  (){
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => pickImage()),
+                              );//
+                            },
+                            child: Container(
+                              width: 30, height: 30,
                               decoration: BoxDecoration(
-                                color: Colors.grey, // 아이콘 배경 색상
-                                shape: BoxShape.circle,
-                              ),
-                              padding: EdgeInsets.all(8.0), // 아이콘 여백
+                                  color: ColorStyles.gray40, // 아이콘 배경 색상
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                      color: Colors.black, width: 0.5)),
+                              // padding: EdgeInsets.all(10.0), // 아이콘 여백
                               child: Icon(
+                                size: 20.0,
                                 Icons.camera_alt, // 카메라 아이콘
                                 color: Colors.black, // 아이콘 색상
                               ),
@@ -126,9 +152,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ),
                     TextFormField(
                         controller: _nickNameTextController,
-
                         cursorColor: ColorStyles.gray40,
-                        decoration: _TextFormFieldStyles.getInputDecoration()),
+                        decoration: _TextFormFieldStyles.getInputDecoration(
+                            hintText: _nickNameTextController.text
+                            // labelText: _nickNameTextController.text,
+                            )),
                     const SizedBox(
                       height: 10,
                     ),
@@ -184,31 +212,45 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       children: [
                         Expanded(
                           child: Container(
-                              height: 25.0,
-                              child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: provider.selectedChoices.length,
-                                  itemBuilder: (context, index) {
-                                    return Container(
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 2.0),
-                                      child: ButtonFactory.buildOvalButton(
-                                          onTapped: () {},
-                                          text: provider.selectedChoices[index],
-                                          style: OvalButtonStyle.fill(
-                                            color: ColorStyles.black,
-                                            textColor: ColorStyles.white,
-                                            size: OvalButtonSize.medium,
-                                          )),
-                                    );
-                                  })),
+                              height: 50.0,
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: ColorStyles.gray80, width: 0.5)),
+                              child: Row(
+
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: provider.selectedChoices.length,
+                                        padding: EdgeInsets.all(8.0),
+                                        itemBuilder: (context, index) {
+                                          return Container(
+                                            margin:
+                                            EdgeInsets.symmetric(horizontal: 2.0),
+                                            child: ButtonFactory.buildOvalButton(
+                                                onTapped: () {},
+                                                text: provider.selectedChoices[index],
+                                                style: OvalButtonStyle.fill(
+                                                  color: ColorStyles.black,
+                                                  textColor: ColorStyles.white,
+                                                  size: OvalButtonSize.medium,
+                                                )),
+                                          );
+                                        }),
+                                  ),
+                                  SizedBox(
+                                    child: IconButton(
+                                        onPressed: provider.clearChoices,
+                                        icon: SvgPicture.asset(
+                                            'assets/icons/x_round.svg')),
+                                  ),
+                                ],
+                              )),
                         ),
                         SizedBox(width: 5),
-                        SizedBox(
-                          child: IconButton(
-                              onPressed: provider.clearChoices,
-                              icon: SvgPicture.asset('assets/icons/x_round.svg')),
-                        ),
 
                         // 정보 설정 버튼
                         SizedBox(
@@ -453,10 +495,238 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 }
 
+
+
+
+class pickImage extends StatefulWidget {
+  const pickImage({Key? key}) : super(key: key);
+
+  @override
+  State<pickImage> createState() => _pickImageState();
+}
+
+// 프로필 사진
+class _pickImageState extends State<pickImage> {
+
+  //앨범에서 이미지 가져오기
+  List<AssetEntity> _imageAssets = [];
+  List<File?> _imageFiles = [];
+  bool _tap = false;
+
+
+
+  // 카메라
+  late CameraController _cameraController;
+  late Future<void> _initializeControllerFuture;
+  bool _cameraInitialized = false;
+
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchImages();
+    _initializeCamera();
+
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
+
+    _cameraController = CameraController(
+      firstCamera,
+      ResolutionPreset.high,
+    );
+
+    _initializeControllerFuture = _cameraController.initialize();
+    _cameraInitialized = true;
+  }
+
+
+
+  Future<void> _fetchImages() async {
+    final PermissionState permission = await PhotoManager.requestPermissionExtend();
+    if (permission.isAuth) {
+      List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(type: RequestType.image);
+      List<AssetEntity> images = await albums[0].getAssetListPaged(page: 0, size: 10);
+
+      List<File?> files = await Future.wait(images.map((image) => image.file).toList());
+
+      setState(() {
+        _imageAssets = images;
+        _imageFiles = files; // 파일 리스트 저장
+      });
+    } else {
+      PhotoManager.openSetting();
+    }
+  }
+
+
+  @override
+  void dispose() {
+    _cameraController.dispose();
+    super.dispose();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text('프로필 사진', style: TextStyle(color: Colors.white)),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Icon(CupertinoIcons.xmark, color: Colors.white),
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {},
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white70,
+              textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            child: Text('다음'),
+          ),
+        ],
+      ),
+      body:  _cameraInitialized ?  FutureBuilder<void>(
+          future: _initializeControllerFuture,
+          builder: (context, snapshot) {
+            return
+        _imageAssets.isEmpty
+            ? Center(child: CircularProgressIndicator())
+            : Container(
+          color: Colors.black,
+          child: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+
+
+
+                    // Positioned.fill(child: Image.asset('assets/images/coffee.jpeg', fit: BoxFit.cover,))
+
+                  ],
+                ),
+                // child: ClipRRect(
+                //   borderRadius: BorderRadius.circular(400),
+                //   child: Container(
+                //     color: Colors.white,
+                //   ),
+                // ),
+
+
+              ),
+              SizedBox(
+                height: 35,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+
+                      TextButton(onPressed: (){}, child: Text('최근 항목', style: TextStyle(color: Colors.white),)),
+                      Icon(Icons.keyboard_arrow_down, size: 20, color: Colors.white,)
+                    ]
+                ),
+              ),
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4,
+                      crossAxisSpacing: 0.0,
+                      mainAxisSpacing: 0.0
+                  ),
+                  itemCount: _imageFiles.length ,
+                  itemBuilder: (context, index) {
+                    final file ;
+                    if(index == 0){ // 카메라 삽입
+                      file = _imageFiles[index + 1];
+                      return GestureDetector(
+                        onTap: () async{
+                            try {
+                              await _initializeControllerFuture;
+                              final image = await _cameraController.takePicture();
+
+                            } catch (e) {
+                              print(e);
+                            }
+                        },
+                        child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 1,horizontal: 1),
+                            color: ColorStyles.gray70,
+                            child: SvgPicture.asset('assets/icons/camera.svg', color: Colors.white,
+
+                              fit: BoxFit.scaleDown,)
+                        ),
+                      );
+                    } else  {
+                      file = _imageFiles[index -1];
+                      return file != null
+
+                          ? Stack(
+                        alignment: AlignmentDirectional.topEnd,
+                        children: [
+                          GestureDetector(
+                            onTap : (){
+                              setState(() {
+
+                              });
+                            },
+                            child: Container(
+                              margin: EdgeInsets.symmetric(vertical: 1,horizontal: 1),
+                              height: 100,
+                              decoration: BoxDecoration(
+                                // borderRadius: BorderRadius.circular(10),
+                                image: DecorationImage(
+                                  image: FileImage(file),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                          IconButton(onPressed: (){}, icon: Icon(CupertinoIcons.circle))
+
+                        ],
+
+                      )
+                          : Container(
+                        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        // height: 100,
+                        color: Colors.grey[300],
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      }) :
+      Center(child: CircularProgressIndicator(
+        backgroundColor: Colors.white,
+        color: Colors.black,
+      ),)
+
+
+    );
+  }
+}
+
+
+
 class _TextFormFieldStyles {
   static InputDecoration getInputDecoration(
-      {EdgeInsets? padding, String? hintText}) {
+      {EdgeInsets? padding, String? hintText, String? labelText}) {
     return InputDecoration(
+      labelText: labelText,
       hintText: hintText,
       hintStyle: TextStyle(color: ColorStyles.gray40, fontSize: 13),
       contentPadding: padding,
