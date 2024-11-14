@@ -45,6 +45,8 @@ final class ButtonFactory {
       ),
     );
   }
+
+
 }
 
 class OvalButtonStyle {
@@ -189,4 +191,8 @@ class RoundedButtonSize {
   static RoundedButtonSize xSmall = const RoundedButtonSize._(width: 84);
 
   static RoundedButtonSize xxSmall = const RoundedButtonSize._(width: 58);
+}
+
+class NextButtonStyle{
+
 }

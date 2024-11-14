@@ -1,3 +1,4 @@
+import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -62,10 +63,13 @@ class _AccountOutViewState extends State<AccountOutView> {
 
               ],
             ),
-            ElevatedButton(onPressed: (){
-              if(_check)
-              Navigator.push(context, MaterialPageRoute(builder: (context) => step_1()));
-            }, child: Text('다음'))
+            ButtonFactory.buildRoundedButton(onTapped: (){},
+                text: '다음', style: RoundedButtonStyle(backgroundColor: Colors.black, borderWidth: 0.0, borderColor: Colors.black, textColor: Colors.white, size: RoundedButtonSize.xLarge))
+
+            // ElevatedButton(onPressed: (){
+            //   if(_check)
+            //   Navigator.push(context, MaterialPageRoute(builder: (context) => step_1()));
+            // }, child: Text('다음'))
           ],
         ),
       ),

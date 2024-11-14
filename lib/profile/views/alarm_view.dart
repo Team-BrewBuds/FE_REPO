@@ -19,6 +19,11 @@ class _AlarmViewState extends State<AlarmView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Divider(),
+            Column(
+              children: [
+
+              ],
+            )
 
 
           ],

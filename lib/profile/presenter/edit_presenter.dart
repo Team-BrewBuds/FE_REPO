@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/features/signup/views/signup_page.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -19,6 +20,8 @@ final class ProfileEditPresenter extends ChangeNotifier {
   final SignUpLists _lists = SignUpLists();
   List<bool> _selectedItems = List.generate(6, (_) => false);
   List<String> _selectedChoices = [];
+
+
 
   ProfileEditPresenter({
     required ProfileRepository repository ,
@@ -50,6 +53,7 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
 
 
+
   void cardChoices (int  index) {
     _selectedItems[index] = !_selectedItems[index];
     if (_selectedItems[index]) {
@@ -70,14 +74,14 @@ final class ProfileEditPresenter extends ChangeNotifier {
   }
 
 
-  void getProfileInfo(){
-    _repository.fetchProfile();
+  void getProfileInfo() async{
+    await _repository.fetchProfile();
   }
 
-  void editProfile(){
+  void editProfile() async{
     Map<String,dynamic> map = {};
     // Profile _pro = Profile(nickname: nickname)
-     _repository.fetchUpdateProfile(map);
+    await _repository.fetchUpdateProfile(map);
   }
 
   Future<void> _checkPermission() async{
@@ -102,6 +106,11 @@ final class ProfileEditPresenter extends ChangeNotifier {
       List<AssetEntity> images = await albums[0].getAssetListPaged(page: 0, size: 50);
 
     }
+  }
+
+  Future<void> getCamera() async {
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
   }
 
 
