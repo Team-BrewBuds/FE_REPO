@@ -1,3 +1,4 @@
+import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';

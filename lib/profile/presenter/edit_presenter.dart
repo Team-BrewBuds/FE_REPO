@@ -112,8 +112,4 @@ final class ProfileEditPresenter extends ChangeNotifier {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
   }
-
-
-
-
 }
