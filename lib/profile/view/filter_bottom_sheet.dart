@@ -2,15 +2,18 @@ import 'dart:math';
 
 import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/icon_button_factory.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/rendering/viewport_offset.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:velocity_x/velocity_x.dart';
 
 class FilterBottomSheet extends StatefulWidget {
   const FilterBottomSheet({super.key});
@@ -31,6 +34,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     tabController = TabController(length: 5, vsync: this, initialIndex: 0);
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<FilterPresenter>().init();
+    });
   }
 
   @override
@@ -86,40 +92,41 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               ),
-              child: Column(
-                children: [
-                  TabBar(
-                    controller: tabController,
-                    padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
-                    indicator: const UnderlineTabIndicator(
-                      borderSide: BorderSide(color: ColorStyles.black, width: 2),
-                      insets: EdgeInsets.only(top: 6),
+              child: Consumer<FilterPresenter>(builder: (context, presenter, _) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TabBar(
+                      controller: tabController,
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+                      indicator: const UnderlineTabIndicator(
+                        borderSide: BorderSide(color: ColorStyles.black, width: 2),
+                        insets: EdgeInsets.only(top: 6),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.label,
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.center,
+                      labelPadding: const EdgeInsets.only(top: 8, left: 8, right: 16),
+                      labelStyle: TextStyles.title01SemiBold,
+                      labelColor: ColorStyles.black,
+                      unselectedLabelStyle: TextStyles.title01SemiBold,
+                      unselectedLabelColor: ColorStyles.gray50,
+                      dividerHeight: 0,
+                      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+                      tabs: [
+                        const Tab(text: '원두유형', height: 31),
+                        const Tab(text: '원산지', height: 31),
+                        const Tab(text: '별점', height: 31),
+                        const Tab(text: '디카페인', height: 31),
+                        const Tab(text: '로스팅 포인트', height: 31),
+                      ],
+                      onTap: (index) {
+                        Scrollable.ensureVisible(_tabKeys[index].currentContext!);
+                      },
                     ),
-                    indicatorSize: TabBarIndicatorSize.label,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.center,
-                    labelPadding: const EdgeInsets.only(top: 8, left: 8, right: 16),
-                    labelStyle: TextStyles.title01SemiBold,
-                    labelColor: ColorStyles.black,
-                    unselectedLabelStyle: TextStyles.title01SemiBold,
-                    unselectedLabelColor: ColorStyles.gray50,
-                    dividerHeight: 0,
-                    overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-                    tabs: [
-                      const Tab(text: '원두유형', height: 31),
-                      const Tab(text: '원산지', height: 31),
-                      const Tab(text: '별점', height: 31),
-                      const Tab(text: '디카페인', height: 31),
-                      const Tab(text: '로스팅 포인트', height: 31),
-                    ],
-                    onTap: (index) {
-                      Scrollable.ensureVisible(_tabKeys[index].currentContext!);
-                    },
-                  ),
-                  Container(height: 2, color: ColorStyles.gray20),
-                  Expanded(
-                    child: Consumer<FilterPresenter>(builder: (context, presenter, _) {
-                      return SingleChildScrollView(
+                    Container(height: 2, color: ColorStyles.gray20),
+                    Expanded(
+                      child: SingleChildScrollView(
                         key: _scrollViewKey,
                         controller: scrollController,
                         child: Column(
@@ -135,39 +142,81 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                             _buildRoastingPointFilter(_tabKeys[4], presenter),
                           ],
                         ),
-                      );
-                    }),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
-                    child: Row(
-                      children: [
-                        ButtonFactory.buildRoundedButton(
-                          onTapped: () {
-                            context.pop();
-                          },
-                          text: '닫기',
-                          style: RoundedButtonStyle.fill(
-                            color: ColorStyles.gray30,
-                            textColor: ColorStyles.black,
-                            size: RoundedButtonSize.xSmall,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ButtonFactory.buildRoundedButton(
-                          onTapped: () {},
-                          text: '선택하기',
-                          style: RoundedButtonStyle.fill(
-                            color: ColorStyles.black,
-                            textColor: ColorStyles.white,
-                            size: RoundedButtonSize.large,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                    presenter.filter.isNotEmpty
+                        ? Container(
+                            height: 56,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.all(16),
+                              itemCount: presenter.filter.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  onTap: () {
+                                    presenter.removeAtFilter(index);
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: ColorStyles.background,
+                                      border: Border.all(color: ColorStyles.red, width: 1),
+                                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          presenter.filter[index].text,
+                                          style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
+                                        ),
+                                        SizedBox(width: 2),
+                                        SvgPicture.asset(
+                                          'assets/icons/x.svg',
+                                          width: 12,
+                                          height: 12,
+                                          fit: BoxFit.cover,
+                                          colorFilter: ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                              separatorBuilder: (context, index) => SizedBox(width: 4),
+                            ),
+                          )
+                        : Container(),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
+                      child: Row(
+                        children: [
+                          ButtonFactory.buildRoundedButton(
+                            onTapped: () {
+                              context.pop();
+                            },
+                            text: '닫기',
+                            style: RoundedButtonStyle.fill(
+                              color: ColorStyles.gray30,
+                              textColor: ColorStyles.black,
+                              size: RoundedButtonSize.xSmall,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          ButtonFactory.buildRoundedButton(
+                            onTapped: () {},
+                            text: '선택하기',
+                            style: RoundedButtonStyle.fill(
+                              color: ColorStyles.black,
+                              textColor: ColorStyles.white,
+                              size: RoundedButtonSize.large,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ),
           ),
         ),
@@ -419,7 +468,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     },
                     values: presenter.ratingValues,
                     onChanged: (newValues) {
-                      presenter.onChangeRatingValues(newValues);
+                      presenter.onChangeRatingValues(values: newValues);
                     },
                   ),
                 ),
@@ -525,7 +574,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                       }
                     },
                     onChanged: (newValues) {
-                      presenter.onChangeRoastingPointValues(newValues);
+                      presenter.onChangeRoastingPointValues(values: newValues);
                     },
                   ),
                 ),
