@@ -1,9 +1,11 @@
 import 'package:brew_buds/profile/model/bean_type.dart';
 import 'package:brew_buds/profile/model/country.dart';
+import 'package:brew_buds/profile/model/filter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 final class FilterPresenter extends ChangeNotifier {
+  final List<Filter> _filter = [];
   final Set<BeanType> _selectedTypes;
   final Set<Country> _selectedOrigins;
   SfRangeValues _ratingValues;
@@ -18,9 +20,11 @@ final class FilterPresenter extends ChangeNotifier {
     SfRangeValues? roastingPointValues,
   })  : _selectedTypes = selectedType ?? <BeanType>{},
         _selectedOrigins = selectedOrigins ?? <Country>{},
-        _ratingValues = ratingValues ?? SfRangeValues(0.5, 5.0),
+        _ratingValues = ratingValues ?? const SfRangeValues(0.5, 5.0),
         _isDecaf = isDecaf,
-        _roastingPointValues = roastingPointValues ?? SfRangeValues(1, 5);
+        _roastingPointValues = roastingPointValues ?? const SfRangeValues(1, 5);
+
+  List<Filter> get filter => _filter;
 
   bool get isAllSelectedType => _selectedTypes.length == 2;
 
@@ -46,10 +50,52 @@ final class FilterPresenter extends ChangeNotifier {
       ? toRoastingPointString(_roastingPointValues.start)
       : '${toRoastingPointString(_roastingPointValues.start)} ~ ${toRoastingPointString(_roastingPointValues.end)}';
 
+  init() {
+    _filter.addAll(
+      _selectedTypes.map((type) => Filter.beanType(type)),
+    );
+
+    _filter.addAll(
+      _selectedOrigins.map((origin) => Filter.country(origin)),
+    );
+
+    if (_isDecaf) {
+      _filter.add(Filter.decaf(true));
+    }
+
+    if (_ratingValues.start != 0.5 && _ratingValues.end != 5.0) {
+      _filter.add(Filter.rating(_ratingValues.start, _ratingValues.end));
+    }
+
+    if (_roastingPointValues.start != 1 && _roastingPointValues.end != 5.0) {
+      _filter.add(Filter.roastingPoint(_roastingPointValues.start, _roastingPointValues.end));
+    }
+    notifyListeners();
+  }
+
+  removeAtFilter(int index) {
+    final removedFilter = _filter.removeAt(index);
+    switch (removedFilter) {
+      case BeanTypeFilter():
+        _selectedTypes.remove(removedFilter.type);
+      case CountryFilter():
+        _selectedOrigins.remove(removedFilter.country);
+      case RatingFilter():
+        _ratingValues = const SfRangeValues(0.5, 5.0);
+      case DecafFilter():
+        _isDecaf = false;
+      case RoastingPointFilter():
+        _roastingPointValues = const SfRangeValues(1, 5);
+    }
+    notifyListeners();
+  }
+
   onChangeAllTypeState() {
     if (_selectedTypes.length == 2) {
+      _filter.removeWhere((element) => element is BeanTypeFilter);
       _selectedTypes.removeAll(BeanType.values);
     } else {
+      _filter.addAll(BeanType.values.map((type) => Filter.beanType(type)));
       _selectedTypes.addAll(BeanType.values);
     }
     notifyListeners();
@@ -57,8 +103,10 @@ final class FilterPresenter extends ChangeNotifier {
 
   onChangeSingleOriginState() {
     if (_selectedTypes.contains(BeanType.singleOrigin)) {
+      _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.singleOrigin);
       _selectedTypes.remove(BeanType.singleOrigin);
     } else {
+      _filter.add(Filter.beanType(BeanType.singleOrigin));
       _selectedTypes.add(BeanType.singleOrigin);
     }
     notifyListeners();
@@ -66,17 +114,21 @@ final class FilterPresenter extends ChangeNotifier {
 
   onChangeBlendState() {
     if (_selectedTypes.contains(BeanType.blend)) {
+      _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.blend);
       _selectedTypes.remove(BeanType.blend);
     } else {
-      _selectedTypes.remove(BeanType.blend);
+      _filter.add(Filter.beanType(BeanType.blend));
+      _selectedTypes.add(BeanType.blend);
     }
     notifyListeners();
   }
 
   onChangeStateOrigin(Country country) {
     if (_selectedOrigins.contains(country)) {
+      _filter.removeWhere((element) => element is CountryFilter && element.country == country);
       _selectedOrigins.remove(country);
     } else {
+      _filter.add(Filter.country(country));
       _selectedOrigins.add(country);
     }
     notifyListeners();
@@ -86,17 +138,29 @@ final class FilterPresenter extends ChangeNotifier {
     return _selectedOrigins.contains(country);
   }
 
-  onChangeRatingValues(SfRangeValues values) {
+  onChangeRatingValues({SfRangeValues values = const SfRangeValues(0.5, 5.0)}) {
+    _filter.removeWhere((element) => element is RatingFilter);
+    if (values.start != 0.5 || values.end != 5.0) {
+      _filter.add(Filter.rating(values.start, values.end));
+    }
     _ratingValues = values;
     notifyListeners();
   }
 
   onChangeIsDecaf() {
+    _filter.removeWhere((element) => element is DecafFilter);
     _isDecaf = !_isDecaf;
+    if (_isDecaf) {
+      _filter.add(Filter.decaf(true));
+    }
     notifyListeners();
   }
 
-  onChangeRoastingPointValues(SfRangeValues values) {
+  onChangeRoastingPointValues({SfRangeValues values = const SfRangeValues(1, 5)}) {
+    _filter.removeWhere((element) => element is RoastingPointFilter);
+    if (values.start != 1 || values.end != 5) {
+      _filter.add(Filter.roastingPoint(values.start, values.end));
+    }
     _roastingPointValues = values;
     notifyListeners();
   }
