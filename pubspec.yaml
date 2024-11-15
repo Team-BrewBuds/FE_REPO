@@ -35,7 +35,7 @@ dependencies:
   sliver_tools: ^0.2.12
   velocity_x: ^4.2.1
   get: ^4.6.6
-  flutter_native_splash
+  flutter_native_splash:
   syncfusion_flutter_sliders: 25.2.4
   syncfusion_flutter_core: ^25.2.7
   image_picker: ^1.1.2
