@@ -16,11 +16,9 @@ class LoginPresenter {
       // 카카오톡이 설치되어 있는지 확인
       bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
-      if (isInstalled) {
-        // 카카오톡으로 로그인
+      if (await isKakaoTalkInstalled()) {
         token = await UserApi.instance.loginWithKakaoTalk();
       } else {
-        // 카카오 계정으로 로그인
         token = await UserApi.instance.loginWithKakaoAccount();
       }
       // 사용자 정보 가져오기

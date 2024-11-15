@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,6 +11,24 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      body:
+      Center(
+        child: Column(children: [
+          SizedBox(height: 30,),
+          
+          Container(
+            child: ElevatedButton(onPressed: (){
+              context.push('/profile_setting');
+            }, child: Text('set')),
+          ),
+
+        ]),
+      )
+
+
+
+    );
+
   }
 }
