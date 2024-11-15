@@ -1,10 +1,12 @@
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/core/auth_service.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/features/login/presenter/login_presenter.dart';
+import 'package:brew_buds/features/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import '../presenter/login_presenter.dart';
+
+enum SocialLogin { kakao, naver, apple }
 
 class SNSLogin extends StatefulWidget {
   final LoginPresenter presenter;
@@ -16,190 +18,56 @@ class SNSLogin extends StatefulWidget {
 }
 
 class _SNSLoginState extends State<SNSLogin> {
-  late List<bool> _checked;
-  final List<String> _terms = [
-    '약관 전체동의',
-    '(필수) 브루버즈 이용약관 동의',
-    '(필수) 개인정보 수집 및 이용 동의',
-    '(필수) 14세 이상 확인',
-    '(선택) 개인정보 마케팅 활용 동의'
-  ];
-
-  void _checkModal(String name) async {
-    return showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, void Function(void Function()) setState) {
-            return Container(
-              height: 500, // 높이 설정
-              color: Colors.white,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Row(
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              textAlign: TextAlign.center,
-                              '서비스 이용약관에 동의해주세요',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(CupertinoIcons.xmark),
-                          ),
-                        ],
-                      ),
-
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: _terms.length,
-                          itemBuilder: (context, index) {
-                            if (index == 0) {
-                              return Container(
-                                color: Colors.grey.withOpacity(0.2),
-                                // 배경색 설정
-                                child: CheckboxListTile(
-                                  controlAffinity: ListTileControlAffinity.leading,
-                                  value: isAllChecked,
-                                  checkColor: Colors.red,
-                                  activeColor: Colors.white,
-                                  title: const Text('약관 전체 동의'),
-                                  onChanged: (bool? value) {
-                                    setState(
-                                      () {
-                                        for (int i = 0; i < _checked.length; i++) {
-                                          _checked[i] = value ?? false;
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                              ); // 약관 전체 동의 행
-                            } else {
-                              return CheckboxListTile(
-                                controlAffinity: ListTileControlAffinity.leading,
-                                checkColor: Colors.red,
-                                activeColor: Colors.white,
-                                value: _checked[index],
-                                title: Text(_terms[index]),
-                                onChanged: (bool? value) {
-                                  setState(
-                                    () {
-                                      _checked[index] = value ?? false;
-                                    },
-                                  );
-                                },
-                              ); // 나머지 모든 행
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 2), // Divider 위에 여백 추가
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: 345.0,
-                        child: ElevatedButton(
-                            onPressed: () async {
-                              if (isAllChecked) {
-                                switch (name) {
-                                  case 'kakao':
-                                    if (await widget.presenter.loginWithKakao()) {
-                                      context.push("/home/all");
-                                    }
-                                  case 'naver':
-                                    if (await widget.presenter.loginWithNaver()) {
-                                      context.push("/signup");
-                                    }
-                                  case 'apple':
-                                    if (await widget.presenter.loginWithApple()) {
-                                      context.push("/signup");
-                                    }
-                                }
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              backgroundColor: isAllChecked ? Colors.black : ColorStyles.gray30,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                            ),
-                            child: const Text('다음')),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _loginSuccess() {}
-
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    _checked = List<bool>.filled(_terms.length, false);
   }
-
-  bool get isAllChecked => _checked.sublist(0, 4).every((element) => element);
 
   @override
   Widget build(BuildContext context) {
-    const height = 55.0;
-    const width = 353.0;
+    const height = 54.0;
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
               '간편로그인으로\n빠르게 가입하세요.',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              style: TextStyles.title05Bold,
             ),
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 48),
             Column(
               children: [
                 SizedBox(
-                  width: width, // 버튼 가로 크기 통일
                   height: height, // 버튼 높이 통일
                   child: ElevatedButton(
                     onPressed: () {
-                      _checkModal('kakao'); // Kakao 로그인 로직
+                      _checkModal(SocialLogin.kakao); // Kakao 로그인 로직
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFFFE812), // Kakao 배경 색상
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          'assets/images/login/k.png',
+                        SvgPicture.asset(
+                          'assets/icons/kakao.svg',
+                          width: 16,
+                          height: 16,
                         ),
+                        SizedBox(width: 8),
                         const Text(
                           '카카오로 로그인',
                           style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            height: 22.5 / 15,
+                            color: ColorStyles.white,
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -207,53 +75,117 @@ class _SNSLoginState extends State<SNSLogin> {
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
+                const SizedBox(height: 7),
                 SizedBox(
-                  width: width, // 버튼 가로 크기 통일
                   height: height, // 버튼 높이 통일
                   child: ElevatedButton(
                     onPressed: () {
-                      _checkModal('naver');
+                      _checkModal(SocialLogin.naver);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF03C75A), // 배경 색상
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          'assets/images/login/naver_btn.png',
+                        SvgPicture.asset(
+                          'assets/icons/naver.svg',
+                          width: 16,
+                          height: 16,
                         ),
+                        SizedBox(width: 8),
                         const Text(
                           '네이버로 로그인',
-                          style: TextStyle(color: Colors.white, fontSize: 22),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            height: 22.5 / 15,
+                            color: ColorStyles.white,
+                          ),
                         ),
                         const SizedBox(width: 8),
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                SignInWithAppleButton(
+                const SizedBox(height: 7),
+                SizedBox(
+                  height: height, // 버튼 높이 통일
+                  child: ElevatedButton(
                     onPressed: () {
-                      _checkModal('apple');
+                      _checkModal(SocialLogin.apple);
                     },
-                    style: SignInWithAppleButtonStyle.black,
-                    text: 'Apple로 로그인',
-                    height: height),
-                ElevatedButton(onPressed: AuthService().logout, child: const Text('logout')),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF000000), // 배경 색상
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/apple_logo.svg',
+                          width: 16,
+                          height: 16,
+                          colorFilter: ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                        ),
+                        SizedBox(width: 8),
+                        const Text(
+                          'Apple로 로그인',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            height: 22.5 / 15,
+                            color: ColorStyles.white,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             )
           ],
         ),
       ),
+    );
+  }
+
+  void _checkModal(SocialLogin socialLogin) async {
+    return showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
+      ),
+      constraints: const BoxConstraints(maxHeight: 421, minHeight: 421),
+      backgroundColor: ColorStyles.white,
+      elevation: 0,
+      builder: (BuildContext context) {
+        return TermsOfUseBottomSheet(onDone: () async {
+          switch (socialLogin) {
+            case SocialLogin.kakao:
+              if (await widget.presenter.loginWithKakao()) {
+                context.push("/home/all");
+                break;
+              }
+            case SocialLogin.naver:
+              if (await widget.presenter.loginWithNaver()) {
+                context.push("/signup");
+                break;
+              }
+            case SocialLogin.apple:
+              if (await widget.presenter.loginWithApple()) {
+                context.push("/signup");
+                break;
+              }
+          }
+        });
+      },
     );
   }
 }

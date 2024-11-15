@@ -36,7 +36,7 @@ final class TextStyles {
   static const titleMediumSemiBold = TextStyle(
     fontWeight: FontWeight.w600,
     fontSize: 15,
-    height: 26.4 / 22,
+    height: 26.4 / 15,
     letterSpacing: -0.02,
   );
   static const title01Bold = TextStyle(

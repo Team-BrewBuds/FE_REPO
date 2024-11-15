@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -40,71 +41,73 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(automaticallyImplyLeading: false),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 40),
-            child: SizedBox(
-              height: 200,
-              width: double.infinity,
-              child: PageView.builder(
-                itemCount: _lists.images.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      Image.asset(_lists.images[index]),
-                      Text(
-                        _lists.title_data[index],
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-                      ),
-                      Text(
-                        _lists.content_data[index],
-                        style: const TextStyle(fontSize: 15.0),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-          _buildIndicator(),
-          const Spacer(),
-          SizedBox(
-            width: 343,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                context.push("/login/sns");
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: PageView.builder(
+                  itemCount: _lists.images.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: [
+                        Image.asset(_lists.images[index]),
+                        Text(
+                          _lists.title_data[index],
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
+                        ),
+                        Text(
+                          _lists.content_data[index],
+                          style: const TextStyle(fontSize: 15.0),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
-              child: '로그인/회원가입'.text.size(16).make(),
             ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text(
-              '둘러보기',
-              style: TextStyle(color: Colors.black, fontSize: 16.0, decoration: TextDecoration.underline),
+            _buildIndicator(),
+            const Spacer(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  context.push("/login/sns");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: '로그인/회원가입'.text.size(16).make(),
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 30,
-          ),
-        ],
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                '둘러보기',
+                style: TextStyle(color: Colors.black, fontSize: 16.0, decoration: TextDecoration.underline),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+          ],
+        ),
       ),
     );
   }
