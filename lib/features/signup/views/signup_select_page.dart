@@ -130,7 +130,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
                       SizedBox(height: 20),
                       Text(lists.categories[index], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       SizedBox(height: 10),
-                      _buildSelector(index),
+                      buildSelector(index),
                     ],
                   );
                 }),
@@ -176,7 +176,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
     );
   }
 
-  Widget _buildSelector(int categoryIndex) {
+  Widget buildSelector(int categoryIndex) {
     return Container(
       height: 80,
       child: Stack(
