@@ -1,7 +1,7 @@
 import 'package:brew_buds/features/signup/models/SignUp.dart';
 import 'package:flutter/cupertino.dart';
 
-class SignUpProvider with ChangeNotifier {
+class SignUpPresenter with ChangeNotifier {
   final SignUp _signUp = SignUp();
   String? _nickNameError;
   String? _ageError;
