@@ -5,8 +5,6 @@ import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
 import 'dart:developer';
 
-import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
-
 class AuthService {
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();

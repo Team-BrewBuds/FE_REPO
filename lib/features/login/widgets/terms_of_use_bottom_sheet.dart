@@ -4,12 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TermsOfUseBottomSheet extends StatefulWidget {
-  final void Function() onDone;
-
-  const TermsOfUseBottomSheet({
-    super.key,
-    required this.onDone,
-  });
+  const TermsOfUseBottomSheet({super.key});
 
   @override
   State<TermsOfUseBottomSheet> createState() => _TermsOfUseBottomSheetState();
@@ -211,22 +206,23 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
               ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.only(top: 32, left: 16, right: 16),
-            width: double.infinity,
-            child: ElevatedButton(
-                onPressed: () async {
-                  if (isRequiredChecked) {
-                    widget.onDone();
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  backgroundColor: isRequiredChecked ? Colors.black : ColorStyles.gray30,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: const Text('다음', style: TextStyles.labelMediumMedium)),
+          AbsorbPointer(
+            absorbing: !isRequiredChecked,
+            child: Container(
+              padding: const EdgeInsets.only(top: 32, left: 16, right: 16),
+              width: double.infinity,
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: isRequiredChecked ? Colors.black : ColorStyles.gray30,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  child: const Text('다음', style: TextStyles.labelMediumMedium)),
+            ),
           ),
         ],
       ),
