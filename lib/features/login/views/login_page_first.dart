@@ -1,7 +1,5 @@
 import 'dart:developer';
-
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -80,7 +78,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
             _buildIndicator(),
             const Spacer(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               height: 50,
               child: ElevatedButton(
                 onPressed: () {

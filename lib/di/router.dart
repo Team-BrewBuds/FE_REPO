@@ -54,10 +54,7 @@ final router = GoRouter(
         GoRoute(
           path: 'sns',
           builder: (BuildContext context, GoRouterState state) {
-            final authService = AuthService();
-            final loginModel = LoginModel();
-            final loginPresenter = LoginPresenter(loginModel, authService);
-            return SNSLogin(presenter: loginPresenter);
+            return const SNSLogin();
           },
         ),
       ],
@@ -65,7 +62,7 @@ final router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (BuildContext context, GoRouterState state) {
-        return Signup();
+        return const Signup();
       },
       routes: [
         GoRoute(

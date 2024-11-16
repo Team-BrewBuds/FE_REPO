@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/di/router.dart';
+import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,7 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
+      ChangeNotifierProvider(create: (context) => LoginPresenter()),
       ChangeNotifierProvider(create: (context) => SignUpProvider()),
     ],
     child: const MyApp(),
