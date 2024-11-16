@@ -1,6 +1,6 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
-import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -163,7 +163,7 @@ class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> {
             child: Text('다음'),
             onPressed: selectedChoices.isNotEmpty
                 ? () {
-                    context.read<SignUpProvider>().getCoffeeLife(selectedChoices);
+                    context.read<SignUpPresenter>().getCoffeeLife(selectedChoices);
                     context.push("/signup/cert");
                   }
                 : null, // 선택된 아이템이 없으면 비활성화

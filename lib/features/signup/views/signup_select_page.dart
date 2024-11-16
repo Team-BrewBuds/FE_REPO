@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
-import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +143,7 @@ class _TasteProfileSelectorState extends State<SignUpSelect> {
         padding: const EdgeInsets.only(bottom: 46.0, left: 16, right: 16),
         child: SizedBox(
           width: double.infinity,
-          child: Consumer<SignUpProvider>(
+          child: Consumer<SignUpPresenter>(
             builder: (BuildContext context, signProvider, Widget? child) {
               return ElevatedButton(
                 child: Text('다음'),
