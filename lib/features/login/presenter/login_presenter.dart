@@ -45,10 +45,6 @@ class LoginPresenter extends ChangeNotifier {
       if (user.kakaoAccount != null) {
         _socialLoginToken = SocialLoginToken.kakao(token.accessToken);
       }
-
-      // if (user.kakaoAccount != null) {
-      //   return await AuthService().sendTokenData(token.accessToken, 'kakao') ? true : false;
-      // }
     } catch (e) {
       _isLoading = false;
       notifyListeners();
@@ -68,7 +64,6 @@ class LoginPresenter extends ChangeNotifier {
 
       if (res.status == NaverLoginStatus.loggedIn) {
         _socialLoginToken = SocialLoginToken.naver(resAccess.accessToken);
-        // return await AuthService().sendTokenData(resAccess.accessToken, 'naver') ? true : false;
       } else {
         log('네이버 로그인 실패: ${res.errorMessage}');
       }
@@ -90,7 +85,6 @@ class LoginPresenter extends ChangeNotifier {
       );
       if (credential.identityToken != null) {
         _socialLoginToken = SocialLoginToken.apple(credential.identityToken!);
-        // return await AuthService().sendTokenData(credential.identityToken!, 'apple') ? true : false;
       }
     } catch (e) {
       _isLoading = false;

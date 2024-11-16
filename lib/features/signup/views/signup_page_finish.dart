@@ -1,5 +1,5 @@
 import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +11,7 @@ class SignupPageFinish extends StatefulWidget {
 }
 
 class _SignupPageFinishState extends State<SignupPageFinish> {
-  SignUpProvider provider = SignUpProvider();
+  SignUpPresenter provider = SignUpPresenter();
 
   @override
   void initState() {
@@ -26,7 +26,7 @@ class _SignupPageFinishState extends State<SignupPageFinish> {
           child: Center(
               child: Column(
             children: [
-              Consumer<SignUpProvider>(builder: (context, signProvicer, child) {
+              Consumer<SignUpPresenter>(builder: (context, signProvicer, child) {
                 return Column(
                   children: [
                     Padding(
@@ -68,7 +68,7 @@ class _SignupPageFinishState extends State<SignupPageFinish> {
                   "bitterness": 2, // 쓴맛 (1~5)
                   "sweetness": 5
                 };
-                context.read<SignUpProvider>().getPreferredBeanTaste(data);
+                context.read<SignUpPresenter>().getPreferredBeanTaste(data);
                 // context.push('/'); 완료시 home 링크 삽입해야함.
               },
               style: ElevatedButton.styleFrom(
