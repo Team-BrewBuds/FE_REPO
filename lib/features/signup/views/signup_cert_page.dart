@@ -1,5 +1,5 @@
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -150,7 +150,7 @@ class _MembershipScreenState extends State<SignUpCert> {
               child: ElevatedButton(
                 onPressed: hasCertificate != null
                     ? () {
-                        context.read<SignUpProvider>().getIsCertificated(hasCertificate!);
+                        context.read<SignUpPresenter>().getIsCertificated(hasCertificate!);
                         context.push("/signup/select");
                       }
                     : null,

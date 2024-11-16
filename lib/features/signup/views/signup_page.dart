@@ -1,5 +1,5 @@
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,25 +43,27 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   void initState() {
     super.initState();
-    _focusNode.addListener(() {
-      setState(() {
-        _hasFocus = _focusNode.hasFocus;
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _focusNode.addListener(() {
+        setState(() {
+          _hasFocus = _focusNode.hasFocus;
+        });
       });
-    });
 
-    _ageController.addListener(() {
-      setState(() {
-        _showClearButton = _ageController.text.isNotEmpty;
+      _ageController.addListener(() {
+        setState(() {
+          _showClearButton = _ageController.text.isNotEmpty;
+        });
       });
-    });
 
-    _nicknameController.addListener(() {
-      setState(() {
-        // 입력 값이 바뀔 때마다 조건에 따라 에러 메시지 설정
-        errorText = _nicknameController.text.isNotEmpty &&
-                (_nicknameController.text.length < 2 || _nicknameController.text.length > 12)
-            ? '2 ~ 12자 이내만 가능해요.'
-            : null;
+      _nicknameController.addListener(() {
+        setState(() {
+          // 입력 값이 바뀔 때마다 조건에 따라 에러 메시지 설정
+          errorText = _nicknameController.text.isNotEmpty &&
+              (_nicknameController.text.length < 2 || _nicknameController.text.length > 12)
+              ? '2 ~ 12자 이내만 가능해요.'
+              : null;
+        });
       });
     });
   }
@@ -131,7 +133,7 @@ class _SignUpPageState extends State<SignUpPage> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(CupertinoIcons.back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
         title: const Text('회원가입', style: TextStyle(color: Colors.black)),
         backgroundColor: Colors.white,
@@ -139,7 +141,7 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Consumer<SignUpProvider>(
+        child: Consumer<SignUpPresenter>(
           builder: (context, validator, child) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -269,10 +271,10 @@ class _SignUpPageState extends State<SignUpPage> {
           child: ElevatedButton(
             onPressed: () {
               if (context
-                  .read<SignUpProvider>()
+                  .read<SignUpPresenter>()
                   .ableCondition(_nicknameController.text, _ageController.text, _selectedIndex)) {
                 context
-                    .read<SignUpProvider>()
+                    .read<SignUpPresenter>()
                     .getUserData(_nicknameController.text, _ageController.text, _selectedIndex);
                 context.push('/signup/enjoy');
               }
@@ -289,7 +291,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               backgroundColor: MaterialStateProperty.resolveWith<Color?>(
                 (Set<MaterialState> states) {
-                  if (context.read<SignUpProvider>().ageError == null &&
+                  if (context.read<SignUpPresenter>().ageError == null &&
                       _ageController.text.isNotEmpty &&
                       _nicknameController.text.length > 1 &&
                       _selectedIndex != -1) {
