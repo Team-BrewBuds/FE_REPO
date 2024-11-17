@@ -34,21 +34,21 @@ class LoginPresenter {
       String ? email = user.kakaoAccount?.email.toString();
       log(email!);
 
-      // 로컬에 토큰및 정보 저장
+      // provider 토큰및 정보 저장
       final signUpProvider = context.read<SignUpProvider>();
       signUpProvider.setToken(token.accessToken, token.refreshToken, 'kakao');
 
-
-
       //서버에서 사용자 이메일로 회원가입 여부 확인 (기능 개발 필요) 회원있으면 true -> 홈화면이동, 없으면 false -> 회원가입 화면으로 이동
-      bool  result = await checkUser(email);
+      // bool  result = await checkUser(email,token.accessToken);
+      //
+      //  return result;
 
-      // return result;
-      return true;  // 임시로 true 로 설정해놓음.
+      return authService.sendTokenData(token.accessToken, 'kakao', null);
+
     } catch (e) {
       log(await KakaoSdk.origin);
     }
-    return false;
+    return true;
   }
 
   Future<bool> loginWithNaver(BuildContext context) async {
@@ -67,7 +67,7 @@ class LoginPresenter {
 
 
         //서버에서 사용자 이메일로 회원가입 여부 확인
-        bool  result = await checkUser(res.account.email);
+        bool  result = await checkUser(res.account.email,resAccess.accessToken.toString());
 
         return result;
 
@@ -100,7 +100,7 @@ class LoginPresenter {
 
 
         //서버에서 사용자 이메일로 회원가입 여부 확인
-        bool  result = await checkUser(email);
+        bool  result = await checkUser(email,credential.identityToken.toString());
 
         return result;
 
@@ -140,9 +140,9 @@ class LoginPresenter {
   }
 
 
-  Future<bool> checkUser(String email) async{
+  Future<bool> checkUser(String email, String token) async{
     try {
-
+      // authService.sendTokenData(token, token , null);
       final response = await Dio().post(
         'API_ADDRESS',
         data: {'email': email},
@@ -150,8 +150,10 @@ class LoginPresenter {
 
       if (response.data['isRegistered']) {
         print("이미 등록된 사용자입니다.");
-        return true;
-        // 로그인 처리
+
+       return authService.sendTokenData(token, token , null);
+
+
       } else {
         print("신규 사용자입니다. 회원가입을 진행합니다.");
         return false;

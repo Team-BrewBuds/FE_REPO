@@ -27,6 +27,7 @@ class SignUpProvider with ChangeNotifier {
    _token = token;
    _refreshToken = refreshToken!;
    _platform = platform;
+
    notifyListeners();
 
  }

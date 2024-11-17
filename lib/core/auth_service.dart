@@ -39,7 +39,7 @@ class AuthService {
   }
 
 // Accesstoken 정보 서버로 전송 및 JWT 받아서 로컬 스토리지에 저장
-  Future<bool> sendTokenData(String token, String platform, Map<String, dynamic> data) async {
+  Future<bool> sendTokenData(String token, String platform, Map<String, dynamic> ?data) async {
     try {
       final response = await _apiService.dio.post(
         ApiConstants.platformLogin(platform),
@@ -60,7 +60,11 @@ class AuthService {
 
         // log('${await _storage.read(key:'auth_token')}');
 
-        register(data, token, platform);
+        if( data != null){
+          register(data!, token, platform);
+        }
+
+
         return true;
 
       }
