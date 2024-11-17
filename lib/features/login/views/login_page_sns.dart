@@ -156,7 +156,7 @@ class _SNSLoginState extends State<SNSLogin> {
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
