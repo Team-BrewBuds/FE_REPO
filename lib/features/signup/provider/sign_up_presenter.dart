@@ -1,16 +1,36 @@
 import 'package:brew_buds/features/signup/models/SignUp.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SignUpPresenter with ChangeNotifier {
   final SignUp _signUp = SignUp();
   String? _nickNameError;
   String? _ageError;
+  FlutterSecureStorage _storage = FlutterSecureStorage();
+  String _token ='';
+  String  _refreshToken ='';
+  String  _platform  ='';
 
   SignUp get signUpData => _signUp;
-
   String? get nickNameError => _nickNameError;
-
   String? get ageError => _ageError;
+
+
+
+  String get token => _token;
+  String get refreshToken => _refreshToken;
+  String get platform => _platform;
+
+
+ Future<void> setToken(String token, String ?refreshToken , String platform)async {
+   _token = token;
+   _refreshToken = refreshToken!;
+   _platform = platform;
+
+   notifyListeners();
+
+ }
+
 
   void validateNickname(String value) {
     bool val;

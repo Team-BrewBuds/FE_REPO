@@ -6,6 +6,7 @@ import 'package:brew_buds/features/login/models/login_model.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/login/views/login_page_sns.dart';
+import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
 import 'package:brew_buds/features/signup/views/signup_cert_page.dart';
 import 'package:brew_buds/features/signup/views/signup_page.dart';
 import 'package:brew_buds/features/signup/views/signup_page_enjoy.dart';
@@ -53,6 +54,7 @@ final router = GoRouter(
       routes: <RouteBase>[
         GoRoute(
           path: 'sns',
+
           builder: (BuildContext context, GoRouterState state) {
             return const SNSLogin();
           },
