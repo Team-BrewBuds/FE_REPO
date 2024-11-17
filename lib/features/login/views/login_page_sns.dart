@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/features/login/models/login_result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/features/login/widgets/terms_of_use_bottom_sheet.dart';
@@ -182,11 +183,10 @@ class _SNSLoginState extends State<SNSLogin> {
       },
     ).then((result) {
       if (result != null && result) {
-        presenter.socialLogin(socialLogin).whenComplete(() {
-          if(presenter.socialLoginToken != null) {
-            context.push('/signup');
-          }
-        });
+        presenter.socialLogin(socialLogin).then((result) => switch (result) {
+              LoginSuccess() => result.hasAccount ? context.go('/home/all') : context.push('/signup'),
+              LoginError() => throw UnimplementedError(), // 화면 에러처리
+            });
       }
     });
   }
