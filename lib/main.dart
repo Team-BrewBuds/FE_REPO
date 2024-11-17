@@ -1,4 +1,5 @@
 import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/data/token/token_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';
@@ -27,7 +28,8 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => LoginPresenter()),
+      ChangeNotifierProvider(create: (context) => TokenRepository.instance),
+      ChangeNotifierProvider(create: (context) => LoginPresenter(tokenRepository: TokenRepository.instance)),
       ChangeNotifierProvider(create: (context) => SignUpPresenter()),
     ],
     child: const MyApp(),
