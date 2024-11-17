@@ -112,17 +112,14 @@ class _SNSLoginState extends State<SNSLogin> {
                               if (isAllChecked) {
                                 switch (name) {
                                   case 'kakao':
-                                    if (await widget.presenter.loginWithKakao()) {
-                                      context.push("/home/all");
-                                    }
+                                     (await widget.presenter.loginWithKakao(context))  ?
+                                     context.push("/home/all") : context.push("/signup");
                                   case 'naver':
-                                    if (await widget.presenter.loginWithNaver()) {
-                                      context.push("/signup");
-                                    }
+                                    (await widget.presenter.loginWithNaver(context))  ?
+                                    context.push("/home/all") : context.push("/signup");
                                   case 'apple':
-                                    if (await widget.presenter.loginWithApple()) {
-                                      context.push("/signup");
-                                    }
+                                    (await widget.presenter.loginWithApple(context))  ?
+                                    context.push("/home/all") : context.push("/signup");
                                 }
                               }
                             },

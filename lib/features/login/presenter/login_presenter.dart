@@ -1,20 +1,27 @@
 import 'dart:developer';
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/features/login/models/login_model.dart';
+import 'package:brew_buds/features/login/views/login_page_first.dart';
+import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class LoginPresenter {
   final LoginModel model;
   final AuthService authService;
+  FlutterSecureStorage _storage = FlutterSecureStorage();
 
   LoginPresenter(this.model, this.authService);
 
-  Future<bool> loginWithKakao() async {
+
+  Future<bool> loginWithKakao(BuildContext context) async {
     try {
       // 카카오톡이 설치되어 있는지 확인
-      bool isInstalled = await isKakaoTalkInstalled();
       OAuthToken token;
       if (await isKakaoTalkInstalled()) {
         token = await UserApi.instance.loginWithKakaoTalk();
@@ -24,24 +31,47 @@ class LoginPresenter {
       // 사용자 정보 가져오기
       User user = await UserApi.instance.me();
 
-      if (user.kakaoAccount?.email != null) {
-        // 서버로 accessToken 전송
-        return await AuthService().sendTokenData(token.accessToken, 'kakao') ? true : false;
-      }
+      String ? email = user.kakaoAccount?.email.toString();
+      log(email!);
+
+      // 로컬에 토큰및 정보 저장
+      final signUpProvider = context.read<SignUpProvider>();
+      signUpProvider.setToken(token.accessToken, token.refreshToken, 'kakao');
+
+
+
+      //서버에서 사용자 이메일로 회원가입 여부 확인 (기능 개발 필요) 회원있으면 true -> 홈화면이동, 없으면 false -> 회원가입 화면으로 이동
+      bool  result = await checkUser(email);
+
+      // return result;
+      return true;  // 임시로 true 로 설정해놓음.
     } catch (e) {
       log(await KakaoSdk.origin);
     }
     return false;
   }
 
-  Future<bool> loginWithNaver() async {
+  Future<bool> loginWithNaver(BuildContext context) async {
     try {
       // 로그인 시도
       NaverLoginResult res = await FlutterNaverLogin.logIn();
       NaverAccessToken resAccess = await FlutterNaverLogin.currentAccessToken;
 
+
       if (res.status == NaverLoginStatus.loggedIn) {
-        return await AuthService().sendTokenData(resAccess.accessToken, 'naver') ? true : false;
+
+        // 로컬에 토큰및 정보 저장
+        final signUpProvider = context.read<SignUpProvider>();
+        signUpProvider.setToken(resAccess.accessToken, resAccess.refreshToken, 'naver');
+
+
+
+        //서버에서 사용자 이메일로 회원가입 여부 확인
+        bool  result = await checkUser(res.account.email);
+
+        return result;
+
+
       } else {
         log('네이버 로그인 실패: ${res.errorMessage}');
       }
@@ -51,8 +81,9 @@ class LoginPresenter {
     return false;
   }
 
-  Future<bool> loginWithApple() async {
+  Future<bool> loginWithApple(BuildContext context) async {
     try {
+
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
@@ -60,7 +91,25 @@ class LoginPresenter {
         ],
       );
       if (credential.identityToken != null) {
-        return await AuthService().sendTokenData(credential.identityToken!, 'apple') ? true : false;
+        String email = AppleIDAuthorizationScopes.email.toString();
+
+        // 로컬에 토큰및 정보 저장
+        final signUpProvider = context.read<SignUpProvider>();
+        signUpProvider.setToken(credential.identityToken.toString(),'', 'apple');
+
+
+
+        //서버에서 사용자 이메일로 회원가입 여부 확인
+        bool  result = await checkUser(email);
+
+        return result;
+
+
+
+
+
+        return true;
+        // return await AuthService().sendTokenData(credential.identityToken!, 'apple') ? true : false;
       }
       return true;
     } catch (e) {
@@ -88,6 +137,33 @@ class LoginPresenter {
     } else {
       // 유효성 검사 실패 처리
     }
+  }
+
+
+  Future<bool> checkUser(String email) async{
+    try {
+
+      final response = await Dio().post(
+        'API_ADDRESS',
+        data: {'email': email},
+      );
+
+      if (response.data['isRegistered']) {
+        print("이미 등록된 사용자입니다.");
+        return true;
+        // 로그인 처리
+      } else {
+        print("신규 사용자입니다. 회원가입을 진행합니다.");
+        return false;
+        // 회원가입 페이지로 이동
+      }
+
+    } catch (e) {
+      print(e);
+    }
+
+    return false;
+
   }
 }
 

@@ -22,18 +22,18 @@ class LoginPage extends StatelessWidget {
             obscureText: true,
             decoration: const InputDecoration(labelText: 'Password'),
           ),
-          ElevatedButton(
-            onPressed: presenter.loginWithKakao,
-            child: const Text('LoginWithKaKao'),
-          ),
-          ElevatedButton(
-            onPressed: presenter.loginWithNaver,
-            child: const Text('LoginWithNaver'),
-          ),
-          ElevatedButton(
-            onPressed: presenter.loginWithApple,
-            child: const Text('LoginWithApple'),
-          ),
+          // ElevatedButton(
+          //   onPressed: presenter.loginWithKakao(context),
+          //   child: const Text('LoginWithKaKao'),
+          // ),
+          // ElevatedButton(
+          //   onPressed: presenter.loginWithNaver,
+          //   child: const Text('LoginWithNaver'),
+          // ),
+          // ElevatedButton(
+          //   onPressed: presenter.loginWithApple,
+          //   child: const Text('LoginWithApple'),
+          // ),
           ElevatedButton(
             onPressed: AuthService().logout,
             child: const Text('Logout'),
