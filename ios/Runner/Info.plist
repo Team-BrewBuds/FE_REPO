@@ -62,6 +62,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>To capture profile photo please grant camera access</string>
+	<key>NSUserNotificationUsageDescription</key>
+    <string>앱에서 중요한 알림을 수신하기 위해 알림 권한이 필요합니다.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app required NSMicrophoneUsageDescription permission</string>
 	<key>NSPhotoLibraryUsageDescription</key>
