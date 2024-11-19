@@ -21,6 +21,7 @@ import 'package:brew_buds/home/post/home_post_view.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
+import 'package:brew_buds/profile/presenter/alarm_presenter.dart';
 import 'package:brew_buds/profile/profile_screen.dart';
 import 'package:brew_buds/profile/views/account_out_view.dart';
 import 'package:brew_buds/profile/views/alarm_view.dart';
@@ -36,8 +37,7 @@ import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
-
-const String initialPath = '/login';
+const String initialPath = '/profile';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState =
     GlobalKey<NestedScrollViewState>();
@@ -118,7 +118,8 @@ final router = GoRouter(
                         );
                       },
                       child: ChangeNotifierProvider<HomeAllPresenter>(
-                        create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
+                        create: (_) => HomeAllPresenter(
+                            repository: HomeRepository.instance),
                         child: HomeAllView(
                             scrollController: homeTabBarScrollState
                                 .currentState?.innerController),
@@ -139,7 +140,8 @@ final router = GoRouter(
                         );
                       },
                       child: ChangeNotifierProvider<HomeTastingRecordPresenter>(
-                        create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
+                        create: (_) => HomeTastingRecordPresenter(
+                            repository: HomeRepository.instance),
                         child: HomeTastingRecordView(
                           scrollController: homeTabBarScrollState
                               .currentState?.innerController,
@@ -210,32 +212,40 @@ final router = GoRouter(
       ),
     ),
     GoRoute(
-        path: '/profile_setting', builder: (context, state) => const SettingView()),
+        path: '/profile_setting',
+        builder: (context, state) => const SettingView()),
     GoRoute(
         path: '/profile_edit',
         builder: (context, state) =>
             ChangeNotifierProvider<ProfileEditPresenter>(
-                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
+                create: (_) =>
+                    ProfileEditPresenter(repository: ProfileRepository()),
                 child: const ProfileEditScreen())),
     GoRoute(
-        path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
+        path: '/profile_fitInfo',
+        builder: (context, state) => const FitInfoView()),
     GoRoute(
-        path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
+        path: '/profile_accountInfo',
+        builder: (context, state) => const ProfileAccountInfoView()),
     GoRoute(
         path: '/profile_block',
         builder: (context, state) =>
             ChangeNotifierProvider<ProfileEditPresenter>(
-                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
+                create: (_) =>
+                    ProfileEditPresenter(repository: ProfileRepository()),
                 child: const BlockView())),
-
     GoRoute(
-        path: '/account_out', builder: (context, state) => const AccountOutView()),
+        path: '/account_out',
+        builder: (context, state) => const AccountOutView()),
     GoRoute(
-        path: '/alarm', builder: (context, state) => const AlarmView()),
-
-
-
-
-
+        path: '/alarm',
+        builder: (context, state) => ChangeNotifierProvider(
+            create: (_) {
+              final presenter = AlarmPresenter();
+              Future<bool> value = presenter.NotificationPermissionCheck(); // 초기화 중 권한 확인
+              presenter.loadSetting(value);
+              return presenter;
+            },
+            child: AlarmView())),
   ],
 );

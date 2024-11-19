@@ -51,6 +51,18 @@ post_install do |installer|
     # iOS 배포 타겟 버전을 12.0 이상으로 설정
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+
+       # permission_handler 설정
+         target.build_configurations.each do |config|
+           config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+             '$(inherited)',
+
+             'PERMISSION_CAMERA=1',
+             'PERMISSION_LOCATION=1',
+             'PERMISSION_NOTIFICATIONS=1',
+
+           ]
+       end
     end
   end
 end

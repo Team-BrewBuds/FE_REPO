@@ -2,6 +2,7 @@ import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../common/text_styles.dart';
 
@@ -63,7 +64,9 @@ class _AccountOutViewState extends State<AccountOutView> {
 
               ],
             ),
-            ButtonFactory.buildRoundedButton(onTapped: (){},
+            ButtonFactory.buildRoundedButton(onTapped: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => outAgree()));
+            },
                 text: '다음', style: RoundedButtonStyle(backgroundColor: Colors.black, borderWidth: 0.0, borderColor: Colors.black, textColor: Colors.white, size: RoundedButtonSize.xLarge))
 
             // ElevatedButton(onPressed: (){
@@ -77,14 +80,14 @@ class _AccountOutViewState extends State<AccountOutView> {
   }
 }
 
-class step_1 extends StatefulWidget {
-  const step_1({super.key});
+class outAgree extends StatefulWidget {
+  const outAgree({super.key});
 
   @override
-  State<step_1> createState() => _step_1State();
+  State<outAgree> createState() => _outAgreeState();
 }
 
-class _step_1State extends State<step_1> {
+class _outAgreeState extends State<outAgree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
