@@ -8,6 +8,8 @@ import '../../model/user.dart';
 
 part 'profile_api.g.dart';
 
+
+
 @RestApi(
   baseUrl: "http://13.125.233.210"
 )

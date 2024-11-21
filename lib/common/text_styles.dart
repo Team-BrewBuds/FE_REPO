@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 final class TextStyles {
   TextStyles._();
 
+  //styleName: Title/Title-05/24 Bold;
+
+
+
   //Title
   static const title05Bold = TextStyle(
-    fontWeight: FontWeight.w700,
+    fontWeight: FontWeight.w400,
     fontSize: 24,
     height: 28.8 / 24,
     letterSpacing: -0.01,
