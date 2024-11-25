@@ -37,7 +37,7 @@ import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
-const String initialPath = '/profile';
+const String initialPath = '/login';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState =
     GlobalKey<NestedScrollViewState>();

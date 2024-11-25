@@ -78,11 +78,6 @@ final class ProfileEditPresenter extends ChangeNotifier {
     await _repository.fetchProfile();
   }
 
-  void editProfile() async{
-    Map<String,dynamic> map = {};
-    // Profile _pro = Profile(nickname: nickname)
-    await _repository.fetchUpdateProfile(map);
-  }
 
   Future<void> _checkPermission() async{
     await PhotoManager.requestPermissionExtend().then((ps){

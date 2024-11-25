@@ -8,15 +8,13 @@ import '../../model/user.dart';
 
 part 'profile_api.g.dart';
 
-@RestApi(
-  baseUrl: "http://13.125.233.210"
-)
+
 abstract class ProfileApi {
 
+  factory ProfileApi(Dio dio) = _ProfileApi;
+
   @GET('/profiles/')
-  Future<Profile> getProfile({
-    @Header('Authorization') required String token,
-  });
+  Future<Profile> getProfile();
 
   @PATCH("/profiles/")
   Future<Profile> patchProfile({
@@ -27,5 +25,5 @@ abstract class ProfileApi {
 
 
 
-  factory ProfileApi(Dio dio) = _ProfileApi;
+
 }

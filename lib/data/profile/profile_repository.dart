@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/authDio.dart';
 import 'package:brew_buds/core/auth_service.dart';
 import 'package:brew_buds/data/profile/profile_api.dart';
 import 'package:dio/dio.dart';
@@ -20,12 +21,21 @@ class ProfileRepository {
 
   factory ProfileRepository() => instance;
 
-  Future<String?> _token = AuthService().getToken();
+  Future<Profile?> fetchProfile() async {
+    final dio = await authDio();
+    final profileApi = ProfileApi(dio);
 
-  Future<Profile> fetchProfile() => _token.then((token) => _api.getProfile(token: 'Bearer $token'));
+    try {
+      final profile = await profileApi.getProfile();
+      return profile;
+    } catch (e) {
+      print(e);
+    }
+    return null;
+  }
 
-  Future<Profile> fetchUpdateProfile(Map<String,dynamic> map) =>
-      _token.then((token) => _api.patchProfile(token: 'Bearer $token', map: map));
+  // Future<Profile> fetchUpdateProfile(Map<String,dynamic> map) =>
+  //     _token.then((token) => _api.patchProfile(token: 'Bearer $token', map: map));
 
 
 }
