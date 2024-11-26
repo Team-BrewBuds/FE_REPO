@@ -11,7 +11,7 @@ Future authDio() async {
   // dio.interceptors.clear();
   // 로그인 후 api  인터셉터 구현
   dio.interceptors.add(InterceptorsWrapper(
-    //request
+      //request
       onRequest: (options, handler) async {
     final accessToken = await storage.read(key: 'auth_token');
 
@@ -20,9 +20,9 @@ Future authDio() async {
     return handler.next(options);
   },
 
-   //error
+      //error
       onError: (error, handler) async {
-        //토큰 만료시
+    //토큰 만료시
     if (error.response?.statusCode == 401) {
       final accessToken = await storage.read(key: 'auth_token');
       final refreshToken = await storage.read(key: 'refresh');
@@ -41,9 +41,10 @@ Future authDio() async {
       // refresh token 으로 재설정.
       final refreshResponse = await refreshDio.post(
           '/profiles/api/token/refresh/',
-          data: {'refreshToken': refreshToken});
+          data: {'refresh': refreshToken});
+      print(refreshResponse.data);
 
-      final newAccessToken = refreshResponse.data["result"]['token'];
+      final newAccessToken = refreshResponse.data["access"];
       await storage.write(key: 'auth_token', value: newAccessToken);
       error.requestOptions.headers['Authorization'] = 'Bearer $accessToken';
 
@@ -58,8 +59,6 @@ Future authDio() async {
 
     return handler.next(error);
   }));
-
-
 
   return dio;
 }

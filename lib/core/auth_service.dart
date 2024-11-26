@@ -57,7 +57,7 @@ class AuthService {
         await _storage.write(key: 'auth_token', value: auth_token);
         await _storage.write(key: 'refresh', value: refrest_token);
 
-        log('${_storage.read(key:'auth_token')}');
+        print(auth_token);
         return true;
 
       }

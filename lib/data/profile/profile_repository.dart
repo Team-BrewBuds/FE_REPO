@@ -9,11 +9,10 @@ import '../../model/profile.dart';
 import '../../model/user.dart';
 
 class ProfileRepository {
-
   final ProfileApi _api;
 
-  ProfileRepository._() : _api = ProfileApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
-
+  ProfileRepository._()
+      : _api = ProfileApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
 
   static final ProfileRepository _instance = ProfileRepository._();
 
@@ -21,24 +20,14 @@ class ProfileRepository {
 
   factory ProfileRepository() => instance;
 
-  Future<Profile?> fetchProfile() async {
+  //프로필 정보 가져오기
+  Future<Profile> fetchProfile() async {
     final dio = await authDio();
     final profileApi = ProfileApi(dio);
-
-    try {
-      final profile = await profileApi.getProfile();
-      return profile;
-    } catch (e) {
-      print(e);
-    }
-    return null;
+    final profile = await profileApi.getProfile();
+    return profile;
   }
 
-  // Future<Profile> fetchUpdateProfile(Map<String,dynamic> map) =>
-  //     _token.then((token) => _api.patchProfile(token: 'Bearer $token', map: map));
-
-
+// Future<Profile> fetchUpdateProfile(Map<String,dynamic> map) =>
+//     _token.then((token) => _api.patchProfile(token: 'Bearer $token', map: map));
 }
-
-
-
