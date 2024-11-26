@@ -85,26 +85,10 @@ class _AccountOutViewState extends State<AccountOutView> {
                 Text('안내 사항을 확인하였으며, 이에 동의합니다.'),
               ],
             ),
-            Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  _check
-                      ? Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => step_1()))
-                      : null;
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  backgroundColor: _check ? Colors.black : ColorStyles.gray30,
-                  foregroundColor: ColorStyles.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: const Text('다음'),
-              ),
-            ),
+            ButtonFactory.buildRoundedButton(onTapped: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => outAgree()));
+            },
+                text: '다음', style: RoundedButtonStyle(backgroundColor: Colors.black, borderWidth: 0.0, borderColor: Colors.black, textColor: Colors.white, size: RoundedButtonSize.xLarge))
           ],
         ),
       ),
@@ -112,14 +96,15 @@ class _AccountOutViewState extends State<AccountOutView> {
   }
 }
 
-class step_1 extends StatefulWidget {
-  const step_1({super.key});
+class outAgree extends StatefulWidget {
+  const outAgree({super.key});
 
   @override
-  State<step_1> createState() => _step_1State();
+  State<outAgree> createState() => _outAgreeState();
 }
 
-class _step_1State extends State<step_1> {
+
+class _outAgreeState extends State<outAgree> {
   List<String> _reasons = [
     '시음 기록 과정이 복잡해요.',
     '원두 정보가 부족해요.',
@@ -177,6 +162,7 @@ class _step_1State extends State<step_1> {
       },
     );
   }
+
 
 
   @override

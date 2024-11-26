@@ -83,7 +83,7 @@ class _SettingViewState extends State<SettingView> {
               ),
               Container(
                 height: 14,
-                color: ColorStyles.gray30,
+                color: ColorStyles.gray20,
               ),
               ListView.separated(
                 shrinkWrap: true,
@@ -116,7 +116,7 @@ class _SettingViewState extends State<SettingView> {
               ),
               Container(
                 height: 14,
-                color: ColorStyles.gray30,
+                color: ColorStyles.gray20,
               ),
               ListView.separated(
                 shrinkWrap: true,
@@ -137,7 +137,7 @@ class _SettingViewState extends State<SettingView> {
               ),
               Container(
                 height: 14,
-                color: ColorStyles.gray30,
+                color: ColorStyles.gray20,
               ),
               ListView.separated(
                 shrinkWrap: true,
@@ -158,7 +158,7 @@ class _SettingViewState extends State<SettingView> {
               ),
               Container(
                 height: 14,
-                color: ColorStyles.gray30,
+                color: ColorStyles.gray20,
               ),
               ListView.separated(
                 shrinkWrap: true,
@@ -231,7 +231,7 @@ class _SettingViewState extends State<SettingView> {
               ),
               Container(
                 height: 14,
-                color: ColorStyles.gray30,
+                color: ColorStyles.gray20,
               )
             ],
           )

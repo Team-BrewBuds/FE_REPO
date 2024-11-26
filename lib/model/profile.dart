@@ -9,23 +9,18 @@ part 'profile.g.dart';
 
 @freezed
 class Profile with _$Profile {
-  const factory Profile({
-    @JsonKey() required String nickname,
-    @JsonKey(name: 'profile_image', defaultValue: '') String? profileImageUri,
-    @JsonKey()  Map<String,Map<String,dynamic>>? coffLife,
-    @JsonKey(defaultValue: 0)  int ?followingCnt,
-    @JsonKey(defaultValue: 0) int ?followerCnt,
-    @JsonKey(defaultValue: 0)  int ?postCnt,
-    @JsonKey() ProfileDetail ? profileDetail,
+  const factory Profile(
+      {@JsonKey() required String nickname,
+      @JsonKey(name: 'profile_image', defaultValue: '') String? profileImageUri,
+      @JsonKey(name: 'introduction') String? introduction,
+      @JsonKey(name: 'profile_link') String? profileLink,
+      @JsonKey(name: 'coffee_life') required Map<String, dynamic> coffLife,
+      @JsonKey(name: 'following_cnt') int? followingCnt,
+      @JsonKey(name: 'follower_cnt') int? followerCnt,
+      @JsonKey(name: 'post_cnt') int? postCnt,
+      @JsonKey(defaultValue: false) required bool isUserFollowing,
+      @JsonKey(defaultValue: false) required bool isUserBlocking}) = _Profile;
 
-
-  }) = _Profile;
-
-
-  factory Profile.fromJson(Map<String, Object?> json) => _$ProfileFromJson(json);
-
-
-
-
-
+  factory Profile.fromJson(Map<String, Object?> json) =>
+      _$ProfileFromJson(json);
 }

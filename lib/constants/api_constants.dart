@@ -6,8 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 * */
 
 
-class ApiConstants {
-  static  String baseUrl = dotenv.env['BASE_URL']!;  //baseUrl
+class ApiConstants {//baseUrl
   static const String refreshToken = '/profiles/api/token/refresh/'; // 토큰 재발급
   static const String signup = '/profiles/signup/'; //회원가입
   static String platformLogin(String platform) {

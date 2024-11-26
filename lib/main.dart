@@ -11,7 +11,9 @@ import 'features/signup/provider/SignUpProvider.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
+  //splash screen
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
 
   await dotenv.load(fileName: ".env");
 

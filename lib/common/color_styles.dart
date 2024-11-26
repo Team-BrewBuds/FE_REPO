@@ -10,6 +10,7 @@ final class ColorStyles {
   static const Color white = Color(0xffffffff);
   static const Color red = Color(0xffFE2E00);
   static const Color red10 =  Color(0xFFFE2D00);
+  static const Color red20 =  Color(0xFFFF4412);
   static const Color orange =  Color(0xFFFF5C31);
 
   //Grayscale

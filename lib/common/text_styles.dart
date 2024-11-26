@@ -136,4 +136,14 @@ final class TextStyles {
       fontFamily: 'Pretendard',
       color: Color(0xFFAAAAAA),
       letterSpacing: -0.13);
+
+  static const textlightSmall = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 13,
+      fontFamily: 'Pretendard',
+      color: Color(0xFFAAAAAA),
+      letterSpacing: -0.13);
 }
+
+
+
