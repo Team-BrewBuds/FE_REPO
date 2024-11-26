@@ -1,5 +1,6 @@
 import 'package:brew_buds/constants/api_constants.dart';
 import 'package:brew_buds/core/api_service.dart';
+import 'package:brew_buds/features/login/models/login_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
@@ -37,8 +38,8 @@ class AuthService {
     );
   }
 
-// Accesstoken 정보 서버로 전송
-  Future<bool> sendTokenData(String token, String platform) async {
+// Accesstoken 정보 서버로 전송 및 JWT 받아서 로컬 스토리지에 저장
+  Future<bool> sendTokenData(String token, String platform, Map<String, dynamic> ?data) async {
     try {
       final response = await _apiService.dio.post(
         ApiConstants.platformLogin(platform),
@@ -53,11 +54,17 @@ class AuthService {
         auth_token = response.data.entries.elementAt(0).value; // token 가져오기
         refrest_token = response.data.entries.elementAt(1).value; // refrest_token 가져오기
 
-        // 서버에서 받은 각 토큰 로컬스토리지에 저장.
+        // // 서버에서 받은 각 토큰 로컬스토리지에 저장.
         await _storage.write(key: 'auth_token', value: auth_token);
         await _storage.write(key: 'refresh', value: refrest_token);
 
-        print(auth_token);
+
+
+        if( data != null){
+          register(data!, token, platform);
+        }
+
+
         return true;
 
       }
@@ -106,11 +113,22 @@ class AuthService {
     return await _storage.read(key: 'auth_token');
   }
 
-  Future<bool> register(Map<String, dynamic> data) async {
+  //회원가입  - Param:  설문 정보, 토큰 값, sns 플랫폼종류
+  Future<bool> register(Map<String, dynamic> data, String token, String platform) async {
     try {
+
+      // 토큰 저장 후 회원가입 save.
       final response = await _apiService.dio.post(ApiConstants.signup, data: data);
-      log(response.statusMessage ?? '');
-      return response.statusCode == 201;
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        log('Unexpected status code: ${response.statusCode}');
+        return false;
+      }
+
+
+
     } on DioException catch (e) {
       log('Registration error: ${e.message}');
       return false;
