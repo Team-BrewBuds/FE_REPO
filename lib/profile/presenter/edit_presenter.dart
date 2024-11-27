@@ -39,8 +39,9 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
   List<String> get trueKeys => _trueKeys;
 
-  List<String> getCoffeLifes() {
-    Profile profile = _repository.fetchProfile() as Profile;
+  // 커피 생활 가져오기
+  Future<void> getCoffeLifes() async {
+    Profile profile = await _repository.fetchProfile();
     _trueKeys = profile.coffLife.entries
         .where((entry) => entry.value) // value가 true인 항목 필터링
         .map((entry) => entry.key) // key만 추출
@@ -49,10 +50,28 @@ final class ProfileEditPresenter extends ChangeNotifier {
     _life = _lists.enjoyItems
         .where((item) =>
             trueKeys.contains(item["choice"])) // trueKeys에 choice가 포함된 항목 필터링
-        .map((item) => item["title"]!) // title 값만 추출
-        .toList();
+        .map((item) => item["title"]!)
+        .toList(); // title 값만 추출
+  }
 
-    return _life;
+  Future<void> checkCard(int index) async {
+    _selectedItems[index] = !_selectedItems[index]; // check 여부 구분
+
+    String? value = _lists.enjoyItems.elementAt(index)["title"];
+
+    if (_selectedItems[index]) {
+      _selectedChoices.add(value!);
+    } else {
+      _selectedChoices.remove(value!);
+    }
+    _life = _selectedChoices;
+    notifyListeners();
+  }
+
+  void clearChoices() {
+    _life.clear();
+    _selectedItems = List.generate(_selectedItems.length, (index) => false);
+    notifyListeners();
   }
 
   final List<RecommendedUser> dummyRecommendedUsers = [
@@ -141,25 +160,6 @@ final class ProfileEditPresenter extends ChangeNotifier {
             isFollowed: false),
         followerCount: 23457),
   ];
-
-  void cardChoices(int index) {
-    _selectedItems[index] = !_selectedItems[index];
-    if (_selectedItems[index]) {
-      _selectedChoices.add(_lists.enjoyItems[index]['title']!);
-    } else {
-      _selectedChoices.remove(_lists.enjoyItems[index]['title']!);
-    }
-
-    print(_selectedChoices);
-
-    notifyListeners();
-  }
-
-  void clearChoices() {
-    _selectedChoices.clear();
-    _selectedItems = List.generate(_selectedItems.length, (index) => false);
-    notifyListeners();
-  }
 
   Future<void> _checkPermission() async {
     await PhotoManager.requestPermissionExtend().then((ps) {

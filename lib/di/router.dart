@@ -222,7 +222,9 @@ final router = GoRouter(
             ChangeNotifierProvider<ProfileEditPresenter>(
                 create: (_) =>
                     ProfileEditPresenter(repository: ProfileRepository()),
-                child: const ProfileEditScreen())),
+                child: const ProfileEditScreen())
+    ),
+
     GoRoute(
         path: '/profile_fitInfo',
         builder: (context, state) => const FitInfoView()),

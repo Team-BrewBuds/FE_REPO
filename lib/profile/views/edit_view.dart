@@ -38,9 +38,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final TextEditingController _infoTextController = TextEditingController();
   final TextEditingController _linkTextController = TextEditingController();
 
-  // late List<String> _life = [];
-  // late List<String> trueKeys = [];
-
   // 프로필 이미지 변경
   final ImagePicker _picker = ImagePicker();
   File? _profileFile;
@@ -57,16 +54,20 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-// 프로필 정보 가져오기
   Future<void> getProfile() async {
-    Profile profile = await _repository.fetchProfile();
-
-    setState(() {
-      //닉네임,소개,링크 정보
-      _nickNameTextController.text = profile.nickname;
-      _infoTextController.text = profile.introduction!;
-      _linkTextController.text != null ? profile.profileLink : '';
-    });
+    try {
+      Profile profile = await _repository.fetchProfile();
+      setState(() {
+        // 닉네임, 소개, 링크 정보 설정
+        _nickNameTextController.text = profile.nickname;
+        _infoTextController.text =
+            profile.introduction ?? ''; // introduction이 null일 경우 기본값 빈 문자열로 설정
+        _linkTextController.text =
+            profile.profileLink ?? ''; // profileLink가 null일 경우 빈 문자열로 설정
+      });
+    } catch (e) {
+      print('Error fetching profile: $e');
+    }
   }
 
   @override
@@ -97,6 +98,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       body: Consumer<ProfileEditPresenter>(
         builder: (BuildContext context, ProfileEditPresenter provider,
             Widget? child) {
+          provider.getCoffeLifes(); // 커피생활 불러오기.
           return SingleChildScrollView(
             child: Container(
               child: Padding(
@@ -225,8 +227,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   Expanded(
                                       child: ListView.builder(
                                           scrollDirection: Axis.horizontal,
-                                          itemCount:
-                                              provider.getCoffeLifes().length,
+                                          itemCount: provider.life.length,
                                           padding: EdgeInsets.all(8.0),
                                           itemBuilder: (context, index) {
                                             return Container(
@@ -235,9 +236,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                               child:
                                                   ButtonFactory.buildOvalButton(
                                                       onTapped: () {},
-                                                      text: provider
-                                                              .getCoffeLifes()[
-                                                          index],
+                                                      text: provider.life
+                                                          .elementAt(index),
                                                       style:
                                                           OvalButtonStyle.fill(
                                                         color:
@@ -248,28 +248,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                             .medium,
                                                       )),
                                             );
-                                          })
-
-                                      // ListView.builder(
-                                      //     scrollDirection: Axis.horizontal,
-                                      //     itemCount: provider.selectedChoices.length,
-                                      //     padding: EdgeInsets.all(8.0),
-                                      //     itemBuilder: (context, index) {
-                                      //       return
-                                      //         Container(
-                                      //         margin:
-                                      //         EdgeInsets.symmetric(horizontal: 2.0),
-                                      //         child: ButtonFactory.buildOvalButton(
-                                      //             onTapped: () {},
-                                      //             text: provider.selectedChoices[index],
-                                      //             style: OvalButtonStyle.fill(
-                                      //               color: ColorStyles.black,
-                                      //               textColor: ColorStyles.white,
-                                      //               size: OvalButtonSize.medium,
-                                      //             )),
-                                      //       );
-                                      //     }),
-                                      ),
+                                          })),
                                   SizedBox(
                                     child: IconButton(
                                         onPressed: provider.clearChoices,
@@ -353,7 +332,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                     onTap: () {
                                                       setState(() {
                                                         provider
-                                                            .cardChoices(index);
+                                                            .checkCard(index);
                                                       });
                                                     },
                                                     child: Card(
@@ -384,12 +363,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                                 .center,
                                                         children: [
                                                           Image.asset(
-                                                              "assets/images/${provider.lists.enjoyItems[index]['png']}.png"),
+                                                              "assets/images/${provider.lists.enjoyItems.elementAt(index)['png']}.png"),
                                                           SizedBox(height: 10),
                                                           Text(
                                                             provider.lists
-                                                                    .enjoyItems[
-                                                                index]['title']!,
+                                                                    .enjoyItems
+                                                                    .elementAt(
+                                                                        index)[
+                                                                'title']!,
                                                             style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -401,8 +382,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                                     .all(8.0),
                                                             child: Text(
                                                               provider.lists
-                                                                          .enjoyItems[
-                                                                      index][
+                                                                      .enjoyItems
+                                                                      .elementAt(
+                                                                          index)[
                                                                   'description']!,
                                                               textAlign:
                                                                   TextAlign
@@ -456,13 +438,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                       style: ElevatedButton
                                                           .styleFrom(
                                                         backgroundColor: provider
-                                                                .selectedChoices
+                                                                .selectedItems
                                                                 .isEmpty
                                                             ? ColorStyles.gray20
                                                             : ColorStyles
                                                                 .gray30,
                                                         foregroundColor: provider
-                                                                .selectedChoices
+                                                                .selectedItems
                                                                 .isEmpty
                                                             ? ColorStyles.gray30
                                                             : ColorStyles.black,
