@@ -1,19 +1,19 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/features/signup/views/signup_mixin.dart';
+import 'package:brew_buds/features/signup/core/signup_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class SignUpCert extends StatefulWidget {
-  const SignUpCert({super.key});
+class SignUpThirdPage extends StatefulWidget {
+  const SignUpThirdPage({super.key});
 
   @override
-  State<SignUpCert> createState() => _MembershipScreenState();
+  State<SignUpThirdPage> createState() => _SignUpThirdPageState();
 }
 
-class _MembershipScreenState extends State<SignUpCert> with SignupMixin<SignUpCert> {
+class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<SignUpThirdPage> {
   @override
   int get currentPageIndex => 2;
 

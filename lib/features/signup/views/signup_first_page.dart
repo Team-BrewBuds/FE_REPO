@@ -3,21 +3,21 @@ import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/features/signup/views/signup_mixin.dart';
+import 'package:brew_buds/features/signup/core/signup_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({super.key});
+class SignUpFirstPage extends StatefulWidget {
+  const SignUpFirstPage({super.key});
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<SignUpFirstPage> createState() => _SignUpFirstPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
+class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<SignUpFirstPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
