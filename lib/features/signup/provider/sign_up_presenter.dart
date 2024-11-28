@@ -1,23 +1,11 @@
-import 'package:brew_buds/features/signup/models/SignUp.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
+import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';
 import 'package:brew_buds/features/signup/state/signup_state.dart';
 import 'package:flutter/foundation.dart';
 
 class SignUpPresenter with ChangeNotifier {
   SignUpState _state = const SignUpState();
-  final SignUp _signUp = SignUp();
-  String _token = '';
-  String _refreshToken = '';
-  String _platform = '';
-
-  SignUp get signUpData => _signUp;
-
-  String get token => _token;
-
-  String get refreshToken => _refreshToken;
-
-  String get platform => _platform;
 
   bool get isNotEmptyNickName => _state.nickName?.isNotEmpty ?? false;
 
@@ -37,16 +25,16 @@ class SignUpPresenter with ChangeNotifier {
 
   bool? get isCertificated => _state.isCertificated;
 
+  int? get body => _state.preferredBeanTaste?.body;
+
+  int? get acidity => _state.preferredBeanTaste?.acidity;
+
+  int? get bitterness => _state.preferredBeanTaste?.bitterness;
+
+  int? get sweetness => _state.preferredBeanTaste?.sweetness;
+
   init() {
     _state = const SignUpState();
-    notifyListeners();
-  }
-
-  Future<void> setToken(String token, String? refreshToken, String platform) async {
-    _token = token;
-    _refreshToken = refreshToken!;
-    _platform = platform;
-
     notifyListeners();
   }
 
@@ -132,46 +120,79 @@ class SignUpPresenter with ChangeNotifier {
     notifyListeners();
   }
 
-  //조건 모두 만족시 다음 버튼 활성화
-  bool ableCondition(String nickName, String age, int gender) {
-    if (age.isNotEmpty && nickName.length > 1 && gender != -1) {
-      notifyListeners();
-      return true;
+  onChangeBodyValue(int newValue) {
+    if (_state.preferredBeanTaste == null) {
+      _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(body: newValue));
     } else {
-      notifyListeners();
-      return false;
+      if (_state.preferredBeanTaste?.body == newValue) {
+        _state = _state.copyWith(
+          preferredBeanTaste: PreferredBeanTaste(
+            acidity: _state.preferredBeanTaste?.acidity,
+            bitterness: _state.preferredBeanTaste?.bitterness,
+            sweetness: _state.preferredBeanTaste?.sweetness,
+          ),
+        );
+      } else {
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(body: newValue));
+      }
     }
+    notifyListeners();
   }
 
-  void getUserData(String nickname, String year, int gender) {
-    _signUp.nickname = nickname;
-    _signUp.birth_year = year;
-    if (gender == 0) {
-      _signUp.gender = '여';
-    } else if (gender == 1) {
-      _signUp.gender = '남';
+  onChangeAcidityValue(int newValue) {
+    if (_state.preferredBeanTaste == null) {
+      _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(acidity: newValue));
+    } else {
+      if (_state.preferredBeanTaste?.acidity == newValue) {
+        _state = _state.copyWith(
+          preferredBeanTaste: PreferredBeanTaste(
+            body: _state.preferredBeanTaste?.body,
+            bitterness: _state.preferredBeanTaste?.bitterness,
+            sweetness: _state.preferredBeanTaste?.sweetness,
+          ),
+        );
+      } else {
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(acidity: newValue));
+      }
     }
-
     notifyListeners();
   }
 
-  void getCoffeeLife(List<String> coffee_life) {
-    _signUp.coffee_life = coffee_life;
-
+  onChangeBitternessValue(int newValue) {
+    if (_state.preferredBeanTaste == null) {
+      _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(bitterness: newValue));
+    } else {
+      if (_state.preferredBeanTaste?.bitterness == newValue) {
+        _state = _state.copyWith(
+          preferredBeanTaste: PreferredBeanTaste(
+            body: _state.preferredBeanTaste?.body,
+            acidity: _state.preferredBeanTaste?.acidity,
+            sweetness: _state.preferredBeanTaste?.sweetness,
+          ),
+        );
+      } else {
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(bitterness: newValue));
+      }
+    }
     notifyListeners();
   }
 
-  void getIsCertificated(bool is_certificated) {
-    _signUp.is_certificated = is_certificated;
+  onChangeSweetnessValue(int newValue) {
+    if (_state.preferredBeanTaste == null) {
+      _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(sweetness: newValue));
+    } else {
+      if (_state.preferredBeanTaste?.sweetness == newValue) {
+        _state = _state.copyWith(
+          preferredBeanTaste: PreferredBeanTaste(
+            body: _state.preferredBeanTaste?.body,
+            acidity: _state.preferredBeanTaste?.acidity,
+            bitterness: _state.preferredBeanTaste?.bitterness,
+          ),
+        );
+      } else {
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(sweetness: newValue));
+      }
+    }
     notifyListeners();
-  }
-
-  void getPreferredBeanTaste(Map<String, dynamic> preferred_bean_taste) {
-    _signUp.preferred_bean_taste = preferred_bean_taste;
-    notifyListeners();
-  }
-
-  Map<String, dynamic> toJson() {
-    return _signUp.toJson();
   }
 }

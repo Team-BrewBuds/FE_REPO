@@ -1,83 +1,78 @@
+import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 class SignupPageFinish extends StatefulWidget {
-  SignupPageFinish({super.key});
+  const SignupPageFinish({super.key});
 
   @override
   State<SignupPageFinish> createState() => _SignupPageFinishState();
 }
 
 class _SignupPageFinishState extends State<SignupPageFinish> {
-  SignUpPresenter provider = SignUpPresenter();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
-        body: SingleChildScrollView(
-          child: Center(
-              child: Column(
+      body: SafeArea(
+        child: SizedBox(
+          height: double.infinity,
+          width: double.infinity,
+          child: Column(
             children: [
-              Consumer<SignUpPresenter>(builder: (context, signProvicer, child) {
-                return Column(
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Padding(
-                        padding: EdgeInsets.symmetric(vertical: 40),
-                        child: Image.asset('assets/images/login/finish.png')),
-                    SizedBox(
-                      height: 100,
+                    Image.asset(
+                      'assets/images/login/finish.png',
+                      width: 247,
+                      height: 240,
+                      fit: BoxFit.cover,
                     ),
-                    Text(
-                      '${signProvicer.signUpData.nickname} 님',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                    const SizedBox(height: 16),
+                    const Text(
+                      '~ 님\n 환영합니다.',
+                      style: TextStyles.title04SemiBold,
+                      textAlign: TextAlign.center,
                     ),
-                    Text('환영합니다.', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500)),
-                    // SizedBox(height: 10,),
+                    const SizedBox(height: 8),
                     Text(
-                      '지금부터 커피 생활을 쉽게 공유하고',
-                      style: TextStyles.textlightRegular,
+                      '지금부터 커피 생활을 쉽게 공유하고\n버디님의 커피 취향을 빠르게 알아가세요.',
+                      style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
+                      textAlign: TextAlign.center,
                     ),
-                    Text(
-                      '${signProvicer.signUpData.nickname}님의 커피 취향을 빠르게 알아가세요.',
-                      style: TextStyles.textlightRegular,
-                    )
                   ],
-                );
-              })
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
+                child: InkWell(
+                  onTap: () {
+                    context.go('/home/all');
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                    decoration: const BoxDecoration(
+                      color: ColorStyles.black,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(8),
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '홈으로 가기',
+                        style: TextStyles.bodyRegular.copyWith(color: ColorStyles.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
-          )),
-        ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(bottom: 46.0, left: 16, right: 16),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              child: Text('홈으로 가기'),
-              onPressed: () {
-                Map<String, dynamic> data = {
-                  "body": 4, // 바디감 (1~5)
-                  "acidity": 3, // 산미 (1~5)
-                  "bitterness": 2, // 쓴맛 (1~5)
-                  "sweetness": 5
-                };
-                context.read<SignUpPresenter>().getPreferredBeanTaste(data);
-                // context.push('/'); 완료시 home 링크 삽입해야함.
-              },
-              style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

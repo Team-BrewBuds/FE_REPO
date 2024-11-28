@@ -25,8 +25,8 @@ class _MembershipScreenState extends State<SignUpCert> with SignupMixin<SignUpCe
 
   @override
   void Function() get onNext => () {
-    context.push('/signup/select');
-  };
+        context.push('/signup/select');
+      };
 
   @override
   void Function() get onSkip => () {};
