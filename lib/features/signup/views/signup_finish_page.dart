@@ -3,14 +3,14 @@ import 'package:brew_buds/common/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SignupPageFinish extends StatefulWidget {
-  const SignupPageFinish({super.key});
+class SignupFinishPage extends StatefulWidget {
+  const SignupFinishPage({super.key});
 
   @override
-  State<SignupPageFinish> createState() => _SignupPageFinishState();
+  State<SignupFinishPage> createState() => _SignupFinishPageState();
 }
 
-class _SignupPageFinishState extends State<SignupPageFinish> {
+class _SignupFinishPageState extends State<SignupFinishPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

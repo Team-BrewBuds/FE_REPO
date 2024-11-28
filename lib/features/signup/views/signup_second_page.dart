@@ -2,19 +2,19 @@ import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/features/signup/views/signup_mixin.dart';
+import 'package:brew_buds/features/signup/core/signup_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class CoffeeLifestylePage extends StatefulWidget {
-  const CoffeeLifestylePage({super.key});
+class SignUpSecondPage extends StatefulWidget {
+  const SignUpSecondPage({super.key});
 
   @override
-  State<CoffeeLifestylePage> createState() => _CoffeeLifestylePageState();
+  State<SignUpSecondPage> createState() => _SignUpSecondPageState();
 }
 
-class _CoffeeLifestylePageState extends State<CoffeeLifestylePage> with SignupMixin<CoffeeLifestylePage> {
+class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<SignUpSecondPage> {
   @override
   int get currentPageIndex => 1;
 
