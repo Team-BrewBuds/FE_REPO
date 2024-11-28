@@ -35,6 +35,8 @@ class SignUpPresenter with ChangeNotifier {
 
   List<CoffeeLife> get selectedCoffeeLife => _state.coffeeLifes ?? [];
 
+  bool? get isCertificated => _state.isCertificated;
+
   init() {
     _state = const SignUpState();
     notifyListeners();
@@ -117,6 +119,15 @@ class SignUpPresenter with ChangeNotifier {
       _state = _state.copyWith(coffeeLifes: _state.coffeeLifes?.where((c) => coffeeLife != c).toList());
     } else {
       _state = _state.copyWith(coffeeLifes: (_state.coffeeLifes ?? []) + [coffeeLife]);
+    }
+    notifyListeners();
+  }
+
+  onChangeCertificate(bool isCertificated) {
+    if (_state.isCertificated == isCertificated) {
+      _state = _state.copyWith(isCertificated: null);
+    } else {
+      _state = _state.copyWith(isCertificated: isCertificated);
     }
     notifyListeners();
   }
