@@ -43,7 +43,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
                 },
               ),
               const SizedBox(height: 28),
-              buildBody(context, presenter),
+              Expanded(child: buildBody(context, presenter)),
             ],
           ),
         ),
@@ -59,6 +59,8 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
       elevation: 0,
       titleSpacing: 0,
       backgroundColor: Colors.white,
+      leading: Container(),
+      leadingWidth: 0,
       title: Padding(
         padding: const EdgeInsets.only(top: 28, bottom: 12, left: 16, right: 16),
         child: Stack(

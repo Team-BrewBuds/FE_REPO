@@ -103,23 +103,23 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
             decoration: InputDecoration(
               hintText: '2 ~ 12자 이내',
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.gray50, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.black, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.black, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.red, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
               errorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.red, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 16),
-              prefix: SizedBox(width: 12),
+              contentPadding: const EdgeInsets.symmetric(vertical: 16),
+              prefix: const SizedBox(width: 12),
               suffixIcon: _buildNickNameSuffixIcon(presenter),
               counterStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
               hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
@@ -153,23 +153,23 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
               hintText: '4자리 숫자를 입력해주세요',
               helperText: '버디님과 비슷한 연령대가 선호하는 원두를 추천해드려요',
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.gray50, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.black, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.black, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.red, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
               errorBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: ColorStyles.red, width: 1),
+                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
                 borderRadius: BorderRadius.circular(1),
               ),
-              contentPadding: EdgeInsets.symmetric(vertical: 16),
-              prefix: SizedBox(width: 12),
+              contentPadding: const EdgeInsets.symmetric(vertical: 16),
+              prefix: const SizedBox(width: 12),
               suffixIcon: _buildYearOfAgeSuffixIcon(presenter),
               counterStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
               hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
@@ -220,7 +220,7 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
                     ),
                   ),
                 )
-                .separator(separatorWidget: SizedBox(width: 8))
+                .separator(separatorWidget: const SizedBox(width: 8))
                 .toList(),
           ),
         ],
@@ -232,7 +232,7 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
     if (presenter.isNotEmptyNickName) {
       if (presenter.isValidNickName) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 12),
           height: 24,
           width: 24,
           child: SvgPicture.asset('assets/icons/check_fill.svg'),
@@ -243,7 +243,7 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
             _nicknameController.clear();
           },
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
             height: 24,
             width: 24,
             child: SvgPicture.asset('assets/icons/x_round.svg'),
@@ -259,7 +259,7 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
     if (presenter.isNotEmptyYearOfBirth) {
       if (presenter.isValidYearOfBirth) {
         return Container(
-          margin: EdgeInsets.symmetric(horizontal: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 12),
           height: 24,
           width: 24,
           child: SvgPicture.asset('assets/icons/check_fill.svg'),
@@ -270,7 +270,7 @@ class _SignUpPageState extends State<SignUpPage> with SignupMixin<SignUpPage> {
             _ageController.clear();
           },
           child: Container(
-            margin: EdgeInsets.symmetric(horizontal: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
             height: 24,
             width: 24,
             child: SvgPicture.asset('assets/icons/x_round.svg'),

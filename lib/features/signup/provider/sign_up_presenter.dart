@@ -1,4 +1,5 @@
 import 'package:brew_buds/features/signup/models/SignUp.dart';
+import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
 import 'package:brew_buds/features/signup/state/signup_state.dart';
 import 'package:flutter/foundation.dart';
@@ -31,6 +32,8 @@ class SignUpPresenter with ChangeNotifier {
   bool get isValidYearOfBirth => _isValidYearOfBirth;
 
   Gender? get currentGender => _state.gender;
+
+  List<CoffeeLife> get selectedCoffeeLife => _state.coffeeLifes ?? [];
 
   init() {
     _state = const SignUpState();
@@ -105,6 +108,15 @@ class SignUpPresenter with ChangeNotifier {
       _state = _state.copyWith(gender: null);
     } else {
       _state = _state.copyWith(gender: newGender);
+    }
+    notifyListeners();
+  }
+
+  onSelectCoffeeLife(CoffeeLife coffeeLife) {
+    if (_state.coffeeLifes?.contains(coffeeLife) ?? false) {
+      _state = _state.copyWith(coffeeLifes: _state.coffeeLifes?.where((c) => coffeeLife != c).toList());
+    } else {
+      _state = _state.copyWith(coffeeLifes: (_state.coffeeLifes ?? []) + [coffeeLife]);
     }
     notifyListeners();
   }
