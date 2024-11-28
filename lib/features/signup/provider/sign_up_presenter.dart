@@ -1,75 +1,117 @@
 import 'package:brew_buds/features/signup/models/SignUp.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:brew_buds/features/signup/models/gender.dart';
+import 'package:brew_buds/features/signup/state/signup_state.dart';
+import 'package:flutter/foundation.dart';
 
 class SignUpPresenter with ChangeNotifier {
+  SignUpState _state = const SignUpState();
   final SignUp _signUp = SignUp();
-  String? _nickNameError;
-  String? _ageError;
-  FlutterSecureStorage _storage = FlutterSecureStorage();
-  String _token ='';
-  String  _refreshToken ='';
-  String  _platform  ='';
+  String _token = '';
+  String _refreshToken = '';
+  String _platform = '';
 
   SignUp get signUpData => _signUp;
-  String? get nickNameError => _nickNameError;
-  String? get ageError => _ageError;
-
-
 
   String get token => _token;
+
   String get refreshToken => _refreshToken;
+
   String get platform => _platform;
 
+  bool get isNotEmptyNickName => _state.nickName?.isNotEmpty ?? false;
 
- Future<void> setToken(String token, String ?refreshToken , String platform)async {
-   _token = token;
-   _refreshToken = refreshToken!;
-   _platform = platform;
+  bool _isValidNickName = false;
 
-   notifyListeners();
+  bool get isValidNickName => _isValidNickName;
 
- }
+  bool get isNotEmptyYearOfBirth => _state.yearOfBirth != null;
 
+  bool _isValidYearOfBirth = false;
 
-  void validateNickname(String value) {
-    bool val;
-    if (value.length < 2) {
-      _nickNameError = '2 ~ 12자 이내만 가능해요.';
-      val = false;
+  bool get isValidYearOfBirth => _isValidYearOfBirth;
+
+  Gender? get currentGender => _state.gender;
+
+  init() {
+    _state = const SignUpState();
+    notifyListeners();
+  }
+
+  Future<void> setToken(String token, String? refreshToken, String platform) async {
+    _token = token;
+    _refreshToken = refreshToken!;
+    _platform = platform;
+
+    notifyListeners();
+  }
+
+  onChangeNickName(String newNickName) {
+    _state = _state.copyWith(nickName: newNickName);
+    notifyListeners();
+  }
+
+  checkNickName() {
+    if ((_state.nickName?.length ?? 0) >= 2) {
+      _isValidNickName = true;
     } else {
-      _nickNameError = null;
-      val = true;
+      _isValidNickName = false;
     }
-    validateAge(val);
+    notifyListeners();
   }
 
-  void updateState(String value) {
-    bool val = _isUnderAge(value);
-    validateAge(val);
-  }
-
-  bool _isUnderAge(String yearStr) {
-    int? birthYear = int.tryParse(yearStr);
-    int currentYear = DateTime.now().year;
-
-    if (yearStr.length != 4) return false;
-    if (birthYear == null) return false;
-    int age = currentYear - birthYear;
-    return age < 15;
-  }
-
-  void validateAge(bool value) {
-    if (!value) {
-      _ageError = null;
+  String? validatedNickname(String? nickName) {
+    if (nickName == null) {
+      return null;
+    } else if (nickName.isEmpty) {
+      return null;
+    } else if (nickName.length < 2) {
+      return '2자 이상 입력해 주세요.';
     } else {
-      _ageError = '만 14세 미만은 가입할 수 없어요.';
+      return null;
     }
+  }
+
+  onChangeYearOfBirth(String newYearOfBirth) {
+    _state = _state.copyWith(yearOfBirth: int.tryParse(newYearOfBirth));
+    notifyListeners();
+  }
+
+  String? validatedYearOfBirth(String? yearOfBirth) {
+    if (yearOfBirth != null && yearOfBirth.length == 4) {
+      final int? year = int.tryParse(yearOfBirth);
+      if (year == null) {
+        return null;
+      } else if (((DateTime.now().year - year).abs() + 1) < 14) {
+        return '만 14세 미만은 가입할 수 없어요.';
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  checkYearOfBirth() {
+    if (_state.yearOfBirth != null && DateTime.now().year - _state.yearOfBirth! + 1 >= 12) {
+      _isValidYearOfBirth = true;
+    } else {
+      _isValidYearOfBirth = false;
+    }
+    notifyListeners();
+  }
+
+  onChangeGender(Gender newGender) {
+    if (newGender == _state.gender) {
+      _state = _state.copyWith(gender: null);
+    } else {
+      _state = _state.copyWith(gender: newGender);
+    }
+    notifyListeners();
   }
 
   //조건 모두 만족시 다음 버튼 활성화
   bool ableCondition(String nickName, String age, int gender) {
-    if (_ageError == null && age.isNotEmpty && nickName.length > 1 && gender != -1) {
+    if (age.isNotEmpty && nickName.length > 1 && gender != -1) {
       notifyListeners();
       return true;
     } else {
@@ -107,8 +149,6 @@ class SignUpPresenter with ChangeNotifier {
   }
 
   Map<String, dynamic> toJson() {
-    _signUp.toJson();
-
     return _signUp.toJson();
   }
 }
