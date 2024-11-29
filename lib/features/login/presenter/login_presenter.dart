@@ -1,6 +1,7 @@
 import 'package:brew_buds/data/token/token_repository.dart';
 import 'package:brew_buds/features/login/models/login_result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
+import 'package:brew_buds/features/login/models/social_login_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -19,27 +20,35 @@ class LoginPresenter extends ChangeNotifier {
   Future<LoginResult> socialLogin(SocialLogin socialLogin) async {
     _isLoading = true;
     notifyListeners();
-
+    final SocialLoginToken socialLoginToken;
     final String? token;
     switch (socialLogin) {
       case SocialLogin.kakao:
         token = await _loginWithKakao();
+        if (token != null) {
+          socialLoginToken = SocialLoginToken.kakao(token);
+          _tokenRepository.setOAuthToken(socialLoginToken);
+          return LoginResult.success(false, token);
+        }
       case SocialLogin.naver:
         token = await _loginWithNaver();
+        if (token != null) {
+          socialLoginToken = SocialLoginToken.naver(token);
+          _tokenRepository.setOAuthToken(socialLoginToken);
+          return LoginResult.success(false, token);
+        }
       case SocialLogin.apple:
         token = await _loginWithApple();
+        if (token != null) {
+          socialLoginToken = SocialLoginToken.apple(token);
+          _tokenRepository.setOAuthToken(socialLoginToken);
+          return LoginResult.success(false, token);
+        }
     }
 
     _isLoading = false;
     notifyListeners();
-
-    if (token != null && token.isNotEmpty) {
-      _tokenRepository.setOAuthToken(token);
-      //회원가입 여부 확인
-      return LoginResult.success(false, token);
-    } else {
-      return LoginResult.error('로그인 실패');
-    }
+    return LoginResult.error('로그인 실패');
   }
 
   Future<String?> _loginWithKakao() async {

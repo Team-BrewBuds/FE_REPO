@@ -26,7 +26,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
 
   @override
   void Function() get onNext => () {
-        context.push('/signup/cert');
+        context.push('/signup/third');
       };
 
   @override

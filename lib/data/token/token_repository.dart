@@ -1,3 +1,4 @@
+import 'package:brew_buds/features/login/models/social_login_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -5,13 +6,13 @@ class TokenRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   String _accessToken = '';
   String _refreshToken = '';
-  String _socialToken = '';
+  SocialLoginToken? _socialToken;
 
   String get accessToken => _accessToken;
 
   String get refreshToken => _refreshToken;
 
-  String get socialToken => _socialToken;
+  SocialLoginToken? get socialToken => _socialToken;
 
   TokenRepository._() {
     _init();
@@ -24,27 +25,26 @@ class TokenRepository extends ChangeNotifier {
   factory TokenRepository() => instance;
 
   _init() async {
-    _accessToken = await _storage.read(key: 'auth_token') ?? '';
+    _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
     notifyListeners();
   }
 
-  syncToken({String? accessToken, String? refreshToken}) async {
+  Future<void> syncToken({String? accessToken, String? refreshToken}) async {
     if (accessToken != null) {
-      await _storage.write(key: 'auth_token', value: accessToken);
+      await _storage.write(key: 'access', value: accessToken);
+      _accessToken = accessToken;
       notifyListeners();
     }
 
     if (refreshToken != null) {
       await _storage.write(key: 'refresh', value: refreshToken);
+      _refreshToken = refreshToken;
       notifyListeners();
     }
   }
 
-  setOAuthToken(String token) {
+  setOAuthToken(SocialLoginToken token) {
     _socialToken = token;
   }
-
-  //토큰 갱신 작업 구현
-  fetchRefreshToken() {}
 }

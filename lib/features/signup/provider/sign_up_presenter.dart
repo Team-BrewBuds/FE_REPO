@@ -1,3 +1,5 @@
+import 'package:brew_buds/data/signup/auth_service.dart';
+import 'package:brew_buds/data/token/token_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
 import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';
@@ -5,7 +7,14 @@ import 'package:brew_buds/features/signup/state/signup_state.dart';
 import 'package:flutter/foundation.dart';
 
 class SignUpPresenter with ChangeNotifier {
+  final AuthService _authService = AuthService.defaultService();
   SignUpState _state = const SignUpState();
+
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
+
+  String get nickName => _state.nickName ?? '';
 
   bool get isNotEmptyNickName => _state.nickName?.isNotEmpty ?? false;
 
@@ -194,5 +203,19 @@ class SignUpPresenter with ChangeNotifier {
       }
     }
     notifyListeners();
+  }
+
+  Future<void> register() async {
+    final token = TokenRepository.instance.socialToken;
+
+    if (token != null) {
+      _isLoading = true;
+      notifyListeners();
+
+      await _authService.register(token.token, token.platform, _state.toJson());
+
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

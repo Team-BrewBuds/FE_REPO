@@ -22,28 +22,40 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
     return Consumer<SignUpPresenter>(builder: (context, presenter, _) {
       return Scaffold(
         appBar: buildAppbar(context, presenter),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: AbsorbPointer(
+          absorbing: presenter.isLoading,
+          child: Stack(
             children: [
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final width = (constraints.maxWidth - 6) / 4;
-                  return Row(
-                    children: List<Widget>.generate(
-                      4,
-                      (index) => Container(
-                        height: 2,
-                        width: width,
-                        color: index <= currentPageIndex ? ColorStyles.red : ColorStyles.gray40,
-                      ),
-                    ).separator(separatorWidget: const SizedBox(width: 2)).toList(),
-                  );
-                },
+              Center(
+                child: presenter.isLoading ? const CircularProgressIndicator(color: ColorStyles.gray60) : Container(),
               ),
-              const SizedBox(height: 28),
-              Expanded(child: buildBody(context, presenter)),
+              Positioned.fill(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final width = (constraints.maxWidth - 6) / 4;
+                          return Row(
+                            children: List<Widget>.generate(
+                              4,
+                              (index) => Container(
+                                height: 2,
+                                width: width,
+                                color: index <= currentPageIndex ? ColorStyles.red : ColorStyles.gray40,
+                              ),
+                            ).separator(separatorWidget: const SizedBox(width: 2)).toList(),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 28),
+                      Expanded(child: buildBody(context, presenter)),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),

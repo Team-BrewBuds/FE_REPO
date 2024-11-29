@@ -37,7 +37,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
 
   @override
   void Function() get onNext => () {
-        context.push('/signup/enjoy');
+        context.push('/signup/second');
       };
 
   @override

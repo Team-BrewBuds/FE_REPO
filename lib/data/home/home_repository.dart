@@ -3,8 +3,6 @@ import 'package:brew_buds/model/pages/feed_page.dart';
 import 'package:brew_buds/model/pages/post_feed_page.dart';
 import 'package:brew_buds/model/pages/recommended_user_page.dart';
 import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 enum FeedType {
   following,
@@ -20,9 +18,9 @@ enum FeedType {
 }
 
 final class HomeRepository {
-  final HomeApi _api;
+  final HomeApi _api = HomeApi.defaultApi();
 
-  HomeRepository._() : _api = HomeApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
+  HomeRepository._();
 
   static final HomeRepository _instance = HomeRepository._();
 
