@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:brew_buds/core/auth_service.dart';
-import 'package:brew_buds/features/signup/views/signup_page.dart';
+import 'package:brew_buds/data/signup/auth_service.dart';
+import 'package:brew_buds/features/signup/views/signup_first_page.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';

@@ -3,6 +3,7 @@ import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:brew_buds/features/signup/core/signup_mixin.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignUpFourthPage extends StatefulWidget {
@@ -29,7 +30,9 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
   bool get isSkippablePage => true;
 
   @override
-  void Function() get onNext => () {};
+  void Function() get onNext => () {
+    context.push('/signup/finish');
+  };
 
   @override
   void Function() get onSkip => () {};

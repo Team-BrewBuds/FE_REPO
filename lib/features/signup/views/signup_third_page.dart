@@ -25,7 +25,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
 
   @override
   void Function() get onNext => () {
-        context.push('/signup/select');
+        context.push('/signup/fourth');
       };
 
   @override
