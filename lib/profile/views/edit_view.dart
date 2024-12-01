@@ -27,12 +27,13 @@ import '../../common/text_styles.dart';
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
 
+
+
   @override
   State<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  SignUpLists _signUpLists = SignUpLists();
   final ProfileRepository _repository = ProfileRepository();
   late TextEditingController _nickNameTextController = TextEditingController();
   final TextEditingController _infoTextController = TextEditingController();
@@ -41,6 +42,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // 프로필 이미지 변경
   final ImagePicker _picker = ImagePicker();
   File? _profileFile;
+
 
 // 프로필 이미지 선택
   Future<void> _pickImage() async {
@@ -54,9 +56,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+
   Future<void> getProfile() async {
     try {
       Profile profile = await _repository.fetchProfile();
+      final provider =  Provider.of<ProfileEditPresenter>(context,listen: false);
+
       setState(() {
         // 닉네임, 소개, 링크 정보 설정
         _nickNameTextController.text = profile.nickname;
@@ -64,7 +69,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             profile.introduction ?? ''; // introduction이 null일 경우 기본값 빈 문자열로 설정
         _linkTextController.text =
             profile.profileLink ?? ''; // profileLink가 null일 경우 빈 문자열로 설정
+
       });
+
+
+
+
+
+
     } catch (e) {
       print('Error fetching profile: $e');
     }
@@ -87,7 +99,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ),
         actions: [
           TextButton(
-              onPressed: () {},
+              onPressed: () {
+                final provider =  Provider.of<ProfileEditPresenter>(context,listen: false);
+                 Map<String, dynamic> data = {
+                  "nickname": _nickNameTextController.text,
+                   "user_detail": {
+                    "introduction": "infoinfo",
+
+                   }
+                };
+
+
+
+                provider.updateProfile(data);
+
+              },
               child: Text(
                 '저장',
                 style: TextStyle(color: ColorStyles.red, fontSize: 20),
@@ -98,7 +124,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       body: Consumer<ProfileEditPresenter>(
         builder: (BuildContext context, ProfileEditPresenter provider,
             Widget? child) {
-          provider.getCoffeLifes(); // 커피생활 불러오기.
+         // 커피생활 불러오기.
           return SingleChildScrollView(
             child: Container(
               child: Padding(
@@ -121,7 +147,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   border: Border.all(
                                       width: 0.5, color: ColorStyles.black),
                                 ),
-                                child: Container()),
+                                child: Container(
+
+                                )
+                            ),
                           ),
                           GestureDetector(
                             onTap: () {

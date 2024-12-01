@@ -14,7 +14,7 @@ class Profile with _$Profile {
       @JsonKey(name: 'profile_image', defaultValue: '') String? profileImageUri,
       @JsonKey(name: 'introduction') String? introduction,
       @JsonKey(name: 'profile_link') String? profileLink,
-      @JsonKey(name: 'coffee_life') required Map<String, dynamic> coffLife,
+      @JsonKey(name: 'coffee_life') required Map<String, dynamic> coffeeLife,
       @JsonKey(name: 'following_cnt') int? followingCnt,
       @JsonKey(name: 'follower_cnt') int? followerCnt,
       @JsonKey(name: 'post_cnt') int? postCnt,

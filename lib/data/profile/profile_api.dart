@@ -9,11 +9,10 @@ abstract class ProfileApi {
   factory ProfileApi(Dio dio) = _ProfileApi;
 
   @GET('/profiles/')
-  Future<Profile> getProfile();
+  Future<Profile> fetchProfile();
 
   @PATCH("/profiles/")
   Future<Profile> patchProfile({
-    @Header('Authorization') required String token,
     @Body() required Map<String, dynamic> map,
   });
 }

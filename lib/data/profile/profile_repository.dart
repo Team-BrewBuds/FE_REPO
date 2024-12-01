@@ -20,14 +20,20 @@ class ProfileRepository {
 
   factory ProfileRepository() => instance;
 
+
+
   //프로필 정보 가져오기
   Future<Profile> fetchProfile() async {
     final dio = await authDio();
     final profileApi = ProfileApi(dio);
-    final profile = await profileApi.getProfile();
+    final profile = await profileApi.fetchProfile();
     return profile;
   }
 
-// Future<Profile> fetchUpdateProfile(Map<String,dynamic> map) =>
-//     _token.then((token) => _api.patchProfile(token: 'Bearer $token', map: map));
+  //프로필 수정
+  Future<void> editProfile(Map<String, dynamic> data) async {
+    final dio = await authDio();
+    final profileApi = ProfileApi(dio);
+    await profileApi.patchProfile(map: data);
+  }
 }

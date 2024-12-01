@@ -39,15 +39,17 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
   List<String> get trueKeys => _trueKeys;
 
+
+
   // 커피 생활 가져오기
-  Future<void> getCoffeLifes() async {
+  Future<List<String>> getCoffeLifes() async {
     Profile profile = await _repository.fetchProfile();
-    _trueKeys = profile.coffLife.entries
+    _trueKeys = profile.coffeeLife.entries
         .where((entry) => entry.value) // value가 true인 항목 필터링
         .map((entry) => entry.key) // key만 추출
         .toList();
 
-    _life = _lists.enjoyItems
+    return _life = _lists.enjoyItems
         .where((item) =>
             trueKeys.contains(item["choice"])) // trueKeys에 choice가 포함된 항목 필터링
         .map((item) => item["title"]!)
@@ -65,14 +67,25 @@ final class ProfileEditPresenter extends ChangeNotifier {
       _selectedChoices.remove(value!);
     }
     _life = _selectedChoices;
+
     notifyListeners();
   }
 
+  //커피 생활 초기화
   void clearChoices() {
     _life.clear();
     _selectedItems = List.generate(_selectedItems.length, (index) => false);
     notifyListeners();
   }
+
+  Future<void> updateProfile(Map<String,dynamic> data) async{
+    _repository.editProfile(data);
+    notifyListeners();
+  }
+
+
+
+
 
   final List<RecommendedUser> dummyRecommendedUsers = [
     RecommendedUser(
