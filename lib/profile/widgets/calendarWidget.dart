@@ -1,10 +1,20 @@
+import 'dart:convert';
+
 import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/features/login/views/login_page_first.dart';
+import 'package:brew_buds/profile/widgets/record_flaver_wdgt.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+import '../../common/text_styles.dart';
+
 class KoreanCalendarPage extends StatefulWidget {
+
+
+  KoreanCalendarPage();
+
   @override
   _KoreanCalendarPageState createState() => _KoreanCalendarPageState();
 }
@@ -14,22 +24,41 @@ class _KoreanCalendarPageState extends State<KoreanCalendarPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('ko_KR');
   }
-
+  String? _selectedValue = 'Option 1';
   @override
   Widget build(BuildContext context) {
     return Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('활동 캘린더'),
-                ElevatedButton(onPressed: () {}, child: Text('시음기록'))
-              ],
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('활동 캘린더',style: TextStyles.title02SemiBold,),
+                  // ElevatedButton(onPressed: () {}, child: Text('시음기록')),
+                  DropdownButton<String>(
+                    value: _selectedValue,
+                    items: <String>['Option 1', 'Option 2', 'Option 3', 'Option 4']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        // _selectedValue = newValue;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
             TableCalendar(
               locale: 'ko_KR',
@@ -72,6 +101,8 @@ class _KoreanCalendarPageState extends State<KoreanCalendarPage> {
                 }
               },
             ),
+
+
           ],
     );
   }

@@ -19,7 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           
           Container(
             child: ElevatedButton(onPressed: (){
-              context.push('/profile_setting');
+              context.push('/profile_report');
             }, child: Text('set')),
           ),
 
