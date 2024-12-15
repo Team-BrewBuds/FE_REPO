@@ -1,3 +1,8 @@
+import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/profile/widgets/like_flaver_wdgt.dart';
+import 'package:brew_buds/profile/widgets/like_nation_wdgt.dart';
+import 'package:brew_buds/profile/widgets/no_data_wdgt.dart';
+import 'package:brew_buds/profile/widgets/score_wdgt.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/calendarWidget.dart';
@@ -12,6 +17,9 @@ class _ScrollControlledTabBarState extends State<ScrollControlledTabBar>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late ScrollController _scrollController;
+  final List<dynamic> _starScore = [];
+  final List<dynamic> _flaver = [];
+  final List<dynamic> _origin = [];
 
 
   @override
@@ -38,15 +46,15 @@ class _ScrollControlledTabBarState extends State<ScrollControlledTabBar>
     if (!_tabController.indexIsChanging) {
       if (_scrollController.position.pixels >= 0 &&
           _scrollController.position.pixels < 500) {
-        _tabController.animateTo(0);
+        _tabController.animateTo(1);
       } else if (_scrollController.position.pixels >= 500 &&
           _scrollController.position.pixels < 1000) {
-        _tabController.animateTo(1);
+        _tabController.animateTo(2);
       } else if (_scrollController.position.pixels >= 1000 &&
           _scrollController.position.pixels < 1500) {
-        _tabController.animateTo(2);
-      } else if (_scrollController.position.pixels >= 1500) {
         _tabController.animateTo(3);
+      } else if (_scrollController.position.pixels >= 1500) {
+        _tabController.animateTo(4);
       }
     }
   }
@@ -95,21 +103,13 @@ class _ScrollControlledTabBarState extends State<ScrollControlledTabBar>
           controller: _scrollController,
           child: Column(
             children: [
-              Column(
-                children: [
-                  KoreanCalendarPage(),
-                  ListTile(
-                    title: Text('1'),
-                  ),
-                  ListTile(
-                    title: Text('1'),
-                  )
-                ],
-              ),
-
-              // _buildSection(Colors.green, 500, 'Section 2'),
-              // _buildSection(Colors.blue, 500, 'Section 3'),
-              // _buildSection(Colors.orange, 500, 'Section 4'),
+              KoreanCalendarPage(),
+              Divider(thickness:8.0, color: ColorStyles.gray20,),
+              Scorewidget(scoreData: _starScore, ),
+              Divider(thickness:8.0, color: ColorStyles.gray20,),
+              LikeFlaverWdgt(data: _flaver,),
+              Divider(thickness:8.0, color: ColorStyles.gray20,),
+              LikeNationWdgt(data: _origin,)
             ],
           ),
         ),

@@ -34,4 +34,6 @@ final class ColorStyles {
   static Color white70 = const Color(0xffffffff).withOpacity(0.7);
   static Color white50 = const Color(0xffffffff).withOpacity(0.5);
   static Color white30 = const Color(0xffffffff).withOpacity(0.3);
+
+
 }

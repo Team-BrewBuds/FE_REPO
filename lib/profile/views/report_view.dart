@@ -1,4 +1,6 @@
+import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/profile/views/scrollTabpage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/text_styles.dart';
@@ -63,13 +65,17 @@ class _ProfileReportViewState extends State<ProfileReportView>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-
                           Text('활동요약'),
-                          // Expanded(child: Image.asset('assets/icons/vote.svg',width: 1,height: 1,)),
-                          Text(
-                            '최근 1개월간 브루버즈에서의 활동을 요약했어요.',
-                            style: TextStyles.textlightSmall,
-                          )
+                          Row(
+                            children: [
+                              Icon(CupertinoIcons.info,size: 13.0,color: ColorStyles.gray50,),
+                              Text(
+                                '최근 1개월간 브루버즈에서의 활동을 요약했어요.',
+                                style: TextStyles.textlightSmall,
+                              )
+                            ],
+                          ),
+
                         ],
                       ),
                     ),

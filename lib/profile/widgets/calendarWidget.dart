@@ -41,7 +41,6 @@ class _KoreanCalendarPageState extends State<KoreanCalendarPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text('활동 캘린더',style: TextStyles.title02SemiBold,),
-                  // ElevatedButton(onPressed: () {}, child: Text('시음기록')),
                   DropdownButton<String>(
                     value: _selectedValue,
                     items: <String>['Option 1', 'Option 2', 'Option 3', 'Option 4']
