@@ -26,6 +26,7 @@ import 'package:brew_buds/profile/presenter/alarm_presenter.dart';
 import 'package:brew_buds/profile/profile_screen.dart';
 import 'package:brew_buds/profile/views/account_out_view.dart';
 import 'package:brew_buds/profile/views/alarm_view.dart';
+import 'package:brew_buds/profile/views/report_view.dart';
 import 'package:brew_buds/profile/views/setting_view.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
@@ -38,7 +39,7 @@ import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
-const String initialPath = '/login';
+const String initialPath = '/profile_report';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState =
     GlobalKey<NestedScrollViewState>();
@@ -224,6 +225,9 @@ final router = GoRouter(
                     ProfileEditPresenter(repository: ProfileRepository()),
                 child: const ProfileEditScreen())
     ),
+    GoRoute(
+        path: '/profile_report',
+        builder: (context, state) => const ProfileReportView()),
 
     GoRoute(
         path: '/profile_fitInfo',
