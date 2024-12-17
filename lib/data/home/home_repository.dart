@@ -31,17 +31,23 @@ final class HomeRepository {
   Future<FeedPage> fetchFeedPage({
     required FeedType feedType,
     required int pageNo,
-  }) => _api.fetchFeedPage(feedType: feedType.toString(), format: 'json', pageNo: pageNo);
+  }) =>
+      _api.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo);
 
   Future<PostFeedPage> fetchPostFeedPage({
-    required String subjectFilter,
+    required String? subjectFilter,
     required int pageNo,
-  }) => _api.fetchPostFeedPage(subject: subjectFilter, format: 'json', pageNo: pageNo);
+  }) =>
+      _api.fetchPostFeedPage(subject: subjectFilter, pageNo: pageNo);
 
   Future<TastingRecordFeedPage> fetchTastingRecordFeedPage({
     required int pageNo,
-  }) => _api.fetchTastingRecordFeedPage(format: 'json', pageNo: pageNo);
+  }) =>
+      _api.fetchTastingRecordFeedPage(pageNo: pageNo);
 
   Future<RecommendedUserPage> fetchRecommendedUserPage() => _api.fetchRecommendedUserPage();
 
+  Future<void> like({required String type, required int id}) => _api.like(type: type, id: id);
+
+  Future<void> unlike({required String type, required int id}) => _api.unlike(type: type, id: id);
 }

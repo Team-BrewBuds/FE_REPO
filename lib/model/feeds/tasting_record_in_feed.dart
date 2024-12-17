@@ -26,7 +26,7 @@ class TastingRecordInFeed with _$TastingRecordInFeed, Feed {
     @JsonKey(name: 'content') required String contents,
     @JsonKey(name: 'star_rating') required double rating,
     @JsonKey(name: 'flavor', fromJson: _flavorFromJson) required List<String> flavors,
-    required String tag,
+    required String? tag,
     @JsonKey(name: 'photos', fromJson: _photosFromJson) @Default([]) List<String> imagesUri,
   }) = _TastingRecord;
 

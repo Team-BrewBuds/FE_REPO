@@ -16,5 +16,5 @@ class PopularPostsRepository {
   Future<PopularPostsPage> fetchPopularPostsPage({
     required String subject,
     required int pageNo,
-  }) => _api.fetchPopularPostsPage(subject: subject, format: 'json', pageNo: pageNo);
+  }) => _api.fetchPopularPostsPage(subject: subject, pageNo: pageNo);
 }

@@ -2,9 +2,9 @@ import 'package:brew_buds/data/home/home_repository.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/model/pages/post_feed_page.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
+import 'package:brew_buds/model/post_subject.dart';
 
 final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
-  final List<String> _postSubjectFilterList = ['전체', '일반', '카페', '원두', '정보', '질문', '고민'];
   final HomeRepository _repository;
   PostFeedPage _page = PostFeedPage.initial();
   int _currentPage = 0;
@@ -14,11 +14,11 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
     required HomeRepository repository,
   }) : _repository = repository;
 
-  List<String> get postSubjectFilterList => _postSubjectFilterList;
+  List<String> get postSubjectFilterList => PostSubject.values.map((subject) => subject.toString()).toList();
 
   int get currentFilterIndex => _currentFilterIndex;
 
-  String get currentSubjectFilter => _postSubjectFilterList[_currentFilterIndex];
+  PostSubject get currentSubjectFilter => PostSubject.values[_currentFilterIndex];
 
   @override
   List<PostInFeed> get feeds => _page.feeds;
@@ -30,7 +30,7 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
   Future<void> fetchMoreData() async {
     if (_page.hasNext) {
       final result = await _repository.fetchPostFeedPage(
-        subjectFilter: currentSubjectFilter,
+        subjectFilter: currentSubjectFilter.toJsonValue(),
         pageNo: _currentPage + 1,
       );
       _page = _page.copyWith(

@@ -45,13 +45,10 @@ final class ApiInterceptor extends Interceptor {
 
     // AccessToken 재발급
     try {
-      final resp = await dio.post('${dotenv.get('API_ADDRESS')}/profiles/api/token/refresh',
-          options: Options(
-            headers: {'Authorization': 'Bearer $refreshToken'},
-          ),
-          data: {
-            'refresh': refreshToken,
-          });
+      final resp = await dio.post(
+        '${dotenv.get('API_ADDRESS')}profiles/api/token/refresh/',
+        data: {'refresh': refreshToken},
+      );
 
       // 재발급 받은 AccessToken 등록
       final accessToken = resp.data['access'];
