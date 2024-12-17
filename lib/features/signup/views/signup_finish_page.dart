@@ -2,7 +2,6 @@ import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignupFinishPage extends StatefulWidget {

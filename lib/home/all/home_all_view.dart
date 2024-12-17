@@ -30,15 +30,15 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
   Widget buildListItem(HomeAllPresenter presenter, int index) {
     final feed = presenter.feeds[index];
     if (feed is PostInFeed) {
-      return _buildPostFeed(feed);
+      return _buildPostFeed(presenter, feed);
     } else if (feed is TastingRecordInFeed) {
-      return _buildTastingRecordFeed(feed);
+      return _buildTastingRecordFeed(presenter, feed);
     } else {
       return Container();
     }
   }
 
-  Widget _buildPostFeed(PostInFeed post) {
+  Widget _buildPostFeed(HomeAllPresenter presenter, PostInFeed post) {
     final Widget? child;
 
     if (post.imagesUri.isNotEmpty) {
@@ -75,7 +75,10 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       isLeaveComment: post.isLeaveComment,
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
-      onTapLikeButton: () {},
+      onTapLikeButton: () {
+        print('onTapped');
+        presenter.onTappedLikeButton(post);
+      },
       onTapCommentsButton: () {
         showCommentsBottomSheet(isPost: true, id: post.id);
       },
@@ -92,7 +95,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
     );
   }
 
-  Widget _buildTastingRecordFeed(TastingRecordInFeed tastingRecord) {
+  Widget _buildTastingRecordFeed(HomeAllPresenter presenter, TastingRecordInFeed tastingRecord) {
     return TastingRecordFeed(
       writerThumbnailUri: tastingRecord.author.profileImageUri,
       writerNickName: tastingRecord.author.nickname,
@@ -106,7 +109,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       isLeaveComment: tastingRecord.isLeaveComment,
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
-      onTapLikeButton: () {},
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(tastingRecord);
+      },
       onTapCommentsButton: () {
         showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
       },

@@ -11,29 +11,37 @@ part 'home_api.g.dart';
 
 @RestApi()
 abstract class HomeApi {
-  @GET('/records/feed')
+  @GET('/records/feed/')
   Future<FeedPage> fetchFeedPage({
     @Query('feed_type') required String feedType,
-    @Query('format') required String format,
     @Query('page') required int pageNo,
   });
 
-  @GET('/records/post')
+  @GET('/records/post/')
   Future<PostFeedPage> fetchPostFeedPage({
-    @Query('subject') required String subject,
-    @Query('format') required String format,
+    @Query('subject') required String? subject,
     @Query('page') required int pageNo,
   });
 
-  @GET('/records/tasted_record')
+  @GET('/records/tasted_record/')
   Future<TastingRecordFeedPage> fetchTastingRecordFeedPage({
-    @Query('format') required String format,
     @Query('page') required int pageNo,
   });
 
-  @GET('/records/tasted_record')
+  @GET('/records/tasted_record/')
   Future<RecommendedUserPage> fetchRecommendedUserPage();
 
+  @POST('/records/like/{type}/{id}/')
+  Future<void> like({
+    @Path('type') required String type,
+    @Path('id') required int id,
+  });
+
+  @DELETE('/records/like/{type}/{id}/')
+  Future<void> unlike({
+    @Path('type') required String type,
+    @Path('id') required int id,
+  });
 
   factory HomeApi(Dio dio) = _HomeApi;
 

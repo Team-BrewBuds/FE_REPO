@@ -6,7 +6,7 @@ part 'comments_api.g.dart';
 
 @RestApi()
 abstract class CommentsApi {
-  @GET('/records/comment/{feedType}/{id}')
+  @GET('/records/comment/{feedType}/{id}/')
   Future<CommentsPage> fetchCommentsPage({
     @Path() required String feedType,
     @Path() required int id,
