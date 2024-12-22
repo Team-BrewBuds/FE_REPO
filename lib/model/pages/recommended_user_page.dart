@@ -11,7 +11,7 @@ part 'recommended_user_page.g.dart';
 class RecommendedUserPage with _$RecommendedUserPage {
   const factory RecommendedUserPage({
     required List<RecommendedUser> users,
-    required RecommendedCategory category
+    @JsonKey(unknownEnumValue: RecommendedCategory.cafeAlba) required RecommendedCategory category
   }) = _RecommendedUserPage;
 
   factory RecommendedUserPage.fromJson(Map<String, Object?> json) => _$RecommendedUserPageFromJson(json);

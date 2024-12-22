@@ -18,7 +18,7 @@ enum FeedType {
 }
 
 final class HomeRepository {
-  final HomeApi _api = HomeApi.defaultApi();
+  final HomeApi _api = HomeApi();
 
   HomeRepository._();
 
@@ -50,4 +50,8 @@ final class HomeRepository {
   Future<void> like({required String type, required int id}) => _api.like(type: type, id: id);
 
   Future<void> unlike({required String type, required int id}) => _api.unlike(type: type, id: id);
+
+  Future<void> save({required String type, required int id}) => _api.save(type: type, id: id);
+
+  Future<void> delete({required String type, required int id}) => _api.delete(type: type, id: id);
 }

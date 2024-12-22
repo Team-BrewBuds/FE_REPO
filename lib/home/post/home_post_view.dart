@@ -71,11 +71,15 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       isLeaveComment: post.isLeaveComment,
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
-      onTapLikeButton: () {},
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(post);
+      },
       onTapCommentsButton: () {
         showCommentsBottomSheet(isPost: true, id: post.id);
       },
-      onTapSaveButton: () {},
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(post);
+      },
       title: post.title,
       body: post.contents,
       tagText: post.subject.toString(),

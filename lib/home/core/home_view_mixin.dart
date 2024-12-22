@@ -5,6 +5,7 @@ import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:brew_buds/home/comments/comments_view.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/home/widgets/follow_button.dart';
+import 'package:brew_buds/model/pages/recommended_user_page.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -104,13 +105,13 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     return SliverList.separated(
       itemCount: presenter.feeds.length,
       itemBuilder: (context, index) {
-        currentIndex += 1;
+        currentIndex = index;
         if (index % 12 == 11) {
           return Column(
             children: [
               buildListItem(presenter, index),
               Container(height: 12, color: ColorStyles.gray20),
-              _buildRemandedBuddies(presenter),
+              _buildRemandedBuddies(presenter, (index / 12).floor()),
             ],
           );
         } else {
@@ -125,38 +126,43 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     return Container(height: 12, color: ColorStyles.gray20);
   }
 
-  Widget _buildRemandedBuddies(Presenter presenter) {
-    final remandedUsers = presenter.fetchRecommendedUsers();
-    return Container(
-      height: 304,
-      color: ColorStyles.white,
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Text('카페 투어를 즐기는 버디', style: TextStyles.title01SemiBold),
-          Text(
-            '오늘은 새로운 버디와 카페 투어 어때요?',
-            style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: remandedUsers.length,
-              itemBuilder: (context, index) => _buildRemandedBuddyProfile(
-                imageUri: remandedUsers[index].user.profileImageUri,
-                nickName: remandedUsers[index].user.nickname,
-                followCount: '${remandedUsers[index].followerCount}',
-                isFollowed: false,
-              ),
-              separatorBuilder: (context, index) => const SizedBox(width: 8),
+  Widget _buildRemandedBuddies(Presenter presenter, int recommendedIndex) {
+    if (presenter.recommendedUserPages.length > recommendedIndex) {
+      final page = presenter.recommendedUserPages[recommendedIndex];
+      return Container(
+        height: 304,
+        color: ColorStyles.white,
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(page.category.title(), style: TextStyles.title01SemiBold),
+            Text(
+              page.category.contents(),
+              style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
             ),
-          ),
-        ],
-      ),
-    );
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: page.users.length,
+                itemBuilder: (context, index) => _buildRemandedBuddyProfile(
+                  imageUri: page.users[index].user.profileImageUri,
+                  nickName: page.users[index].user.nickname,
+                  followCount: '${page.users[index].followerCount}',
+                  isFollowed: false,
+                ),
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      presenter.fetchMoreRecommendedUsers();
+      return Container();
+    }
   }
 
   Widget _buildRemandedBuddyProfile({

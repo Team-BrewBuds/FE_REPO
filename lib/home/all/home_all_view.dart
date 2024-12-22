@@ -76,13 +76,14 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
       onTapLikeButton: () {
-        print('onTapped');
         presenter.onTappedLikeButton(post);
       },
       onTapCommentsButton: () {
         showCommentsBottomSheet(isPost: true, id: post.id);
       },
-      onTapSaveButton: () {},
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(post);
+      },
       title: post.title,
       body: post.contents,
       tagText: post.subject.toString(),
@@ -115,7 +116,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       onTapCommentsButton: () {
         showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
       },
-      onTapSaveButton: () {},
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(tastingRecord);
+      },
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',
       type: tastingRecord.beanType,
