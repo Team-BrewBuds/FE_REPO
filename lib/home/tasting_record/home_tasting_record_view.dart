@@ -37,11 +37,15 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
       isLeaveComment: tastingRecord.isLeaveComment,
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
-      onTapLikeButton: () {},
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(tastingRecord);
+      },
       onTapCommentsButton: () {
         showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
       },
-      onTapSaveButton: () {},
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(tastingRecord);
+      },
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',
       type: tastingRecord.beanType,

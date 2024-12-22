@@ -28,26 +28,36 @@ abstract class HomeApi {
     @Query('page') required int pageNo,
   });
 
-  @GET('/records/tasted_record/')
+  @GET('/recommendation/buddy/')
   Future<RecommendedUserPage> fetchRecommendedUserPage();
 
-  @POST('/records/like/{type}/{id}/')
+  @POST('/interactions/like/{type}/{id}/')
   Future<void> like({
     @Path('type') required String type,
     @Path('id') required int id,
   });
 
-  @DELETE('/records/like/{type}/{id}/')
+  @DELETE('/interactions/like/{type}/{id}/')
   Future<void> unlike({
     @Path('type') required String type,
     @Path('id') required int id,
   });
 
-  factory HomeApi(Dio dio) = _HomeApi;
+  @POST('/interactions/note/{type}/{id}/')
+  Future<void> save({
+    @Path('type') required String type,
+    @Path('id') required int id,
+  });
 
-  factory HomeApi.defaultApi() {
+  @DELETE('/interactions/note/{type}/{id}/')
+  Future<void> delete({
+    @Path('type') required String type,
+    @Path('id') required int id,
+  });
+
+  factory HomeApi() {
     final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
     dio.interceptors.add(ApiInterceptor());
-    return HomeApi(dio);
+    return _HomeApi(dio);
   }
 }

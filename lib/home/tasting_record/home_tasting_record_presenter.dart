@@ -1,16 +1,14 @@
-import 'package:brew_buds/data/home/home_repository.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 
 final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordInFeed> {
-  final HomeRepository _repository;
   TastingRecordFeedPage _page = TastingRecordFeedPage.initial();
   int _currentPage = 0;
 
   HomeTastingRecordPresenter({
-    required HomeRepository repository,
-  }) : _repository = repository;
+    required super.repository,
+  });
 
   @override
   List<TastingRecordInFeed> get feeds => _page.feeds;
@@ -21,7 +19,7 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
   @override
   Future<void> fetchMoreData() async {
     if (_page.hasNext) {
-      final result = await _repository.fetchTastingRecordFeedPage(
+      final result = await repository.fetchTastingRecordFeedPage(
         pageNo: _currentPage + 1,
       );
       _page = _page.copyWith(
@@ -44,5 +42,34 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
     _currentPage = 0;
     notifyListeners();
     fetchMoreData();
+  }
+
+  @override
+  onTappedLikeButton(TastingRecordInFeed feed) {
+    like(type: 'tasted_record', id: feed.id, isLiked: feed.isLiked).then((_) {
+      _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+    });
+  }
+
+  @override
+  onTappedSavedButton(TastingRecordInFeed feed) {
+    save(type: 'tasted_record', id: feed.id, isSaved: feed.isSaved).then((_) {
+      _updateFeed(newFeed: feed.copyWith(isSaved: !feed.isSaved));
+    });
+  }
+
+  _updateFeed({required TastingRecordInFeed newFeed}) {
+    _page = _page.copyWith(
+      feeds: _page.feeds.map(
+            (feed) {
+          if (feed.id == newFeed.id) {
+            return newFeed;
+          } else {
+            return feed;
+          }
+        },
+      ).toList(),
+    );
+    notifyListeners();
   }
 }

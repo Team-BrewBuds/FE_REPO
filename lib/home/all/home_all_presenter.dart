@@ -4,18 +4,16 @@ import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 import 'package:brew_buds/model/pages//feed_page.dart';
-import 'package:brew_buds/model/recommended_user.dart';
 
 final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
-  final HomeRepository _repository;
   int _currentTypeIndex = 0;
   int _currentPage = 0;
   FeedPage _page = FeedPage.initial();
 
   HomeAllPresenter({
-    required HomeRepository repository,
-  }) : _repository = repository;
+    required super.repository,
+  });
 
   @override
   List<Feed> get feeds => _page.feeds;
@@ -25,7 +23,7 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
 
   @override
   Future<void> fetchMoreData() async {
-    final result = await _repository.fetchFeedPage(
+    final result = await repository.fetchFeedPage(
       feedType: _feedTypeList[_currentTypeIndex],
       pageNo: _currentPage + 1,
     );
@@ -64,79 +62,44 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
     }
   }
 
-  Future<void> onTappedLikeButton(Feed targetFeed) async {
-    if (targetFeed is PostInFeed) {
-      if (targetFeed.isLiked) {
-        await _repository.unlike(type: 'post', id: targetFeed.id).then(
-          (_) {
-            _page = _page.copyWith(
-              feeds: _page.feeds.map(
-                (feed) {
-                  if (feed.id == targetFeed.id) {
-                    return targetFeed.copyWith(isLiked: false);
-                  } else {
-                    return feed;
-                  }
-                },
-              ).toList(),
-            );
-            notifyListeners();
-          },
-        );
-      } else {
-        await _repository.like(type: 'post', id: targetFeed.id).then(
-              (_) {
-            _page = _page.copyWith(
-              feeds: _page.feeds.map(
-                    (feed) {
-                  if (feed.id == targetFeed.id) {
-                    return targetFeed.copyWith(isLiked: true);
-                  } else {
-                    return feed;
-                  }
-                },
-              ).toList(),
-            );
-            notifyListeners();
-          },
-        );
-      }
-    } else if (targetFeed is TastingRecordInFeed) {
-      if (targetFeed.isLiked) {
-        await _repository.unlike(type: 'tasted_record', id: targetFeed.id).then(
-              (_) {
-            _page = _page.copyWith(
-              feeds: _page.feeds.map(
-                    (feed) {
-                  if (feed.id == targetFeed.id) {
-                    return targetFeed.copyWith(isLiked: false);
-                  } else {
-                    return feed;
-                  }
-                },
-              ).toList(),
-            );
-            notifyListeners();
-          },
-        );
-      } else {
-        await _repository.like(type: 'tasted_record', id: targetFeed.id).then(
-              (_) {
-            _page = _page.copyWith(
-              feeds: _page.feeds.map(
-                    (feed) {
-                  if (feed.id == targetFeed.id) {
-                    return targetFeed.copyWith(isLiked: true);
-                  } else {
-                    return feed;
-                  }
-                },
-              ).toList(),
-            );
-            notifyListeners();
-          },
-        );
-      }
+  @override
+  onTappedLikeButton(Feed feed) {
+    if (feed is PostInFeed) {
+      like(type: 'post', id: feed.id, isLiked: feed.isLiked).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+      });
+    } else if (feed is TastingRecordInFeed) {
+      like(type: 'tasted_record', id: feed.id, isLiked: feed.isLiked).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+      });
     }
+  }
+
+  @override
+  onTappedSavedButton(Feed feed) {
+    if (feed is PostInFeed) {
+      save(type: 'post', id: feed.id, isSaved: feed.isSaved).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isSaved: !feed.isSaved));
+      });
+    } else if (feed is TastingRecordInFeed) {
+      save(type: 'tasted_record', id: feed.id, isSaved: feed.isSaved).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isSaved: !feed.isSaved));
+      });
+    }
+  }
+
+  _updateFeed({required Feed newFeed}) {
+    _page = _page.copyWith(
+      feeds: _page.feeds.map(
+        (feed) {
+          if (feed.id == newFeed.id) {
+            return newFeed;
+          } else {
+            return feed;
+          }
+        },
+      ).toList(),
+    );
+    notifyListeners();
   }
 }

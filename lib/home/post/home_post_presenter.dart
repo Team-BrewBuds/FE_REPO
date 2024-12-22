@@ -1,18 +1,16 @@
-import 'package:brew_buds/data/home/home_repository.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/model/pages/post_feed_page.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/post_subject.dart';
 
 final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
-  final HomeRepository _repository;
   PostFeedPage _page = PostFeedPage.initial();
   int _currentPage = 0;
   int _currentFilterIndex = 0;
 
   HomePostPresenter({
-    required HomeRepository repository,
-  }) : _repository = repository;
+    required super.repository,
+  });
 
   List<String> get postSubjectFilterList => PostSubject.values.map((subject) => subject.toString()).toList();
 
@@ -29,7 +27,7 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
   @override
   Future<void> fetchMoreData() async {
     if (_page.hasNext) {
-      final result = await _repository.fetchPostFeedPage(
+      final result = await repository.fetchPostFeedPage(
         subjectFilter: currentSubjectFilter.toJsonValue(),
         pageNo: _currentPage + 1,
       );
@@ -65,5 +63,34 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
     } else {
       onRefresh();
     }
+  }
+
+  @override
+  onTappedLikeButton(PostInFeed feed) {
+      like(type: 'post', id: feed.id, isLiked: feed.isLiked).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+      });
+  }
+
+  @override
+  onTappedSavedButton(PostInFeed feed) {
+    save(type: 'post', id: feed.id, isSaved: feed.isSaved).then((_) {
+      _updateFeed(newFeed: feed.copyWith(isSaved: !feed.isSaved));
+    });
+  }
+
+  _updateFeed({required PostInFeed newFeed}) {
+    _page = _page.copyWith(
+      feeds: _page.feeds.map(
+            (feed) {
+          if (feed.id == newFeed.id) {
+            return newFeed;
+          } else {
+            return feed;
+          }
+        },
+      ).toList(),
+    );
+    notifyListeners();
   }
 }
