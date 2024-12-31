@@ -1,11 +1,11 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/data/comments/comments_repository.dart';
+import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:brew_buds/home/comments/comments_view.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/home/widgets/follow_button.dart';
-import 'package:brew_buds/model/pages/recommended_user_page.dart';
+import 'package:brew_buds/model/user.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -212,7 +212,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     );
   }
 
-  showCommentsBottomSheet({required bool isPost, required int id}) {
+  showCommentsBottomSheet({required bool isPost, required int id, required User author}) {
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -224,6 +224,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
             create: (_) => CommentsPresenter(
                   isPost: isPost,
                   id: id,
+                  author: author,
                   repository: CommentsRepository.instance,
                 ),
             child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7));

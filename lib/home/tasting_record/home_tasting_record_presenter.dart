@@ -58,6 +58,13 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
     });
   }
 
+  @override
+  onTappedFollowButton(TastingRecordInFeed feed) {
+    follow(id: feed.id, isFollowed: feed.isUserFollowing).then((_) {
+      _updateFeed(newFeed: feed.copyWith(isUserFollowing: !feed.isUserFollowing));
+    });
+  }
+
   _updateFeed({required TastingRecordInFeed newFeed}) {
     _page = _page.copyWith(
       feeds: _page.feeds.map(

@@ -79,6 +79,13 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
     });
   }
 
+  @override
+  onTappedFollowButton(PostInFeed feed) {
+    follow(id: feed.id, isFollowed: feed.isUserFollowing).then((_) {
+      _updateFeed(newFeed: feed.copyWith(isUserFollowing: !feed.isUserFollowing));
+    });
+  }
+
   _updateFeed({required PostInFeed newFeed}) {
     _page = _page.copyWith(
       feeds: _page.feeds.map(

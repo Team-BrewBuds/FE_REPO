@@ -1,12 +1,10 @@
-import 'package:brew_buds/data/comments/comments_api.dart';
+import 'package:brew_buds/data/api/comment_api.dart';
 import 'package:brew_buds/model/pages/comments_page.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CommentsRepository {
-  final CommentsApi _api;
+  final CommentApi _api;
 
-  CommentsRepository._() : _api = CommentsApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
+  CommentsRepository._() : _api = CommentApi();
 
   static final CommentsRepository _instance = CommentsRepository._();
 

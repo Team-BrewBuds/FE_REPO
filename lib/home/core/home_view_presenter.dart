@@ -1,8 +1,10 @@
-import 'package:brew_buds/data/home/home_repository.dart';
+import 'package:brew_buds/data/repository/home_repository.dart';
+import 'package:brew_buds/model/feeds/feed.dart';
+import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/pages/recommended_user_page.dart';
 import 'package:flutter/foundation.dart';
 
-abstract class HomeViewPresenter<T> extends ChangeNotifier {
+abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
   final HomeRepository repository;
   final List<RecommendedUserPage> _recommendedUserPages = [];
 
@@ -54,6 +56,8 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
 
   onTappedSavedButton(T feed);
 
+  onTappedFollowButton(T feed);
+
   Future<void> like({required String type, required int id, required bool isLiked}) {
     if (isLiked) {
       return repository.unlike(type: type, id: id);
@@ -67,6 +71,14 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
       return repository.delete(type: type, id: id);
     } else {
       return repository.save(type: type, id: id);
+    }
+  }
+
+  Future<void> follow({required int id, required bool isFollowed}) {
+    if (isFollowed) {
+      return repository.unFollow(id: id);
+    } else {
+      return repository.follow(id: id);
     }
   }
 }

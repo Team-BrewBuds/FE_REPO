@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/token/token_repository.dart';
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/features/login/models/login_result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
 import 'package:brew_buds/features/login/models/social_login_token.dart';

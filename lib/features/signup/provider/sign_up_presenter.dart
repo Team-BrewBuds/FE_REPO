@@ -1,5 +1,5 @@
 import 'package:brew_buds/data/signup/auth_service.dart';
-import 'package:brew_buds/data/token/token_repository.dart';
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
 import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';

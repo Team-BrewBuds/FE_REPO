@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/home/home_repository.dart';
+import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
@@ -84,6 +84,19 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
     } else if (feed is TastingRecordInFeed) {
       save(type: 'tasted_record', id: feed.id, isSaved: feed.isSaved).then((_) {
         _updateFeed(newFeed: feed.copyWith(isSaved: !feed.isSaved));
+      });
+    }
+  }
+
+  @override
+  onTappedFollowButton(Feed feed) {
+    if (feed is PostInFeed) {
+      follow(id: feed.author.id, isFollowed: feed.isUserFollowing).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isUserFollowing: !feed.isUserFollowing));
+      });
+    } else if (feed is TastingRecordInFeed) {
+      follow(id: feed.author.id, isFollowed: feed.isUserFollowing).then((_) {
+        _updateFeed(newFeed: feed.copyWith(isUserFollowing: !feed.isUserFollowing));
       });
     }
   }
