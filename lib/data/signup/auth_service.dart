@@ -2,7 +2,7 @@ import 'package:brew_buds/constants/api_constants.dart';
 import 'package:brew_buds/core/api_interceptor.dart';
 import 'package:brew_buds/data/signup/account_result.dart';
 import 'package:brew_buds/data/signup/token_result.dart';
-import 'package:brew_buds/data/token/token_repository.dart';
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';

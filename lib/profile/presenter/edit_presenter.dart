@@ -8,7 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
-import '../../data/profile/profile_repository.dart';
+import '../../data/repository/profile_repository.dart';
 import '../../features/signup/models/signup_lists.dart';
 import '../../model/profile.dart';
 import '../../model/recommended_user.dart';
@@ -35,18 +35,18 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
 
   final List<RecommendedUser> dummyRecommendedUsers = [
-    RecommendedUser(user: User(id: 0, nickname: '김씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 1985789),
-    RecommendedUser(user: User(id: 1, nickname: '이씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 3452),
-    RecommendedUser(user: User(id: 2, nickname: '박씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 1985456789),
-    RecommendedUser(user: User(id: 3, nickname: '홍씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 33425),
-    RecommendedUser(user: User(id: 4, nickname: '임씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 234672),
-    RecommendedUser(user: User(id: 5, nickname: '윤씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 62456),
-    RecommendedUser(user: User(id: 6, nickname: '왕씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 234),
-    RecommendedUser(user: User(id: 7, nickname: '송씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 6435735),
-    RecommendedUser(user: User(id: 8, nickname: '류씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 563),
-    RecommendedUser(user: User(id: 9, nickname: '강씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 2346),
-    RecommendedUser(user: User(id: 10, nickname: '심씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 9456),
-    RecommendedUser(user: User(id: 11, nickname: '오씨', profileImageUri: 'https://picsum.photos/600/400', isFollowed: false), followerCount: 23457),
+    RecommendedUser(user: User(id: 0, nickname: '김씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 1985789),
+    RecommendedUser(user: User(id: 1, nickname: '이씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 3452),
+    RecommendedUser(user: User(id: 2, nickname: '박씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 1985456789),
+    RecommendedUser(user: User(id: 3, nickname: '홍씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 33425),
+    RecommendedUser(user: User(id: 4, nickname: '임씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 234672),
+    RecommendedUser(user: User(id: 5, nickname: '윤씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 62456),
+    RecommendedUser(user: User(id: 6, nickname: '왕씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 234),
+    RecommendedUser(user: User(id: 7, nickname: '송씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 6435735),
+    RecommendedUser(user: User(id: 8, nickname: '류씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 563),
+    RecommendedUser(user: User(id: 9, nickname: '강씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 2346),
+    RecommendedUser(user: User(id: 10, nickname: '심씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 9456),
+    RecommendedUser(user: User(id: 11, nickname: '오씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 23457),
   ];
 
 

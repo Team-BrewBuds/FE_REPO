@@ -63,7 +63,7 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       writerNickName: post.author.nickname,
       writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
-      isFollowed: post.author.isFollowed,
+      isFollowed: post.isUserFollowing,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: post.isLiked,
@@ -75,7 +75,7 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
         presenter.onTappedLikeButton(post);
       },
       onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: true, id: post.id);
+        showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
       },
       onTapSaveButton: () {
         presenter.onTappedSavedButton(post);

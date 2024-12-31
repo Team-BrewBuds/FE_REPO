@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/token/token_repository.dart';
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';

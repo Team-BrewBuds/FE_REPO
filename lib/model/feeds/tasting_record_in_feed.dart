@@ -28,6 +28,7 @@ class TastingRecordInFeed with _$TastingRecordInFeed, Feed {
     @JsonKey(name: 'flavor', fromJson: _flavorFromJson) required List<String> flavors,
     required String? tag,
     @JsonKey(name: 'photos', fromJson: _photosFromJson) @Default([]) List<String> imagesUri,
+    @JsonKey(name: 'is_user_following') required bool isUserFollowing,
   }) = _TastingRecord;
 
   const TastingRecordInFeed._();

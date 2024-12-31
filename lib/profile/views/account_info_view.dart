@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../common/color_styles.dart';
 import '../../common/text_styles.dart';
-import '../../data/profile/profile_repository.dart';
+import '../../data/repository/profile_repository.dart';
 
 class ProfileAccountInfoView extends StatefulWidget {
   const ProfileAccountInfoView({super.key});

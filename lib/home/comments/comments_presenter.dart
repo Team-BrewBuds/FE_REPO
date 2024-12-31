@@ -1,6 +1,7 @@
-import 'package:brew_buds/data/comments/comments_repository.dart';
+import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/pages/comments_page.dart';
+import 'package:brew_buds/model/user.dart';
 import 'package:flutter/foundation.dart';
 
 enum _FeedType {
@@ -14,6 +15,7 @@ enum _FeedType {
 final class CommentsPresenter extends ChangeNotifier {
   final _FeedType _type;
   final int _id;
+  final User author;
   final CommentsRepository _repository;
   int _currentPage = 0;
   bool _disposed = false;
@@ -22,6 +24,7 @@ final class CommentsPresenter extends ChangeNotifier {
   CommentsPresenter({
     required bool isPost,
     required int id,
+    required this.author,
     required CommentsRepository repository,
   })  : _type = isPost ? _FeedType.post : _FeedType.tastingRecord,
         _id = id,

@@ -1,9 +1,9 @@
-import 'package:brew_buds/data/popular_posts/popular_posts_api.dart';
+import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/model/pages/popular_post_page.dart';
 
 class PopularPostsRepository {
-  final PopularPostsApi _api;
-  PopularPostsRepository._(): _api = PopularPostsApi();
+  final PostApi _api = PostApi();
+  PopularPostsRepository._();
 
   static final PopularPostsRepository _instance = PopularPostsRepository._();
 

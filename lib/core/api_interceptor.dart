@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/token/token_repository.dart';
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
@@ -35,7 +35,9 @@ final class ApiInterceptor extends Interceptor {
       return handler.reject(err);
     }
 
-    final refreshToken = await _storage.read(key: 'refresh');
+    // final refreshToken = await _storage.read(key: 'refresh');
+    final refreshToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczNjAyNDEwOSwiaWF0IjoxNzM1NDE5MzA5LCJqdGkiOiI2NmMwODE5MWNmNDU0NzY4OTJjNjYyZWQ3YTVmYTgzMCIsInVzZXJfaWQiOjUwOH0.yV-VX1YcHL9ynI1F9rvwFYj9pohhZ7CQEjIi_rVwiAs';
 
     if (refreshToken == null) {
       return handler.reject(err);

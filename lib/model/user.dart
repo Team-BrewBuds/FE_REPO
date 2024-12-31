@@ -11,9 +11,6 @@ class User with _$User {
     required int id,
     @JsonKey(defaultValue: 'Unknown') required String nickname,
     @JsonKey(name: 'profile_image', defaultValue: '') required String profileImageUri,
-    @JsonKey(defaultValue: false) required bool isFollowed,
-
-
   }) = _Author;
 
   factory User.fromJson(Map<String, Object?> json) => _$UserFromJson(json);

@@ -67,9 +67,11 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       writerNickName: post.author.nickname,
       writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
-      isFollowed: post.author.isFollowed,
+      isFollowed: post.isUserFollowing,
       onTapProfile: () {},
-      onTapFollowButton: () {},
+      onTapFollowButton: () {
+        presenter.onTappedFollowButton(post);
+      },
       isLiked: post.isLiked,
       likeCount: '${post.likeCount > 999 ? '999+' : post.likeCount}',
       isLeaveComment: post.isLeaveComment,
@@ -79,7 +81,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
         presenter.onTappedLikeButton(post);
       },
       onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: true, id: post.id);
+        showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
       },
       onTapSaveButton: () {
         presenter.onTappedSavedButton(post);
@@ -102,9 +104,11 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       writerNickName: tastingRecord.author.nickname,
       writingTime: tastingRecord.createdAt,
       hits: '조회 ${tastingRecord.viewCount}',
-      isFollowed: tastingRecord.author.isFollowed,
+      isFollowed: tastingRecord.isUserFollowing,
       onTapProfile: () {},
-      onTapFollowButton: () {},
+      onTapFollowButton: () {
+        presenter.onTappedFollowButton(tastingRecord);
+      },
       isLiked: tastingRecord.isLiked,
       likeCount: '${tastingRecord.likeCount > 999 ? '999+' : tastingRecord.likeCount}',
       isLeaveComment: tastingRecord.isLeaveComment,
@@ -114,7 +118,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
         presenter.onTappedLikeButton(tastingRecord);
       },
       onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
+        showCommentsBottomSheet(isPost: false, id: tastingRecord.id, author: tastingRecord.author);
       },
       onTapSaveButton: () {
         presenter.onTappedSavedButton(tastingRecord);
