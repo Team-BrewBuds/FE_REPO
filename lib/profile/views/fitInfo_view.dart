@@ -1,6 +1,6 @@
-import 'package:brew_buds/features/signup/views/signup_cert_page.dart';
-import 'package:brew_buds/features/signup/views/signup_page_enjoy.dart';
-import 'package:brew_buds/features/signup/views/signup_select_page.dart';
+import 'package:brew_buds/features/signup/views/signup_third_page.dart';
+import 'package:brew_buds/features/signup/views/signup_second_page.dart';
+import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/color_styles.dart';

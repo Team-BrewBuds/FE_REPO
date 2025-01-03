@@ -22,6 +22,15 @@ class _PopularPostsViewState extends State<PopularPostsView> {
   void initState() {
     scrollController = ScrollController();
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<PopularPostsPresenter>().initState();
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override

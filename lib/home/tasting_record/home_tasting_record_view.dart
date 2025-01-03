@@ -29,7 +29,7 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
       writerNickName: tastingRecord.author.nickname,
       writingTime: tastingRecord.createdAt,
       hits: '조회 ${tastingRecord.viewCount}',
-      isFollowed: tastingRecord.author.isFollowed,
+      isFollowed: tastingRecord.isUserFollowing,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: tastingRecord.isLiked,
@@ -37,11 +37,15 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
       isLeaveComment: tastingRecord.isLeaveComment,
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
-      onTapLikeButton: () {},
-      onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(tastingRecord);
       },
-      onTapSaveButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: false, id: tastingRecord.id, author: tastingRecord.author);
+      },
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(tastingRecord);
+      },
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',
       type: tastingRecord.beanType,

@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/popular_posts/popular_posts_repository.dart';
+import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/pages/popular_post_page.dart';
 import 'package:flutter/foundation.dart';

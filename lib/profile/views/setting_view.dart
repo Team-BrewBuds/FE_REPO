@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/core/auth_service.dart';
+import 'package:brew_buds/data/signup/auth_service.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/login/views/login_page_sns.dart';
 import 'package:flutter/cupertino.dart';
