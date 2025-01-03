@@ -75,7 +75,7 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
 
   void getProfileInfo() async{
-    await _repository.fetchProfile();
+    await _repository.fetchMyProfile();
   }
 
   void editProfile() async{

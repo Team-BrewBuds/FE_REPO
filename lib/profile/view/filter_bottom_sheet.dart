@@ -1,22 +1,22 @@
 import 'dart:math';
-
 import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/icon_button_factory.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/profile/model/filter.dart';
 import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/rendering/viewport_offset.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:velocity_x/velocity_x.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  const FilterBottomSheet({super.key});
+  final Function(List<Filter> filter) onDone;
+
+  const FilterBottomSheet({super.key, required this.onDone});
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
@@ -113,12 +113,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                       unselectedLabelColor: ColorStyles.gray50,
                       dividerHeight: 0,
                       overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-                      tabs: [
-                        const Tab(text: '원두유형', height: 31),
-                        const Tab(text: '원산지', height: 31),
-                        const Tab(text: '별점', height: 31),
-                        const Tab(text: '디카페인', height: 31),
-                        const Tab(text: '로스팅 포인트', height: 31),
+                      tabs: const [
+                        Tab(text: '원두유형', height: 31),
+                        Tab(text: '원산지', height: 31),
+                        Tab(text: '별점', height: 31),
+                        Tab(text: '디카페인', height: 31),
+                        Tab(text: '로스팅 포인트', height: 31),
                       ],
                       onTap: (index) {
                         Scrollable.ensureVisible(_tabKeys[index].currentContext!);
@@ -157,11 +157,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                                     presenter.removeAtFilter(index);
                                   },
                                   child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: ColorStyles.background,
                                       border: Border.all(color: ColorStyles.red, width: 1),
-                                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                                      borderRadius: const BorderRadius.all(Radius.circular(20)),
                                     ),
                                     child: Row(
                                       children: [
@@ -169,20 +169,20 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                                           presenter.filter[index].text,
                                           style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
                                         ),
-                                        SizedBox(width: 2),
+                                        const SizedBox(width: 2),
                                         SvgPicture.asset(
                                           'assets/icons/x.svg',
                                           width: 12,
                                           height: 12,
                                           fit: BoxFit.cover,
-                                          colorFilter: ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                          colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
                                         ),
                                       ],
                                     ),
                                   ),
                                 );
                               },
-                              separatorBuilder: (context, index) => SizedBox(width: 4),
+                              separatorBuilder: (context, index) => const SizedBox(width: 4),
                             ),
                           )
                         : Container(),
@@ -203,7 +203,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                           ),
                           const SizedBox(width: 8),
                           ButtonFactory.buildRoundedButton(
-                            onTapped: () {},
+                            onTapped: () {
+                              widget.onDone(presenter.filter);
+                              context.pop();
+                            },
                             text: '선택하기',
                             style: RoundedButtonStyle.fill(
                               color: ColorStyles.black,

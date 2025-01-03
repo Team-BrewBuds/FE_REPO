@@ -1,3 +1,7 @@
+import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/features/signup/models/coffee_life.dart';
+import 'package:brew_buds/profile/model/filter.dart';
+import 'package:brew_buds/profile/model/profile.dart';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -24,6 +28,9 @@ enum BeanType { singleOrigin, blend }
 enum BeanOrigin { none }
 
 class ProfilePresenter extends ChangeNotifier {
+  final ProfileRepository _repository;
+  Profile? _profile;
+
   final List<SortCriteria> _sortCriteriaList = [
     SortCriteria.upToDate,
     SortCriteria.rating,
@@ -32,6 +39,20 @@ class ProfilePresenter extends ChangeNotifier {
   int _currentSortCriteriaIndex = 0;
   SfRangeValues _ratingValues = SfRangeValues(0.5, 5.0);
   SfRangeValues _roastingPointValues = SfRangeValues(1, 5);
+
+  final List<Filter> _filter = [];
+
+  bool get hasFilter => _filter.isNotEmpty;
+
+  bool get hasBeanTypeFilter => _filter.whereType<BeanTypeFilter>().isNotEmpty;
+
+  bool get hasCountryFilter => _filter.whereType<CountryFilter>().isNotEmpty;
+
+  bool get hasRatingFilter => _filter.whereType<RatingFilter>().isNotEmpty;
+
+  bool get hasDecafFilter => _filter.whereType<DecafFilter>().isNotEmpty;
+
+  bool get hasRoastingPointFilter => _filter.whereType<RoastingPointFilter>().isNotEmpty;
 
   List<SortCriteria> get sortCriteriaList => _sortCriteriaList;
 
@@ -43,6 +64,36 @@ class ProfilePresenter extends ChangeNotifier {
   String get currentSortCriteria => _sortCriteriaList[_currentSortCriteriaIndex].buttonString;
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
+
+  String get nickname => _profile?.nickname ?? '';
+
+  String get profileImageURI => _profile?.profileImageURI ?? '';
+
+  String get tastingRecordCount => _countToString(_profile?.postCount ?? 0);
+
+  String get followerCount => _countToString(_profile?.followerCount ?? 0);
+
+  String get followingCount => _countToString(_profile?.followingCount ?? 0);
+
+  bool get hasDetail =>
+      _profile?.detail.introduction != null ||
+      _profile?.detail.profileLink != null ||
+      _profile?.detail.coffeeLife != null;
+
+  String? get introduction => _profile?.detail.introduction;
+
+  String? get profileLink => _profile?.detail.profileLink;
+
+  List<String>? get coffeeLife => _profile?.detail.coffeeLife?.map((coffeeLife) => coffeeLife.title).toList();
+
+  ProfilePresenter({
+    required ProfileRepository repository,
+  }) : _repository = repository;
+
+  initState() async {
+    _profile = await _repository.fetchMyProfile();
+    notifyListeners();
+  }
 
   onChangeSortCriteriaIndex(int index) {
     _currentSortCriteriaIndex = index;
@@ -56,6 +107,12 @@ class ProfilePresenter extends ChangeNotifier {
 
   onChangeRoastingPointValues(SfRangeValues values) {
     _roastingPointValues = values;
+    notifyListeners();
+  }
+
+  onChangeFilter(List<Filter> filter) {
+    _filter.clear();
+    _filter.addAll(filter);
     notifyListeners();
   }
 
@@ -73,6 +130,20 @@ class ProfilePresenter extends ChangeNotifier {
         return '다크';
       default:
         return '';
+    }
+  }
+
+  String _countToString(int count) {
+    if (count == 0) {
+      return '000';
+    } else if (count >= 1000 && count < 1000000) {
+      return '${count / 1000}.${count / 100}K';
+    } else if (count >= 1000000 && count < 1000000000) {
+      return '${count / 1000000}.${count / 100000}M';
+    } else if (count >= 1000000000) {
+      return '${count / 1000000000}.${count / 10000000}G';
+    } else {
+      return '$count';
     }
   }
 }
