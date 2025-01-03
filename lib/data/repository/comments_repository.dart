@@ -16,5 +16,17 @@ class CommentsRepository {
     required String feedType,
     required int id,
     required int pageNo,
-  }) => _api.fetchCommentsPage(feedType: feedType, id: id, pageNo: pageNo);
+  }) =>
+      _api.fetchCommentsPage(feedType: feedType, id: id, pageNo: pageNo);
+
+  Future<void> createNewComment({
+    required String feedType,
+    required int id,
+    required String content,
+  }) =>
+      _api.createComment(
+        feedType: feedType,
+        id: id,
+        data: <String, dynamic>{"content": content},
+      );
 }

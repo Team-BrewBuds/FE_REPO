@@ -34,17 +34,27 @@ final class CommentsPresenter extends ChangeNotifier {
 
   bool get hasNext => _page.hasNext;
 
-  Future<void> initState() async {
+  refresh() {
+    _currentPage = 0;
+    _page = CommentsPage.initial();
     fetchMoreData();
   }
 
-  Future<void> fetchMoreData() async {
+  initState() {
+    fetchMoreData();
+  }
+
+  fetchMoreData() async {
     if (hasNext) {
       final result = await _repository.fetchCommentsPage(feedType: _type.toString(), id: _id, pageNo: _currentPage + 1);
       _page = _page.copyWith(comments: _page.comments + result.comments, hasNext: result.hasNext);
       _currentPage += 1;
       notifyListeners();
     }
+  }
+
+  createNewComment({required String content}) {
+    _repository.createNewComment(feedType: _type.toString(), id: _id, content: content).then((_) => refresh());
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/profile/model/profile.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
@@ -8,7 +9,7 @@ part 'profile_api.g.dart';
 @RestApi()
 abstract class ProfileApi {
   @GET('/profiles/')
-  Future<void> fetchMyProfile();
+  Future<Profile> fetchMyProfile();
 
   //미구현
   @PATCH('/profiles/')

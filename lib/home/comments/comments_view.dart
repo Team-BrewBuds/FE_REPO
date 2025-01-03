@@ -22,6 +22,7 @@ class CommentBottomSheet extends StatefulWidget {
 }
 
 class _CommentBottomSheetState extends State<CommentBottomSheet> {
+  late final TextEditingController _textEditingController;
   late double _height;
 
   bool _longAnimation = false;
@@ -29,10 +30,17 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
   @override
   void initState() {
     super.initState();
+    _textEditingController = TextEditingController();
     _height = widget.minimumHeight;
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<CommentsPresenter>().initState();
     });
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -119,6 +127,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                         decoration:
                             const BoxDecoration(border: Border(top: BorderSide(width: 0.5, color: ColorStyles.gray40))),
                         child: TextField(
+                          controller: _textEditingController,
                           maxLines: null,
                           decoration: InputDecoration(
                             hintText: '${presenter.author.nickname} 님에게 댓글 추가..',
@@ -137,7 +146,12 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                             suffixIcon: Padding(
                               padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
                               child: ButtonFactory.buildOvalButton(
-                                onTapped: () {},
+                                onTapped: () {
+                                  if (_textEditingController.text.isNotEmpty) {
+                                    presenter
+                                        .createNewComment(content: _textEditingController.text);
+                                  }
+                                },
                                 text: '전송',
                                 style: OvalButtonStyle.fill(
                                   color: ColorStyles.black,

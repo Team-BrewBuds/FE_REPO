@@ -59,7 +59,7 @@ final class ApiInterceptor extends Interceptor {
 
       options.headers.addAll({'Authorization': 'Bearer $accessToken'});
 
-      TokenRepository.instance.syncToken(accessToken: accessToken);
+      TokenRepository.instance.syncToken(accessToken: accessToken, refreshToken: resp.data['refresh']);
 
       final response = await dio.fetch(options);
 
