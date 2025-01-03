@@ -1,6 +1,5 @@
 import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/date_time_ext.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
@@ -64,7 +63,7 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       writerNickName: post.author.nickname,
       writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
-      isFollowed: post.author.isFollowed,
+      isFollowed: post.isUserFollowing,
       onTapProfile: () {},
       onTapFollowButton: () {},
       isLiked: post.isLiked,
@@ -72,11 +71,15 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       isLeaveComment: post.isLeaveComment,
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
-      onTapLikeButton: () {},
-      onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: true, id: post.id);
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(post);
       },
-      onTapSaveButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
+      },
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(post);
+      },
       title: post.title,
       body: post.contents,
       tagText: post.subject.toString(),

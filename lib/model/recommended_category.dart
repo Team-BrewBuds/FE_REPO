@@ -1,17 +1,17 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 enum RecommendedCategory {
-  @JsonKey(name: "cafe_tour")
+  @JsonValue('cafe_tour')
   cafeTour,
-  @JsonKey(name: "coffee_extraction")
+  @JsonValue('coffee_extraction')
   coffeeExtraction,
-  @JsonKey(name: "coffee_study")
+  @JsonValue('coffee_study')
   coffeeStudy,
-  @JsonKey(name: "cafe_alba")
+  @JsonValue('cafe_alba')
   cafeAlba,
-  @JsonKey(name: "cafe_work")
+  @JsonValue('cafe_work')
   cafeWork,
-  @JsonKey(name: "cafe_operation")
+  @JsonValue('cafe_operation')
   cafeOperation;
 
   String title() => switch (this) {

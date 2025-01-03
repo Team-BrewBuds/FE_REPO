@@ -27,6 +27,7 @@ class PostInFeed with _$PostInFeed, Feed {
     required String tag,
     @JsonKey(name: 'photos', fromJson: _photosFromJson) @Default([]) List<String> imagesUri,
     @JsonKey(name: 'tasted_records') @Default([]) List<TastingRecordInPost> tastingRecords,
+    @JsonKey(name: 'is_user_following') required bool isUserFollowing,
   }) = _Post;
 
   factory PostInFeed.fromJson(Map<String, Object?> json) => _$PostInFeedFromJson(json);

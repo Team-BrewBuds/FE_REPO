@@ -30,15 +30,15 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
   Widget buildListItem(HomeAllPresenter presenter, int index) {
     final feed = presenter.feeds[index];
     if (feed is PostInFeed) {
-      return _buildPostFeed(feed);
+      return _buildPostFeed(presenter, feed);
     } else if (feed is TastingRecordInFeed) {
-      return _buildTastingRecordFeed(feed);
+      return _buildTastingRecordFeed(presenter, feed);
     } else {
       return Container();
     }
   }
 
-  Widget _buildPostFeed(PostInFeed post) {
+  Widget _buildPostFeed(HomeAllPresenter presenter, PostInFeed post) {
     final Widget? child;
 
     if (post.imagesUri.isNotEmpty) {
@@ -67,19 +67,25 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       writerNickName: post.author.nickname,
       writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
-      isFollowed: post.author.isFollowed,
+      isFollowed: post.isUserFollowing,
       onTapProfile: () {},
-      onTapFollowButton: () {},
+      onTapFollowButton: () {
+        presenter.onTappedFollowButton(post);
+      },
       isLiked: post.isLiked,
       likeCount: '${post.likeCount > 999 ? '999+' : post.likeCount}',
       isLeaveComment: post.isLeaveComment,
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
-      onTapLikeButton: () {},
-      onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: true, id: post.id);
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(post);
       },
-      onTapSaveButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
+      },
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(post);
+      },
       title: post.title,
       body: post.contents,
       tagText: post.subject.toString(),
@@ -92,25 +98,31 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
     );
   }
 
-  Widget _buildTastingRecordFeed(TastingRecordInFeed tastingRecord) {
+  Widget _buildTastingRecordFeed(HomeAllPresenter presenter, TastingRecordInFeed tastingRecord) {
     return TastingRecordFeed(
       writerThumbnailUri: tastingRecord.author.profileImageUri,
       writerNickName: tastingRecord.author.nickname,
       writingTime: tastingRecord.createdAt,
       hits: '조회 ${tastingRecord.viewCount}',
-      isFollowed: tastingRecord.author.isFollowed,
+      isFollowed: tastingRecord.isUserFollowing,
       onTapProfile: () {},
-      onTapFollowButton: () {},
+      onTapFollowButton: () {
+        presenter.onTappedFollowButton(tastingRecord);
+      },
       isLiked: tastingRecord.isLiked,
       likeCount: '${tastingRecord.likeCount > 999 ? '999+' : tastingRecord.likeCount}',
       isLeaveComment: tastingRecord.isLeaveComment,
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
-      onTapLikeButton: () {},
-      onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: false, id: tastingRecord.id);
+      onTapLikeButton: () {
+        presenter.onTappedLikeButton(tastingRecord);
       },
-      onTapSaveButton: () {},
+      onTapCommentsButton: () {
+        showCommentsBottomSheet(isPost: false, id: tastingRecord.id, author: tastingRecord.author);
+      },
+      onTapSaveButton: () {
+        presenter.onTappedSavedButton(tastingRecord);
+      },
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',
       type: tastingRecord.beanType,

@@ -1,17 +1,14 @@
-import 'package:brew_buds/core/auth_service.dart';
-import 'package:brew_buds/data/home/home_repository.dart';
-import 'package:brew_buds/data/popular_posts/popular_posts_repository.dart';
-import 'package:brew_buds/data/profile/profile_repository.dart';
-import 'package:brew_buds/features/login/models/login_model.dart';
-import 'package:brew_buds/features/login/presenter/login_presenter.dart';
+import 'package:brew_buds/data/repository/home_repository.dart';
+import 'package:brew_buds/data/repository/popular_posts_repository.dart';
+import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/login/views/login_page_sns.dart';
-import 'package:brew_buds/features/signup/provider/SignUpProvider.dart';
-import 'package:brew_buds/features/signup/views/signup_cert_page.dart';
-import 'package:brew_buds/features/signup/views/signup_page.dart';
-import 'package:brew_buds/features/signup/views/signup_page_enjoy.dart';
-import 'package:brew_buds/features/signup/views/signup_page_finish.dart';
-import 'package:brew_buds/features/signup/views/signup_select_page.dart';
+import 'package:brew_buds/features/signup/views/signup_third_page.dart';
+import 'package:brew_buds/features/signup/views/signup_first_page.dart';
+import 'package:brew_buds/features/signup/views/signup_second_page.dart';
+import 'package:brew_buds/features/signup/views/signup_finish_page.dart';
+import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/all/home_all_view.dart';
 import 'package:brew_buds/home/home_screen.dart';
@@ -22,7 +19,8 @@ import 'package:brew_buds/home/post/home_post_view.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
-import 'package:brew_buds/profile/profile_screen.dart';
+import 'package:brew_buds/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/profile/view/profile_view.dart';
 import 'package:brew_buds/profile/views/account_out_view.dart';
 import 'package:brew_buds/profile/views/alarm_view.dart';
 import 'package:brew_buds/profile/views/setting_view.dart';
@@ -37,14 +35,22 @@ import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
-
 const String initialPath = '/login';
 
-final GlobalKey<NestedScrollViewState> homeTabBarScrollState =
-    GlobalKey<NestedScrollViewState>();
+final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
 
 final router = GoRouter(
   initialLocation: initialPath,
+  redirect: (context, state) {
+    if (context.read<TokenRepository>().refreshToken.isNotEmpty) {
+      if (state.uri.path.contains('login') || state.uri.path.contains('signup')) {
+        return '/home/all';
+      }
+    }
+
+    return state.fullPath;
+  },
+  refreshListenable: TokenRepository.instance,
   routes: [
     GoRoute(
       path: '/login',
@@ -54,12 +60,8 @@ final router = GoRouter(
       routes: <RouteBase>[
         GoRoute(
           path: 'sns',
-
           builder: (BuildContext context, GoRouterState state) {
-            final authService = AuthService();
-            final loginModel = LoginModel();
-            final loginPresenter = LoginPresenter(loginModel, authService);
-            return SNSLogin(presenter: loginPresenter);
+            return const SNSLogin();
           },
         ),
       ],
@@ -67,52 +69,49 @@ final router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (BuildContext context, GoRouterState state) {
-        return Signup();
+        return SignUpFirstPage();
       },
       routes: [
         GoRoute(
-          path: 'enjoy',
+          path: 'second',
           builder: (BuildContext context, GoRouterState state) {
-            return SignUpEnjoy();
+            return SignUpSecondPage();
           },
         ),
         GoRoute(
-          path: 'cert',
+          path: 'third',
           builder: (BuildContext context, GoRouterState state) {
-            return const SignUpCert();
+            return const SignUpThirdPage();
           },
         ),
         GoRoute(
-          path: 'select',
+          path: 'fourth',
           builder: (BuildContext context, GoRouterState state) {
-            return SignUpSelect();
+            return SignUpFourthPage();
           },
         ),
         GoRoute(
           path: 'finish',
           builder: (BuildContext context, GoRouterState state) {
-            return SignupPageFinish();
+            return SignupFinishPage();
           },
         ),
       ],
     ),
     StatefulShellRoute.indexedStack(
-      builder: (context, state, bottomNavigationShell) =>
-          MainView(navigationShell: bottomNavigationShell),
+      builder: (context, state, bottomNavigationShell) => MainView(navigationShell: bottomNavigationShell),
       branches: [
         StatefulShellBranch(
           //홈 화면
           routes: [
             ShellRoute(
-              builder: (context, state, child) => HomeView(
-                  nestedScrollViewState: homeTabBarScrollState, child: child),
+              builder: (context, state, child) => HomeView(nestedScrollViewState: homeTabBarScrollState, child: child),
               routes: [
                 GoRoute(
                   path: '/home/all',
                   pageBuilder: (context, state) {
                     return CustomTransitionPage(
-                      transitionsBuilder: (context, primaryAnimation,
-                          secondaryAnimation, Widget child) {
+                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
                         return FadeThroughTransition(
                           animation: primaryAnimation,
                           secondaryAnimation: secondaryAnimation,
@@ -121,9 +120,7 @@ final router = GoRouter(
                       },
                       child: ChangeNotifierProvider<HomeAllPresenter>(
                         create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
-                        child: HomeAllView(
-                            scrollController: homeTabBarScrollState
-                                .currentState?.innerController),
+                        child: HomeAllView(scrollController: homeTabBarScrollState.currentState?.innerController),
                       ),
                     );
                   },
@@ -132,8 +129,7 @@ final router = GoRouter(
                   path: '/home/tastingRecord',
                   pageBuilder: (context, state) {
                     return CustomTransitionPage(
-                      transitionsBuilder: (context, primaryAnimation,
-                          secondaryAnimation, Widget child) {
+                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
                         return FadeThroughTransition(
                           animation: primaryAnimation,
                           secondaryAnimation: secondaryAnimation,
@@ -143,8 +139,7 @@ final router = GoRouter(
                       child: ChangeNotifierProvider<HomeTastingRecordPresenter>(
                         create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
                         child: HomeTastingRecordView(
-                          scrollController: homeTabBarScrollState
-                              .currentState?.innerController,
+                          scrollController: homeTabBarScrollState.currentState?.innerController,
                         ),
                       ),
                     );
@@ -154,8 +149,7 @@ final router = GoRouter(
                   path: '/home/post',
                   pageBuilder: (context, state) {
                     return CustomTransitionPage(
-                      transitionsBuilder: (context, primaryAnimation,
-                          secondaryAnimation, Widget child) {
+                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
                         return FadeThroughTransition(
                           animation: primaryAnimation,
                           secondaryAnimation: secondaryAnimation,
@@ -163,14 +157,10 @@ final router = GoRouter(
                         );
                       },
                       child: ChangeNotifierProvider<HomePostPresenter>(
-                        create: (_) => HomePostPresenter(
-                            repository: HomeRepository.instance),
+                        create: (_) => HomePostPresenter(repository: HomeRepository.instance),
                         child: HomePostView(
-                          scrollController: homeTabBarScrollState
-                              .currentState?.innerController,
-                          jumpToTop: () => homeTabBarScrollState
-                              .currentState?.outerController
-                              .jumpTo(0),
+                          scrollController: homeTabBarScrollState.currentState?.innerController,
+                          jumpToTop: () => homeTabBarScrollState.currentState?.outerController.jumpTo(0),
                         ),
                       ),
                     );
@@ -196,48 +186,35 @@ final router = GoRouter(
           //프로필 화면
           routes: [
             GoRoute(
-                path: '/profile',
-                builder: (context, state) => const ProfileScreen()),
+              path: '/profile',
+              builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
+                create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
+                child: ProfileView(),
+              ),
+            ),
           ],
         ),
       ],
     ),
     GoRoute(
       path: '/popular_post',
-      builder: (context, state) =>
-          ChangeNotifierProvider<PopularPostsPresenter>(
-        create: (_) =>
-            PopularPostsPresenter(repository: PopularPostsRepository.instance),
+      builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
+        create: (_) => PopularPostsPresenter(repository: PopularPostsRepository.instance),
         child: const PopularPostsView(),
       ),
     ),
-    GoRoute(
-        path: '/profile_setting', builder: (context, state) => const SettingView()),
+    GoRoute(path: '/profile_setting', builder: (context, state) => const SettingView()),
     GoRoute(
         path: '/profile_edit',
-        builder: (context, state) =>
-            ChangeNotifierProvider<ProfileEditPresenter>(
-                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
-                child: const ProfileEditScreen())),
-    GoRoute(
-        path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
-    GoRoute(
-        path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
+        builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
+            create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const ProfileEditScreen())),
+    GoRoute(path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
+    GoRoute(path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
     GoRoute(
         path: '/profile_block',
-        builder: (context, state) =>
-            ChangeNotifierProvider<ProfileEditPresenter>(
-                create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
-                child: const BlockView())),
-
-    GoRoute(
-        path: '/account_out', builder: (context, state) => const AccountOutView()),
-    GoRoute(
-        path: '/alarm', builder: (context, state) => const AlarmView()),
-
-
-
-
-
+        builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
+            create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const BlockView())),
+    GoRoute(path: '/account_out', builder: (context, state) => const AccountOutView()),
+    GoRoute(path: '/alarm', builder: (context, state) => const AlarmView()),
   ],
 );

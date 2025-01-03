@@ -1,4 +1,6 @@
+import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/di/router.dart';
+import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
@@ -6,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'features/signup/provider/SignUpProvider.dart';
+import 'features/signup/provider/sign_up_presenter.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +27,9 @@ void main() async {
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => SignUpProvider()),
+      ChangeNotifierProvider(create: (context) => TokenRepository.instance),
+      ChangeNotifierProvider(create: (context) => LoginPresenter(tokenRepository: TokenRepository.instance)),
+      ChangeNotifierProvider(create: (context) => SignUpPresenter()),
     ],
     child: const MyApp(),
   ));

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:brew_buds/common/button_factory.dart';
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/data/profile/profile_repository.dart';
+import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
@@ -56,10 +56,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
 // 프로필 닉네임  가져오기
   Future<void> getProfile() async {
-    Profile profile = await _repository.fetchProfile();
+    // Profile profile = await _repository.fetchProfile();
 
     setState(() {
-      _nickNameTextController.text = profile.nickname;
+      // _nickNameTextController.text = profile.nickname;
 
     });
   }
