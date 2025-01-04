@@ -1,10 +1,10 @@
-import 'package:brew_buds/common/button_factory.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/profile/presenter/edit_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../../model/recommended_user.dart';
 import '../../model/user.dart';
 

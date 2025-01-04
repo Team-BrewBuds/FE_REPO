@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
@@ -20,7 +20,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
-import '../../common/text_styles.dart';
+import '../../common/styles/text_styles.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});

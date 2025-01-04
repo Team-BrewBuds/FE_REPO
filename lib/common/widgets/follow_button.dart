@@ -1,5 +1,5 @@
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:flutter/material.dart';
 
 class FollowButton extends StatelessWidget {
