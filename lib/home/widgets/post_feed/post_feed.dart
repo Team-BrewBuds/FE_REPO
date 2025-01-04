@@ -1,6 +1,6 @@
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_button_factory.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/factory/text_button_factory.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/home/widgets/feed_widget.dart';
 import 'package:flutter/material.dart';
 

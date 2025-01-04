@@ -1,4 +1,4 @@
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
