@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'color_styles.dart';
+
 final class TextStyles {
   TextStyles._();
 
@@ -82,6 +84,7 @@ final class TextStyles {
     fontSize: 13,
     height: 16.9 / 13,
     letterSpacing: -0.02,
+    color: ColorStyles.gray50
   );
 
   //Caption
