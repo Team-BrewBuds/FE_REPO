@@ -63,7 +63,7 @@ class _CoffeeNoteBottomSheetState extends State<CoffeeNoteBottomSheet> {
                   if (index == 0) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => WriteCoffeeFreeNote()), // Page1으로 이동
+                      MaterialPageRoute(builder: (context) => const WriteCoffeeFreeNote()),
                     );
                   } else {
 

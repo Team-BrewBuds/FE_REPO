@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 final class ButtonFactory {
   ButtonFactory._();
 
-  static Widget buildOvalButton({required Function() onTapped, required String text, required OvalButtonStyle style}) {
+  static Widget buildOvalButton(
+      {required Function() onTapped,
+      required String text,
+      required OvalButtonStyle style}) {
     return InkWell(
       onTap: onTapped,
       child: Container(
@@ -26,7 +29,10 @@ final class ButtonFactory {
     );
   }
 
-  static Widget buildRoundedButton({required Function() onTapped, required String text, required RoundedButtonStyle style}) {
+  static Widget buildRoundedButton(
+      {required Function() onTapped,
+      required String text,
+      required RoundedButtonStyle style}) {
     return InkWell(
       onTap: onTapped,
       child: Container(
@@ -47,8 +53,6 @@ final class ButtonFactory {
       ),
     );
   }
-
-
 }
 
 class OvalButtonStyle {
@@ -79,7 +83,10 @@ class OvalButtonStyle {
         size: size,
       );
 
-  factory OvalButtonStyle.line({required Color color, required Color textColor, required OvalButtonSize size}) =>
+  factory OvalButtonStyle.line(
+          {required Color color,
+          required Color textColor,
+          required OvalButtonSize size}) =>
       OvalButtonStyle(
         backgroundColor: Colors.transparent,
         borderColor: color,
@@ -88,7 +95,8 @@ class OvalButtonStyle {
         size: size,
       );
 
-  factory OvalButtonStyle.disabled({required OvalButtonSize size}) => OvalButtonStyle(
+  factory OvalButtonStyle.disabled({required OvalButtonSize size}) =>
+      OvalButtonStyle(
         backgroundColor: ColorStyles.gray50,
         borderColor: Colors.transparent,
         borderWidth: 0,
@@ -140,6 +148,7 @@ class RoundedButtonStyle {
     required this.borderColor,
     required this.textColor,
     required this.size,
+
   });
 
   factory RoundedButtonStyle.fill({
@@ -147,6 +156,7 @@ class RoundedButtonStyle {
     Color textColor = ColorStyles.white,
     required RoundedButtonSize size,
   }) =>
+
       RoundedButtonStyle(
         backgroundColor: color,
         borderWidth: 0,
@@ -168,7 +178,8 @@ class RoundedButtonStyle {
         size: size,
       );
 
-  factory RoundedButtonStyle.disabled({required RoundedButtonSize size}) => RoundedButtonStyle(
+  factory RoundedButtonStyle.disabled({required RoundedButtonSize size, required BorderRadius radius}) =>
+      RoundedButtonStyle(
         backgroundColor: ColorStyles.gray30,
         borderWidth: 0,
         borderColor: Colors.transparent,
@@ -193,8 +204,8 @@ class RoundedButtonSize {
   static RoundedButtonSize xSmall = const RoundedButtonSize._(width: 84);
 
   static RoundedButtonSize xxSmall = const RoundedButtonSize._(width: 58);
+
+  static RoundedButtonSize bW288H48 = const RoundedButtonSize._(width: 288);
 }
 
-class NextButtonStyle{
-
-}
+class NextButtonStyle {}

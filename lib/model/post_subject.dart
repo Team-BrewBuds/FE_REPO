@@ -11,12 +11,13 @@ enum PostSubject {
   beans,
   @JsonValue('정보')
   information,
+  @JsonValue('장비')
+  gear,
   @JsonValue('질문')
   question,
   @JsonValue('고민')
-  worry,
-  @JsonValue('장비')
-  gear;
+  worry;
+
 
   @override
   String toString() => switch (this) {

@@ -1,3 +1,5 @@
+import 'package:brew_buds/coffeeNote/coffee_note_presenter.dart';
+import 'package:brew_buds/coffeeNote/pages/write_coffee_free_note.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
@@ -30,6 +32,7 @@ void main() async {
       ChangeNotifierProvider(create: (context) => TokenRepository.instance),
       ChangeNotifierProvider(create: (context) => LoginPresenter(tokenRepository: TokenRepository.instance)),
       ChangeNotifierProvider(create: (context) => SignUpPresenter()),
+      ChangeNotifierProvider(create: (context) => CoffeeNotePresenter(), child: WriteCoffeeFreeNote(),)
     ],
     child: const MyApp(),
   ));
