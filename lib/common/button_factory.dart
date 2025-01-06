@@ -206,6 +206,8 @@ class RoundedButtonSize {
   static RoundedButtonSize xxSmall = const RoundedButtonSize._(width: 58);
 
   static RoundedButtonSize bW288H48 = const RoundedButtonSize._(width: 288);
+
+  static RoundedButtonSize bW129H47 = const RoundedButtonSize._(width: 100.5);
 }
 
 class NextButtonStyle {}
