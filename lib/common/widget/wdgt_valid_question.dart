@@ -45,7 +45,7 @@ class _WdgtValidQuestionState extends State<WdgtValidQuestion> {
               textAlign: TextAlign.center,
             ),
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 15),
+              padding: EdgeInsets.symmetric(vertical:15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[

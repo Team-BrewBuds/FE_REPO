@@ -21,23 +21,26 @@ class WriteCoffeeFreeNote extends StatefulWidget {
 }
 
 class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
-  late CustomTagController customTagController;
-  CoffeeNotePresenter presenter = CoffeeNotePresenter();
-
+  CustomTagController customTagController = CustomTagController();
+  late CoffeeNotePresenter presenter;
   TextEditingController textController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    presenter = CoffeeNotePresenter();
     customTagController = CustomTagController();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    presenter.dispose();
+    super.dispose();
     customTagController.dispose();
-  }
+    textController.dispose();
 
+
+  }
 
   Future<bool> _onWillPop() async {
     bool? shouldPop = await showDialog(
@@ -50,173 +53,185 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       },
     );
     return shouldPop ?? false;
-
-    return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => _onWillPop(),
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text('글쓰기', style: TextStyles.title02SemiBold),
-            actions: [
-              TextButton(
-                onPressed: () {},
-                child: Container(
-                  width: 55,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: ColorStyles.gray20,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '등록',
-                      style: TextStyle(color: ColorStyles.gray40),
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
+    return ChangeNotifierProvider(
+      create: (context) => CoffeeNotePresenter(),
+      child: WillPopScope(
+        onWillPop: () => _onWillPop(),
+        child: Scaffold(
+          appBar: _buildAppBar(),
           body: Consumer<CoffeeNotePresenter>(
-            builder: (BuildContext context, CoffeeNotePresenter presenter,
-                Widget? child) {
+            builder: (BuildContext context, presenter, Widget? child) {
               return Container(
-                  //
-                  color: Colors.white,
-                  child: Column(
-                    children: [
-                      const Divider(
-                        thickness: 1.0,
-                        color: ColorStyles.gray20,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: InkWell(
-                          onTap: () {
-                            showModalBottomSheet(
-                                backgroundColor: Colors.white,
-                                context: context,
-                                isScrollControlled: true,
-                                builder: (context) => WdgtBottomSheet(
-                                      title: '게시물 주제',
-                                      presenter: presenter,
-                                    ));
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                presenter.title,
-                                style: TextStyles.labelMediumMedium,
-                              ),
-                              SvgPicture.asset(
-                                "assets/icons/down.svg",
-                                color: ColorStyles.black,
-                                width: 24.0,
-                                height: 24.0,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Divider(
-                        thickness: 1.0,
-                        color: ColorStyles.gray20,
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: TextFormField(
-                          controller: presenter.titleController,
-                          cursorColor: ColorStyles.black,
-                          decoration: InputDecoration(
-                            hintText: '제목을 입력하세요.',
-                            hintStyle: TextStyles.title02SemiBold
-                                .copyWith(color: ColorStyles.gray50),
-                            enabledBorder: const UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: ColorStyles.gray20)),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: ColorStyles.gray20), // 포커스 상태 밑줄 색상
-                            ),
-                          ),
-                        ),
-                      ),
-                      // 내용 입력 필드를 Expanded로 감싸서 최대 공간 차지하도록 함
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          child: TextFormField(
-                            controller: presenter.customTagController,
-                            cursorColor: ColorStyles.black,
-                            decoration: InputDecoration(
-                              hintText: '내용을 입력하세요.',
-                              hintStyle: TextStyles.bodyRegular
-                                  .copyWith(color: ColorStyles.gray50),
-                              enabledBorder: const UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: ColorStyles.gray20)),
-                              focusedBorder: const UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: ColorStyles.gray20), // 포커스 상태 밑줄 색상
-                              ),
-                            ),
-                            maxLines: null,
-                            expands: true,
-                          ),
-                        ),
-                      ),
-
-                      Padding(
-                        padding: EdgeInsets.only(
-                            bottom: 46, top: 24, left: 16, right: 16),
-                        child: Row(
-                          children: [
-                            IconButtonFactory.buildVerticalButtonWithIconWidget(
-                                iconWidget: SvgPicture.asset(
-                                  'assets/icons/album.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                text: '사진',
-                                onTapped: () {},
-                                textStyle: TextStyles.captionSmallMedium),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            IconButtonFactory.buildVerticalButtonWithIconWidget(
-                                iconWidget: SvgPicture.asset(
-                                  'assets/icons/coffee.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                text: '기록',
-                                onTapped: () {},
-                                textStyle: TextStyles.captionSmallMedium),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            IconButtonFactory.buildVerticalButtonWithIconWidget(
-                                iconWidget: SvgPicture.asset(
-                                  'assets/icons/tag.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                text: '태그',
-                                onTapped: () {},
-                                textStyle: TextStyles.captionSmallMedium),
-                          ],
-                        ),
-                      )
-                    ],
-                  ));
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    const Divider(thickness: 1.0, color: ColorStyles.gray20),
+                    _buildSubjectSelection(presenter),
+                    const Divider(thickness: 1.0, color: ColorStyles.gray20),
+                    _buildTitleInput(presenter),
+                    _buildContentInput(presenter),
+                    _buildBottomButtons(presenter),
+                  ],
+                ),
+              );
             },
-          )),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 앱바 위젯
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: Text('글쓰기', style: TextStyles.title02SemiBold),
+      actions: [
+        TextButton(
+          onPressed: () {},
+          child: Container(
+            width: 55,
+            height: 32,
+            decoration: BoxDecoration(
+              color: ColorStyles.gray20,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Text(
+                '등록',
+                style: TextStyle(color: ColorStyles.gray40),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 주제 선택을 위한 BottomSheet 호출
+  Widget _buildSubjectSelection(CoffeeNotePresenter presenter) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: InkWell(
+        onTap: () {
+          showModalBottomSheet(
+            backgroundColor: Colors.white,
+            context: context,
+            isScrollControlled: true,
+            builder: (context) => WdgtBottomSheet(
+              title: '게시물 주제',
+              presenter: presenter,
+            ),
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              presenter.title,
+              style: TextStyles.labelMediumMedium,
+            ),
+            SvgPicture.asset(
+              "assets/icons/down.svg",
+              color: ColorStyles.black,
+              width: 24.0,
+              height: 24.0,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // 제목 입력 필드
+  Widget _buildTitleInput(CoffeeNotePresenter presenter) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: TextFormField(
+        controller: presenter.titleController,
+        cursorColor: ColorStyles.black,
+        decoration: InputDecoration(
+          hintText: '제목을 입력하세요.',
+          hintStyle: TextStyles.title02SemiBold.copyWith(color: ColorStyles.gray50),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray20),
+          ),
+          focusedBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray20),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 내용 입력 필드
+  Widget _buildContentInput(CoffeeNotePresenter presenter) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: TextFormField(
+          controller: presenter.customTagController,
+          cursorColor: ColorStyles.black,
+          decoration: InputDecoration(
+            hintText: '내용을 입력하세요.',
+            hintStyle: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: ColorStyles.gray20),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: ColorStyles.gray20),
+            ),
+          ),
+          maxLines: null,
+          expands: true,
+        ),
+      ),
+    );
+  }
+
+  // 하단 버튼들
+  Widget _buildBottomButtons(CoffeeNotePresenter presenter) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 46, top: 24, left: 16, right: 16),
+      child: Row(
+        children: [
+          IconButtonFactory.buildVerticalButtonWithIconWidget(
+            iconWidget: SvgPicture.asset(
+              'assets/icons/album.svg',
+              width: 20,
+              height: 20,
+            ),
+            text: '사진',
+            onTapped: () => presenter.pickImage(),
+            textStyle: TextStyles.captionSmallMedium,
+          ),
+          const SizedBox(width: 10),
+          IconButtonFactory.buildVerticalButtonWithIconWidget(
+            iconWidget: SvgPicture.asset(
+              'assets/icons/coffee.svg',
+              width: 20,
+              height: 20,
+            ),
+            text: '기록',
+            onTapped: () {},
+            textStyle: TextStyles.captionSmallMedium,
+          ),
+          const SizedBox(width: 10),
+          IconButtonFactory.buildVerticalButtonWithIconWidget(
+            iconWidget: SvgPicture.asset(
+              'assets/icons/tag.svg',
+              width: 20,
+              height: 20,
+            ),
+            text: '태그',
+            onTapped: () {},
+            textStyle: TextStyles.captionSmallMedium,
+          ),
+        ],
+      ),
     );
   }
 }
