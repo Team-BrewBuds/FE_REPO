@@ -63,7 +63,6 @@ class _PostDetailViewState extends State<PostDetailView> {
       titleSpacing: 0,
       title: Container(
         padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
-        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -89,6 +88,14 @@ class _PostDetailViewState extends State<PostDetailView> {
               ),
             ),
           ],
+        ),
+      ),
+      bottom: PreferredSize(
+        preferredSize: const Size(double.infinity, 1),
+        child: Container(
+          width: double.infinity,
+          height: 1,
+          color: ColorStyles.gray20,
         ),
       ),
     );

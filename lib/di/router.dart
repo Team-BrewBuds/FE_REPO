@@ -2,6 +2,8 @@ import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
+import 'package:brew_buds/detail/post_detail_view.dart';
+import 'package:brew_buds/detail/tasted_record_detail_view.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/login/views/login_page_sns.dart';
 import 'package:brew_buds/features/signup/views/signup_third_page.dart';
@@ -216,5 +218,7 @@ final router = GoRouter(
             create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const BlockView())),
     GoRoute(path: '/account_out', builder: (context, state) => const AccountOutView()),
     GoRoute(path: '/alarm', builder: (context, state) => const AlarmView()),
+    GoRoute(path: '/post_detail', builder: (context, state) => PostDetailView()),
+    GoRoute(path: '/tasted_record_detail', builder: (context, state) => TastedRecordDetailView()),
   ],
 );
