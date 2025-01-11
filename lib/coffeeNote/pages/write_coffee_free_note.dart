@@ -10,6 +10,7 @@ import '../../common/button_factory.dart';
 import '../../common/color_styles.dart';
 import '../../common/icon_button_factory.dart';
 import '../../common/text_styles.dart';
+import '../../common/widget/wdgt_datePicker.dart';
 import '../../common/widget/wdgt_valid_question.dart';
 import '../widget/wdgt_bottom_sheet.dart';
 
@@ -24,12 +25,14 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
   CustomTagController customTagController = CustomTagController();
   late CoffeeNotePresenter presenter;
   TextEditingController textController = TextEditingController();
+  bool btnActive = false;
 
   @override
   void initState() {
     super.initState();
     presenter = CoffeeNotePresenter();
     customTagController = CustomTagController();
+
   }
 
   @override
@@ -38,8 +41,6 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
     super.dispose();
     customTagController.dispose();
     textController.dispose();
-
-
   }
 
   Future<bool> _onWillPop() async {
@@ -90,26 +91,41 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
     return AppBar(
       title: Text('글쓰기', style: TextStyles.title02SemiBold),
       actions: [
-        TextButton(
-          onPressed: () {},
-          child: Container(
-            width: 55,
-            height: 32,
-            decoration: BoxDecoration(
-              color: ColorStyles.gray20,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                '등록',
-                style: TextStyle(color: ColorStyles.gray40),
+        Consumer<CoffeeNotePresenter>(
+          builder: (context, presenter, child) {
+            final isEnabled = presenter.isRegisterButtonEnabled();
+
+            return TextButton(
+              onPressed: isEnabled ? () {
+
+              } : null,
+              child: Container(
+                width: 55,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: isEnabled
+                      ? ColorStyles.red // 활성화 상태
+                      : ColorStyles.gray20, // 비활성화 상태
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    '등록',
+                    style: TextStyle(
+                      color: isEnabled
+                          ? ColorStyles.white // 활성화 상태 텍스트 색상
+                          : ColorStyles.gray40, // 비활성화 상태 텍스트 색상
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
   }
+
 
   // 주제 선택을 위한 BottomSheet 호출
   Widget _buildSubjectSelection(CoffeeNotePresenter presenter) {
@@ -153,9 +169,14 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       child: TextFormField(
         controller: presenter.titleController,
         cursorColor: ColorStyles.black,
+        validator: (value) {
+          return presenter
+              .validateMultiLineText(value!); // Apply the multi-line validation
+        },
         decoration: InputDecoration(
           hintText: '제목을 입력하세요.',
-          hintStyle: TextStyles.title02SemiBold.copyWith(color: ColorStyles.gray50),
+          hintStyle:
+              TextStyles.title02SemiBold.copyWith(color: ColorStyles.gray50),
           enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: ColorStyles.gray20),
           ),
@@ -177,7 +198,8 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
           cursorColor: ColorStyles.black,
           decoration: InputDecoration(
             hintText: '내용을 입력하세요.',
-            hintStyle: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
+            hintStyle:
+                TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
             enabledBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: ColorStyles.gray20),
             ),
