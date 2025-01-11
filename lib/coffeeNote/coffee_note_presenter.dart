@@ -6,15 +6,15 @@ import 'package:image_picker/image_picker.dart';
 
 final class CoffeeNotePresenter extends ChangeNotifier {
   TextEditingController titleController = TextEditingController();
-  TextEditingController contentController = TextEditingController();
   late CustomTagController customTagController = CustomTagController();
 
   String _title = '게시글 주제를 선택해주세요';
+
   String get title => _title;
 
   List<String> _tag = [];
-  List<String> get tag => _tag;
 
+  List<String> get tag => _tag;
 
   // 제목 설정
   void setTitle(String title) {
@@ -22,10 +22,31 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
+  // 등록 버튼 활성화 여부 체크
+  bool isRegisterButtonEnabled() {
+    return titleController.text.isNotEmpty &&
+        customTagController.text.isNotEmpty &&
+        _title.isNotEmpty;
+    notifyListeners();
+  }
 
   List<String> extractTags(String text) {
     final RegExp regex = RegExp(r'#\w+');
     return regex.allMatches(text).map((match) => match.group(0)!).toList();
+  }
+
+  String? validateMultiLineText(String value) {
+    // Use RegExp to check for line breaks (\n or \r\n)
+    RegExp regExp = RegExp(r'[\r\n]+');
+
+    // Check if the value contains at least 2 lines
+    List<String> lines = value.split(regExp);
+
+    if (lines.length >= 2) {
+      return null; // Validation passed (contains 2 or more lines)
+    } else {
+      return '텍스트는 최소 2줄 이상이어야 합니다'; // Return error message if not
+    }
   }
 
   File? _image; // 선택된 이미지를 저장할 변수
@@ -35,7 +56,8 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     final ImagePicker picker = ImagePicker();
 
     // 갤러리에서 이미지 선택
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -44,12 +66,10 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     }
   }
 
-
   @override
   void dispose() {
     // 리소스 해제
     titleController.dispose();
-    contentController.dispose();
     customTagController.dispose();
     super.dispose();
   }
