@@ -1,4 +1,4 @@
-import 'package:brew_buds/coffeeNote/coffee_note_presenter.dart';
+import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/controller/custom_controller.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:flutter/material.dart';

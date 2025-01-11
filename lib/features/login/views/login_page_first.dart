@@ -3,7 +3,7 @@ import 'package:brew_buds/features/signup/models/signup_lists.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:velocity_x/velocity_x.dart';
+
 
 class LoginPageFirst extends StatefulWidget {
   const LoginPageFirst({super.key});
@@ -91,7 +91,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: '로그인/회원가입'.text.size(16).make(),
+                child: Text('로그인/회원가입',style: TextStyle(fontSize: 16),)
               ),
             ),
             TextButton(

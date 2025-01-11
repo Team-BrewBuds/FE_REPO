@@ -33,7 +33,7 @@ dependencies:
   debounce_throttle: ^2.0.0
   modal_bottom_sheet: ^3.0.0
   sliver_tools: ^0.2.12
-  velocity_x: ^4.2.1
+#  velocity_x: ^4.2.0
   get: ^4.6.6
   flutter_native_splash:
   syncfusion_flutter_sliders: 25.2.4

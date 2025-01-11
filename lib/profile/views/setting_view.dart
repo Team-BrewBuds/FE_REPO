@@ -1,16 +1,8 @@
-import 'dart:convert';
-import 'dart:developer';
 
 import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/data/signup/auth_service.dart';
-import 'package:brew_buds/features/login/views/login_page_first.dart';
-import 'package:brew_buds/features/login/views/login_page_sns.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:velocity_x/velocity_x.dart';
-
-import '../../features/login/presenter/login_presenter.dart';
 
 class SettingView extends StatefulWidget {
   const SettingView({super.key});
@@ -38,7 +30,7 @@ class _SettingViewState extends State<SettingView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: '설정'.text.make(),
+        title: Text('설정')
       ),
       body: Stack(
         children: [
