@@ -1,4 +1,4 @@
-import 'package:brew_buds/coffeeNote/coffee_note_presenter.dart';
+import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/pages/write_coffee_free_note.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/di/router.dart';

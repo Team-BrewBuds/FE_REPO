@@ -8,6 +8,12 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   TextEditingController titleController = TextEditingController();
   late CustomTagController customTagController = CustomTagController();
 
+
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
+
+  
   String _title = '게시글 주제를 선택해주세요';
 
   String get title => _title;
@@ -75,4 +81,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   }
 
   void setState(Null Function() param0) {}
+
+  void init() {}
 }
