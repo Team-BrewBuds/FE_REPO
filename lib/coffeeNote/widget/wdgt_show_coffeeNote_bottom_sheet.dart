@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../common/button_factory.dart';
 import '../../common/color_styles.dart';
 import '../../common/text_styles.dart';
-import '../pages/tasing_record_first_step_page.dart';
+import '../pages/tasting_record_first_step_page.dart';
 import '../pages/write_coffee_free_note.dart';
 
 class CoffeeNoteBottomSheet extends StatefulWidget {
