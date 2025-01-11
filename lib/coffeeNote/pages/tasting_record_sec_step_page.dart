@@ -26,7 +26,7 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
 
   @override
   // TODO: implement currentPageIndex
-  int get currentPageIndex => throw 1;
+  int get currentPageIndex =>  1;
 
   @override
   // TODO: implement isSatisfyRequirements
@@ -34,7 +34,7 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
 
   @override
   // TODO: implement isSkippablePage
-  bool get isSkippablePage => throw false;
+  bool get isSkippablePage =>  false;
 
   @override
   // TODO: implement onNext
