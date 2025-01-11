@@ -1,33 +1,33 @@
-import 'package:brew_buds/coffeeNote/pages/tasting_record_third_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:flutter/material.dart';
 
 import 'core/tasing_record_mixin.dart';
 
-class TastingRecordSecStepPage extends StatefulWidget {
-  const TastingRecordSecStepPage({super.key});
+class TastingRecordThirdStepPage extends StatefulWidget {
+  const TastingRecordThirdStepPage({super.key});
 
   @override
-  State<TastingRecordSecStepPage> createState() => _TastingRecordSecStepPageState();
+  State<TastingRecordThirdStepPage> createState() => _TastingRecordThirdStepPageState();
 }
 
-class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> with TasingRecordMixin<TastingRecordSecStepPage>{
+class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage> with TasingRecordMixin<TastingRecordThirdStepPage>{
 
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
     // TODO: implement buildBody
     return SingleChildScrollView(
       child: Form(
-        key: _formKey,
-        child:  Container()
+          key: _formKey,
+          child:  Container()
       ),
     );
   }
 
   @override
   // TODO: implement currentPageIndex
-  int get currentPageIndex =>  1;
+  int get currentPageIndex => 2;
 
   @override
   // TODO: implement isSatisfyRequirements
@@ -35,14 +35,11 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
 
   @override
   // TODO: implement isSkippablePage
-  bool get isSkippablePage =>  false;
+  bool get isSkippablePage => false;
 
   @override
   // TODO: implement onNext
-  void Function() get onNext => (){
-    print('next');
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> TastingRecordThirdStepPage()));
-  };
+  void Function() get onNext => (){};
 
   @override
   // TODO: implement onSkip
