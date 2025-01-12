@@ -30,7 +30,8 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
 
   @override
   bool get isSatisfyRequirements =>
-      (_formKey.currentState?.validate() ?? false) && context.read<SignUpPresenter>().currentGender != null;
+      (_formKey.currentState?.validate() ?? false)
+          && context.read<SignUpPresenter>().currentGender != null;
 
   @override
   bool get isSkippablePage => false;

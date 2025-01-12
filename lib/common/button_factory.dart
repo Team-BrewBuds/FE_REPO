@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/color_styles.dart';
 import 'package:brew_buds/common/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 final class ButtonFactory {
   ButtonFactory._();
@@ -49,6 +50,44 @@ final class ButtonFactory {
           text,
           style: TextStyles.labelMediumMedium.copyWith(color: style.textColor),
           textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  static Widget buildButton(
+      {required Function() onTapped,
+        required String text,
+        required String ? iconPath,
+        required RoundedButtonStyle style}) {
+    return InkWell(
+      onTap: onTapped,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        decoration: BoxDecoration(
+            color: style.backgroundColor,
+            borderRadius: BorderRadius.circular(0),
+            border: Border.all(
+              color: style.borderColor,
+              width: style.borderWidth,
+            )),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SvgPicture.asset(
+              iconPath!,
+              fit: BoxFit.scaleDown,
+              height: 28,
+              width: 28,
+              color: ColorStyles.gray50,
+            ),
+            Text(
+              text,
+              style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+              textAlign: TextAlign.center,
+            ),
+
+          ]
         ),
       ),
     );
@@ -148,7 +187,6 @@ class RoundedButtonStyle {
     required this.borderColor,
     required this.textColor,
     required this.size,
-
   });
 
   factory RoundedButtonStyle.fill({
@@ -156,7 +194,6 @@ class RoundedButtonStyle {
     Color textColor = ColorStyles.white,
     required RoundedButtonSize size,
   }) =>
-
       RoundedButtonStyle(
         backgroundColor: color,
         borderWidth: 0,
@@ -178,7 +215,8 @@ class RoundedButtonStyle {
         size: size,
       );
 
-  factory RoundedButtonStyle.disabled({required RoundedButtonSize size, required BorderRadius radius}) =>
+  factory RoundedButtonStyle.disabled(
+          {required RoundedButtonSize size, required BorderRadius radius}) =>
       RoundedButtonStyle(
         backgroundColor: ColorStyles.gray30,
         borderWidth: 0,
