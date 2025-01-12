@@ -10,6 +10,7 @@ import '../../common/color_styles.dart';
 import '../../common/text_styles.dart';
 import '../../features/signup/models/gender.dart';
 import '../../features/signup/provider/sign_up_presenter.dart';
+import '../widget/wdgt_select_list.dart';
 import 'core/tasing_record_mixin.dart';
 
 class TasingRecordFirstStepPage extends StatefulWidget {
@@ -35,73 +36,107 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage> w
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 원두 정보를 알려주세요.
-                Row(children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                   Text('원두 정보를 알려주세요', style: TextStyles.title04SemiBold),
+                  Container(
+                    color: Colors.black,
+                    width: 80,
+                    height: 80,
+                  )
                 ],),
 
               //원두 유형 버튼
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('원두 유형', style: TextStyles.title01SemiBold),
-                  SizedBox(height: 8,),
-                  Row(children: [
-                    ButtonFactory.buildRoundedButton(onTapped: () =>
-                    {
-                      Navigator.of(context).pop(false) // 취소
-                    },
-                        text: '싱글오리진',
-                        style: RoundedButtonStyle.line(
-                          size: RoundedButtonSize.medium,
-                          color: ColorStyles.gray50,
-                          textColor: ColorStyles.black,
-                        )),
+              Row(children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('원두 유형', style: TextStyles.title01SemiBold),
+                    SizedBox(height: 8,),
+                    Row(children: [
+                      ButtonFactory.buildRoundedButton(onTapped: () =>
+                      {
+                      },
+                          text: '싱글오리진',
+                          style: RoundedButtonStyle.line(
+                            size: RoundedButtonSize.medium,
+                            color: ColorStyles.gray50,
+                            textColor: ColorStyles.black,
+                          )),
 
-                    SizedBox(width: 8,),
-                    ButtonFactory.buildRoundedButton(onTapped: () =>
-                    {
-                      Navigator.of(context).pop(false) // 취소
-                    },
-                        text: '블렌드',
-                        style: RoundedButtonStyle.line(
-                          size: RoundedButtonSize.medium,
-                          color: ColorStyles.gray50,
-                          textColor: ColorStyles.black,
-                        )),
-                  ],),
-                  SizedBox(height:4 ,),
-                  Row(
-                    children: [
-                      SvgPicture.asset(
-                        'assets/icons/uncheck.svg',
-                        fit: BoxFit.scaleDown,
-                        height: 28,
-                        width: 28,
-                      ),
+                      SizedBox(width: 8,),
+                      ButtonFactory.buildRoundedButton(onTapped: () =>
+                      {
+                      },
+                          text: '블렌드',
+                          style: RoundedButtonStyle.line(
+                            size: RoundedButtonSize.medium,
+                            color: ColorStyles.gray50,
+                            textColor: ColorStyles.black,
+                          )),
+                    ],),
+                    SizedBox(height:4 ,),
+                    Row(
+                      children: [
+                        SvgPicture.asset(
+                          'assets/icons/uncheck.svg',
+                          fit: BoxFit.scaleDown,
+                          height: 28,
+                          width: 28,
+                        ),
 
-                      Text('다카페인', style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),)
-                    ],
-                  )
+                        Text('다카페인', style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),)
+                      ],
+                    )
 
-                ]
+                  ]
                   ,
-              ),
+                ),
+              ],),
+              SizedBox(height: 20,),
 
               //원두 유형 text 입력
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('원두 이름', style: TextStyles.title01SemiBold),
-                  TextFormField()
+                  SizedBox(height: 10,),
+                  ButtonFactory.buildButton(
+                      onTapped: () =>
+                  {
+                  },
+                      style: RoundedButtonStyle.line(
+                        size: RoundedButtonSize.medium,
+                        color: ColorStyles.gray50,
+                        textColor: ColorStyles.black,
+                      ), text: '원두 이름을 검색해보세요.', iconPath: 'assets/icons/search.svg'
+                  ),
                 ],
               ),
+              SizedBox(height: 20,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('원두 생산 국가', style: TextStyles.title01SemiBold),
-                  TextFormField()
+                  SizedBox(height: 10,),
+                  ButtonFactory.buildButton(
+                      onTapped: () =>
+                      {
+                      },
+                      style: RoundedButtonStyle.line(
+                        size: RoundedButtonSize.medium,
+                        color: ColorStyles.gray50,
+                        textColor: ColorStyles.black,
+                      ), text: '생산 국가를 검색해보세요.', iconPath: 'assets/icons/search.svg'
+                  ),
                 ],
-              )
+              ),
+              SizedBox(height: 20,),
+              WdgtSelectList()
+
+
 
 
 
@@ -132,9 +167,5 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage> w
     print('next');
     Navigator.push(context, MaterialPageRoute(builder: (context)=> TastingRecordSecStepPage()));
   };
-
-  @override
-  // TODO: implement onSkip
-  void Function() get onSkip => (){};
 
 }

@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import '../../provider/coffee_note_presenter.dart';
 
 mixin TasingRecordMixin <T extends StatefulWidget> on State<T> {
-  void Function() get onSkip;
 
   void Function() get onNext;
 

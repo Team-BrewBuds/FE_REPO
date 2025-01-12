@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:brew_buds/coffeeNote/controller/custom_controller.dart';
+import 'package:brew_buds/coffeeNote/model/beanInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
 final class CoffeeNotePresenter extends ChangeNotifier {
   TextEditingController titleController = TextEditingController();
   late CustomTagController customTagController = CustomTagController();
+
+  List<ExtractionType> get extractionInfo => ExtractionType.values;
 
 
   bool _isLoading = false;
@@ -21,6 +24,30 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   List<String> _tag = [];
 
   List<String> get tag => _tag;
+
+
+  // bean
+  // late String beanType;
+  // late bool isDecaf = false;
+  // late String name;
+  // late String originCountry;
+  // late String extraction;
+  // late int roastPoing;
+  // late String process;
+  // late String region;
+
+  List<String> recordTitle = [
+    '원두 추출방식 (선택)',
+    '원두 로스팅 포인트 (선택)',
+    '원두 가공방식 (선택)',
+    '원두 생산 지역 (선택)',
+    '음료 유형 (선택)',
+    '로스터리 (선택)',
+    '원두 품종 (선택)'
+  ];
+
+
+
 
   // 제목 설정
   void setTitle(String title) {
