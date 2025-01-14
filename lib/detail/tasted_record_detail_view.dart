@@ -25,9 +25,7 @@ class TastedRecordDetailView extends StatefulWidget {
 }
 
 class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
-  final GlobalKey _topKey = GlobalKey();
   final GlobalKey _commentsListKey = GlobalKey();
-  final StreamController<double> _keyboardHeightStreamController = StreamController();
   late final TextEditingController _textEditingController;
   late final ScrollController _scrollController;
   int currentIndex = 0;
