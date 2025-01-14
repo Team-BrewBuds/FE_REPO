@@ -19,3 +19,27 @@ enum ExtractionType {
     ExtractionType.coldBrew => '콜드브루',
   };
 }
+
+
+enum ProcessType {
+  Natural,
+  Washed,
+  PulpedNatural,
+  Honey,
+  AnaerobicFermentation,
+  etc ; // 직접입력
+
+
+  @override
+  String toString() => switch (this) {
+    ProcessType.Natural => '내추럴',
+    ProcessType.Washed => '위시드',
+    ProcessType.PulpedNatural => '펄프드 내추럴',
+    ProcessType.Honey => '허니',
+    ProcessType.AnaerobicFermentation => '무산소 발표',
+    ProcessType.etc => '직접입력',
+
+  };
+
+
+}

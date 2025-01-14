@@ -16,6 +16,10 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  bool _click = false;
+
+  bool get click => _click;
+
   
   String _title = '게시글 주제를 선택해주세요';
 
@@ -24,17 +28,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   List<String> _tag = [];
 
   List<String> get tag => _tag;
-
-
-  // bean
-  // late String beanType;
-  // late bool isDecaf = false;
-  // late String name;
-  // late String originCountry;
-  // late String extraction;
-  // late int roastPoing;
-  // late String process;
-  // late String region;
 
   List<String> recordTitle = [
     '원두 추출방식 (선택)',
@@ -80,6 +73,12 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     } else {
       return '텍스트는 최소 2줄 이상이어야 합니다'; // Return error message if not
     }
+  }
+
+  onClick(){
+    _click =! _click;
+
+    notifyListeners();
   }
 
   File? _image; // 선택된 이미지를 저장할 변수
