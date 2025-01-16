@@ -13,20 +13,15 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
 
   bool _isLoading = false;
-
   bool get isLoading => _isLoading;
 
   bool _click = false;
-
   bool get click => _click;
-
   
   String _title = '게시글 주제를 선택해주세요';
-
   String get title => _title;
 
   List<String> _tag = [];
-
   List<String> get tag => _tag;
 
   List<String> recordTitle = [
@@ -48,12 +43,15 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
+
+
   // 등록 버튼 활성화 여부 체크
   bool isRegisterButtonEnabled() {
+    notifyListeners();
     return titleController.text.isNotEmpty &&
         customTagController.text.isNotEmpty &&
         _title.isNotEmpty;
-    notifyListeners();
+
   }
 
   List<String> extractTags(String text) {

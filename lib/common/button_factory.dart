@@ -58,7 +58,7 @@ final class ButtonFactory {
   static Widget buildButton(
       {required Function() onTapped,
         required String text,
-        required String ? iconPath,
+         String ? iconPath,
         required RoundedButtonStyle style}) {
     return InkWell(
       onTap: onTapped,
@@ -74,8 +74,9 @@ final class ButtonFactory {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            if(iconPath != null)
             SvgPicture.asset(
-              iconPath!,
+              iconPath,
               fit: BoxFit.scaleDown,
               height: 28,
               width: 28,
@@ -205,10 +206,11 @@ class RoundedButtonStyle {
   factory RoundedButtonStyle.line({
     Color color = ColorStyles.gray50,
     Color textColor = ColorStyles.gray50,
+    Color backgroundColor = Colors.transparent,
     required RoundedButtonSize size,
   }) =>
       RoundedButtonStyle(
-        backgroundColor: Colors.transparent,
+        backgroundColor: backgroundColor,
         borderWidth: 1,
         borderColor: color,
         textColor: textColor,
@@ -219,6 +221,16 @@ class RoundedButtonStyle {
           {required RoundedButtonSize size, required BorderRadius radius}) =>
       RoundedButtonStyle(
         backgroundColor: ColorStyles.gray30,
+        borderWidth: 0,
+        borderColor: Colors.transparent,
+        textColor: ColorStyles.gray70,
+        size: size,
+      );
+
+  factory RoundedButtonStyle.disabled02(
+      {required RoundedButtonSize size, required BorderRadius radius}) =>
+      RoundedButtonStyle(
+        backgroundColor: ColorStyles.background,
         borderWidth: 0,
         borderColor: Colors.transparent,
         textColor: ColorStyles.gray70,
