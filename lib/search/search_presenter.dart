@@ -10,12 +10,21 @@ final class SearchPresenter extends ChangeNotifier {
     SearchSubject.post,
   ];
   int _tabIndex = 0;
+  String _searchWord = '';
 
   List<SearchSubject> get tabs => _subjects;
 
   int get currentTabIndex => _tabIndex;
 
   SearchSubject get currentTab => _subjects[_tabIndex];
+
+  List<String> get recentSearchWords => _recentSearchWordsDummy;
+
+  List<(String, double, int)> get recommendedCoffeeBeans => _recommendedCoffeeBeansDummy;
+
+  List<String> get coffeeBeansRanking => _coffeeBeansRankingDummy;
+
+  String get rankUpdatedAt => '10.27 16:00 업데이트';
 
   List<SearchResultModel> get searchResult => [coffeeBeanDummy, buddyDummy, tastedRecordDummy, postDummy][_tabIndex];
 
@@ -36,8 +45,26 @@ final class SearchPresenter extends ChangeNotifier {
 
   onChangeTab(int index) {
     _tabIndex = index;
+    notifyListeners();
+  }
+
+  onChangeSearchWord(String newText) {
+    _searchWord = newText;
+    notifyListeners();
+  }
+
+  onDeleteRecentSearchWord(int index) {
+    _recentSearchWordsDummy.removeAt(index);
+    notifyListeners();
+  }
+
+  onAllDeleteRecentSearchWord() {
+    _recentSearchWordsDummy.clear();
+    notifyListeners();
   }
 }
+
+final List<String> _recentSearchWordsDummy = ['게샤 워시드', '에티오피아', 'G1', '예카체프', '원두추천'];
 
 final coffeeBeanDummy = [
   ('에티오피아 시다모 G2 워시드', 4.8, 220),
@@ -170,7 +197,7 @@ final tastedRecordDummy = [
     ['트로피칼', '트로피칼', '트로피칼', '트로피칼'],
     '산미를 좋아하시면 에티오피아 괜찮아요^^',
   ),
-].map((e) => SearchResultModel.tastedRecord(id: 0, title: e.$1, rating: e.$3, beanType: e.$4, taste: e.$5, contents: e.$6, imageUri: e.$2)).toList();
+].map((e) => SearchResultModel.tastedRecord(id: 0, title: e.$2, rating: e.$3, beanType: e.$4, taste: e.$5, contents: e.$6, imageUri: e.$1)).toList();
 
 final postDummy = [
   (
@@ -204,3 +231,23 @@ final postDummy = [
     '일어나자마자커피한잔',
   ),
 ].map((e) => SearchResultModel.post(id: 0, title: e.$1, contents: e.$2, likeCount: e.$3, commentCount: e.$4, hits: e.$7, createdAt: e.$6, authorNickname: e.$8, subject: e.$5, imageUri: '')).toList();
+
+final _recommendedCoffeeBeansDummy = [
+  ('에티오피아 사다모 G2 워시드', 4.9, 74),
+  ('에티오피아 예가 체프 G1', 4.8, 220),
+  ('케냐 예가체프 G1 워시드', 4.3, 52),
+  ('케냐 예가체프 G1 허니', 4.5, 2120),
+];
+
+final List<String> _coffeeBeansRankingDummy = [
+  '과테말라 안티구아',
+  '콜롬비아 후일라 수프리모',
+  '에티오피아 예가체프 G4',
+  '싱글 케냐 AA Plus 아이히더 워시드',
+  '에티오피아 아리차 예가체프 G1 내추럴',
+  '에티오피아 구지 시다모 G1',
+  // '브라질 세하도 FC NY2 내추럴',
+  // '코스타리카 따라주 SHB 워시드',
+  // '에티오피아 사다모 G2 워시드',
+  // '에티오피아 사다모 G2 워시드',
+];

@@ -26,6 +26,8 @@ import 'package:brew_buds/profile/view/profile_view.dart';
 import 'package:brew_buds/profile/views/account_out_view.dart';
 import 'package:brew_buds/profile/views/alarm_view.dart';
 import 'package:brew_buds/profile/views/setting_view.dart';
+import 'package:brew_buds/search/search_presenter.dart';
+import 'package:brew_buds/search/search_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
 import 'package:go_router/go_router.dart';
@@ -175,7 +177,10 @@ final router = GoRouter(
         StatefulShellBranch(
           //검색 화면
           routes: [
-            GoRoute(path: '/main2', builder: (context, state) => Container()),
+            GoRoute(path: '/search', builder: (context, state) => ChangeNotifierProvider<SearchPresenter>(
+              create: (_) => SearchPresenter(),
+              child: SearchScreen(),
+            ),),
           ],
         ),
         StatefulShellBranch(
