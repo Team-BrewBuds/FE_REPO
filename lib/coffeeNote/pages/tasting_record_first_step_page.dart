@@ -1,5 +1,6 @@
 import 'package:brew_buds/coffeeNote/pages/tasting_record_sec_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
+import 'package:brew_buds/coffeeNote/widget/wdgt_search_bottom_sheet.dart';
 import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -17,131 +18,194 @@ class TasingRecordFirstStepPage extends StatefulWidget {
   const TasingRecordFirstStepPage({super.key});
 
   @override
-  State<TasingRecordFirstStepPage> createState() => _TasingRecordFirstStepPageState();
+  State<TasingRecordFirstStepPage> createState() =>
+      _TasingRecordFirstStepPageState();
 }
 
-class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage> with
-    TasingRecordMixin<TasingRecordFirstStepPage>
-{
+class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
+    with TasingRecordMixin<TasingRecordFirstStepPage> {
   final _formKey = GlobalKey<FormState>();
+  late bool isDecaf = false;
+  late bool beanType = false;
 
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
-        child:  Padding(
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 15.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 원두 정보를 알려주세요.
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
                   Text('원두 정보를 알려주세요', style: TextStyles.title04SemiBold),
                   Container(
                     color: Colors.black,
                     width: 80,
                     height: 80,
                   )
-                ],),
+                ],
+              ),
 
               //원두 유형 버튼
-              Row(children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('원두 유형', style: TextStyles.title01SemiBold),
-                    SizedBox(height: 8,),
-                    Row(children: [
-                      ButtonFactory.buildRoundedButton(onTapped: () =>
-                      {
-                      },
-                          text: '싱글오리진',
-                          style: RoundedButtonStyle.line(
-                            size: RoundedButtonSize.medium,
-                            color: ColorStyles.gray50,
-                            textColor: ColorStyles.black,
-                          )),
-
-                      SizedBox(width: 8,),
-                      ButtonFactory.buildRoundedButton(onTapped: () =>
-                      {
-                      },
-                          text: '블렌드',
-                          style: RoundedButtonStyle.line(
-                            size: RoundedButtonSize.medium,
-                            color: ColorStyles.gray50,
-                            textColor: ColorStyles.black,
-                          )),
-                    ],),
-                    SizedBox(height:4 ,),
-                    Row(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/uncheck.svg',
-                          fit: BoxFit.scaleDown,
-                          height: 28,
-                          width: 28,
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('원두 유형', style: TextStyles.title01SemiBold),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Row(
+                        children: [
+                          ButtonFactory.buildRoundedButton(
+                              onTapped: () {
+                                setState(() {
+                                  beanType = !beanType;
+                                });
+                              },
+                              text: '싱글오리진',
+                              style: beanType == true
+                                  ? RoundedButtonStyle.line(
+                                      size: RoundedButtonSize.medium,
+                                      backgroundColor: ColorStyles.background,
+                                      color: ColorStyles.red,
+                                      textColor: ColorStyles.red)
+                                  : RoundedButtonStyle.line(
+                                      size: RoundedButtonSize.medium,
+                                      color: ColorStyles.gray50,
+                                      textColor: ColorStyles.black,
+                                    )),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          ButtonFactory.buildRoundedButton(
+                              onTapped: () {
+                                setState(() {
+                                  beanType = !beanType;
+                                });
+                              },
+                              text: '블렌드',
+                              style: beanType == false
+                                  ? RoundedButtonStyle.line(
+                                      size: RoundedButtonSize.medium,
+                                      backgroundColor: ColorStyles.background,
+                                      color: ColorStyles.red,
+                                      textColor: ColorStyles.red)
+                                  : RoundedButtonStyle.line(
+                                      size: RoundedButtonSize.medium,
+                                      color: ColorStyles.gray50,
+                                      textColor: ColorStyles.black,
+                                    )),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 12,
+                      ),
+                      InkWell(
+                        onTap: () => setState(() => isDecaf = !isDecaf),
+                        child: Row(
+                          children: [
+                            isDecaf
+                                ? SvgPicture.asset(
+                                    'assets/icons/checkbox.svg',
+                                    fit: BoxFit.scaleDown,
+                                    height: 28,
+                                    width: 28,
+                                  )
+                                : SvgPicture.asset(
+                                    'assets/icons/uncheck.svg',
+                                    fit: BoxFit.scaleDown,
+                                    height: 28,
+                                    width: 28,
+                                  ),
+                            Text('다카페인',
+                                style: isDecaf
+                                    ? TextStyles.labelSmallMedium
+                                        .copyWith(color: ColorStyles.red)
+                                    : TextStyles.labelSmallMedium
+                                        .copyWith(color: ColorStyles.gray50))
+                          ],
                         ),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
 
-                        Text('다카페인', style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),)
-                      ],
-                    )
-
-                  ]
-                  ,
-                ),
-              ],),
-              SizedBox(height: 20,),
-
-              //원두 유형 text 입력
+              //원두 이름 검색
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('원두 이름', style: TextStyles.title01SemiBold),
-                  SizedBox(height: 10,),
-                  ButtonFactory.buildButton(
-                      onTapped: () =>
-                  {
-                  },
-                      style: RoundedButtonStyle.line(
-                        size: RoundedButtonSize.medium,
-                        color: ColorStyles.gray50,
-                        textColor: ColorStyles.black,
-                      ), text: '원두 이름을 검색해보세요.', iconPath: 'assets/icons/search.svg'
+                  SizedBox(
+                    height: 10,
                   ),
-                ],
-              ),
-              SizedBox(height: 20,),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('원두 생산 국가', style: TextStyles.title01SemiBold),
-                  SizedBox(height: 10,),
                   ButtonFactory.buildButton(
-                      onTapped: () =>
-                      {
+                      onTapped: () {
+                        showModalBottomSheet(
+                          backgroundColor: Colors.white,
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => WdgtSearchBottomSheet(
+                            title: '원두',
+                            content: '원두 이름을 입력해 주세요.',
+                          ),
+                        );
                       },
                       style: RoundedButtonStyle.line(
                         size: RoundedButtonSize.medium,
                         color: ColorStyles.gray50,
                         textColor: ColorStyles.black,
-                      ), text: '생산 국가를 검색해보세요.', iconPath: 'assets/icons/search.svg'
-                  ),
+                      ),
+                      text: '원두 이름을 검색해보세요.',
+                      iconPath: 'assets/icons/search.svg'),
                 ],
               ),
-              SizedBox(height: 20,),
-              WdgtSelectList()
-
-
-
-
-
-
-
+              SizedBox(
+                height: 20,
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('원두 생산 국가', style: TextStyles.title01SemiBold),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  ButtonFactory.buildButton(
+                      onTapped: () {
+                        showModalBottomSheet(
+                          backgroundColor: Colors.white,
+                          context: context,
+                          isScrollControlled: true,
+                          builder: (context) => WdgtSearchBottomSheet(
+                            title: '원두 생산 국가',
+                            content: '생산 국가를 입력해 주세요.',
+                          ),
+                        );
+                      },
+                      style: RoundedButtonStyle.line(
+                        size: RoundedButtonSize.medium,
+                        color: ColorStyles.gray50,
+                        textColor: ColorStyles.black,
+                      ),
+                      text: '생산 국가를 선택해주세요',
+                      iconPath: 'assets/icons/search.svg'),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              const WdgtSelectList()
             ],
           ),
         ),
@@ -163,9 +227,11 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage> w
 
   @override
   // TODO: implement onNext
-  void Function() get onNext => (){
-    print('next');
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> TastingRecordSecStepPage()));
-  };
-
+  void Function() get onNext => () {
+        print('next');
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => TastingRecordSecStepPage()));
+      };
 }

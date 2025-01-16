@@ -94,7 +94,6 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
         Consumer<CoffeeNotePresenter>(
           builder: (context, presenter, child) {
             final isEnabled = presenter.isRegisterButtonEnabled();
-
             return TextButton(
               onPressed: isEnabled ? () {
 
