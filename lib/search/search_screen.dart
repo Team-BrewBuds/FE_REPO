@@ -1,13 +1,16 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/search/models/search_subject.dart';
+import 'package:brew_buds/search/models/search_result_model.dart';
 import 'package:brew_buds/search/search_presenter.dart';
-import 'package:brew_buds/search/views/search_main_view.dart';
+import 'package:brew_buds/search/widgets/buddy_results_item.dart';
 import 'package:brew_buds/search/widgets/coffee_bean_results_item.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:brew_buds/search/widgets/coffee_beans_ranking_list.dart';
+import 'package:brew_buds/search/widgets/post_results_item.dart';
+import 'package:brew_buds/search/widgets/recent_search_words_list.dart';
+import 'package:brew_buds/search/widgets/recommended_coffee_beans_list.dart';
+import 'package:brew_buds/search/widgets/tatsed_record_results_item.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +26,8 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   late final TextEditingController _textEditingController;
   late final FocusNode _textFieldFocusNode;
 
+  bool get canShowSearchCancelButton => _textEditingController.text.isNotEmpty;
+
   bool get canShowSearchResultPage => _textEditingController.text.isNotEmpty || _textFieldFocusNode.hasFocus;
 
   @override
@@ -33,13 +38,17 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     _textFieldFocusNode.addListener(() {
       setState(() {});
     });
-    _textEditingController.addListener(() {
-      setState(() {});
-    });
+
     _tabController.addListener(() {
       setState(() {});
     });
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _textEditingController.addListener(() {
+        context.read<SearchPresenter>().onChangeSearchWord(_textEditingController.text);
+      });
+    });
   }
 
   @override
@@ -57,25 +66,25 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         }
       },
       child: Consumer<SearchPresenter>(
-        builder: (BuildContext context, SearchPresenter value, Widget? child) {
+        builder: (BuildContext context, SearchPresenter presenter, Widget? child) {
           return DefaultTabController(
             length: 4,
             child: Scaffold(
-              appBar: _buildAppBar(),
+              appBar: _buildAppBar(presenter),
               body: canShowSearchResultPage
                   ? CustomScrollView(
                       slivers: [
                         SliverAppBar(
                           floating: true,
                           titleSpacing: 0,
-                          title: _buildFilter(),
+                          title: _buildFilter(presenter),
                         ),
                         _textEditingController.text.isEmpty
-                            ? SliverToBoxAdapter(child: _buildSearchDefaultPage())
-                            : SliverToBoxAdapter(child: _buildSearchResult()),
+                            ? SliverToBoxAdapter(child: SizedBox.shrink())
+                            : SliverToBoxAdapter(child: _buildSearchResult(presenter)),
                       ],
                     )
-                  : SearchMainView(),
+                  : _buildDefault(presenter),
             ),
           );
         },
@@ -83,14 +92,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(SearchPresenter presenter) {
     return AppBar(
       titleSpacing: 0,
       toolbarHeight: canShowSearchResultPage ? 121 : 96,
       title: Column(
         children: [
           _buildSearchBar(),
-          canShowSearchResultPage ? _buildTabBar() : const SizedBox(height: 24),
+          canShowSearchResultPage ? _buildTabBar(presenter) : const SizedBox(height: 24),
         ],
       ),
     );
@@ -135,14 +144,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 contentPadding: const EdgeInsets.only(left: 4, top: 12, bottom: 12, right: 4),
                 prefixIcon: Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 10, left: 12),
-                    child: InkWell(
-                      onTap: () {},
-                      child: SvgPicture.asset(
-                        'assets/icons/search.svg',
-                        colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                      ),
+                    child: SvgPicture.asset(
+                      'assets/icons/search.svg',
+                      colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
                     )),
-                suffixIcon: _textEditingController.text.isNotEmpty
+                suffixIcon: canShowSearchCancelButton
                     ? Padding(
                         padding: const EdgeInsets.only(top: 10, bottom: 10, right: 12),
                         child: InkWell(
@@ -163,12 +169,11 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(SearchPresenter presenter) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
       child: TabBar(
-        controller: _tabController,
         indicator: const UnderlineTabIndicator(
           borderSide: BorderSide(color: ColorStyles.black, width: 2),
         ),
@@ -182,7 +187,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         unselectedLabelColor: ColorStyles.gray50,
         dividerHeight: 0,
         overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-        tabs: SearchSubject.values
+        tabs: presenter.tabs
             .map(
               (subject) => Tab(
                 text: subject.toString(),
@@ -190,24 +195,70 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               ),
             )
             .toList(),
-        onTap: (index) {},
+        onTap: (index) {
+          presenter.onChangeTab(index);
+        },
       ),
     );
   }
 
-  Widget _buildFilter() {
+  Widget _buildDefault(SearchPresenter presenter) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RecentSearchWordsList(
+          itemLength: presenter.recentSearchWords.length,
+          itemBuilder: (index) {
+            return (
+              presenter.recentSearchWords[index],
+              () {
+                presenter.onDeleteRecentSearchWord(index);
+              },
+            );
+          },
+          onAllDelete: () {
+            presenter.onAllDeleteRecentSearchWord();
+          },
+        ),
+        const SizedBox(height: 28),
+        RecommendedCoffeeBeansList(
+          itemLength: presenter.recommendedCoffeeBeans.length,
+          itemBuilder: (index) {
+            return (
+              '',
+              presenter.recommendedCoffeeBeans[index].$1,
+              presenter.recommendedCoffeeBeans[index].$2,
+              presenter.recommendedCoffeeBeans[index].$3,
+              () {
+                //push Detail
+              },
+            );
+          },
+        ),
+        const SizedBox(height: 28),
+        Expanded(
+          child: CoffeeBeansRankingList(
+            coffeeBeansRank: presenter.coffeeBeansRanking,
+            updatedAt: presenter.rankUpdatedAt,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilter(SearchPresenter presenter) {
     if (_tabController.index == 0) {
-      return _buildBeanFilterBar();
+      return _buildBeanFilterBar(presenter);
     } else if (_tabController.index == 1) {
-      return _buildBuddyFilter();
+      return _buildBuddyFilter(presenter);
     } else if (_tabController.index == 2) {
-      return _buildBeanFilterBar();
+      return _buildBeanFilterBar(presenter);
     } else {
-      return _buildPostFilter();
+      return _buildPostFilter(presenter);
     }
   }
 
-  Widget _buildBeanFilterBar() {
+  Widget _buildBeanFilterBar(SearchPresenter presenter) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: SingleChildScrollView(
@@ -269,7 +320,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildBuddyFilter() {
+  Widget _buildBuddyFilter(SearchPresenter presenter) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Row(
@@ -285,7 +336,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildPostFilter() {
+  Widget _buildPostFilter(SearchPresenter presenter) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Row(
@@ -309,395 +360,79 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildSearchDefaultPage() {
-    final List<String> _recentSearchWordsDummy = ['게샤 워시드', '에티오피아', 'G1', '예카체프', '원두추천'];
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              const Text('최근 검색어', style: TextStyles.title02SemiBold),
-              const Spacer(),
-              InkWell(
-                onTap: () {},
-                child: Text('모두 지우기', style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50)),
-              )
-            ],
-          ),
-          const SizedBox(height: 24),
-          ..._recentSearchWordsDummy
-              .map(
-                (word) => InkWell(
-                  onTap: () {},
-                  child: SizedBox(
-                    height: 40,
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(
-                          'assets/icons/search.svg',
-                          height: 24,
-                          width: 24,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(word, style: TextStyles.bodyRegular)),
-                        const SizedBox(width: 4),
-                        SvgPicture.asset(
-                          'assets/icons/x.svg',
-                          height: 24,
-                          width: 24,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-              .separator(separatorWidget: const SizedBox(height: 8)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResult() {
-    if (_tabController.index == 0) {
-      return _buildCoffeeBeanSearchResult();
-    } else if (_tabController.index == 1) {
-      return _buildBuddySearchResult();
-    } else if (_tabController.index == 2) {
-      return _buildTastedRecordSearchResult();
-    } else {
-      return _buildPostSearchResult();
-    }
-  }
-
-  Widget _buildCoffeeBeanSearchResult() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: coffeeBeanDummy
-          .map((searchResult) {
-            return CoffeeBeanResultsItem(
-              beanName: searchResult.$1,
-              rating: searchResult.$2,
-              recordCount: searchResult.$3,
-            );
-          })
-          .separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20))
-          .toList(),
-    );
-  }
-
-  Widget _buildBuddySearchResult() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: buddyDummy
-          .map((searchResult) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-              child: Row(
-                children: [
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xffd9d9d9),
-                    ),
-                    child: Image.network(
-                      searchResult.$1,
-                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          '${searchResult.$2}',
-                          style: TextStyles.labelMediumMedium,
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              '팔로워 ${searchResult.$3}',
-                              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
-                            ),
-                            const SizedBox(width: 4),
-                            Container(width: 1, height: 10, color: ColorStyles.gray30),
-                            const SizedBox(width: 4),
-                            Text(
-                              '시음기록 ${searchResult.$4}',
-                              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
-                            ),
-                            const Spacer(),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          })
-          .separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20))
-          .toList(),
-    );
-  }
-
-  Widget _buildTastedRecordSearchResult() {
-    return Column(
-      children: tastedRecordDummy
-          .map(
-            (result) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                            Text(
-                              result.$2,
-                              style: TextStyles.title01Bold,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/icons/star_fill.svg',
-                                  height: 16,
-                                  width: 16,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                ),
-                                Text(
-                                  '${result.$3}',
-                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const SizedBox(width: 2),
-                                Container(width: 1, height: 10, color: ColorStyles.gray30),
-                                const SizedBox(width: 2),
-                                Text(
-                                  '${result.$4}',
-                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const Spacer(),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: result.$5
-                                  .map(
-                                    (taste) {
-                                      return Container(
-                                        padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-                                        decoration: BoxDecoration(
-                                            border: Border.all(color: ColorStyles.gray70, width: 0.8),
-                                            borderRadius: BorderRadius.circular(6)),
-                                        child: Center(
-                                          child: Text(
-                                            taste,
-                                            style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray70),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  )
-                                  .separator(separatorWidget: const SizedBox(width: 2))
-                                  .toList(),
-                            )
-                          ]),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          height: 64,
-                          width: 64,
-                          color: const Color(0xffd9d9d9),
-                          child: Image.network(
-                            result.$1,
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (result.$6.isNotEmpty) ...[
-                      const SizedBox(
-                        height: 16,
-                      ),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray20,
-                        ),
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                              height: 18.2 / 14,
-                              letterSpacing: -0.02,
-                              color: ColorStyles.black,
-                            ),
-                            children: _getSpans(result.$6, '에티오피아', TextStyles.labelSmallSemiBold),
-                          ),
-                        ),
-                      ),
-                    ]
-                  ],
+  Widget _buildSearchResult(SearchPresenter presenter) {
+    final List<Widget> children = presenter.searchResult
+        .map((result) {
+          switch (result) {
+            case CoffeeBeanSearchResultModel():
+              return InkWell(
+                onTap: () {
+                  //상세페이지 연결
+                  print(result.id);
+                },
+                child: CoffeeBeanResultsItem(
+                  beanName: result.name,
+                  rating: result.rating,
+                  recordCount: result.recordedCount,
                 ),
               );
-            },
-          )
-          .separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20))
-          .toList(),
-    );
-  }
-
-  Widget _buildPostSearchResult() {
-    return Column(
-      children: postDummy
-          .map(
-            (result) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                            RichText(
-                              text: TextSpan(
-                                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
-                                children: _getSpans(result.$1, '에티오피아', TextStyles.title01Bold),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            RichText(
-                              text: TextSpan(
-                                style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black),
-                                children: _getSpans(
-                                  result.$2,
-                                  '에티오피아',
-                                  TextStyles.bodyNarrowRegular.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/icons/like.svg',
-                                  height: 16,
-                                  width: 16,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
-                                ),
-                                Text(
-                                  '${result.$3}',
-                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const SizedBox(width: 4),
-                                SvgPicture.asset(
-                                  'assets/icons/message.svg',
-                                  height: 16,
-                                  width: 16,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
-                                ),
-                                Text(
-                                  '${result.$4}',
-                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const Spacer(),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  '${result.$5}',
-                                  style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const SizedBox(width: 4),
-                                Container(width: 1, height: 10, color: ColorStyles.gray30),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${result.$6}',
-                                  style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const SizedBox(width: 4),
-                                Container(width: 1, height: 10, color: ColorStyles.gray30),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${result.$7}',
-                                  style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const SizedBox(width: 4),
-                                Container(width: 1, height: 10, color: ColorStyles.gray30),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${result.$8}',
-                                  style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const Spacer(),
-                              ],
-                            ),
-                          ]),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          height: 64,
-                          width: 64,
-                          color: const Color(0xffd9d9d9),
-                          child: Image.network(
-                            result.$1,
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+            case BuddySearchResultModel():
+              return InkWell(
+                onTap: () {
+                  //상세페이지 연결
+                  print(result.id);
+                },
+                child: BuddyResultsItem(
+                  imageUri: result.profileImageUri,
+                  nickname: result.nickname,
+                  followerCount: result.followerCount,
+                  tastedRecordCount: result.tastedRecordsCount,
                 ),
               );
-            },
-          )
-          .separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20))
-          .toList(),
+            case TastedRecordSearchResultModel():
+              return InkWell(
+                onTap: () {
+                  //상세페이지 연결
+                  print(result.id);
+                },
+                child: TastedRecordResultsItem(
+                  imageUri: result.imageUri,
+                  beanName: result.title,
+                  beanType: result.beanType,
+                  rating: result.rating,
+                  tasteList: result.taste,
+                  contents: result.contents,
+                  searchWord: _textEditingController.text,
+                ),
+              );
+            case PostSearchResultModel():
+              return InkWell(
+                onTap: () {
+                  //상세페이지 연결
+                  print(result.id);
+                },
+                child: PostResultsItem(
+                  title: result.title,
+                  contents: result.contents,
+                  searchWord: _textEditingController.text,
+                  likeCount: result.likeCount,
+                  commentsCount: result.commentCount,
+                  subject: result.subject,
+                  createdAt: result.createdAt,
+                  hits: result.hits,
+                  writerNickName: result.authorNickname,
+                  imageUri: result.imageUri,
+                ),
+              );
+          }
+        })
+        .separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20))
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: children,
     );
-  }
-
-  List<TextSpan> _getSpans(String text, String matchWord, TextStyle textStyle) {
-    List<TextSpan> spans = [];
-    int spanBoundary = 0;
-
-    do {
-      final startIndex = text.indexOf(matchWord, spanBoundary);
-
-      if (startIndex == -1) {
-        spans.add(TextSpan(text: text.substring(spanBoundary)));
-        return spans;
-      }
-
-      if (startIndex > spanBoundary) {
-        spans.add(TextSpan(text: text.substring(spanBoundary, startIndex)));
-      }
-
-      final endIndex = startIndex + matchWord.length;
-      final spanText = text.substring(startIndex, endIndex);
-      spans.add(TextSpan(text: spanText, style: textStyle));
-
-      spanBoundary = endIndex;
-    } while (spanBoundary < text.length);
-
-    return spans;
   }
 
   _clearTextField() {
