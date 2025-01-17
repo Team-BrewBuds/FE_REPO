@@ -77,18 +77,20 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             body: _textFieldFocusNode.hasFocus
                 ? _buildSuggest(presenter)
                 : _textEditingController.text.isNotEmpty
-                    ? CustomScrollView(
-                        slivers: [
-                          SliverAppBar(
-                            floating: true,
-                            titleSpacing: 0,
-                            title: _buildFilter(presenter),
-                          ),
-                          _textEditingController.text.isEmpty
-                              ? const SliverToBoxAdapter(child: SizedBox.shrink())
-                              : SliverToBoxAdapter(child: _buildSearchResult(presenter)),
-                        ],
-                      )
+                    ? presenter.searchResult.isNotEmpty
+                        ? CustomScrollView(
+                            slivers: [
+                              SliverAppBar(
+                                floating: true,
+                                titleSpacing: 0,
+                                title: _buildFilter(presenter),
+                              ),
+                              SliverToBoxAdapter(
+                                child: _buildSearchResult(presenter),
+                              ),
+                            ],
+                          )
+                        : _buildEmptyPage(presenter)
                     : _buildDefault(presenter),
           );
         },
@@ -249,64 +251,86 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   }
 
   Widget _buildSuggest(SearchPresenter presenter) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          const SizedBox(height: 24),
-          Expanded(
-            child: presenter.suggestWords.isNotEmpty
-                ? ListView.builder(
-                    itemCount: presenter.suggestWords.length,
-                    itemBuilder: (context, index) {
-                      return InkWell(
-                        onTap: () {
-                          _textEditingController.text = presenter.suggestWords[index];
-                          _textFieldFocusNode.unfocus();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: RichText(
-                                  text: TextSpan(
-                                    style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black),
-                                    children: _getSpans(
-                                        presenter.suggestWords[index],
-                                        presenter.searchWord,
-                                        TextStyles.title01SemiBold.copyWith(
-                                          color: ColorStyles.red,
-                                        )),
-                                  ),
-                                  maxLines: 1,
+    return presenter.suggestWords.isNotEmpty
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                const SizedBox(height: 24),
+                Expanded(
+                  child: presenter.suggestWords.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: presenter.suggestWords.length,
+                          itemBuilder: (context, index) {
+                            return InkWell(
+                              onTap: () {
+                                _textEditingController.text = presenter.suggestWords[index];
+                                _textFieldFocusNode.unfocus();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black),
+                                          children: _getSpans(
+                                              presenter.suggestWords[index],
+                                              presenter.searchWord,
+                                              TextStyles.title01SemiBold.copyWith(
+                                                color: ColorStyles.red,
+                                              )),
+                                        ),
+                                        maxLines: 1,
+                                      ),
+                                      // child: Text(
+                                      //   presenter.suggestWords[index],
+                                      //   style: TextStyles.title01SemiBold,
+                                      // ),
+                                    ),
+                                    presenter.haveSearchedWords.contains(presenter.suggestWords[index])
+                                        ? SvgPicture.asset(
+                                            'assets/icons/clock.svg',
+                                            height: 24,
+                                            width: 24,
+                                            colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                                          )
+                                        : const SizedBox.shrink()
+                                  ],
                                 ),
-                                // child: Text(
-                                //   presenter.suggestWords[index],
-                                //   style: TextStyles.title01SemiBold,
-                                // ),
                               ),
-                              presenter.haveSearchedWords.contains(presenter.suggestWords[index])
-                                  ? SvgPicture.asset(
-                                      'assets/icons/clock.svg',
-                                      height: 24,
-                                      width: 24,
-                                      colorFilter: ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                                    )
-                                  : const SizedBox.shrink()
-                            ],
-                          ),
+                            );
+                          },
+                        )
+                      : Container(
+                          color: Colors.blue,
                         ),
-                      );
-                    },
-                  )
-                : Container(
-                    color: Colors.blue,
+                ),
+              ],
+            ),
+          )
+        : Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 70),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text(
+                    '검색 결과가 없어요',
+                    style: TextStyles.title01SemiBold,
                   ),
-          ),
-        ],
-      ),
-    );
+                  Text(
+                    '검색어의 철자가 정확한지 확인해 주세요.\n등록되지 않은 원두거나, 해당 검색어와 관련된글이 없으면 검색되지 않을 수 있어요.',
+                    style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray50),
+                    textAlign: TextAlign.center,
+                    textWidthBasis: TextWidthBasis.longestLine,
+                  ),
+                ],
+              ),
+            ),
+          );
   }
 
   Widget _buildFilter(SearchPresenter presenter) {
@@ -482,6 +506,34 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
+  Widget _buildEmptyPage(SearchPresenter presenter) {
+    final title = presenter.hasFilter ? '조건에 맞는 검색 결과가 없어요' : '검색 결과가 없어요';
+    final hint = presenter.hasFilter
+        ? '필터의 조건을 바꾸거나, 적용한 필터의 개수를 줄여보세요.'
+        : '검색어의 철자가 정확한지 확인해 주세요.\n등록되지 않은 원두거나, 해당 검색어와 관련된글이 없으면 검색되지 않을 수 있어요.';
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 70),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              title,
+              style: TextStyles.title01SemiBold,
+            ),
+            Text(
+              hint,
+              style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray50),
+              textAlign: TextAlign.center,
+              textWidthBasis: TextWidthBasis.longestLine,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   showSortCriteriaBottomSheet(SearchPresenter presenter) {
     showGeneralDialog(
       barrierLabel: "Barrier",
@@ -492,12 +544,12 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       pageBuilder: (_, __, ___) {
         return SortCriteriaBottomSheet(
           items: presenter.sortCriteriaList.indexed.map(
-                (sortCriteria) {
+            (sortCriteria) {
               return (
-              sortCriteria.$2.toString(),
-                  () {
-                presenter.onChangeSortCriteriaIndex(sortCriteria.$1);
-              },
+                sortCriteria.$2.toString(),
+                () {
+                  presenter.onChangeSortCriteriaIndex(sortCriteria.$1);
+                },
               );
             },
           ).toList(),
