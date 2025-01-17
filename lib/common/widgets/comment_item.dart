@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/factory/icon_button_factory.dart';
 import 'package:brew_buds/common/factory/tag_factory.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -14,6 +15,8 @@ class CommentItem extends StatelessWidget {
   final String contents;
   final bool isLiked;
   final String likeCount;
+  final bool canReply;
+  final void Function()? onTappedReply;
   final void Function() onTappedLikeButton;
 
   const CommentItem({
@@ -26,6 +29,8 @@ class CommentItem extends StatelessWidget {
     required this.contents,
     required this.isLiked,
     required this.likeCount,
+    this.canReply = false,
+    this.onTappedReply,
     required this.onTappedLikeButton,
   });
 
@@ -86,6 +91,18 @@ class CommentItem extends StatelessWidget {
                       contents,
                       style: TextStyles.bodyRegular,
                     ),
+                    if (canReply) ...[
+                      const SizedBox(height: 6),
+                      InkWell(
+                        onTap: () {
+                          onTappedReply?.call();
+                        },
+                        child: Text(
+                          '답글 달기',
+                          style: TextStyles.captionSmallSemiBold.copyWith(color: ColorStyles.gray60),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
