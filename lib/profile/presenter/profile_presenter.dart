@@ -1,6 +1,6 @@
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
-import 'package:brew_buds/profile/model/filter.dart';
+import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
 import 'package:brew_buds/profile/model/profile.dart';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -40,7 +40,7 @@ class ProfilePresenter extends ChangeNotifier {
   SfRangeValues _ratingValues = SfRangeValues(0.5, 5.0);
   SfRangeValues _roastingPointValues = SfRangeValues(1, 5);
 
-  final List<Filter> _filter = [];
+  final List<CoffeeBeanFilter> _filter = [];
 
   bool get hasFilter => _filter.isNotEmpty;
 
@@ -110,7 +110,7 @@ class ProfilePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeFilter(List<Filter> filter) {
+  onChangeFilter(List<CoffeeBeanFilter> filter) {
     _filter.clear();
     _filter.addAll(filter);
     notifyListeners();

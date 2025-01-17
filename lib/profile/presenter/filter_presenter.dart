@@ -1,11 +1,11 @@
 import 'package:brew_buds/profile/model/bean_type.dart';
 import 'package:brew_buds/profile/model/country.dart';
-import 'package:brew_buds/profile/model/filter.dart';
+import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 final class FilterPresenter extends ChangeNotifier {
-  final List<Filter> _filter = [];
+  final List<CoffeeBeanFilter> _filter = [];
   final Set<BeanType> _selectedTypes;
   final Set<Country> _selectedOrigins;
   SfRangeValues _ratingValues;
@@ -24,7 +24,7 @@ final class FilterPresenter extends ChangeNotifier {
         _isDecaf = isDecaf,
         _roastingPointValues = roastingPointValues ?? const SfRangeValues(1, 5);
 
-  List<Filter> get filter => _filter;
+  List<CoffeeBeanFilter> get filter => _filter;
 
   bool get isAllSelectedType => _selectedTypes.length == 2;
 
@@ -52,23 +52,23 @@ final class FilterPresenter extends ChangeNotifier {
 
   init() {
     _filter.addAll(
-      _selectedTypes.map((type) => Filter.beanType(type)),
+      _selectedTypes.map((type) => CoffeeBeanFilter.beanType(type)),
     );
 
     _filter.addAll(
-      _selectedOrigins.map((origin) => Filter.country(origin)),
+      _selectedOrigins.map((origin) => CoffeeBeanFilter.country(origin)),
     );
 
     if (_isDecaf) {
-      _filter.add(Filter.decaf(true));
+      _filter.add(CoffeeBeanFilter.decaf(true));
     }
 
     if (_ratingValues.start != 0.5 && _ratingValues.end != 5.0) {
-      _filter.add(Filter.rating(_ratingValues.start, _ratingValues.end));
+      _filter.add(CoffeeBeanFilter.rating(_ratingValues.start, _ratingValues.end));
     }
 
     if (_roastingPointValues.start != 1 && _roastingPointValues.end != 5.0) {
-      _filter.add(Filter.roastingPoint(_roastingPointValues.start, _roastingPointValues.end));
+      _filter.add(CoffeeBeanFilter.roastingPoint(_roastingPointValues.start, _roastingPointValues.end));
     }
     notifyListeners();
   }
@@ -95,7 +95,7 @@ final class FilterPresenter extends ChangeNotifier {
       _filter.removeWhere((element) => element is BeanTypeFilter);
       _selectedTypes.removeAll(BeanType.values);
     } else {
-      _filter.addAll(BeanType.values.map((type) => Filter.beanType(type)));
+      _filter.addAll(BeanType.values.map((type) => CoffeeBeanFilter.beanType(type)));
       _selectedTypes.addAll(BeanType.values);
     }
     notifyListeners();
@@ -106,7 +106,7 @@ final class FilterPresenter extends ChangeNotifier {
       _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.singleOrigin);
       _selectedTypes.remove(BeanType.singleOrigin);
     } else {
-      _filter.add(Filter.beanType(BeanType.singleOrigin));
+      _filter.add(CoffeeBeanFilter.beanType(BeanType.singleOrigin));
       _selectedTypes.add(BeanType.singleOrigin);
     }
     notifyListeners();
@@ -117,7 +117,7 @@ final class FilterPresenter extends ChangeNotifier {
       _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.blend);
       _selectedTypes.remove(BeanType.blend);
     } else {
-      _filter.add(Filter.beanType(BeanType.blend));
+      _filter.add(CoffeeBeanFilter.beanType(BeanType.blend));
       _selectedTypes.add(BeanType.blend);
     }
     notifyListeners();
@@ -128,7 +128,7 @@ final class FilterPresenter extends ChangeNotifier {
       _filter.removeWhere((element) => element is CountryFilter && element.country == country);
       _selectedOrigins.remove(country);
     } else {
-      _filter.add(Filter.country(country));
+      _filter.add(CoffeeBeanFilter.country(country));
       _selectedOrigins.add(country);
     }
     notifyListeners();
@@ -141,7 +141,7 @@ final class FilterPresenter extends ChangeNotifier {
   onChangeRatingValues({SfRangeValues values = const SfRangeValues(0.5, 5.0)}) {
     _filter.removeWhere((element) => element is RatingFilter);
     if (values.start != 0.5 || values.end != 5.0) {
-      _filter.add(Filter.rating(values.start, values.end));
+      _filter.add(CoffeeBeanFilter.rating(values.start, values.end));
     }
     _ratingValues = values;
     notifyListeners();
@@ -151,7 +151,7 @@ final class FilterPresenter extends ChangeNotifier {
     _filter.removeWhere((element) => element is DecafFilter);
     _isDecaf = !_isDecaf;
     if (_isDecaf) {
-      _filter.add(Filter.decaf(true));
+      _filter.add(CoffeeBeanFilter.decaf(true));
     }
     notifyListeners();
   }
@@ -159,7 +159,7 @@ final class FilterPresenter extends ChangeNotifier {
   onChangeRoastingPointValues({SfRangeValues values = const SfRangeValues(1, 5)}) {
     _filter.removeWhere((element) => element is RoastingPointFilter);
     if (values.start != 1 || values.end != 5) {
-      _filter.add(Filter.roastingPoint(values.start, values.end));
+      _filter.add(CoffeeBeanFilter.roastingPoint(values.start, values.end));
     }
     _roastingPointValues = values;
     notifyListeners();

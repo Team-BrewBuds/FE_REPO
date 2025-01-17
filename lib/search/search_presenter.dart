@@ -1,4 +1,7 @@
+import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
+import 'package:brew_buds/search/models/search_filter.dart';
 import 'package:brew_buds/search/models/search_result_model.dart';
+import 'package:brew_buds/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/search/models/search_subject.dart';
 import 'package:flutter/foundation.dart';
 
@@ -11,6 +14,35 @@ final class SearchPresenter extends ChangeNotifier {
   ];
   int _tabIndex = 0;
   String _searchWord = '';
+  int _currentSortCriteriaIndex = 0;
+
+  final List<CoffeeBeanFilter> _filter = [];
+
+  bool get hasFilter => _filter.isNotEmpty;
+
+  bool get hasBeanTypeFilter => _filter.whereType<BeanTypeFilter>().isNotEmpty;
+
+  bool get hasCountryFilter => _filter.whereType<CountryFilter>().isNotEmpty;
+
+  bool get hasRatingFilter => _filter.whereType<RatingFilter>().isNotEmpty;
+
+  bool get hasDecafFilter => _filter.whereType<DecafFilter>().isNotEmpty;
+
+  bool get hasRoastingPointFilter => _filter.whereType<RoastingPointFilter>().isNotEmpty;
+
+  String get searchWord => _searchWord;
+
+  int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
+
+  List<SearchSortCriteria> get sortCriteriaList => switch(_tabIndex) {
+    0 => SearchSortCriteria.coffeeBean(),
+    1 => SearchSortCriteria.buddy(),
+    2 => SearchSortCriteria.tastedRecord(),
+    3 => SearchSortCriteria.post(),
+    int() => throw UnimplementedError(),
+  };
+
+  String get currentSortCriteria => sortCriteriaList[_currentSortCriteriaIndex].toString();
 
   List<SearchSubject> get tabs => _subjects;
 
@@ -19,6 +51,10 @@ final class SearchPresenter extends ChangeNotifier {
   SearchSubject get currentTab => _subjects[_tabIndex];
 
   List<String> get recentSearchWords => _recentSearchWordsDummy;
+
+  List<String> get haveSearchedWords => _haveSearchedDummy;
+
+  List<String> get suggestWords => _suggestDummy;
 
   List<(String, double, int)> get recommendedCoffeeBeans => _recommendedCoffeeBeansDummy;
 
@@ -45,6 +81,8 @@ final class SearchPresenter extends ChangeNotifier {
 
   onChangeTab(int index) {
     _tabIndex = index;
+    _filter.clear();
+    _currentSortCriteriaIndex = 0;
     notifyListeners();
   }
 
@@ -60,6 +98,17 @@ final class SearchPresenter extends ChangeNotifier {
 
   onAllDeleteRecentSearchWord() {
     _recentSearchWordsDummy.clear();
+    notifyListeners();
+  }
+
+  onChangeCoffeeBeanFilter(List<CoffeeBeanFilter> filter) {
+    _filter.clear();
+    _filter.addAll(filter);
+    notifyListeners();
+  }
+
+  onChangeSortCriteriaIndex(int index) {
+    _currentSortCriteriaIndex = index;
     notifyListeners();
   }
 }
@@ -250,4 +299,20 @@ final List<String> _coffeeBeansRankingDummy = [
   // '코스타리카 따라주 SHB 워시드',
   // '에티오피아 사다모 G2 워시드',
   // '에티오피아 사다모 G2 워시드',
+];
+
+final List<String> _haveSearchedDummy = [
+  '에티오피아 예가체프 G1 코케허니 내추럴',
+      '에티오피아 예가체프 G1 코케 워시드'
+];
+
+final List<String> _suggestDummy = [
+  '에티오피아 예가체프 G1 코케허니 내추럴',
+  '에티오피아 예가체프 G1 코케 워시드',
+  '에티오피아 예가체프 아바야 게이샤',
+  '에티오피아 예가체프 구지 겔라냐 게샤 G1 무산소',
+  '에티오피아 시다모 물루게타 문타샤 내추럴',
+  '에티오피아 할로 하루투메 G1 워시드',
+  '에티오피아 리무 게샤 워시드 ',
+  '에티오피아 시다모 G2 워시드 ',
 ];

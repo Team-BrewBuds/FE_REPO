@@ -4,7 +4,7 @@ import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/profile/model/filter.dart';
+import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:brew_buds/profile/view/filter_bottom_sheet.dart';
@@ -467,37 +467,17 @@ class _ProfileViewState extends State<ProfileView> {
                   context: context,
                   pageBuilder: (_, __, ___) {
                     return SortCriteriaBottomSheet(
-                      itemCount: 3,
-                      itemBuilder: (index) {
-                        return InkWell(
-                          onTap: () {
-                            presenter.onChangeSortCriteriaIndex(index);
-                            context.pop();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 20,
-                              horizontal: 16,
-                            ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  presenter.sortCriteriaList[index].columnString,
-                                  style: TextStyles.labelMediumMedium.copyWith(
-                                    color: presenter.currentSortCriteriaIndex == index
-                                        ? ColorStyles.red
-                                        : ColorStyles.black,
-                                  ),
-                                ),
-                                const Spacer(),
-                                presenter.currentSortCriteriaIndex == index
-                                    ? const Icon(Icons.check, size: 15, color: ColorStyles.red)
-                                    : Container(),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                      items: presenter.sortCriteriaList.indexed.map(
+                        (sortCriteria) {
+                          return (
+                            sortCriteria.$2.columnString,
+                            () {
+                              presenter.onChangeSortCriteriaIndex(sortCriteria.$1);
+                            },
+                          );
+                        },
+                      ).toList(),
+                      currentIndex: presenter.currentSortCriteriaIndex,
                     );
                   },
                   transitionBuilder: (_, anim, __, child) {
@@ -514,7 +494,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             _buildIcon(
               onTap: () {
-                showFilterBottomSheet(presenter);
+                showFilterBottomSheet(presenter, 0);
               },
               text: '필터',
               iconPath: 'assets/icons/union.svg',
@@ -523,7 +503,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             _buildIcon(
               onTap: () {
-                showFilterBottomSheet(presenter);
+                showFilterBottomSheet(presenter, 0);
               },
               text: '원두유형',
               iconPath: 'assets/icons/down.svg',
@@ -532,7 +512,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             _buildIcon(
               onTap: () {
-                showFilterBottomSheet(presenter);
+                showFilterBottomSheet(presenter, 1);
               },
               text: '생산 국가',
               iconPath: 'assets/icons/down.svg',
@@ -541,7 +521,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             _buildIcon(
               onTap: () {
-                showFilterBottomSheet(presenter);
+                showFilterBottomSheet(presenter, 2);
               },
               text: '평균 별점',
               iconPath: 'assets/icons/down.svg',
@@ -550,7 +530,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             _buildIcon(
               onTap: () {
-                showFilterBottomSheet(presenter);
+                showFilterBottomSheet(presenter, 4);
               },
               text: '로스팅 포인트',
               iconPath: 'assets/icons/down.svg',
@@ -559,7 +539,7 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             _buildIcon(
               onTap: () {
-                showFilterBottomSheet(presenter);
+                showFilterBottomSheet(presenter, 3);
               },
               text: '디카페인',
               iconPath: 'assets/icons/down.svg',
@@ -572,7 +552,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  showFilterBottomSheet(ProfilePresenter presenter) {
+  showFilterBottomSheet(ProfilePresenter presenter, int initialIndex) {
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -586,6 +566,7 @@ class _ProfileViewState extends State<ProfileView> {
             onDone: (filter) {
               presenter.onChangeFilter(filter);
             },
+            initialTab: initialIndex,
           ),
         );
       },
