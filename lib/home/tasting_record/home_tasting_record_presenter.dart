@@ -68,7 +68,7 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
   _updateFeed({required TastingRecordInFeed newFeed}) {
     _page = _page.copyWith(
       feeds: _page.feeds.map(
-            (feed) {
+        (feed) {
           if (feed.id == newFeed.id) {
             return newFeed;
           } else {

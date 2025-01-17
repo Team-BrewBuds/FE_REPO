@@ -53,12 +53,12 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                 CupertinoSliverRefreshControl(
                   onRefresh: presenter.onRefresh,
                   builder: (
-                      BuildContext context,
-                      RefreshIndicatorMode refreshState,
-                      double pulledExtent,
-                      double refreshTriggerPullDistance,
-                      double refreshIndicatorExtent,
-                      ) {
+                    BuildContext context,
+                    RefreshIndicatorMode refreshState,
+                    double pulledExtent,
+                    double refreshTriggerPullDistance,
+                    double refreshIndicatorExtent,
+                  ) {
                     switch (refreshState) {
                       case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
                         return Container(
@@ -132,7 +132,11 @@ class _PopularPostsViewState extends State<PopularPostsView> {
               ? SizedBox(
                   height: 80,
                   width: 80,
-                  child: Image.network(popularPost.imagesUri.first, fit: BoxFit.cover, errorBuilder: (context, _, __) => Container(),),
+                  child: Image.network(
+                    popularPost.imagesUri.first,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, _, __) => Container(),
+                  ),
                 )
               : Container()
         ],
