@@ -4,13 +4,20 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
-import 'package:brew_buds/common/widgets/comments_widget.dart';
+import 'package:brew_buds/common/widgets/re_comments_list.dart';
+import 'package:brew_buds/detail/etc_bottom_sheet.dart';
+import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
+import 'package:brew_buds/home/widgets/slider_view.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:brew_buds/model/user.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PostDetailView extends StatefulWidget {
   const PostDetailView({super.key});
@@ -21,6 +28,7 @@ class PostDetailView extends StatefulWidget {
 
 class _PostDetailViewState extends State<PostDetailView> {
   late final TextEditingController _textEditingController;
+  int currentIndex = 0;
 
   @override
   void initState() {
@@ -50,16 +58,21 @@ class _PostDetailViewState extends State<PostDetailView> {
               color: ColorStyles.gray20,
             ),
             _buildCommentTitle(),
-            _buildCommentsListView(),
+            buildComments(),
           ],
         ),
       ),
-      bottomSheet: _buildBottomTextField(),
+      bottomNavigationBar: Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: _buildBottomTextField(),
+      ),
     );
   }
 
   AppBar _buildTitle() {
     return AppBar(
+      leadingWidth: 0,
+      leading: SizedBox.shrink(),
       titleSpacing: 0,
       title: Container(
         padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
@@ -67,7 +80,9 @@ class _PostDetailViewState extends State<PostDetailView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             InkWell(
-              onTap: () {},
+              onTap: () {
+                context.pop();
+              },
               child: SvgPicture.asset(
                 'assets/icons/back.svg',
                 fit: BoxFit.cover,
@@ -79,7 +94,9 @@ class _PostDetailViewState extends State<PostDetailView> {
             const Text('게시물', style: TextStyles.title02SemiBold),
             const Spacer(),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                showSortCriteriaBottomSheet();
+              },
               child: SvgPicture.asset(
                 'assets/icons/more.svg',
                 fit: BoxFit.cover,
@@ -157,17 +174,22 @@ class _PostDetailViewState extends State<PostDetailView> {
   }
 
   Widget buildBody() {
-    final Widget? contents = null;
-    if (contents != null) {
-      return Column(
-        children: [
-          contents,
-          _buildTextBody(),
-        ],
-      );
-    } else {
-      return _buildTextBody();
-    }
+    final images = [
+      'http://placeimg.com/640/480',
+      'http://placeimg.com/640/480',
+      'http://placeimg.com/640/480',
+    ];
+    return Column(
+      children: [
+        Visibility(
+          visible: images.isNotEmpty,
+          child: HorizontalImageListView(
+            imagesUrl: images,
+          ),
+        ),
+        _buildTextBody(),
+      ],
+    );
   }
 
   Widget _buildTextBody() {
@@ -281,84 +303,132 @@ class _PostDetailViewState extends State<PostDetailView> {
     );
   }
 
-  Widget _buildCommentsListView() {
-    final Comment commentDummy = Comment(
-      id: 1,
-      author: User(id: 1, nickname: '커피에빠져죽고싶은', profileImageUri: ''),
-      content: '이거 커피 맛있어요!',
-      likeCount: 50,
-      createdAt: '30분전',
-      reComments: [],
-      isLiked: false,
-    );
+  Widget buildComments() {
+    final List<Comment> commentDummy = [
+      Comment(
+        id: 1,
+        author: User(id: 1, nickname: '커피에빠져죽고싶은', profileImageUri: ''),
+        content: '이거 커피 맛있어요!',
+        likeCount: 50,
+        createdAt: '30분전',
+        reComments: [],
+        isLiked: false,
+      ),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: List<Widget>.generate(
-        23,
+        commentDummy.length,
         (index) {
-          return Slidable(
-            endActionPane: ActionPane(
-              motion: DrawerMotion(),
-              children: [
-                SlidableAction(
-                  onPressed: (context) {},
-                  backgroundColor: Color(0xFF7BC043),
-                  foregroundColor: Colors.white,
-                  icon: Icons.archive,
-                  label: 'Archive',
-                ),
-                SlidableAction(
-                  onPressed: (context) {},
-                  backgroundColor: Color(0xFF0392CF),
-                  foregroundColor: Colors.white,
-                  icon: Icons.save,
-                  label: 'Save',
-                ),
-              ],
-            ),
-            child: CommentsWidget(
-              commentItem: CommentItem(
-                padding: commentDummy.reComments.isEmpty
-                    ? EdgeInsets.all(16)
-                    : EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
-                profileImageUri: commentDummy.author.profileImageUri,
-                nickName: commentDummy.author.nickname,
-                createdAt: commentDummy.createdAt,
-                isWriter: commentDummy.author.id == 1,
-                contents: commentDummy.content,
-                isLiked: commentDummy.isLiked,
-                likeCount: '${commentDummy.likeCount > 9999 ? '9999+' : commentDummy.likeCount}',
-                onTappedLikeButton: () {},
-              ),
-              subCommentsLength: 0,
-              subCommentsBuilder: (int index) {
-                final reComment = commentDummy.reComments[index];
-                return CommentItem(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  profileImageUri: reComment.author.profileImageUri,
-                  nickName: reComment.author.nickname,
-                  createdAt: reComment.createdAt,
-                  isWriter: 1 == reComment.author.id,
-                  contents: reComment.content,
-                  isLiked: reComment.isLiked,
-                  likeCount: '${reComment.likeCount > 9999 ? '9999+' : reComment.likeCount}',
+          final comment = commentDummy[index];
+          return Column(
+            children: [
+              _buildSlidableComment(
+                CommentItem(
+                  padding: comment.reComments.isEmpty
+                      ? const EdgeInsets.all(16)
+                      : const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
+                  profileImageUri: comment.author.profileImageUri,
+                  nickName: comment.author.nickname,
+                  createdAt: comment.createdAt,
+                  isWriter: false,
+                  contents: comment.content,
+                  isLiked: comment.isLiked,
+                  likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                  canReply: true,
+                  onTappedReply: () {},
                   onTappedLikeButton: () {},
-                );
-              },
-            ),
+                ),
+              ),
+              if (comment.reComments.isNotEmpty) ...[
+                ReCommentsList(
+                  reCommentsLength: comment.reComments.length,
+                  reCommentsBuilder: (index) {
+                    final reComment = comment.reComments[index];
+                    return _buildSlidableComment(
+                      CommentItem(
+                        padding: const EdgeInsets.only(left: 60, right: 16, top: 12, bottom: 12),
+                        profileImageUri: reComment.author.profileImageUri,
+                        nickName: reComment.author.nickname,
+                        createdAt: reComment.createdAt,
+                        isWriter: true,
+                        contents: reComment.content,
+                        isLiked: reComment.isLiked,
+                        likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                        onTappedLikeButton: () {},
+                      ),
+                    );
+                  },
+                )
+              ]
+            ],
           );
         },
       ),
     );
   }
 
+  Widget _buildSlidableComment(CommentItem commentItem) {
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          Expanded(
+            child: InkWell(
+              child: Container(
+                color: ColorStyles.red,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/delete.svg',
+                      height: 32,
+                      width: 32,
+                      colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                    ),
+                    Text(
+                      '삭제하기',
+                      style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              child: Container(
+                color: ColorStyles.gray30,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/declaration.svg',
+                      height: 32,
+                      width: 32,
+                      colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
+                    ),
+                    Text(
+                      '신고하기',
+                      style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: commentItem,
+    );
+  }
+
   Widget _buildBottomTextField() {
     return Container(
       padding: EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 46),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: ColorStyles.gray20)),
-        color: ColorStyles.white
-      ),
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20)), color: ColorStyles.white),
       child: TextField(
         controller: _textEditingController,
         maxLines: null,
@@ -394,6 +464,38 @@ class _PostDetailViewState extends State<PostDetailView> {
           constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
         ),
       ),
+    );
+  }
+
+  showSortCriteriaBottomSheet() {
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return EtcBottomSheet(
+          items: [
+            (
+              '수정하기',
+              ColorStyles.black,
+              () {},
+            ),
+            (
+              '삭제하기',
+              ColorStyles.red,
+              () {},
+            )
+          ],
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
     );
   }
 }

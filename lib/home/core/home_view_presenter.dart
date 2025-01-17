@@ -1,6 +1,5 @@
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/model/feeds/feed.dart';
-import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/pages/recommended_user_page.dart';
 import 'package:flutter/foundation.dart';
 

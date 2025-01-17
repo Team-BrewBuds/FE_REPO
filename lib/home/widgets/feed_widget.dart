@@ -80,7 +80,11 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
                 color: Color(0xffD9D9D9),
                 shape: BoxShape.circle,
               ),
-              child: Image.network(widget.writerThumbnailUri, fit: BoxFit.cover, errorBuilder: (context, _, trace) => Container(),),
+              child: Image.network(
+                widget.writerThumbnailUri,
+                fit: BoxFit.cover,
+                errorBuilder: (context, _, trace) => Container(),
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -143,7 +147,8 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
       ),
       text: widget.likeCount,
       textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: widget.onTapLikeButton, iconAlign: ButtonIconAlign.left,
+      onTapped: widget.onTapLikeButton,
+      iconAlign: ButtonIconAlign.left,
     );
   }
 
