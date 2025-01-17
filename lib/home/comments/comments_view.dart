@@ -1,9 +1,9 @@
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/home/comments/comment_item.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
-import 'package:brew_buds/home/comments/comments_widget.dart';
+import 'package:brew_buds/common/widgets/comments_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';

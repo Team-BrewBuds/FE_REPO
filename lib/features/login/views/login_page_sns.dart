@@ -1,5 +1,5 @@
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/login/models/login_result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';

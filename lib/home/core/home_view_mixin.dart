@@ -1,10 +1,10 @@
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:brew_buds/home/comments/comments_view.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
-import 'package:brew_buds/home/widgets/follow_button.dart';
+import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/model/user.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';

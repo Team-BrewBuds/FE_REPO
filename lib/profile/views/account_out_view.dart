@@ -1,12 +1,12 @@
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/home/all/home_all_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../common/text_styles.dart';
+import '../../common/styles/text_styles.dart';
 
 class AccountOutView extends StatefulWidget {
   const AccountOutView({super.key});

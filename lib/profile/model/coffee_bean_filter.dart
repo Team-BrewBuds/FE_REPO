@@ -1,21 +1,21 @@
 import 'package:brew_buds/profile/model/bean_type.dart';
 import 'package:brew_buds/profile/model/country.dart';
 
-sealed class Filter {
+sealed class CoffeeBeanFilter {
   String get text;
 
-  factory Filter.beanType(BeanType beanType) = BeanTypeFilter;
+  factory CoffeeBeanFilter.beanType(BeanType beanType) = BeanTypeFilter;
 
-  factory Filter.country(Country country) = CountryFilter;
+  factory CoffeeBeanFilter.country(Country country) = CountryFilter;
 
-  factory Filter.rating(double start, double end) = RatingFilter;
+  factory CoffeeBeanFilter.rating(double start, double end) = RatingFilter;
 
-  factory Filter.decaf(bool isDecaf) = DecafFilter;
+  factory CoffeeBeanFilter.decaf(bool isDecaf) = DecafFilter;
 
-  factory Filter.roastingPoint(double start, double end) = RoastingPointFilter;
+  factory CoffeeBeanFilter.roastingPoint(double start, double end) = RoastingPointFilter;
 }
 
-final class BeanTypeFilter implements Filter {
+final class BeanTypeFilter implements CoffeeBeanFilter {
   final BeanType type;
 
   BeanTypeFilter(this.type);
@@ -24,7 +24,7 @@ final class BeanTypeFilter implements Filter {
   String get text => type.toString();
 }
 
-final class CountryFilter implements Filter {
+final class CountryFilter implements CoffeeBeanFilter {
   final Country country;
 
   CountryFilter(this.country);
@@ -33,7 +33,7 @@ final class CountryFilter implements Filter {
   String get text => country.toString();
 }
 
-final class RatingFilter implements Filter {
+final class RatingFilter implements CoffeeBeanFilter {
   final double start;
   final double end;
 
@@ -43,7 +43,7 @@ final class RatingFilter implements Filter {
   String get text => start == end ? '$start점' : '$start점 ~ $end점';
 }
 
-final class DecafFilter implements Filter {
+final class DecafFilter implements CoffeeBeanFilter {
   final bool isDecaf;
 
   DecafFilter(this.isDecaf);
@@ -52,7 +52,7 @@ final class DecafFilter implements Filter {
   String get text => isDecaf ? '디카페인' : '';
 }
 
-final class RoastingPointFilter implements Filter {
+final class RoastingPointFilter implements CoffeeBeanFilter {
   final double start;
   final double end;
 

@@ -1,4 +1,4 @@
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/home/widgets/slider_view.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_button.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';

@@ -3,8 +3,8 @@ import 'package:brew_buds/model/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../../data/repository/profile_repository.dart';
 
 class ProfileAccountInfoView extends StatefulWidget {
