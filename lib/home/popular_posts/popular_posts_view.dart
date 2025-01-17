@@ -1,7 +1,7 @@
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/home/popular_posts/popular_post.dart';
 import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
 import 'package:flutter/cupertino.dart';

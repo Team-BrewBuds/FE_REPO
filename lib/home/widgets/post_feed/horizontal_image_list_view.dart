@@ -1,4 +1,4 @@
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/home/widgets/slider_view.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
