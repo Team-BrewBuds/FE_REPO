@@ -5,6 +5,8 @@ import 'package:brew_buds/coffeeNote/model/beanInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../profile/model/country.dart';
+
 final class CoffeeNotePresenter extends ChangeNotifier {
   TextEditingController titleController = TextEditingController();
   late CustomTagController customTagController = CustomTagController();
@@ -34,7 +36,7 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     '원두 품종 (선택)'
   ];
 
-
+  List<BeanFlavor> get flavor => BeanFlavor.values;
 
 
   // 제목 설정

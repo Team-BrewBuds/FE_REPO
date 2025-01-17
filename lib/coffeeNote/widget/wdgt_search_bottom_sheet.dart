@@ -26,7 +26,7 @@ class _WdgtSearchBottomSheetState extends State<WdgtSearchBottomSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildDraggableIndicator(),
+            buildDraggableIndicator(),
             SizedBox(
               height: 14,
             ),
@@ -99,7 +99,7 @@ class _WdgtSearchBottomSheetState extends State<WdgtSearchBottomSheet> {
   }
 }
 
-Widget _buildDraggableIndicator() {
+Widget buildDraggableIndicator() {
   return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.0),
       child: const DraggableIndicator());

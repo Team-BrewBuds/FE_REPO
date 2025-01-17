@@ -244,7 +244,7 @@ Widget _buildLoastingPoint() {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 16),
+        SizedBox(height: 30,),
         SizedBox(
           height: 42,
           child: Stack(

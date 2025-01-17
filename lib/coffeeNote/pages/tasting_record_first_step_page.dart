@@ -234,4 +234,39 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
             MaterialPageRoute(
                 builder: (context) => TastingRecordSecStepPage()));
       };
+
+  @override
+  Widget buildBottom(BuildContext context, CoffeeNotePresenter presenter) {
+    // TODO: implement buildBottom
+    return Padding(
+      padding:
+          const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
+      child: AbsorbPointer(
+        absorbing: !isSatisfyRequirements,
+        child: InkWell(
+          onTap: onNext,
+          child: Container(
+            height: 47,
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: isSatisfyRequirements
+                  ? ColorStyles.black
+                  : ColorStyles.gray30,
+            ),
+            child: Center(
+              child: Text(
+                '다음',
+                style: TextStyles.labelMediumMedium.copyWith(
+                  color: isSatisfyRequirements
+                      ? ColorStyles.white
+                      : ColorStyles.gray40,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
