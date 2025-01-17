@@ -1,10 +1,17 @@
+import 'dart:math';
+
 import 'package:brew_buds/coffeeNote/pages/tasting_record_third_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
+import 'package:brew_buds/coffeeNote/widget/wdgt_bottom_sheet_select.dart';
+import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:flutter/material.dart';
 
 import '../../common/button_factory.dart';
 import '../../common/color_styles.dart';
 import '../../common/text_styles.dart';
+import '../../features/signup/models/signup_lists.dart';
+import '../../profile/presenter/filter_presenter.dart';
+import '../widget/wdgt_bottom_sheet.dart';
 import '../widget/wdgt_search_bottom_sheet.dart';
 import 'core/tasing_record_mixin.dart';
 
@@ -21,6 +28,7 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
     // TODO: implement buildBody
+    final SignUpLists lists = SignUpLists();
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -52,9 +60,8 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
                         backgroundColor: Colors.white,
                         context: context,
                         isScrollControlled: true,
-                        builder: (context) => WdgtSearchBottomSheet(
-                          title: '',
-                          content: '',
+                        builder: (context) => WdgtBottomSheetSelect(
+                          title: '원두에서 어떤 맛이 느껴지시나요?',
                         ),
                       )
                     },
@@ -64,6 +71,25 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
                       textColor: ColorStyles.black,
                     ), text: '원두의 맛을 입력해보세요. (최대 4개).',
                   ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(lists.categories.length, (index) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 20),
+                          Text(lists.categories[index], style:TextStyles.title01SemiBold),
+                          SizedBox(height: 10),
+                          buildSelector(index),
+                          Container(),
+
+
+                        ],
+                      );
+                    }),
+                  ),
+
+
                 ],
               ),
             ],
@@ -72,6 +98,90 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
       ),
     );
   }
+
+  Widget buildSelector(int categoryIndex) {
+    List<int?> selectedIndices = List.filled(4, null);
+    final SignUpLists lists = SignUpLists();
+    return Container(
+      height: 80,
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(5, (index) {
+                if (index == 4 || index == 0) return SizedBox(width: 20);
+                return Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 1,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(5, (index) {
+              bool isSelected = selectedIndices[categoryIndex] == index;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndices[categoryIndex] = index;
+                      });
+                    },
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: isSelected
+                          ? BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: isSelected ? ColorStyles.gray : Colors.grey),
+                      )
+                          : null,
+                      child: Center(
+                        child: Container(
+                          width: 16,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isSelected ? ColorStyles.gray : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Text(
+                    lists.labels[categoryIndex][index],
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isSelected ? ColorStyles.gray : Colors.black,
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+
 
   @override
   // TODO: implement currentPageIndex
@@ -95,4 +205,40 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
   @override
   // TODO: implement onSkip
   void Function() get onSkip => (){};
+
+
+  @override
+  Widget buildBottom(BuildContext context, CoffeeNotePresenter presenter) {
+    // TODO: implement buildBottom
+    return Padding(
+      padding:
+      const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
+      child: AbsorbPointer(
+        absorbing: !isSatisfyRequirements,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children:[
+         ButtonFactory.buildRoundedButton(onTapped: ()=> Navigator.pop(context), text: '뒤로',     style: RoundedButtonStyle.fill(
+        size: RoundedButtonSize.xSmall,
+        color: ColorStyles.gray30 ,
+        textColor: ColorStyles.black,
+      )),
+
+          SizedBox(width: 8,),
+
+
+          ButtonFactory.buildRoundedButton(onTapped: onNext, text: '다음',     style: RoundedButtonStyle.fill(
+        size: RoundedButtonSize.large,
+        color: isSatisfyRequirements ? ColorStyles.gray20 : ColorStyles.black,
+        textColor:isSatisfyRequirements ?  ColorStyles.gray40 : ColorStyles.white
+      ),
+
+         )
+          ]
+
+        ),
+      ),
+    );
+  }
+
 }

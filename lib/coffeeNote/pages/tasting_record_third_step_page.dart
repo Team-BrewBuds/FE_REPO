@@ -1,47 +1,236 @@
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
+import '../../common/button_factory.dart';
+import '../../common/color_styles.dart';
+import '../../common/text_styles.dart';
 import 'core/tasing_record_mixin.dart';
 
 class TastingRecordThirdStepPage extends StatefulWidget {
   const TastingRecordThirdStepPage({super.key});
 
   @override
-  State<TastingRecordThirdStepPage> createState() => _TastingRecordThirdStepPageState();
+  State<TastingRecordThirdStepPage> createState() =>
+      _TastingRecordThirdStepPageState();
 }
 
-class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage> with TasingRecordMixin<TastingRecordThirdStepPage>{
-
+class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
+    with TasingRecordMixin<TastingRecordThirdStepPage> {
   final _formKey = GlobalKey<FormState>();
+  TextEditingController _textEditingController = TextEditingController();
+  List<String> title = ['시음 날짜', '시음 장소', '나만 보기'];
+
+
+  Widget _wdgtDate(){
+    return Container();
+  }
+
+  Widget _wdgtPlace(){
+    return Container();
+  }
+
+  Widget _wdgtOnlyMe(){
+    return Container();
+  }
+
 
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
-    // TODO: implement buildBody
     return SingleChildScrollView(
       child: Form(
-          key: _formKey,
-          child:  Container()
+        key: _formKey,
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+            Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('원두가 취향에 맞나요?', style: TextStyles.title04SemiBold),
+              Container(
+                color: Colors.black,
+                width: 80,
+                height: 80,
+              )
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text('원두 평가', style: TextStyles.title01SemiBold),
+          const SizedBox(height: 8),
+          StarRating(
+            onRatingSelected: (rating) {
+              print('선택된 별점: $rating');
+            },
+          ),
+          const SizedBox(height: 8),
+          Text('시음 내용', style: TextStyles.title01SemiBold),
+          const SizedBox(height: 12),
+          Container(
+              height: 140, // 필드의 높이를 140으로 설정
+              child: TextFormField(
+                controller: _textEditingController,
+                keyboardType: TextInputType.text,
+                style: TextStyles.labelSmallMedium,
+                decoration: InputDecoration(
+                  hintText: '원두와 시음 경험에 대한 이야기를 자유롭게 나눠주세요.',
+                  hintStyle: TextStyles.labelSmallMedium
+                      .copyWith(color: ColorStyles.gray50),
+                  filled: true,
+                  fillColor: ColorStyles.white,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                        color: ColorStyles.gray40, width: 1),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                        color: ColorStyles.gray40, width: 1),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                        color: ColorStyles.gray40, width: 1),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      vertical: 140, horizontal: 12),
+                  // 수직 패딩으로 높이 설정
+                  prefix: const SizedBox(width: 12),
+                ),
+                cursorColor: ColorStyles.black,
+              )),
+          const SizedBox(height: 28),
+          ListWidget(title)
+
+        ],
+      ),
+    ),)
+    ,
+    );
+  }
+
+  Widget ListWidget(List<String> title) {
+    return Container(
+      height: 180, // 전체 컨테이너 높이
+      color: ColorStyles.gray10, // 배경색 설정
+      child:
+
+
+      ListView.separated(
+        physics: NeverScrollableScrollPhysics(), // 스크롤 비활성화
+        itemCount: title.length, // 아이템 개수 설정
+        itemBuilder: (context, index) {
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            child: ListTile(
+
+            )
+          );
+        },
+        separatorBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Divider(color: ColorStyles.gray30), // 구분선 추가
+          );
+        },
       ),
     );
   }
 
+
+
+
   @override
-  // TODO: implement currentPageIndex
   int get currentPageIndex => 2;
 
   @override
-  // TODO: implement isSatisfyRequirements
   bool get isSatisfyRequirements => true;
 
   @override
-  // TODO: implement isSkippablePage
   bool get isSkippablePage => false;
 
   @override
-  // TODO: implement onNext
-  void Function() get onNext => (){};
+  void Function() get onNext => () {};
 
   @override
-  // TODO: implement onSkip
-  void Function() get onSkip => (){};
+  void Function() get onSkip => () {};
+
+  @override
+  Widget buildBottom(BuildContext context, CoffeeNotePresenter presenter) {
+    // TODO: implement buildBottom
+    return Padding(
+      padding:
+      const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
+      child: AbsorbPointer(
+        absorbing: !isSatisfyRequirements,
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          ButtonFactory.buildRoundedButton(
+              onTapped: () => Navigator.pop(context),
+              text: '뒤로',
+              style: RoundedButtonStyle.fill(
+                size: RoundedButtonSize.xSmall,
+                color: ColorStyles.gray30,
+                textColor: ColorStyles.black,
+              )),
+          SizedBox(
+            width: 8,
+          ),
+          ButtonFactory.buildRoundedButton(
+            onTapped: onNext,
+            text: '작성완료',
+            style: RoundedButtonStyle.fill(
+                size: RoundedButtonSize.large,
+                color: isSatisfyRequirements
+                    ? ColorStyles.gray20
+                    : ColorStyles.black,
+                textColor: isSatisfyRequirements
+                    ? ColorStyles.gray40
+                    : ColorStyles.white),
+          )
+        ]),
+      ),
+    );
+  }
+}
+
+class StarRating extends StatefulWidget {
+  final Function(int) onRatingSelected;
+
+  const StarRating({Key? key, required this.onRatingSelected})
+      : super(key: key);
+
+  @override
+  _StarRatingState createState() => _StarRatingState();
+}
+
+class _StarRatingState extends State<StarRating> {
+  int _currentRating = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(5, (index) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _currentRating = index + 1;
+            });
+            widget.onRatingSelected(_currentRating);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: SvgPicture.asset(
+              'assets/icons/star_fill.svg',
+              width: 36,
+              height: 36,
+              color: index < _currentRating ? ColorStyles.red : Colors.grey,
+            ),
+          ),
+        );
+      }),
+    );
+  }
 }
