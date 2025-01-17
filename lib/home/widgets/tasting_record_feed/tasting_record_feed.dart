@@ -76,7 +76,9 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
               SizedBox(height: isOverFlow ? 8 : 0),
               isOverFlow
                   ? TextButtonFactory.build(
-                      onTapped: widget.onTapMoreButton,
+                      onTapped: () {
+                        widget.onTapMoreButton();
+                      },
                       style: TextButtonStyle(size: TextButtonSize.small),
                       text: '더보기',
                     )

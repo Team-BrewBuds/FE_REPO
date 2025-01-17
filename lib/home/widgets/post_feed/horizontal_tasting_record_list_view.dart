@@ -1,4 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/home/widgets/slider_view.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_button.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';
@@ -42,7 +43,16 @@ class _HorizontalTastingRecordListViewState extends State<HorizontalTastingRecor
           child: SliderView(
             itemLength: widget.items.length,
             itemBuilder: (context, index) => TastingRecordCard(
-              image: Image.network(widget.items[index].imageUri, fit: BoxFit.cover),
+              image: Image.network(
+                widget.items[index].imageUri,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => const Center(
+                  child: Text(
+                    '이미지를 불러오는데 실패했습니다.',
+                    style: TextStyles.title02SemiBold,
+                  ),
+                ),
+              ),
               rating: '${widget.items[index].rating}',
               type: widget.items[index].beanType,
               name: widget.items[index].beanName,
@@ -79,7 +89,7 @@ class _HorizontalTastingRecordListViewState extends State<HorizontalTastingRecor
         activeIndex: currentIndex,
         count: widget.items.length, // Replace count
         axisDirection: Axis.horizontal,
-        effect: const ExpandingDotsEffect(
+        effect: const ScrollingDotsEffect(
           dotHeight: 7,
           dotWidth: 7,
           spacing: 4,
