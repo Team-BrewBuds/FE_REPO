@@ -1,6 +1,9 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/profile/presenter/filter_presenter.dart';
+import 'package:brew_buds/profile/view/filter_bottom_sheet.dart';
+import 'package:brew_buds/profile/widgets/sort_criteria_bottom_sheet.dart';
 import 'package:brew_buds/search/models/search_result_model.dart';
 import 'package:brew_buds/search/search_presenter.dart';
 import 'package:brew_buds/search/widgets/buddy_results_item.dart';
@@ -35,18 +38,20 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     _tabController = TabController(length: 4, vsync: this);
     _textEditingController = TextEditingController();
     _textFieldFocusNode = FocusNode();
+
     _textFieldFocusNode.addListener(() {
       setState(() {});
     });
 
-    _tabController.addListener(() {
-      setState(() {});
-    });
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       _textEditingController.addListener(() {
         context.read<SearchPresenter>().onChangeSearchWord(_textEditingController.text);
+      });
+
+      _tabController.addListener(() {
+        context.read<SearchPresenter>().onChangeTab(_tabController.index);
       });
     });
   }
@@ -67,25 +72,24 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       },
       child: Consumer<SearchPresenter>(
         builder: (BuildContext context, SearchPresenter presenter, Widget? child) {
-          return DefaultTabController(
-            length: 4,
-            child: Scaffold(
-              appBar: _buildAppBar(presenter),
-              body: canShowSearchResultPage
-                  ? CustomScrollView(
-                      slivers: [
-                        SliverAppBar(
-                          floating: true,
-                          titleSpacing: 0,
-                          title: _buildFilter(presenter),
-                        ),
-                        _textEditingController.text.isEmpty
-                            ? SliverToBoxAdapter(child: SizedBox.shrink())
-                            : SliverToBoxAdapter(child: _buildSearchResult(presenter)),
-                      ],
-                    )
-                  : _buildDefault(presenter),
-            ),
+          return Scaffold(
+            appBar: _buildAppBar(presenter),
+            body: _textFieldFocusNode.hasFocus
+                ? _buildSuggest(presenter)
+                : _textEditingController.text.isNotEmpty
+                    ? CustomScrollView(
+                        slivers: [
+                          SliverAppBar(
+                            floating: true,
+                            titleSpacing: 0,
+                            title: _buildFilter(presenter),
+                          ),
+                          _textEditingController.text.isEmpty
+                              ? const SliverToBoxAdapter(child: SizedBox.shrink())
+                              : SliverToBoxAdapter(child: _buildSearchResult(presenter)),
+                        ],
+                      )
+                    : _buildDefault(presenter),
           );
         },
       ),
@@ -174,6 +178,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
       child: TabBar(
+        controller: _tabController,
         indicator: const UnderlineTabIndicator(
           borderSide: BorderSide(color: ColorStyles.black, width: 2),
         ),
@@ -195,9 +200,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               ),
             )
             .toList(),
-        onTap: (index) {
-          presenter.onChangeTab(index);
-        },
       ),
     );
   }
@@ -246,20 +248,70 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildFilter(SearchPresenter presenter) {
-    if (_tabController.index == 0) {
-      return _buildBeanFilterBar(presenter);
-    } else if (_tabController.index == 1) {
-      return _buildBuddyFilter(presenter);
-    } else if (_tabController.index == 2) {
-      return _buildBeanFilterBar(presenter);
-    } else {
-      return _buildPostFilter(presenter);
-    }
+  Widget _buildSuggest(SearchPresenter presenter) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          Expanded(
+            child: presenter.suggestWords.isNotEmpty
+                ? ListView.builder(
+                    itemCount: presenter.suggestWords.length,
+                    itemBuilder: (context, index) {
+                      return InkWell(
+                        onTap: () {
+                          _textEditingController.text = presenter.suggestWords[index];
+                          _textFieldFocusNode.unfocus();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black),
+                                    children: _getSpans(
+                                        presenter.suggestWords[index],
+                                        presenter.searchWord,
+                                        TextStyles.title01SemiBold.copyWith(
+                                          color: ColorStyles.red,
+                                        )),
+                                  ),
+                                  maxLines: 1,
+                                ),
+                                // child: Text(
+                                //   presenter.suggestWords[index],
+                                //   style: TextStyles.title01SemiBold,
+                                // ),
+                              ),
+                              presenter.haveSearchedWords.contains(presenter.suggestWords[index])
+                                  ? SvgPicture.asset(
+                                      'assets/icons/clock.svg',
+                                      height: 24,
+                                      width: 24,
+                                      colorFilter: ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                                    )
+                                  : const SizedBox.shrink()
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.blue,
+                  ),
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildBeanFilterBar(SearchPresenter presenter) {
-    return Padding(
+  Widget _buildFilter(SearchPresenter presenter) {
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -267,97 +319,92 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         child: Row(
           children: [
             _buildIcon(
-              onTap: () {},
-              text: '별점 높은 순',
+              onTap: () {
+                showSortCriteriaBottomSheet(presenter);
+              },
+              text: presenter.currentSortCriteria,
               iconPath: 'assets/icons/arrow_up_down.svg',
               isLeftIcon: true,
             ),
-            _buildIcon(
-              onTap: () {},
-              text: '필터',
-              iconPath: 'assets/icons/union.svg',
-              isLeftIcon: true,
-              isActive: false,
-            ),
-            _buildIcon(
-              onTap: () {},
-              text: '원두유형',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: false,
-            ),
-            _buildIcon(
-              onTap: () {},
-              text: '생산 국가',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: false,
-            ),
-            _buildIcon(
-              onTap: () {},
-              text: '평균 별점',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: false,
-            ),
-            _buildIcon(
-              onTap: () {},
-              text: '로스팅 포인트',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: false,
-            ),
-            _buildIcon(
-              onTap: () {},
-              text: '디카페인',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: false,
-            ),
+            if (_tabController.index == 0 || _tabController.index == 2)
+              ..._buildBeanFilterBar(presenter)
+            else if (_tabController.index == 3)
+              ..._buildPostFilter(presenter)
           ].separator(separatorWidget: const SizedBox(width: 4)).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildBuddyFilter(SearchPresenter presenter) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      child: Row(
-        children: [
-          _buildIcon(
-            onTap: () {},
-            text: '팔로우 많은 순',
-            iconPath: 'assets/icons/arrow_up_down.svg',
-            isLeftIcon: true,
-          ),
-        ],
+  List<Widget> _buildBeanFilterBar(SearchPresenter presenter) {
+    return [
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(presenter, 0);
+        },
+        text: '필터',
+        iconPath: 'assets/icons/union.svg',
+        isLeftIcon: true,
+        isActive: presenter.hasFilter,
       ),
-    );
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(presenter, 0);
+        },
+        text: '원두유형',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: presenter.hasBeanTypeFilter,
+      ),
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(presenter, 1);
+        },
+        text: '생산 국가',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: presenter.hasCountryFilter,
+      ),
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(presenter, 2);
+        },
+        text: '평균 별점',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: presenter.hasRatingFilter,
+      ),
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(presenter, 4);
+        },
+        text: '로스팅 포인트',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: presenter.hasRoastingPointFilter,
+      ),
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(presenter, 3);
+        },
+        text: '디카페인',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: presenter.hasDecafFilter,
+      ),
+    ].toList();
   }
 
-  Widget _buildPostFilter(SearchPresenter presenter) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      child: Row(
-        children: [
-          _buildIcon(
-            onTap: () {},
-            text: '팔로우 많은 순',
-            iconPath: 'assets/icons/arrow_up_down.svg',
-            isLeftIcon: true,
-          ),
-          const SizedBox(width: 4),
-          _buildIcon(
-            onTap: () {},
-            text: '전체',
-            iconPath: 'assets/icons/down.svg',
-            isLeftIcon: false,
-            isActive: false,
-          ),
-        ],
+  List<Widget> _buildPostFilter(SearchPresenter presenter) {
+    return [
+      _buildIcon(
+        onTap: () {},
+        text: '전체',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: false,
       ),
-    );
+    ];
   }
 
   Widget _buildSearchResult(SearchPresenter presenter) {
@@ -435,6 +482,64 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
+  showSortCriteriaBottomSheet(SearchPresenter presenter) {
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return SortCriteriaBottomSheet(
+          items: presenter.sortCriteriaList.indexed.map(
+                (sortCriteria) {
+              return (
+              sortCriteria.$2.toString(),
+                  () {
+                presenter.onChangeSortCriteriaIndex(sortCriteria.$1);
+              },
+              );
+            },
+          ).toList(),
+          currentIndex: presenter.currentSortCriteriaIndex,
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
+  showFilterBottomSheet(SearchPresenter presenter, int initialIndex) {
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.5),
+      transitionDuration: const Duration(milliseconds: 300),
+      context: context,
+      pageBuilder: (_, __, ___) {
+        return ChangeNotifierProvider<FilterPresenter>(
+          create: (_) => FilterPresenter(),
+          child: FilterBottomSheet(
+            onDone: (filter) {
+              presenter.onChangeCoffeeBeanFilter(filter);
+            },
+            initialTab: initialIndex,
+          ),
+        );
+      },
+      transitionBuilder: (_, anim, __, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
+          child: child,
+        );
+      },
+    );
+  }
+
   _clearTextField() {
     _textEditingController.value = const TextEditingValue();
   }
@@ -483,5 +588,36 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         ),
       ),
     );
+  }
+
+  List<TextSpan> _getSpans(String text, String matchWord, TextStyle textStyle) {
+    List<TextSpan> spans = [];
+    int spanBoundary = 0;
+
+    if (matchWord.isEmpty) {
+      spans.add(TextSpan(text: text.substring(spanBoundary)));
+      return spans;
+    }
+
+    do {
+      final startIndex = text.indexOf(matchWord, spanBoundary);
+
+      if (startIndex == -1) {
+        spans.add(TextSpan(text: text.substring(spanBoundary)));
+        return spans;
+      }
+
+      if (startIndex > spanBoundary) {
+        spans.add(TextSpan(text: text.substring(spanBoundary, startIndex)));
+      }
+
+      final endIndex = startIndex + matchWord.length;
+      final spanText = text.substring(startIndex, endIndex);
+      spans.add(TextSpan(text: spanText, style: textStyle));
+
+      spanBoundary = endIndex;
+    } while (spanBoundary < text.length);
+
+    return spans;
   }
 }
