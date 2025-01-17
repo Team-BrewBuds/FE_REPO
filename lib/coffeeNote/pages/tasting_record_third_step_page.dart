@@ -21,7 +21,6 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   TextEditingController _textEditingController = TextEditingController();
   List<String> title = ['시음 날짜', '시음 장소', '나만 보기'];
 
-
   Widget _wdgtDate(){
     return Container();
   }
@@ -115,18 +114,22 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     return Container(
       height: 180, // 전체 컨테이너 높이
       color: ColorStyles.gray10, // 배경색 설정
-      child:
-
-
-      ListView.separated(
+      child: ListView.separated(
         physics: NeverScrollableScrollPhysics(), // 스크롤 비활성화
         itemCount: title.length, // 아이템 개수 설정
         itemBuilder: (context, index) {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            child: ListTile(
-
-            )
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  title[index],
+                  style: TextStyles.labelSmallMedium,
+                ),
+              ],
+            ),
           );
         },
         separatorBuilder: (context, index) {
@@ -179,7 +182,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
           ),
           ButtonFactory.buildRoundedButton(
             onTapped: onNext,
-            text: '작성완료',
+            text: '다음',
             style: RoundedButtonStyle.fill(
                 size: RoundedButtonSize.large,
                 color: isSatisfyRequirements
