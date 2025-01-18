@@ -90,8 +90,10 @@ class _HorizontalTastingRecordListViewState extends State<HorizontalTastingRecor
         count: widget.items.length, // Replace count
         axisDirection: Axis.horizontal,
         effect: const ScrollingDotsEffect(
-          dotHeight: 7,
-          dotWidth: 7,
+          dotHeight: 6,
+          dotWidth: 6,
+          strokeWidth: 0,
+          activeStrokeWidth: 0,
           spacing: 4,
           dotColor: ColorStyles.gray60,
           activeDotColor: ColorStyles.red,

@@ -7,11 +7,8 @@ import 'package:brew_buds/model/post_subject.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:brew_buds/profile/view/filter_bottom_sheet.dart';
-import 'package:brew_buds/profile/view/follower_list_pb.dart';
 import 'package:brew_buds/profile/widgets/sort_criteria_bottom_sheet.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -525,7 +522,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   Widget buildContentsList(ProfilePresenter presenter) {
     if (currentIndex == 0) {
-      return SliverPadding(padding: EdgeInsets.symmetric(horizontal: 16), sliver: _buildTastedRecordsList(presenter));
+      return SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: _buildTastedRecordsList(presenter));
     } else if (currentIndex == 1) {
       return _buildPostsList(presenter);
     } else if (currentIndex == 2) {
@@ -645,7 +642,7 @@ class _ProfileViewState extends State<ProfileView> {
                           width: 12,
                           child: SvgPicture.asset(
                             item.$1.iconPath,
-                            colorFilter: ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
                           ),
                         ),
                         const SizedBox(width: 2),
@@ -654,15 +651,15 @@ class _ProfileViewState extends State<ProfileView> {
                       ],
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                 ],
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
                 item.$2,
                 style: TextStyles.title01SemiBold,
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 children: [
                   Text(
@@ -676,7 +673,7 @@ class _ProfileViewState extends State<ProfileView> {
                     item.$4,
                     style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
                   ),
-                  Spacer(),
+                  const Spacer(),
                 ],
               ),
             ],
@@ -718,7 +715,7 @@ class _ProfileViewState extends State<ProfileView> {
                       item.$2,
                       style: TextStyles.labelMediumMedium,
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         SvgPicture.asset(
@@ -738,7 +735,7 @@ class _ProfileViewState extends State<ProfileView> {
                   ],
                 ),
               ),
-              SizedBox(width: 24),
+              const SizedBox(width: 24),
               Image.network(
                 item.$1,
                 fit: BoxFit.cover,
@@ -747,7 +744,7 @@ class _ProfileViewState extends State<ProfileView> {
                 errorBuilder: (_, __, ___) => Container(
                   height: 64,
                   width: 64,
-                  color: Color(0xffd9d9d9),
+                  color: const Color(0xffd9d9d9),
                 ),
               ),
             ],
@@ -783,12 +780,12 @@ class _ProfileViewState extends State<ProfileView> {
                 '게시글',
                 style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
               ),
-              SizedBox(height: 4),
-              Text(
+              const SizedBox(height: 4),
+              const Text(
                 '바스켓 크기에 따라서 맛 차이가 나나요?',
                 style: TextStyles.title01SemiBold,
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Row(
                 children: [
                   Text(
@@ -814,7 +811,7 @@ class _ProfileViewState extends State<ProfileView> {
             ],
           ),
         ),
-        SizedBox(width: 24),
+        const SizedBox(width: 24),
         Image.network(
           '',
           fit: BoxFit.cover,
@@ -823,7 +820,7 @@ class _ProfileViewState extends State<ProfileView> {
           errorBuilder: (_, __, ___) => Container(
             height: 64,
             width: 64,
-            color: Color(0xffd9d9d9),
+            color: const Color(0xffd9d9d9),
           ),
         ),
       ],
@@ -841,8 +838,8 @@ class _ProfileViewState extends State<ProfileView> {
                 '시음기록',
                 style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
               ),
-              SizedBox(height: 4),
-              Text(
+              const SizedBox(height: 4),
+              const Text(
                 '에티오피아 할로 하르투메 G1 워시드',
                 style: TextStyles.title01SemiBold,
               ),
@@ -887,7 +884,7 @@ class _ProfileViewState extends State<ProfileView> {
             ],
           ),
         ),
-        SizedBox(width: 24),
+        const SizedBox(width: 24),
         Image.network(
           '',
           fit: BoxFit.cover,
@@ -896,7 +893,7 @@ class _ProfileViewState extends State<ProfileView> {
           errorBuilder: (_, __, ___) => Container(
             height: 64,
             width: 64,
-            color: Color(0xffd9d9d9),
+            color: const Color(0xffd9d9d9),
           ),
         ),
       ],

@@ -36,7 +36,7 @@ class _HomeViewState extends State<HomeView> {
               pinned: true,
               titleSpacing: 0,
               title: Padding(
-                padding: EdgeInsets.only(top: 28, bottom: 12, left: 16, right: 16),
+                padding: const EdgeInsets.only(top: 28, bottom: 12, left: 16, right: 16),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -58,10 +58,11 @@ class _HomeViewState extends State<HomeView> {
               forceElevated: innerBoxIsScrolled,
               titleSpacing: 0,
               title: TabBar(
-                padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
-                indicator: const UnderlineTabIndicator(borderSide: BorderSide(color: ColorStyles.black)),
-                indicatorWeight: 2,
-                indicatorPadding: const EdgeInsets.only(top: 2, bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                indicator: const UnderlineTabIndicator(
+                  borderSide: BorderSide(width: 2, color: ColorStyles.black),
+                  insets: EdgeInsets.only(top: 4),
+                ),
                 labelPadding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
                 tabAlignment: TabAlignment.start,
                 isScrollable: true,
@@ -82,7 +83,7 @@ class _HomeViewState extends State<HomeView> {
                     setState(() {
                       isRefresh = true;
                     });
-                    Future.delayed(Duration(milliseconds: 100)).whenComplete(() {
+                    Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
                       setState(() {
                         isRefresh = false;
                       });
