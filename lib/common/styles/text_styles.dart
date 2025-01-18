@@ -33,12 +33,6 @@ final class TextStyles {
     height: 19.2 / 16,
     letterSpacing: -0.02,
   );
-  static const titleMediumSemiBold = TextStyle(
-    fontWeight: FontWeight.w600,
-    fontSize: 15,
-    height: 26.4 / 15,
-    letterSpacing: -0.02,
-  );
   static const title01Bold = TextStyle(
     fontWeight: FontWeight.w700,
     fontSize: 14,
@@ -73,14 +67,14 @@ final class TextStyles {
 
   static const bodyRegular = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 13,
-    height: 19.5 / 13,
+    fontSize: 14,
+    height: 21 / 14,
     letterSpacing: -0.01,
   );
   static const bodyNarrowRegular = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 13,
-    height: 16.9 / 13,
+    fontSize: 14,
+    height: 18.2 / 14,
     letterSpacing: -0.02,
   );
 
