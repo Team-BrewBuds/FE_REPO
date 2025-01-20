@@ -4,7 +4,9 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -134,6 +136,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                           '아직 댓글이 없어요',
                                           style: TextStyles.title02SemiBold,
                                         ),
+                                        SizedBox(height: 8),
                                         Text(
                                           '댓글을 남겨보세요.',
                                           style: TextStyles.captionSmallMedium,
@@ -143,7 +146,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                   ),
                           ),
                           Container(
-                            padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 46),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                             decoration:
                                 const BoxDecoration(border: Border(top: BorderSide(width: 0.5, color: ColorStyles.gray40))),
                             child: Container(
@@ -188,6 +191,8 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                   TextField(
                                     controller: _textEditingController,
                                     maxLines: null,
+                                    cursorHeight: 16,
+                                    cursorWidth: 1,
                                     cursorColor: ColorStyles.black,
                                     style: TextStyles.labelSmallMedium,
                                     decoration: InputDecoration(
@@ -204,25 +209,27 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                                         borderRadius: BorderRadius.zero,
                                         gapPadding: 8,
                                       ),
-                                      contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
+                                      contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
                                       suffixIcon: Padding(
-                                        padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-                                        child: ButtonFactory.buildOvalButton(
-                                          onTapped: () {
-                                            if (_textEditingController.text.isNotEmpty) {
-                                              presenter.createNewComment(content: _textEditingController.text);
-                                            }
+                                        padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
+                                        child:  InkWell(
+                                          onTap: () {
+
                                           },
-                                          text: '전송',
-                                          style: OvalButtonStyle.fill(
-                                            color: ColorStyles.black,
-                                            textColor: ColorStyles.white,
-                                            size: OvalButtonSize.large,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                            decoration: BoxDecoration(
+                                              color: ColorStyles.black,
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              '전송',
+                                              style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                      suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
-                                      constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+                                      constraints: const BoxConstraints(maxHeight: 112)
                                     ),
                                   ),
                                 ],
