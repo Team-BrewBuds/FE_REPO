@@ -1,11 +1,12 @@
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/home/comments/comment_item.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/comment_item.dart';
+import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
-import 'package:brew_buds/home/comments/comments_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -118,50 +119,110 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                         ),
                       ),
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: buildComments(presenter),
-                        ),
+                        child: presenter.comments.isNotEmpty
+                            ? SingleChildScrollView(
+                                child: buildComments(presenter),
+                              )
+                            : const Center(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '아직 댓글이 없어요',
+                                      style: TextStyles.title02SemiBold,
+                                    ),
+                                    Text(
+                                      '댓글을 남겨보세요.',
+                                      style: TextStyles.captionSmallMedium,
+                                    ),
+                                  ],
+                                ),
+                              ),
                       ),
                       Container(
                         padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 46),
                         decoration:
                             const BoxDecoration(border: Border(top: BorderSide(width: 0.5, color: ColorStyles.gray40))),
-                        child: TextField(
-                          controller: _textEditingController,
-                          maxLines: null,
-                          decoration: InputDecoration(
-                            hintText: '${presenter.author.nickname} 님에게 댓글 추가..',
-                            hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
-                            enabledBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: ColorStyles.gray40),
-                              borderRadius: BorderRadius.all(Radius.circular(24)),
-                              gapPadding: 8,
-                            ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: ColorStyles.gray40),
-                              borderRadius: BorderRadius.all(Radius.circular(24)),
-                              gapPadding: 8,
-                            ),
-                            contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
-                            suffixIcon: Padding(
-                              padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-                              child: ButtonFactory.buildOvalButton(
-                                onTapped: () {
-                                  if (_textEditingController.text.isNotEmpty) {
-                                    presenter
-                                        .createNewComment(content: _textEditingController.text);
-                                  }
-                                },
-                                text: '전송',
-                                style: OvalButtonStyle.fill(
-                                  color: ColorStyles.black,
-                                  textColor: ColorStyles.white,
-                                  size: OvalButtonSize.large,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: ColorStyles.gray40),
+                            borderRadius: const BorderRadius.all(Radius.circular(24)),
+                            color: ColorStyles.white,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Visibility(
+                                visible: presenter.isReply,
+                                child: Container(
+                                  padding: const EdgeInsets.only(left: 14, top: 16, bottom: 16, right: 14),
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                                    color: ColorStyles.gray10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${presenter.replyAuthor?.nickname}님에게 답글 남기는 중',
+                                        style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                                      ),
+                                      const Spacer(),
+                                      InkWell(
+                                        onTap: () {
+                                          presenter.cancelReply();
+                                        },
+                                        child: SvgPicture.asset(
+                                          'assets/icons/x_round.svg',
+                                          height: 24,
+                                          width: 24,
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
-                            constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+                              TextField(
+                                controller: _textEditingController,
+                                maxLines: null,
+                                cursorColor: ColorStyles.black,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      '${presenter.isReply ? presenter.replyAuthor?.nickname : presenter.author.nickname} 님에게 댓글 추가..',
+                                  hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                                  enabledBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.zero,
+                                    gapPadding: 8,
+                                  ),
+                                  focusedBorder: const OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: BorderRadius.zero,
+                                    gapPadding: 8,
+                                  ),
+                                  contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
+                                  suffixIcon: Padding(
+                                    padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
+                                    child: ButtonFactory.buildOvalButton(
+                                      onTapped: () {
+                                        if (_textEditingController.text.isNotEmpty) {
+                                          presenter.createNewComment(content: _textEditingController.text);
+                                        }
+                                      },
+                                      text: '전송',
+                                      style: OvalButtonStyle.fill(
+                                        color: ColorStyles.black,
+                                        textColor: ColorStyles.white,
+                                        size: OvalButtonSize.large,
+                                      ),
+                                    ),
+                                  ),
+                                  suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
+                                  constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
@@ -183,59 +244,109 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
         presenter.comments.length,
         (index) {
           final comment = presenter.comments[index];
-          return Slidable(
-            endActionPane: ActionPane(
-              motion: DrawerMotion(),
-              children: [
-                SlidableAction(
-                  onPressed: (context) {},
-                  backgroundColor: Color(0xFF7BC043),
-                  foregroundColor: Colors.white,
-                  icon: Icons.archive,
-                  label: 'Archive',
-                ),
-                SlidableAction(
-                  onPressed: (context) {},
-                  backgroundColor: Color(0xFF0392CF),
-                  foregroundColor: Colors.white,
-                  icon: Icons.save,
-                  label: 'Save',
-                ),
-              ],
-            ),
-            child: CommentsWidget(
-              commentItem: CommentItem(
-                padding: comment.reComments.isEmpty
-                    ? EdgeInsets.all(16)
-                    : EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
-                profileImageUri: comment.author.profileImageUri,
-                nickName: comment.author.nickname,
-                createdAt: comment.createdAt,
-                isWriter: presenter.author.id == comment.author.id,
-                contents: comment.content,
-                isLiked: comment.isLiked,
-                likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
-                onTappedLikeButton: () {},
-              ),
-              subCommentsLength: comment.reComments.length,
-              subCommentsBuilder: (int index) {
-                final reComment = comment.reComments[index];
-                return CommentItem(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  profileImageUri: reComment.author.profileImageUri,
-                  nickName: reComment.author.nickname,
-                  createdAt: reComment.createdAt,
+          return Column(
+            children: [
+              _buildSlidableComment(
+                CommentItem(
+                  padding: comment.reComments.isEmpty
+                      ? const EdgeInsets.all(16)
+                      : const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
+                  profileImageUri: comment.author.profileImageUri,
+                  nickName: comment.author.nickname,
+                  createdAt: comment.createdAt,
                   isWriter: presenter.author.id == comment.author.id,
-                  contents: reComment.content,
-                  isLiked: reComment.isLiked,
-                  likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                  contents: comment.content,
+                  isLiked: comment.isLiked,
+                  likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                  canReply: true,
+                  onTappedReply: () {
+                    presenter.onTappedReply(comment.author);
+                  },
                   onTappedLikeButton: () {},
-                );
-              },
-            ),
+                ),
+              ),
+              if (comment.reComments.isNotEmpty) ...[
+                ReCommentsList(
+                  reCommentsLength: comment.reComments.length,
+                  reCommentsBuilder: (index) {
+                    final reComment = comment.reComments[index];
+                    return _buildSlidableComment(
+                      CommentItem(
+                        padding: const EdgeInsets.only(left: 60, right: 16, top: 12, bottom: 12),
+                        profileImageUri: reComment.author.profileImageUri,
+                        nickName: reComment.author.nickname,
+                        createdAt: reComment.createdAt,
+                        isWriter: presenter.author.id == comment.author.id,
+                        contents: reComment.content,
+                        isLiked: reComment.isLiked,
+                        likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                        onTappedLikeButton: () {},
+                      ),
+                    );
+                  },
+                )
+              ]
+            ],
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSlidableComment(CommentItem commentItem) {
+    return Slidable(
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        children: [
+          Expanded(
+            child: InkWell(
+              child: Container(
+                color: ColorStyles.red,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/delete.svg',
+                      height: 32,
+                      width: 32,
+                      colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                    ),
+                    Text(
+                      '삭제하기',
+                      style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              child: Container(
+                color: ColorStyles.gray30,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/declaration.svg',
+                      height: 32,
+                      width: 32,
+                      colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
+                    ),
+                    Text(
+                      '신고하기',
+                      style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      child: commentItem,
     );
   }
 }

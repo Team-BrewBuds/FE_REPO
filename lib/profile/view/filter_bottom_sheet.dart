@@ -1,9 +1,9 @@
 import 'dart:math';
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
-import 'package:brew_buds/common/text_styles.dart';
-import 'package:brew_buds/profile/model/filter.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
 import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -14,9 +14,10 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  final Function(List<Filter> filter) onDone;
+  final Function(List<CoffeeBeanFilter> filter) onDone;
+  final int initialTab;
 
-  const FilterBottomSheet({super.key, required this.onDone});
+  const FilterBottomSheet({super.key, required this.onDone, this.initialTab = 0});
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
@@ -31,11 +32,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
   @override
   void initState() {
     super.initState();
-    tabController = TabController(length: 5, vsync: this, initialIndex: 0);
+    tabController = TabController(length: 5, vsync: this, initialIndex: widget.initialTab);
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<FilterPresenter>().init();
+      Scrollable.ensureVisible(_tabKeys[widget.initialTab].currentContext!);
     });
   }
 

@@ -1,5 +1,5 @@
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/material.dart';
 
 class TextButtonStyle {
@@ -50,20 +50,25 @@ final class TextButtonFactory {
     bool isActive = false,
   }) {
     final currentStyle = isActive ? TextButtonStyle.active(size: style.size) : style;
-    return Container(
-      padding: currentStyle.size.padding,
-      child: isActive
-          ? Column(
-              children: [
-                Text(text, style: currentStyle.size.textStyle.copyWith(color: currentStyle.textColor)),
-                const SizedBox(height: 2),
-                Container(height: 2, color: currentStyle.textColor),
-              ],
-            )
-          : Text(
-              text,
-              style: currentStyle.size.textStyle.copyWith(color: currentStyle.textColor),
-            ),
+    return InkWell(
+      onTap: () {
+        onTapped();
+      },
+      child: Container(
+        padding: currentStyle.size.padding,
+        child: isActive
+            ? Column(
+                children: [
+                  Text(text, style: currentStyle.size.textStyle.copyWith(color: currentStyle.textColor)),
+                  const SizedBox(height: 2),
+                  Container(height: 2, color: currentStyle.textColor),
+                ],
+              )
+            : Text(
+                text,
+                style: currentStyle.size.textStyle.copyWith(color: currentStyle.textColor),
+              ),
+      ),
     );
   }
 }

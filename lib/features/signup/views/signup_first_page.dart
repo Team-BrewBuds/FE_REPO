@@ -1,6 +1,6 @@
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:brew_buds/features/signup/core/signup_mixin.dart';

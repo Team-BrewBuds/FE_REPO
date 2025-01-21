@@ -1,4 +1,4 @@
-import 'package:brew_buds/common/color_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
@@ -9,6 +9,7 @@ import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeAllView extends StatefulWidget {
   final ScrollController? scrollController;
@@ -54,7 +55,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
                   rating: tastingRecord.rating,
                   flavors: tastingRecord.flavors,
                   imageUri: tastingRecord.thumbnailUri,
-                  onTap: () {},
+                  onTap: () {
+                    context.push('/tasted_record_detail');
+                  },
                 ),
               )
               .toList());
@@ -93,7 +96,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
         post.subject.iconPath,
         colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
-      onTapMoreButton: () {},
+      onTapMoreButton: () {
+        context.push('/post_detail');
+      },
       child: child,
     );
   }
@@ -129,7 +134,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       name: tastingRecord.beanName,
       tags: tastingRecord.flavors,
       body: tastingRecord.contents,
-      onTapMoreButton: () {},
+      onTapMoreButton: () {
+        context.push('/tasted_record_detail');
+      },
     );
   }
 }

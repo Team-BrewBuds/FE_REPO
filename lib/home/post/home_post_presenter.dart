@@ -67,9 +67,9 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
 
   @override
   onTappedLikeButton(PostInFeed feed) {
-      like(type: 'post', id: feed.id, isLiked: feed.isLiked).then((_) {
-        _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
-      });
+    like(type: 'post', id: feed.id, isLiked: feed.isLiked).then((_) {
+      _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+    });
   }
 
   @override
@@ -89,7 +89,7 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
   _updateFeed({required PostInFeed newFeed}) {
     _page = _page.copyWith(
       feeds: _page.feeds.map(
-            (feed) {
+        (feed) {
           if (feed.id == newFeed.id) {
             return newFeed;
           } else {

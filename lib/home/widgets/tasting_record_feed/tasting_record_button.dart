@@ -1,5 +1,5 @@
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -18,7 +18,9 @@ class TastingRecordButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        onTap();
+      },
       child: Container(
         color: ColorStyles.gray10,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
