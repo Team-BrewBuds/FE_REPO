@@ -13,6 +13,7 @@ import 'package:brew_buds/search/widgets/post_results_item.dart';
 import 'package:brew_buds/search/widgets/recent_search_words_list.dart';
 import 'package:brew_buds/search/widgets/recommended_coffee_beans_list.dart';
 import 'package:brew_buds/search/widgets/tatsed_record_results_item.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   late final TabController _tabController;
   late final TextEditingController _textEditingController;
   late final FocusNode _textFieldFocusNode;
+  String _searchHint = '검색어를 입력하세요';
 
   bool get canShowSearchCancelButton => _textEditingController.text.isNotEmpty;
 
@@ -40,7 +42,9 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     _textFieldFocusNode = FocusNode();
 
     _textFieldFocusNode.addListener(() {
-      setState(() {});
+      setState(() {
+        _searchHint = _searchHint.isEmpty ? '검색어를 입력하세요' : '';
+      });
     });
 
     super.initState();
@@ -72,26 +76,28 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       },
       child: Consumer<SearchPresenter>(
         builder: (BuildContext context, SearchPresenter presenter, Widget? child) {
-          return Scaffold(
-            appBar: _buildAppBar(presenter),
-            body: _textFieldFocusNode.hasFocus
-                ? _buildSuggest(presenter)
-                : _textEditingController.text.isNotEmpty
-                    ? presenter.searchResult.isNotEmpty
-                        ? CustomScrollView(
-                            slivers: [
-                              SliverAppBar(
-                                floating: true,
-                                titleSpacing: 0,
-                                title: _buildFilter(presenter),
-                              ),
-                              SliverToBoxAdapter(
-                                child: _buildSearchResult(presenter),
-                              ),
-                            ],
-                          )
-                        : _buildEmptyPage(presenter)
-                    : _buildDefault(presenter),
+          return SafeArea(
+            child: Scaffold(
+              appBar: _buildAppBar(presenter),
+              body: _textFieldFocusNode.hasFocus
+                  ? _buildSuggest(presenter)
+                  : _textEditingController.text.isNotEmpty
+                      ? presenter.searchResult.isNotEmpty
+                          ? CustomScrollView(
+                              slivers: [
+                                SliverAppBar(
+                                  floating: true,
+                                  titleSpacing: 0,
+                                  title: _buildFilter(presenter),
+                                ),
+                                SliverToBoxAdapter(
+                                  child: _buildSearchResult(presenter),
+                                ),
+                              ],
+                            )
+                          : _buildEmptyPage(presenter)
+                      : SingleChildScrollView(child: _buildDefault(presenter)),
+            ),
           );
         },
       ),
@@ -133,10 +139,14 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               controller: _textEditingController,
               focusNode: _textFieldFocusNode,
               maxLines: 1,
-              cursorColor: ColorStyles.gray50,
+              cursorHeight: 16,
+              cursorWidth: 1,
+              cursorColor: ColorStyles.black,
               decoration: InputDecoration(
-                hintText: '검색어를 입력하세요',
+                hintText: _searchHint,
                 hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                fillColor: ColorStyles.gray10,
+                filled: true,
                 enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: ColorStyles.gray40),
                   borderRadius: BorderRadius.all(Radius.circular(34)),
@@ -147,22 +157,26 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   borderRadius: BorderRadius.all(Radius.circular(34)),
                   gapPadding: 8,
                 ),
-                contentPadding: const EdgeInsets.only(left: 4, top: 12, bottom: 12, right: 4),
+                contentPadding: const EdgeInsets.only(top: 10, bottom: 10),
                 prefixIcon: Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 10, left: 12),
+                    padding: const EdgeInsets.only(top: 10, bottom: 10, left: 12, right: 4),
                     child: SvgPicture.asset(
                       'assets/icons/search.svg',
+                      height: 20,
+                      width: 20,
                       colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
                     )),
                 suffixIcon: canShowSearchCancelButton
                     ? Padding(
-                        padding: const EdgeInsets.only(top: 10, bottom: 10, right: 12),
+                        padding: const EdgeInsets.only(top: 10, bottom: 10, right: 12, left: 4),
                         child: InkWell(
                           onTap: () {
                             _clearTextField();
                           },
                           child: SvgPicture.asset(
                             'assets/icons/x_round.svg',
+                            height: 24,
+                            width: 24,
                             colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
                           ),
                         ))
@@ -177,17 +191,18 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   Widget _buildTabBar(SearchPresenter presenter) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
       child: TabBar(
         controller: _tabController,
         indicator: const UnderlineTabIndicator(
-          borderSide: BorderSide(color: ColorStyles.black, width: 2),
+          borderSide: BorderSide(width: 2, color: ColorStyles.black),
         ),
+        labelPadding: const EdgeInsets.only(bottom: 4),
+        padding: EdgeInsets.zero,
         indicatorSize: TabBarIndicatorSize.tab,
         isScrollable: false,
         tabAlignment: TabAlignment.fill,
-        labelPadding: const EdgeInsets.only(top: 16),
         labelStyle: TextStyles.title01SemiBold,
         labelColor: ColorStyles.black,
         unselectedLabelStyle: TextStyles.title01SemiBold,
@@ -197,8 +212,18 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         tabs: presenter.tabs
             .map(
               (subject) => Tab(
-                text: subject.toString(),
-                height: 31,
+                height: 16.8,
+                child: LayoutBuilder(builder: (context, constraints) {
+                  return SizedBox(
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth,
+                    child: Center(
+                        child: Text(
+                      subject.toString(),
+                      style: TextStyles.title01SemiBold,
+                    )),
+                  );
+                }),
               ),
             )
             .toList(),
@@ -240,11 +265,9 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           },
         ),
         const SizedBox(height: 28),
-        Expanded(
-          child: CoffeeBeansRankingList(
-            coffeeBeansRank: presenter.coffeeBeansRanking,
-            updatedAt: presenter.rankUpdatedAt,
-          ),
+        CoffeeBeansRankingList(
+          coffeeBeansRank: presenter.coffeeBeansRanking,
+          updatedAt: presenter.rankUpdatedAt,
         ),
       ],
     );
@@ -268,27 +291,27 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                 _textFieldFocusNode.unfocus();
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                padding: const EdgeInsets.symmetric(vertical: 10.5),
                                 child: Row(
                                   children: [
                                     Expanded(
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black),
-                                          children: _getSpans(
-                                              presenter.suggestWords[index],
-                                              presenter.searchWord,
-                                              TextStyles.title01SemiBold.copyWith(
-                                                color: ColorStyles.red,
-                                              )),
+                                        child: RichText(
+                                      text: TextSpan(
+                                        style: TextStyles.title01SemiBold.copyWith(
+                                          color: ColorStyles.black,
+                                          fontWeight: FontWeight.w400,
                                         ),
-                                        maxLines: 1,
+                                        children: _getSpans(
+                                          presenter.suggestWords[index],
+                                          presenter.searchWord,
+                                          TextStyles.title01SemiBold.copyWith(
+                                            color: ColorStyles.red,
+                                          ),
+                                        ),
                                       ),
-                                      // child: Text(
-                                      //   presenter.suggestWords[index],
-                                      //   style: TextStyles.title01SemiBold,
-                                      // ),
-                                    ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    )),
                                     presenter.haveSearchedWords.contains(presenter.suggestWords[index])
                                         ? SvgPicture.asset(
                                             'assets/icons/clock.svg',
@@ -312,7 +335,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           )
         : Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 70),
+              padding: const EdgeInsets.symmetric(horizontal: 70),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -445,6 +468,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   beanName: result.name,
                   rating: result.rating,
                   recordCount: result.recordedCount,
+                  imageUri: '',
                 ),
               );
             case BuddySearchResultModel():
@@ -522,6 +546,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               title,
               style: TextStyles.title01SemiBold,
             ),
+            const SizedBox(height: 12),
             Text(
               hint,
               style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray50),
