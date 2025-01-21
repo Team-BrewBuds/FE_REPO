@@ -1,7 +1,9 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class TermsOfUseBottomSheet extends StatefulWidget {
   const TermsOfUseBottomSheet({super.key});
@@ -39,12 +41,12 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                   child: Center(
                     child: InkWell(
                       onTap: () {
-                        Navigator.pop(context);
+                        context.pop();
                       },
                       child: SvgPicture.asset(
                         'assets/icons/x.svg',
-                        width: 14,
-                        height: 14,
+                        width: 16,
+                        height: 16,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -79,6 +81,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                   '약관 전체 동의',
                   style: TextStyles.labelSmallSemiBold,
                 ),
+                Spacer(),
               ],
             ),
           ),
@@ -104,9 +107,9 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       '(필수) 브루버즈 이용약관 동의',
-                      style: TextStyles.labelSmallSemiBold,
+                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
                     ),
                     const Spacer(),
                     SvgPicture.asset(
@@ -133,9 +136,9 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       '(필수) 개인정보 수집 및 이용 동의',
-                      style: TextStyles.labelSmallSemiBold,
+                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
                     ),
                     const Spacer(),
                     SvgPicture.asset(
@@ -163,17 +166,20 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '(필수) 14세 이상 확인',
-                          style: TextStyles.labelSmallSemiBold,
+                          style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
                         ),
                         SizedBox(height: 2),
-                        Text(
-                          '14세 미만의 회원가입은 불가합니다.',
-                          style: TextStyles.captionSmallMedium,
+                        Padding(
+                          padding: EdgeInsets.only(left: 1),
+                          child: Text(
+                            '14세 미만의 회원가입은 불가합니다.',
+                            style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
+                          ),
                         ),
                       ],
                     ),
@@ -196,9 +202,9 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       '(선택) 개인정보 마케팅 활용 동의',
-                      style: TextStyles.labelSmallSemiBold,
+                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
                     ),
                     const Spacer(),
                   ],
@@ -211,17 +217,26 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
             child: Container(
               padding: const EdgeInsets.only(top: 32, left: 16, right: 16),
               width: double.infinity,
-              child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    backgroundColor: isRequiredChecked ? Colors.black : ColorStyles.gray30,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: InkWell(
+                onTap: () {
+                  context.pop(true);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: isRequiredChecked ? ColorStyles.black : ColorStyles.gray30,
                   ),
-                  child: const Text('다음', style: TextStyles.labelMediumMedium)),
+                  child: Center(
+                    child: Text(
+                      '다음',
+                      style: TextStyles.labelMediumMedium.copyWith(
+                        color: isRequiredChecked ? ColorStyles.white : ColorStyles.gray40,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
