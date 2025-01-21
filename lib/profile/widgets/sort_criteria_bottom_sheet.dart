@@ -33,7 +33,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              padding: EdgeInsets.only(bottom: 64),
+              padding: const EdgeInsets.only(bottom: 64),
               decoration: const BoxDecoration(
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
@@ -98,7 +98,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                               ),
                               const Spacer(),
                               widget.currentIndex == index
-                                  ? const Icon(Icons.check, size: 15, color: ColorStyles.red)
+                                  ? const Icon(Icons.check, size: 18, color: ColorStyles.red)
                                   : Container(),
                             ],
                           ),
