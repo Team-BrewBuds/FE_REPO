@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/pages/write_coffee_free_note.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      builder: BotToastInit(),
       routerConfig: router,
       title: 'Brew Buds',
       debugShowCheckedModeBanner: false,

@@ -1,14 +1,12 @@
 import 'package:brew_buds/coffeeNote/pages/tasting_record_sec_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/widget/wdgt_search_bottom_sheet.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../common/button_factory.dart';
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/factory/button_factory.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../../features/signup/models/gender.dart';
 import '../../features/signup/provider/sign_up_presenter.dart';
 import '../widget/wdgt_select_list.dart';

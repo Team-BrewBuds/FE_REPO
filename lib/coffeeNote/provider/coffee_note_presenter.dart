@@ -8,24 +8,19 @@ import 'package:image_picker/image_picker.dart';
 import '../../profile/model/country.dart';
 
 final class CoffeeNotePresenter extends ChangeNotifier {
-  TextEditingController titleController = TextEditingController();
-  late CustomTagController customTagController = CustomTagController();
 
-  List<ExtractionType> get extractionInfo => ExtractionType.values;
+
 
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
-
   bool _click = false;
   bool get click => _click;
-  
-  String _title = '게시글 주제를 선택해주세요';
+  String _title ='';
   String get title => _title;
 
   List<String> _tag = [];
   List<String> get tag => _tag;
-
   List<String> recordTitle = [
     '원두 추출방식 (선택)',
     '원두 로스팅 포인트 (선택)',
@@ -35,8 +30,9 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     '로스터리 (선택)',
     '원두 품종 (선택)'
   ];
-
   List<BeanFlavor> get flavor => BeanFlavor.values;
+  List<ExtractionType> get extractionInfo => ExtractionType.values;
+
 
 
   // 제목 설정
@@ -45,16 +41,9 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-
-
-  // 등록 버튼 활성화 여부 체크
-  bool isRegisterButtonEnabled() {
-    notifyListeners();
-    return titleController.text.isNotEmpty &&
-        customTagController.text.isNotEmpty &&
-        _title.isNotEmpty;
-
+  void initialize() {
   }
+
 
   List<String> extractTags(String text) {
     final RegExp regex = RegExp(r'#\w+');
@@ -100,9 +89,7 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
   @override
   void dispose() {
-    // 리소스 해제
-    titleController.dispose();
-    customTagController.dispose();
+
     super.dispose();
   }
 

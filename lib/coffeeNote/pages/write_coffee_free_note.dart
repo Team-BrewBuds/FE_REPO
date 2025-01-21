@@ -1,15 +1,12 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/controller/custom_controller.dart';
 import 'package:brew_buds/model/post_subject.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get_common/get_reset.dart';
-import 'package:provider/provider.dart';
-
-import '../../common/button_factory.dart';
-import '../../common/color_styles.dart';
-import '../../common/icon_button_factory.dart';
-import '../../common/text_styles.dart';
+import '../../common/factory/icon_button_factory.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../../common/widget/wdgt_datePicker.dart';
 import '../../common/widget/wdgt_valid_question.dart';
 import '../widget/wdgt_bottom_sheet.dart';
@@ -22,25 +19,39 @@ class WriteCoffeeFreeNote extends StatefulWidget {
 }
 
 class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
-  CustomTagController customTagController = CustomTagController();
-  late CoffeeNotePresenter presenter;
-  TextEditingController textController = TextEditingController();
-  bool btnActive = false;
+  TextEditingController _title = TextEditingController();
+  TextEditingController _content = TextEditingController();
+  late String _topic;
+  bool _isTopicSelect = false;
+  bool _isEnabled = false;
 
   @override
   void initState() {
     super.initState();
-    presenter = CoffeeNotePresenter();
-    customTagController = CustomTagController();
+    _topic = '게시글 주제를 선택해주세요';
+    _title.addListener(_updateButton);
+    _content.addListener(_updateButton);
+  }
 
+  void _updateButton() {
+    setState(() {
+      _isEnabled =
+          _isTopicSelect && _title.text.length > 1 && _content.text.length > 7;
+    });
+  }
+
+  void _selectTopic(String value) {
+    setState(() {
+      _topic = value;
+      _isTopicSelect = true;
+    });
   }
 
   @override
   void dispose() {
-    presenter.dispose();
+    _title.dispose();
+    _content.dispose();
     super.dispose();
-    customTagController.dispose();
-    textController.dispose();
   }
 
   Future<bool> _onWillPop() async {
@@ -54,6 +65,21 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       },
     );
     return shouldPop ?? false;
+  }
+
+  void _showToast(String message, {Color backgroundColor = Colors.black}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          textAlign: TextAlign.center,
+          message,
+          style: TextStyles.captionMediumNarrowMedium
+        ),
+        backgroundColor: backgroundColor,
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -93,16 +119,27 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       actions: [
         Consumer<CoffeeNotePresenter>(
           builder: (context, presenter, child) {
-            final isEnabled = presenter.isRegisterButtonEnabled();
             return TextButton(
-              onPressed: isEnabled ? () {
-
-              } : null,
+              onPressed: () {
+                if (_isEnabled) {
+                  // Process if enabled
+                  print('success');
+                } else {
+                  // Show validation messages as "toast"
+                  if (_title.text.length < 2) {
+                    _showToast('주제를 2글자 이상 입력하세요', backgroundColor: Colors.black);
+                  } else if (_content.text.length < 7) {
+                    _showToast('내용을 8글자 이상 입력하세요', backgroundColor: Colors.black);
+                  } else if (!_isTopicSelect) {
+                    _showToast('게시물 주제를 선택하세요.', backgroundColor: Colors.black);
+                  }
+                }
+              },
               child: Container(
                 width: 55,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: isEnabled
+                  color: _isEnabled
                       ? ColorStyles.red // 활성화 상태
                       : ColorStyles.gray20, // 비활성화 상태
                   borderRadius: BorderRadius.circular(12),
@@ -111,7 +148,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
                   child: Text(
                     '등록',
                     style: TextStyle(
-                      color: isEnabled
+                      color: _isEnabled
                           ? ColorStyles.white // 활성화 상태 텍스트 색상
                           : ColorStyles.gray40, // 비활성화 상태 텍스트 색상
                     ),
@@ -124,7 +161,6 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       ],
     );
   }
-
 
   // 주제 선택을 위한 BottomSheet 호출
   Widget _buildSubjectSelection(CoffeeNotePresenter presenter) {
@@ -139,6 +175,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
             builder: (context) => WdgtBottomSheet(
               title: '게시물 주제',
               presenter: presenter,
+              onTap: _selectTopic,
             ),
           );
         },
@@ -146,7 +183,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              presenter.title,
+              _isTopicSelect ? _topic : '게시글 주제를 선택해주세요',
               style: TextStyles.labelMediumMedium,
             ),
             SvgPicture.asset(
@@ -166,7 +203,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: TextFormField(
-        controller: presenter.titleController,
+        controller: _title,
         cursorColor: ColorStyles.black,
         validator: (value) {
           return presenter
@@ -175,7 +212,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
         decoration: InputDecoration(
           hintText: '제목을 입력하세요.',
           hintStyle:
-              TextStyles.title02SemiBold.copyWith(color: ColorStyles.gray50),
+          TextStyles.title02SemiBold.copyWith(color: ColorStyles.gray50),
           enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: ColorStyles.gray20),
           ),
@@ -193,12 +230,12 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: TextFormField(
-          controller: presenter.customTagController,
+          controller: _content,
           cursorColor: ColorStyles.black,
           decoration: InputDecoration(
             hintText: '내용을 입력하세요.',
             hintStyle:
-                TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
+            TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
             enabledBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: ColorStyles.gray20),
             ),

@@ -3,12 +3,10 @@ import 'dart:math';
 import 'package:brew_buds/coffeeNote/pages/tasting_record_third_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/widget/wdgt_bottom_sheet_select.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
 import 'package:flutter/material.dart';
-
-import '../../common/button_factory.dart';
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/factory/button_factory.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../../features/signup/models/signup_lists.dart';
 import '../../profile/presenter/filter_presenter.dart';
 import '../widget/wdgt_bottom_sheet.dart';

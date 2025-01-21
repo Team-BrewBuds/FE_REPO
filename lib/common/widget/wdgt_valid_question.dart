@@ -1,9 +1,11 @@
-import 'package:brew_buds/common/button_factory.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../color_styles.dart';
-import '../text_styles.dart';
+import '../factory/button_factory.dart';
+import '../styles/color_styles.dart';
+import '../styles/text_styles.dart';
+
 
 class WdgtValidQuestion extends StatefulWidget {
   final String title;
