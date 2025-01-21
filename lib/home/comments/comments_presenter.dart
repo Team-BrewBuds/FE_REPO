@@ -18,6 +18,7 @@ final class CommentsPresenter extends ChangeNotifier {
   final User author;
   final CommentsRepository _repository;
   int _currentPage = 0;
+  User? _replyAuthor;
   bool _disposed = false;
   CommentsPage _page = CommentsPage.initial();
 
@@ -33,6 +34,10 @@ final class CommentsPresenter extends ChangeNotifier {
   List<Comment> get comments => _page.comments;
 
   bool get hasNext => _page.hasNext;
+
+  User? get replyAuthor => _replyAuthor;
+
+  bool get isReply => _replyAuthor != null;
 
   refresh() {
     _currentPage = 0;
@@ -68,5 +73,15 @@ final class CommentsPresenter extends ChangeNotifier {
     if (!_disposed) {
       super.notifyListeners();
     }
+  }
+
+  onTappedReply(User author) {
+    _replyAuthor = author;
+    notifyListeners();
+  }
+
+  cancelReply() {
+    _replyAuthor = null;
+    notifyListeners();
   }
 }

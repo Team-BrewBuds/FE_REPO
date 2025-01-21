@@ -1,7 +1,7 @@
-import 'package:brew_buds/common/button_factory.dart';
-import 'package:brew_buds/common/color_styles.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
-import 'package:brew_buds/common/text_styles.dart';
+import 'package:brew_buds/common/factory/button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/home/popular_posts/popular_post.dart';
 import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
 import 'package:flutter/cupertino.dart';
@@ -53,12 +53,12 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                 CupertinoSliverRefreshControl(
                   onRefresh: presenter.onRefresh,
                   builder: (
-                      BuildContext context,
-                      RefreshIndicatorMode refreshState,
-                      double pulledExtent,
-                      double refreshTriggerPullDistance,
-                      double refreshIndicatorExtent,
-                      ) {
+                    BuildContext context,
+                    RefreshIndicatorMode refreshState,
+                    double pulledExtent,
+                    double refreshTriggerPullDistance,
+                    double refreshIndicatorExtent,
+                  ) {
                     switch (refreshState) {
                       case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
                         return Container(
@@ -132,7 +132,11 @@ class _PopularPostsViewState extends State<PopularPostsView> {
               ? SizedBox(
                   height: 80,
                   width: 80,
-                  child: Image.network(popularPost.imagesUri.first, fit: BoxFit.cover, errorBuilder: (context, _, __) => Container(),),
+                  child: Image.network(
+                    popularPost.imagesUri.first,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, _, __) => Container(),
+                  ),
                 )
               : Container()
         ],

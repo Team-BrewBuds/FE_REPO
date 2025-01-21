@@ -3,8 +3,8 @@ import 'package:brew_buds/features/signup/views/signup_second_page.dart';
 import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
 import 'package:flutter/material.dart';
 
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../../features/signup/models/signup_lists.dart';
 
 class FitInfoView extends StatefulWidget {
