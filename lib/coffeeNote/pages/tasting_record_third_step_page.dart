@@ -1,10 +1,9 @@
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
-import '../../common/button_factory.dart';
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/factory/button_factory.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import 'core/tasing_record_mixin.dart';
 
 class TastingRecordThirdStepPage extends StatefulWidget {

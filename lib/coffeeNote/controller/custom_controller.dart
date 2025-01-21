@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../common/color_styles.dart';
+import '../../common/styles/color_styles.dart';
 
 class CustomTagController extends TextEditingController {
   static const int maxTags = 5; // 태그 최대 개수 제한

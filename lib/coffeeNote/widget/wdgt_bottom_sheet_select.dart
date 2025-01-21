@@ -1,14 +1,14 @@
 import 'dart:math';
 
-import 'package:brew_buds/coffeeNote/widget/wdgt_search_bottom_sheet.dart';
-import 'package:brew_buds/common/iterator_widget_ext.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-import '../../common/button_factory.dart';
-import '../../common/color_styles.dart';
-import '../../common/text_styles.dart';
+import '../../common/factory/button_factory.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 import '../provider/coffee_note_presenter.dart';
 
 class WdgtBottomSheetSelect extends StatefulWidget {

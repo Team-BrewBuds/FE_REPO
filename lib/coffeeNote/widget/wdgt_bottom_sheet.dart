@@ -1,16 +1,21 @@
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:flutter/material.dart';
-
-import '../../common/color_styles.dart';
 import '../../common/drag_bar.dart';
-import '../../common/text_styles.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 
 class WdgtBottomSheet extends StatefulWidget {
   final String title;
   final CoffeeNotePresenter presenter;
+  final Function(String) onTap;
 
-  const WdgtBottomSheet({super.key, required this.title, required this.presenter});
+  const WdgtBottomSheet({
+    super.key,
+    required this.title,
+    required this.presenter,
+    required this.onTap,
+  });
 
   @override
   State<WdgtBottomSheet> createState() => _WdgtBottomSheetState();
@@ -35,8 +40,9 @@ class _WdgtBottomSheetState extends State<WdgtBottomSheet> {
 
   // 드래그 표시 인디케이터
   Widget _buildDraggableIndicator() {
-    return Padding(padding: EdgeInsets.symmetric(vertical: 10.0),
-    child: const DraggableIndicator());
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        child: const DraggableIndicator());
   }
 
   // BottomSheet 제목
@@ -76,8 +82,8 @@ class _WdgtBottomSheetState extends State<WdgtBottomSheet> {
         style: TextStyles.labelMediumMedium,
       ),
       onTap: () {
-          widget.presenter.setTitle(subject.toString());
-
+        widget.onTap(subject.toString());
+        // widget.presenter.setTitle(subject.toString());
         Navigator.pop(context, subject);
       },
     );

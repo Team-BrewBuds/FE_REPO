@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import '../../common/color_styles.dart';
 import '../../common/drag_bar.dart';
-import '../../common/text_styles.dart';
+import '../../common/styles/color_styles.dart';
+import '../../common/styles/text_styles.dart';
 
 class WdgtSearchBottomSheet extends StatefulWidget {
   const WdgtSearchBottomSheet({super.key, required this.title, required this.content});
