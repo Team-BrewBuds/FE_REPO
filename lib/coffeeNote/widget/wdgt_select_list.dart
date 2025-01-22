@@ -41,11 +41,11 @@ class _WdgtSelectListState extends State<WdgtSelectList> {
     return Consumer<CoffeeNotePresenter>(
       builder: (BuildContext context, presenter, Widget? child) {
         final List<Widget> _widgets = [
-          _buildOriginFilter(presenter),
-          _buildLoastingPoint(),
+          _buildOriginFilter(presenter),      //원두 추출방식
+          _buildLoastingPoint(presenter),              //원두 로스팅 포인트
           _buildProcess(),
-          _buildRegion(context, presenter),
-          _buildBevType(),
+          _buildRegion(),//원두 가공방식
+          _buildBevType(),                    // 원두 생산지역
           _buildRoastery(context, presenter),
           _buildVariety(context, presenter),
 
@@ -236,7 +236,7 @@ Widget _buildOriginFilter(
   );
 }
 
-Widget _buildLoastingPoint() {
+Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
   return Expanded(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -272,15 +272,15 @@ Widget _buildLoastingPoint() {
                         width: 28,
                         decoration: BoxDecoration(
                             color:
-                                // presenter.acidity == index ?
-                                // ColorStyles.white :
+                                presenter.acidity == index ?
+                                ColorStyles.white :
                                 Colors.transparent,
                             shape: BoxShape.circle,
                             border:
-                                // presenter.acidity == index ?
-                                // Border.all(color: ColorStyles.red)
-                                // : null,
-                                null),
+                                presenter.acidity == index ?
+                                Border.all(color: ColorStyles.red)
+                                : null,
+                                ),
                         child: Center(
                           child: Container(
                             height: 14,
@@ -353,6 +353,7 @@ Widget _buildLoastingPoint() {
             ],
           ),
         ),
+    
       ],
     ),
   );
@@ -436,7 +437,7 @@ Widget _buildProcess() {
   );
 }
 
-Widget _buildRegion(context, presenter) {
+Widget _buildRegion( ) {
   TextEditingController textEditingController = TextEditingController();
   return Expanded(
     child:Column(

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:brew_buds/coffeeNote/pages/tasting_record_sec_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/widget/wdgt_search_bottom_sheet.dart';
@@ -24,7 +26,41 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
     with TasingRecordMixin<TasingRecordFirstStepPage> {
   final _formKey = GlobalKey<FormState>();
   late bool isDecaf = false;
-  late bool beanType = false;
+  late String beanType = '';
+  late bool single = false;
+  late bool blend = false;
+
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void beanTypeSelect({required String type, bool }) {
+    setState(() {
+      if (type == 'single') {
+        if (!single) {
+          single = true;
+          blend = false;
+          beanType = 'single';
+        } else {
+          single = false;
+          beanType = '';
+        }
+      } else if (type == 'blend') {
+        if (!blend) {
+          blend = true;
+          single = false;
+          beanType = 'blend';
+        } else {
+          blend = false;
+          beanType = '';
+        }
+      }
+    });
+  }
+
 
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
@@ -65,11 +101,11 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                           ButtonFactory.buildRoundedButton(
                               onTapped: () {
                                 setState(() {
-                                  beanType = !beanType;
+                                  beanTypeSelect(type: 'single');
                                 });
                               },
                               text: '싱글오리진',
-                              style: beanType == true
+                              style: single
                                   ? RoundedButtonStyle.line(
                                       size: RoundedButtonSize.medium,
                                       backgroundColor: ColorStyles.background,
@@ -86,11 +122,11 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                           ButtonFactory.buildRoundedButton(
                               onTapped: () {
                                 setState(() {
-                                  beanType = !beanType;
+                                  beanTypeSelect(type: 'blend');
                                 });
                               },
                               text: '블렌드',
-                              style: beanType == false
+                              style: blend
                                   ? RoundedButtonStyle.line(
                                       size: RoundedButtonSize.medium,
                                       backgroundColor: ColorStyles.background,
