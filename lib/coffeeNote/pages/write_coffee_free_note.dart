@@ -20,7 +20,7 @@ class WriteCoffeeFreeNote extends StatefulWidget {
 
 class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
   TextEditingController _title = TextEditingController();
-  TextEditingController _content = TextEditingController();
+  CustomTagController _content = CustomTagController();
   late String _topic;
   bool _isTopicSelect = false;
   bool _isEnabled = false;
@@ -100,7 +100,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
                     _buildSubjectSelection(presenter),
                     const Divider(thickness: 1.0, color: ColorStyles.gray20),
                     _buildTitleInput(presenter),
-                    _buildContentInput(presenter),
+                    _buildContentInput(),
                     _buildBottomButtons(presenter),
                   ],
                 ),
@@ -205,10 +205,6 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
       child: TextFormField(
         controller: _title,
         cursorColor: ColorStyles.black,
-        validator: (value) {
-          return presenter
-              .validateMultiLineText(value!); // Apply the multi-line validation
-        },
         decoration: InputDecoration(
           hintText: '제목을 입력하세요.',
           hintStyle:
@@ -225,7 +221,7 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
   }
 
   // 내용 입력 필드
-  Widget _buildContentInput(CoffeeNotePresenter presenter) {
+  Widget _buildContentInput( ) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),

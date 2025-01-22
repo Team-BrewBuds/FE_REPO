@@ -5,12 +5,15 @@ import 'package:brew_buds/coffeeNote/model/beanInfo.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../data/signup/auth_service.dart';
+import '../../features/signup/state/signup_state.dart';
 import '../../profile/model/country.dart';
 
 final class CoffeeNotePresenter extends ChangeNotifier {
+  final AuthService _authService = AuthService.defaultService();
+  SignUpState _state = const SignUpState();
 
-
-
+  int? get acidity => _state.preferredBeanTaste?.acidity;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -42,26 +45,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   }
 
   void initialize() {
-  }
-
-
-  List<String> extractTags(String text) {
-    final RegExp regex = RegExp(r'#\w+');
-    return regex.allMatches(text).map((match) => match.group(0)!).toList();
-  }
-
-  String? validateMultiLineText(String value) {
-    // Use RegExp to check for line breaks (\n or \r\n)
-    RegExp regExp = RegExp(r'[\r\n]+');
-
-    // Check if the value contains at least 2 lines
-    List<String> lines = value.split(regExp);
-
-    if (lines.length >= 2) {
-      return null; // Validation passed (contains 2 or more lines)
-    } else {
-      return '텍스트는 최소 2줄 이상이어야 합니다'; // Return error message if not
-    }
   }
 
   onClick(){
