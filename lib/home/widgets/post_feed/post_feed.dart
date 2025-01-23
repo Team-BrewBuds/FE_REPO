@@ -79,7 +79,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
           const SizedBox(height: 12, width: double.infinity),
           Text(
             widget.title,
-            style: TextStyles.titleMediumSemiBold,
+            style: TextStyles.title01SemiBold,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -107,7 +107,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
 
   Widget _buildTag() {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+      padding: const EdgeInsets.all(5.5),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black),
       child: Row(
         children: [

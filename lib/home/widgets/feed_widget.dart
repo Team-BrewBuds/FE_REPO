@@ -135,42 +135,81 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
   }
 
   Widget buildLikeButton() {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        widget.isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
-        height: 24,
-        width: 24,
-        colorFilter: ColorFilter.mode(
-          widget.isLiked ? ColorStyles.red : ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
+    return InkWell(
+      onTap: () {
+        widget.onTapLikeButton();
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            widget.isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
+            height: 24,
+            width: 24,
+            colorFilter: ColorFilter.mode(
+              widget.isLiked ? ColorStyles.red : ColorStyles.gray70,
+              BlendMode.srcIn,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text(widget.likeCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
+          ),
+        ],
       ),
-      text: widget.likeCount,
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: widget.onTapLikeButton,
-      iconAlign: ButtonIconAlign.left,
     );
   }
 
   Widget buildCommentButton() {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        widget.isLeaveComment ? 'assets/icons/message_fill.svg' : 'assets/icons/message.svg',
-        height: 24,
-        width: 24,
-        colorFilter: ColorFilter.mode(
-          widget.isLeaveComment ? ColorStyles.red : ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
+    return InkWell(
+      onTap: () {
+        widget.onTapCommentsButton();
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            widget.isLeaveComment ? 'assets/icons/message_fill.svg' : 'assets/icons/message.svg',
+            height: 24,
+            width: 24,
+            colorFilter: ColorFilter.mode(
+              widget.isLeaveComment ? ColorStyles.red : ColorStyles.gray70,
+              BlendMode.srcIn,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text(widget.commentsCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
+          ),
+        ],
       ),
-      text: widget.commentsCount,
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: widget.onTapCommentsButton,
-      iconAlign: ButtonIconAlign.left,
     );
   }
 
   Widget buildSaveButton() {
+    return InkWell(
+      onTap: () {
+        widget.onTapCommentsButton();
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SvgPicture.asset(
+            widget.isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
+            height: 24,
+            width: 24,
+            colorFilter: ColorFilter.mode(
+              widget.isSaved ? ColorStyles.red : ColorStyles.gray70,
+              BlendMode.srcIn,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: Text('저장', style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
+          ),
+        ],
+      ),
+    );
     return IconButtonFactory.buildHorizontalButtonWithIconWidget(
       iconWidget: SvgPicture.asset(
         widget.isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',

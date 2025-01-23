@@ -43,9 +43,18 @@ class TastedRecordResultsItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      _beanName,
-                      style: TextStyles.title01Bold,
+                    RichText(
+                      text: TextSpan(
+                        style: TextStyles.title01SemiBold.copyWith(
+                          color: ColorStyles.black,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        children: _getSpans(
+                          _beanName,
+                          _searchWord,
+                          TextStyles.title01SemiBold
+                        ),
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

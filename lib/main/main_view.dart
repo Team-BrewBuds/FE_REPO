@@ -22,7 +22,7 @@ class _MainViewState extends State<MainView> {
       body: widget._navigationShell,
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: 10.5, top: 8, left: 6, right: 6),
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             currentIndex: widget._navigationShell.currentIndex,
@@ -48,6 +48,7 @@ class _MainViewState extends State<MainView> {
                 label: '프로필',
               ),
             ],
+            iconSize: 24,
             backgroundColor: ColorStyles.white,
             selectedItemColor: ColorStyles.red,
             unselectedItemColor: ColorStyles.black,
