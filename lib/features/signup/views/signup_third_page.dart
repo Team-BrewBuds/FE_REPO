@@ -103,4 +103,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
       ],
     );
   }
+
+  @override
+  onTappedOutSide() {}
 }

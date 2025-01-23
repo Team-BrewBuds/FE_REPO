@@ -28,8 +28,8 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                   children: [
                     Image.asset(
                       'assets/images/login/finish.png',
-                      width: 247,
-                      height: 240,
+                      width: 260,
+                      height: 260,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 16),

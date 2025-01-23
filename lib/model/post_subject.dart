@@ -32,12 +32,12 @@ enum PostSubject {
 
   String get iconPath => switch (this){
     PostSubject.all => '',
-    PostSubject.beans => 'assets/icons/coffee_bean.svg',
-    PostSubject.question => 'assets/icons/home_question.svg',
-    PostSubject.normal => 'assets/icons/home_normal.svg',
-    PostSubject.caffe => 'assets/icons/home_caffe.svg',
-    PostSubject.worry => 'assets/icons/home_worry.svg',
-    PostSubject.information => 'assets/icons/home_information.svg',
+    PostSubject.beans => 'assets/icons/subject_coffee_bean.svg',
+    PostSubject.question => 'assets/icons/subject_question.svg',
+    PostSubject.normal => 'assets/icons/subject_normal.svg',
+    PostSubject.caffe => 'assets/icons/subject_caffee.svg',
+    PostSubject.worry => 'assets/icons/subject_worry.svg',
+    PostSubject.information => 'assets/icons/subject_info.svg',
     PostSubject.gear => 'assets/icons/gear.svg',
   };
 

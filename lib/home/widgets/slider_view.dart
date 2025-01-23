@@ -65,7 +65,7 @@ class _SliderViewState extends State<SliderView> {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         decoration: BoxDecoration(
-          color: ColorStyles.black,
+          color: ColorStyles.black70,
           borderRadius: BorderRadius.circular(100),
         ),
         child: Text(

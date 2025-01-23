@@ -33,14 +33,14 @@ class TastingRecordButton extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Text('시음기록', style: TextStyles.titleMediumSemiBold),
+                      const Text('시음기록', style: TextStyles.title01SemiBold),
                       const SizedBox(width: 6),
                       Container(width: 1, height: 12, color: ColorStyles.black),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           name,
-                          style: TextStyles.titleMediumSemiBold,
+                          style: TextStyles.title01SemiBold,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

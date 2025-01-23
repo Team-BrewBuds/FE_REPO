@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 class SignUpPresenter with ChangeNotifier {
   final AuthService _authService = AuthService.defaultService();
   SignUpState _state = const SignUpState();
+  bool _isDuplicateNickname = false;
 
   bool _isLoading = false;
 
@@ -16,13 +17,9 @@ class SignUpPresenter with ChangeNotifier {
 
   String get nickName => _state.nickName ?? '';
 
-  bool get isNotEmptyNickName => _state.nickName?.isNotEmpty ?? false;
+  bool get isValidNicknameLength => (_state.nickName ?? '').length >= 2;
 
-  bool _isValidNickName = false;
-
-  bool get isValidNickName => _isValidNickName;
-
-  bool get isNotEmptyYearOfBirth => _state.yearOfBirth != null;
+  bool get isDuplicateNickname => _isDuplicateNickname;
 
   bool _isValidYearOfBirth = false;
 
@@ -49,56 +46,22 @@ class SignUpPresenter with ChangeNotifier {
 
   onChangeNickName(String newNickName) {
     _state = _state.copyWith(nickName: newNickName);
-    notifyListeners();
-  }
-
-  checkNickName() {
-    if ((_state.nickName?.length ?? 0) >= 2) {
-      _isValidNickName = true;
+    if (_state.nickName != null && _state.nickName == '중복검사') {
+      _isDuplicateNickname = true;
     } else {
-      _isValidNickName = false;
+      _isDuplicateNickname = false;
     }
     notifyListeners();
-  }
-
-  String? validatedNickname(String? nickName) {
-    if (nickName == null) {
-      return null;
-    } else if (nickName.isEmpty) {
-      return null;
-    } else if (nickName.length < 2) {
-      return '2자 이상 입력해 주세요.';
-    } else {
-      return null;
-    }
   }
 
   onChangeYearOfBirth(String newYearOfBirth) {
     _state = _state.copyWith(yearOfBirth: int.tryParse(newYearOfBirth));
-    notifyListeners();
-  }
-
-  String? validatedYearOfBirth(String? yearOfBirth) {
-    if (yearOfBirth != null && yearOfBirth.length == 4) {
-      final int? year = int.tryParse(yearOfBirth);
-      if (year == null) {
-        return null;
-      } else if (((DateTime.now().year - year).abs() + 1) < 14) {
-        return '만 14세 미만은 가입할 수 없어요.';
-      } else {
-        return null;
-      }
-    } else {
-      return null;
-    }
-  }
-
-  checkYearOfBirth() {
-    if (_state.yearOfBirth != null && DateTime.now().year - _state.yearOfBirth! + 1 >= 12) {
+    if (_state.yearOfBirth != null && DateTime.now().year - _state.yearOfBirth! >= 14) {
       _isValidYearOfBirth = true;
     } else {
       _isValidYearOfBirth = false;
     }
+
     notifyListeners();
   }
 

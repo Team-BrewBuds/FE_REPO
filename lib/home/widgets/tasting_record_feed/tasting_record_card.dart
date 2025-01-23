@@ -1,5 +1,4 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/factory/tag_factory.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +24,7 @@ class TastingRecordCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = width;
-    return Container(
+    return SizedBox(
       height: height,
       width: width,
       child: Stack(
@@ -75,6 +74,8 @@ class TastingRecordCard extends StatelessWidget {
       children: [
         SvgPicture.asset(
           'assets/icons/star_fill.svg',
+          height: 16,
+          width: 16,
           colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
         ),
         const SizedBox(width: 4),
@@ -90,16 +91,18 @@ class TastingRecordCard extends StatelessWidget {
     return Row(
       children: tags
           .map((text) {
-            return TagFactory.buildTag(
-              icon: SvgPicture.asset(
-                'assets/icons/coffee_bean.svg',
-                colorFilter: const ColorFilter.mode(
-                  ColorStyles.white,
-                  BlendMode.srcIn,
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: ColorStyles.black,
+              ),
+              child: Center(
+                child: Text(
+                  text,
+                  style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white),
                 ),
               ),
-              text: text,
-              style: TagStyle(size: TagSize.small, iconAlign: TagIconAlign.left),
             );
           })
           .separator(separatorWidget: const SizedBox(width: 4))

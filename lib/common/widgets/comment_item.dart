@@ -4,6 +4,7 @@ import 'package:brew_buds/common/factory/tag_factory.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CommentItem extends StatelessWidget {
@@ -71,25 +72,33 @@ class CommentItem extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           createdAt,
-                          style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray50),
+                          style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
                         ),
                         const SizedBox(width: 6),
-                        isWriter
-                            ? TagFactory.buildTag(
-                                icon: SvgPicture.asset('assets/icons/union.svg'),
-                                text: '작성자',
-                                style: TagStyle(
-                                  size: TagSize.xSmall,
-                                  iconAlign: TagIconAlign.left,
-                                ),
-                              )
-                            : Container(),
+                        if (true) ...[
+                          InkWell(
+                            onTap: () {
+
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: ColorStyles.black,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '작성자',
+                                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white),
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 6),
                     Text(
                       contents,
-                      style: TextStyles.bodyRegular,
+                      style: TextStyles.bodyNarrowRegular,
                     ),
                     if (canReply) ...[
                       const SizedBox(height: 6),
@@ -106,19 +115,29 @@ class CommentItem extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButtonFactory.buildVerticalButtonWithIconWidget(
-                iconWidget: SvgPicture.asset(
-                  'assets/icons/like.svg',
-                  colorFilter: ColorFilter.mode(
-                    !isLiked ? ColorStyles.gray50 : ColorStyles.red,
-                    BlendMode.srcIn,
-                  ),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: Column(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/like.svg',
+                      colorFilter: ColorFilter.mode(
+                        !isLiked ? ColorStyles.gray50 : ColorStyles.red,
+                        BlendMode.srcIn,
+                      ),
+                      height: 18,
+                      width: 18,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      likeCount,
+                      style: TextStyles.captionSmallMedium.copyWith(
+                        color: !isLiked ? ColorStyles.gray50 : ColorStyles.red,
+                      ),
+                    ),
+                  ],
                 ),
-                text: likeCount,
-                textStyle: TextStyles.captionSmallMedium.copyWith(
-                  color: !isLiked ? ColorStyles.gray50 : ColorStyles.red,
-                ),
-                onTapped: () {},
               ),
             ],
           ),
