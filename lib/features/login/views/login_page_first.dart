@@ -2,9 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -106,9 +104,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                   InkWell(
                     onTap: () {},
                     child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide())
-                      ),
+                      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
                       child: const Text(
                         '둘러보기',
                         style: TextStyles.labelSmallMedium,
