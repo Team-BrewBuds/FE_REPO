@@ -37,22 +37,18 @@ class _WdgtSelectListState extends State<WdgtSelectList> {
 
   @override
   Widget build(BuildContext context) {
-    late final List<double> _height = [268, 130, 156, 132, 131, 132, 132];
+    late final List<double> _height = [268, 150, 200, 132, 131, 132, 132];
     return Consumer<CoffeeNotePresenter>(
       builder: (BuildContext context, presenter, Widget? child) {
         final List<Widget> _widgets = [
-          _buildOriginFilter(presenter),      //원두 추출방식
-          _buildLoastingPoint(presenter),              //원두 로스팅 포인트
-          _buildProcess(),
-          _buildRegion(),//원두 가공방식
-          _buildBevType(),                    // 원두 생산지역
+          _buildOriginFilter(presenter), //원두 추출방식
+          _buildLoastingPoint(presenter), //원두 로스팅 포인트
+          _buildProcess(presenter),
+          _buildRegion(presenter), //원두 가공방식
+          _buildBevType(presenter), // 원두 생산지역
           _buildRoastery(context, presenter),
           _buildVariety(context, presenter),
-
         ];
-
-        print(presenter.extractionInfo);
-        // print(presenter.extractionInfo.toString());
 
         return ListView.separated(
           shrinkWrap: true,
@@ -84,154 +80,210 @@ class _WdgtSelectListState extends State<WdgtSelectList> {
   }
 }
 
-
-Widget _buildOriginFilter(
-  CoffeeNotePresenter presenter,
-) {
+Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
   final firstRow = presenter.extractionInfo.sublist(0, 3); // 첫 번째 행
   final secondRow = presenter.extractionInfo.sublist(3); // 두 번째 행
 
   final TextEditingController textController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
+  late String etcValue;
+
+  textController.addListener(() {
+    etcValue = textController.text;
+    print(etcValue);
+  });
+
   return Expanded(
     child: ListView.builder(
         itemCount: 1,
         itemBuilder: (context, index) {
-          return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            SizedBox(
-              height: 24,
-            ),
-            Row(
-              children: firstRow
-                  .map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 6),
-                        decoration: BoxDecoration(
-                          // 배경색
-                          borderRadius: BorderRadius.circular(8),
-                          // 둥근 테두리
-                          border: Border.all(
-                            color: ColorStyles.gray50, // 테두리 색상
-                            width: 1, // 테두리 두께
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 24,
+                ),
+                Row(
+                  children: firstRow
+                      .map(
+                        (item) =>
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
+                          child: InkWell(
+                            onTap: () {
+                              presenter.extractionFilter(item);
+                              // print(item.name);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 6),
+                              decoration: BoxDecoration(
+                                // 배경색
+                                color:
+                                presenter.extractionList.contains(item.name)
+                                    ? ColorStyles.background
+                                    : null,
+                                borderRadius: BorderRadius.circular(8),
+                                // 둥근 테두리
+                                border: Border.all(
+                                  color: presenter.extractionList
+                                      .contains(item.name)
+                                      ? ColorStyles.red
+                                      : ColorStyles.gray50, // 테두리 색상
+                                  width: 1, // 테두리 두께
+                                ),
+                              ),
+                              child: Text(
+                                item.toString(),
+                                style: TextStyle(
+                                    color: presenter.extractionList
+                                        .contains(item.name)
+                                        ? ColorStyles.red
+                                        : ColorStyles.black,
+                                    fontSize: 13), // 텍스트 스타일
+                              ),
+                            ),
                           ),
                         ),
-                        child: Text(
-                          item.toString(),
-                          style: const TextStyle(color: Colors.black), // 텍스트 스타일
-                        ),
-                      ),
-                    ),
                   )
-                  .toList(),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            Row(
-              children: secondRow
-                  .map(
-                    (item) => Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 3),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          // 둥근 테두리
-                          border: Border.all(
-                            color: ColorStyles.gray50, // 테두리 색상
-                            width: 1, // 테두리 두께
+                      .toList(),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Row(
+                  children: secondRow
+                      .map(
+                        (item) =>
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 3),
+                          child: InkWell(
+                            onTap: () {
+                              presenter.extractionFilter(item);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color:
+                                presenter.extractionList.contains(item.name)
+                                    ? ColorStyles.background
+                                    : null,
+                                borderRadius: BorderRadius.circular(8),
+                                // 둥근 테두리
+                                border: Border.all(
+                                  color: presenter.extractionList
+                                      .contains(item.name)
+                                      ? ColorStyles.red
+                                      : ColorStyles.gray50, // 테두리 색상
+                                  width: 1, // 테두리 두께
+                                ),
+                              ),
+                              child: Text(
+                                item.toString(),
+                                style: TextStyle(
+                                    color: presenter.extractionList
+                                        .contains(item.name)
+                                        ? ColorStyles.red
+                                        : ColorStyles.black,
+                                    fontSize: 13), // 텍스트 스타일
+                              ),
+                            ),
                           ),
                         ),
-                        child: Text(
-                          item.toString(),
-                          style: const TextStyle(
-                              color: Colors.black, fontSize: 13), // 텍스트 스타일
+                  )
+                      .toList(),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: InkWell(
+                    onTap: () {
+                      presenter.onClick();
+                      // presenter.addExtranctionEtcValue(etcValue);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 6, horizontal: 6),
+                      decoration: BoxDecoration(
+                        color: presenter.click ? ColorStyles.background : null,
+                        borderRadius: BorderRadius.circular(8), // 둥근 테두리
+                        border: Border.all(
+                          color: presenter.click
+                              ? ColorStyles.red
+                              : ColorStyles.gray50, // 테두리 색상
+                          width: 1, // 테두리 두께
                         ),
                       ),
+                      child: Text(
+                        '직접입력',
+                        style: TextStyle(
+                            color: presenter.click
+                                ? ColorStyles.red
+                                : ColorStyles.black,
+                            fontSize: 13), // 텍스트 스타일
+                      ),
                     ),
-                  )
-                  .toList(),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 3),
-              child: InkWell(
-                onTap: () {
-                  presenter.onClick();
-                  print(presenter.click);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 6),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8), // 둥근 테두리
-                    border: Border.all(
-                      color: ColorStyles.gray50, // 테두리 색상
-                      width: 1, // 테두리 두께
-                    ),
-                  ),
-                  child: Text(
-                    '직접입력',
-                    style: const TextStyle(
-                        color: Colors.black, fontSize: 13), // 텍스트 스타일
                   ),
                 ),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-            ),
-            presenter.click
-                ? TextFormField(
-                    controller: textController,
-                    keyboardType: TextInputType.text,
-                    style: TextStyles.labelSmallMedium,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: ColorStyles.white,
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: ColorStyles.gray40, width: 1),
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: ColorStyles.gray40, width: 1),
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: ColorStyles.gray40, width: 1),
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                      prefix: const SizedBox(width: 12),
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          textController.clear(); // 텍스트 초기화
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0), // 아이콘 패딩 추가
-                          child: SvgPicture.asset(
-                            'assets/icons/x_round.svg',
-                            color: ColorStyles.gray30, // 아이콘 너비
-                          ),
+                SizedBox(
+                  height: 24,
+                ),
+                presenter.click
+                    ? TextFormField(
+                  controller: textController,
+                  focusNode: focusNode,
+                  keyboardType: TextInputType.text,
+                  onFieldSubmitted: (value) {
+                    presenter.addExtranctionEtcValue(etcValue);
+                  },
+                  style: TextStyles.labelSmallMedium,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: ColorStyles.white,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                          color: ColorStyles.gray40, width: 1),
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                    border: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                          color: ColorStyles.gray40, width: 1),
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: const BorderSide(
+                          color: ColorStyles.gray40, width: 1),
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                    contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12),
+                    prefix: const SizedBox(width: 12),
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        textController.clear();
+                        presenter.extractionList.clear(); // 텍스트 초기화
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0), // 아이콘 패딩 추가
+                        child: SvgPicture.asset(
+                          'assets/icons/x_round.svg',
+                          color: ColorStyles.gray30, // 아이콘 너비
                         ),
                       ),
                     ),
-                    cursorColor: ColorStyles.black,
-                    // cursorErrorColor: ColorStyles.black,
-                    // autovalidateMode: AutovalidateMode.always,
-                  )
-                : SizedBox.shrink(),
-            SizedBox(
-              height: 24,
-            ),
-          ]);
+                  ),
+                  cursorColor: ColorStyles.black,
+                  // cursorErrorColor: ColorStyles.black,
+                  // autovalidateMode: AutovalidateMode.always,
+                )
+                    : SizedBox.shrink(),
+                SizedBox(
+                  height: 24,
+                ),
+              ]);
         }),
   );
 }
@@ -241,9 +293,11 @@ Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(height: 30,),
         SizedBox(
-          height: 42,
+          height: 30,
+        ),
+        SizedBox(
+          height: 50,
           child: Stack(
             children: [
               Positioned(
@@ -263,88 +317,91 @@ Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) => InkWell(
-                      onTap: () {
-                        // presenter.onChangeAcidityValue(index);
-                      },
-                      child: Container(
-                        height: 28,
-                        width: 28,
-                        decoration: BoxDecoration(
-                            color:
-                                presenter.acidity == index ?
-                                ColorStyles.white :
-                                Colors.transparent,
-                            shape: BoxShape.circle,
-                            border:
-                                presenter.acidity == index ?
-                                Border.all(color: ColorStyles.red)
-                                : null,
-                                ),
-                        child: Center(
+                        (index) =>
+                        InkWell(
+                          onTap: () {
+                            presenter.onChangeRoastPoing(index);
+                            print(presenter.roastPoint);
+                          },
                           child: Container(
-                            height: 14,
-                            width: 14,
+                            height: 28,
+                            width: 28,
                             decoration: BoxDecoration(
-                              color: ColorStyles.gray50,
+                              color: presenter.roastPoint == index
+                                  ? ColorStyles.background
+                                  : Colors.transparent,
                               shape: BoxShape.circle,
+                              border: presenter.roastPoint == index
+                                  ? Border.all(color: ColorStyles.red)
+                                  : null,
+                            ),
+                            child: Center(
+                              child: Container(
+                                height: 14,
+                                width: 14,
+                                decoration: BoxDecoration(
+                                  color: presenter.roastPoint == index ?
+                                  ColorStyles.red :   ColorStyles.gray50  ,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
                   ),
                 ),
               ),
               Positioned(
                 top: 28,
-                left: 4,
-                right: 4,
+                left: 0,
+                right: 0,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) {
-                      if (index == 0) {
-                        return Text(
-                          '라이트',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: ColorStyles.gray50,
-                            // color: presenter.acidity == index ? ColorStyles.red :
-                          ),
-                        );
-                      } else if (index == 1) {
-                        return Text(
-                          '라이트 미디엄',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: ColorStyles.gray50,
-                            // color: presenter.acidity == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      } else if (index == 2) {
-                        return Text(
-                          '미디엄',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: ColorStyles.gray50,
-                            // color: presenter.acidity == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      } else if (index == 3) {
-                        return Text(
-                          '미디엄 다크',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: ColorStyles.gray50,
-                            // color: presenter.acidity == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
+                        (index) {
+                      // Only show text for the selected index
+                      if (presenter.roastPoint == index) {
+                        // Return the corresponding text for the selected index
+                        if (index == 0) {
+                          return Text(
+                            '라이트',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.red,
+                            ),
+                          );
+                        } else if (index == 1) {
+                          return Text(
+                            '라이트 미디엄',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.red,
+                            ),
+                          );
+                        } else if (index == 2) {
+                          return Text(
+                            '미디엄',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.red,
+                            ),
+                          );
+                        } else if (index == 3) {
+                          return Text(
+                            '미디엄 다크',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.red,
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            '다크',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.red,
+                            ),
+                          );
+                        }
                       } else {
-                        return Text(
-                          '다크',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: ColorStyles.gray50,
-                            // color: presenter.acidity == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
+                        // For unselected items, return SizedBox.shrink()
+                        return SizedBox.shrink();
                       }
                     },
                   ),
@@ -353,15 +410,19 @@ Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
             ],
           ),
         ),
-    
       ],
     ),
   );
+
 }
 
-Widget _buildProcess() {
-  final firstRow = ProcessType.values.sublist(0, 4);
-  final secondRow = ProcessType.values.sublist(4);
+Widget _buildProcess(CoffeeNotePresenter presenter) {
+  final firstRow = presenter.processInfo.sublist(0, 4);
+  final secondRow = presenter.processInfo.sublist(4);
+  final TextEditingController _textEditController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
+  late bool showTextField = false;
+
   return Expanded(
     child: ListView.builder(
         itemCount: 1,
@@ -375,28 +436,44 @@ Widget _buildProcess() {
                 Row(
                   children: firstRow
                       .map(
-                        (item) => Padding(
+                        (item) =>
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 6),
-                            decoration: BoxDecoration(
-                              // 배경색
-                              borderRadius: BorderRadius.circular(8),
-                              // 둥근 테두리
-                              border: Border.all(
-                                color: ColorStyles.gray50, // 테두리 색상
-                                width: 1, // 테두리 두께
+                          child: InkWell(
+                            onTap: () {
+                              presenter.processFilter(item);
+
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: presenter.processList.contains(item.name)
+                                    ? ColorStyles.background
+                                    : null,
+                                // 배경색
+                                borderRadius: BorderRadius.circular(8),
+                                // 둥근 테두리
+                                border: Border.all(
+                                  color:
+                                  presenter.processList.contains(item.name)
+                                      ? Colors.red
+                                      : ColorStyles.gray50, // 테두리 색상
+                                  width: 1, // 테두리 두께
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              item.toString(),
-                              style: const TextStyle(
-                                  color: Colors.black), // 텍스트 스타일
+                              child: Text(
+                                item.toString(),
+                                style: TextStyle(
+                                    color: presenter.processList
+                                        .contains(item.name)
+                                        ? Colors.red
+                                        : Colors.black), // 텍스트 스타일
+                              ),
                             ),
                           ),
                         ),
-                      )
+                  )
                       .toList(),
                 ),
                 SizedBox(
@@ -405,30 +482,96 @@ Widget _buildProcess() {
                 Row(
                   children: secondRow
                       .map(
-                        (item) => Padding(
+                        (item) =>
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 6),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              // 둥근 테두리
-                              border: Border.all(
-                                color: ColorStyles.gray50, // 테두리 색상
-                                width: 1, // 테두리 두께
+                          child: InkWell(
+                            onTap: () {
+                              presenter.processFilter(item);
+                              if(item.index ==5){
+                                presenter.isClick();
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 6, horizontal: 6),
+                              decoration: BoxDecoration(
+                                color: presenter.processList.contains(item.name)
+                                    ? ColorStyles.background
+                                    : null,
+                                borderRadius: BorderRadius.circular(8),
+                                // 둥근 테두리
+                                border: Border.all(
+                                  color:
+                                  presenter.processList.contains(item.name)
+                                      ? Colors.red
+                                      : ColorStyles.gray50, // 테두리 색상
+                                  width: 1, // 테두리 두께
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              item.toString(),
-                              style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 13), // 텍스트 스타일
+                              child: Text(
+                                item.toString(),
+                                style: TextStyle(
+                                    color: presenter.processList
+                                        .contains(item.name)
+                                        ? Colors.red
+                                        : Colors.black), // 텍스트 스타일
+                              ),
                             ),
                           ),
                         ),
-                      )
+                  )
                       .toList(),
                 ),
+                SizedBox(height: 8),
+                if (!presenter.isshow)
+                  TextFormField(
+                    controller: _textEditController,
+                    focusNode: focusNode,
+                    keyboardType: TextInputType.text,
+                    onFieldSubmitted: (value) {
+                      presenter.addProcessEtcValue(value);
+                    },
+                    style: TextStyles.labelSmallMedium,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: ColorStyles.white,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                            color: ColorStyles.gray40, width: 1),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                            color: ColorStyles.gray40, width: 1),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                            color: ColorStyles.gray40, width: 1),
+                        borderRadius: BorderRadius.circular(1),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      prefix: const SizedBox(width: 12),
+                      suffixIcon: GestureDetector(
+                        onTap: () {
+                          // textController.clear();
+                          presenter.processList.clear(); // 텍스트 초기화
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: SvgPicture.asset(
+                            'assets/icons/x_round.svg',
+                            color: ColorStyles.gray30,
+                          ),
+                        ),
+                      ),
+                    ),
+                    cursorColor: ColorStyles.black,
+                  ),
+
+
+
                 SizedBox(
                   height: 8,
                 ),
@@ -437,10 +580,10 @@ Widget _buildProcess() {
   );
 }
 
-Widget _buildRegion( ) {
+Widget _buildRegion(CoffeeNotePresenter presenter) {
   TextEditingController textEditingController = TextEditingController();
   return Expanded(
-    child:Column(
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
@@ -454,18 +597,15 @@ Widget _buildRegion( ) {
             filled: true,
             fillColor: ColorStyles.white,
             enabledBorder: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             border: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -492,23 +632,26 @@ Widget _buildRegion( ) {
   );
 }
 
-Widget _buildBevType(
-
-    ) {
+Widget _buildBevType(CoffeeNotePresenter presenter) {
   return Expanded(
     child: Row(
       children: [
         ButtonFactory.buildRoundedButton(
             onTapped: () {
-
+              presenter.isBevType;
             },
-            text: "핫",
-            style: RoundedButtonStyle.line(size: RoundedButtonSize.small)),
+            text: '핫',
+
+            style: RoundedButtonStyle.line(
+                textColor: presenter.bevType? ColorStyles.red : ColorStyles.black,
+                size: RoundedButtonSize.small)),
         SizedBox(
           width: 10,
         ),
         ButtonFactory.buildRoundedButton(
-            onTapped: () {},
+            onTapped: () {
+
+            },
             text: "아이스",
             style: RoundedButtonStyle.line(size: RoundedButtonSize.small))
       ],
@@ -519,7 +662,7 @@ Widget _buildBevType(
 Widget _buildRoastery(context, presenter) {
   TextEditingController textEditingController = TextEditingController();
   return Expanded(
-    child:Column(
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
@@ -533,18 +676,15 @@ Widget _buildRoastery(context, presenter) {
             filled: true,
             fillColor: ColorStyles.white,
             enabledBorder: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             border: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -574,7 +714,7 @@ Widget _buildRoastery(context, presenter) {
 Widget _buildVariety(context, presenter) {
   TextEditingController textEditingController = TextEditingController();
   return Expanded(
-    child:Column(
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
@@ -588,18 +728,15 @@ Widget _buildVariety(context, presenter) {
             filled: true,
             fillColor: ColorStyles.white,
             enabledBorder: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             border: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide:
-              const BorderSide(color: ColorStyles.gray40, width: 1),
+              borderSide: const BorderSide(color: ColorStyles.gray40, width: 1),
               borderRadius: BorderRadius.circular(1),
             ),
             contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -626,14 +763,11 @@ Widget _buildVariety(context, presenter) {
   );
 }
 
-
-
-Widget listFrame(
-    {required String title,
-    required bool isExpanded,
-    required double height,
-    required VoidCallback onIconTap,
-    required Widget buildWidget}) {
+Widget listFrame({required String title,
+  required bool isExpanded,
+  required double height,
+  required VoidCallback onIconTap,
+  required Widget buildWidget}) {
   return AnimatedContainer(
     height: isExpanded ? height : 48,
     // 확장 시 높이 변화

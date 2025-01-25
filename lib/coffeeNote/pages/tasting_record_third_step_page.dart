@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
+import '../widget/wdgt_search_bottom_sheet.dart';
 import 'core/tasing_record_mixin.dart';
 
 class TastingRecordThirdStepPage extends StatefulWidget {
@@ -37,6 +38,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
 
   @override
   void Function() get onSkip => () {};
+
+  bool isOn = false;
 
   void _showDatePicker(BuildContext context) {
     showModalBottomSheet(
@@ -123,7 +126,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
       isScrollControlled: true,
       builder: (BuildContext context) {
         return Container(
-          height: 430,
+          height: MediaQuery.of(context).size.height * 0.9,
           decoration: const BoxDecoration(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(8.0), // Adjust this value as needed
@@ -132,49 +135,12 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
             color: Colors.white, // Set a background color if needed
           ),
           child: Column(
-            children: [
-              // 상단 X 아이콘
-              Padding(
-                padding: const EdgeInsets.only(top: 24.0, bottom: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(width: 24), // 왼쪽 여백을 위한 빈 위젯
-                    Text(
-                      '위치',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(right: 16.0),
-                      child: IconButton(
-                        icon: SvgPicture.asset(
-                          'assets/icons/x.svg',
-                          width: 24,
-                          height: 24,
-                          fit: BoxFit.cover,
-                        ),
-                        onPressed: () async {
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Divider(height: 1),
-              // CupertinoDatePicker 추가
+            children: <Widget>[
+              WdgtSearchBottomSheet(title: '위치', content: '시음장소를 검색하세요', useIcon: true,
+                )
 
-              // 완료 버튼
-              Padding(
-                  padding: const EdgeInsets.only(
-                      top: 24.0, right: 16.0, bottom: 46.0, left: 16.0),
-                  child: ButtonFactory.buildRoundedButton(
-                      onTapped: () {},
-                      text: '선택',
-                      style: RoundedButtonStyle.fill(
-                          size: RoundedButtonSize.xLarge,
-                          color: Colors.black))),
+
+
             ],
           ),
         );
@@ -184,6 +150,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
 
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
+
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -271,7 +238,12 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                   child: Divider(
                     height: 0.3,
                   )),
-              ListWidget('나만 보기', null, null),
+              isOnlyMe(title:'나만 보기', toggle: (){
+                setState(() {
+                  isOn = !isOn;
+                });
+              }, isOn: isOn),
+
             ],
           ),
         ),
@@ -364,6 +336,46 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     //     },
     //   ),
     // );
+  }
+
+  Widget isOnlyMe(
+       {required Function() toggle, required String title, required bool isOn}) {
+
+    return Container(
+      height: 60,
+      color: ColorStyles.gray10,
+      child: Padding(
+        padding: EdgeInsets.only(right: 12.0, left: 12.0, top: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            InkWell(
+              onTap: toggle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyles.labelSmallMedium,
+                  ),
+                  Row(
+                    children: [
+                      isOn ?
+                      Container(child: SvgPicture.asset('assets/icons/togOn.svg')) :
+                      Container(child: SvgPicture.asset('assets/icons/togOff.svg'))
+
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+
   }
 
   @override

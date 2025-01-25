@@ -7,6 +7,7 @@ enum ExtractionType {
   aeroPress,
   coldBrew;
 
+
   @override
   String toString() => switch (this) {
         ExtractionType.handDrip => '핸드 드립',
@@ -16,6 +17,7 @@ enum ExtractionType {
         ExtractionType.frenchPress => '프렌치프레스',
         ExtractionType.aeroPress => '에어로프레스',
         ExtractionType.coldBrew => '콜드브루',
+
       };
 }
 
