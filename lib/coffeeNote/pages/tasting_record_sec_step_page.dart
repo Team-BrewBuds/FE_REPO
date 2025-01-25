@@ -203,7 +203,20 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage> wit
   @override
   // TODO: implement onSkip
   void Function() get onSkip => (){};
-
+  void _showToast(String message, {Color backgroundColor = Colors.black}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+            textAlign: TextAlign.center,
+            message,
+            style: TextStyles.captionMediumNarrowMedium
+        ),
+        backgroundColor: backgroundColor,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget buildBottom(BuildContext context, CoffeeNotePresenter presenter) {

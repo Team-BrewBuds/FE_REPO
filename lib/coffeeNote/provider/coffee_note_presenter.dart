@@ -16,13 +16,32 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   int? get acidity => _state.preferredBeanTaste?.acidity;
 
   bool _isLoading = false;
+
   bool get isLoading => _isLoading;
   bool _click = false;
+
   bool get click => _click;
-  String _title ='';
+
+  bool _toggle = false;
+
+  bool get toggle => _toggle;
+
+  bool _isshow = false;
+
+  bool get isshow => _isshow;
+
+  String _title = '';
+
   String get title => _title;
 
+  bool _bevType = false;
+
+  bool get bevType => _bevType;
+
+  int roastPoint = 0;
+
   List<String> _tag = [];
+
   List<String> get tag => _tag;
   List<String> recordTitle = [
     '원두 추출방식 (선택)',
@@ -33,9 +52,86 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     '로스터리 (선택)',
     '원두 품종 (선택)'
   ];
+
   List<BeanFlavor> get flavor => BeanFlavor.values;
+
   List<ExtractionType> get extractionInfo => ExtractionType.values;
 
+  List<ProcessType> get processInfo => ProcessType.values;
+  List<String> extractionList = [];
+  List<String> processList = [];
+  List<String> tasteFlaver = [];
+
+  //원두 추출방식
+  extractionFilter(ExtractionType extraction) {
+    if (extractionInfo.contains(extraction)) {
+      if (extractionList.contains(extraction.name)) {
+        extractionList.remove(extraction.name);
+      } else {
+        extractionList.add(extraction.name);
+      }
+      print(extractionList); // 현재 상태 출력
+    }
+    notifyListeners();
+  }
+
+  // 원두 가공방식
+  processFilter(ProcessType process) {
+    if (processInfo.contains(process)) {
+      if (processList.contains(process.name)) {
+        processList.remove(process.name);
+      } else {
+        processList.add(process.name);
+      }
+      print(processList); // 현재 상태 출력
+    }
+    notifyListeners();
+  }
+
+  addExtranctionEtcValue(String etc) {
+    if (click) {
+      extractionList.add(etc);
+    }
+    notifyListeners();
+  }
+
+  addProcessEtcValue(String etc) {
+    if (isshow) {
+      processList.add(etc);
+    } else {
+      processList.remove(etc);
+    }
+    notifyListeners();
+  }
+
+  onChangeRoastPoing(int index) {
+    roastPoint = index;
+    notifyListeners();
+  }
+
+  onSelectTasteFlavor(String value) {
+    // tasteFlaver의 길이가 4개 미만인 경우
+    if (tasteFlaver.length < 4) {
+      if (tasteFlaver.contains(value)) {
+        // 중복된 값이 있으면 제거
+        tasteFlaver.remove(value);
+      } else {
+        // 중복되지 않으면 리스트에 추가
+        tasteFlaver.add(value);
+      }
+    } else {
+      if (tasteFlaver.contains(value)) {
+        // 중복된 값이 있으면 제거
+        tasteFlaver.remove(value);
+      } else {
+        // tasteFlaver가 이미 4개일 때는 추가할 수 없으므로 아무 동작도 하지 않음
+        print('Cannot add more than 4 items');
+      }
+    }
+
+    print(tasteFlaver);  // 현재 tasteFlaver 출력
+    notifyListeners();
+  }
 
 
   // 제목 설정
@@ -44,12 +140,20 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  void initialize() {
+  void initialize() {}
+
+  onClick() {
+    _click = !_click;
+    notifyListeners();
   }
 
-  onClick(){
-    _click =! _click;
+  isClick() {
+    _isshow = !_isshow;
+    notifyListeners();
+  }
 
+  isBevType() {
+    _bevType = !_bevType;
     notifyListeners();
   }
 
@@ -72,7 +176,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
   @override
   void dispose() {
-
     super.dispose();
   }
 
