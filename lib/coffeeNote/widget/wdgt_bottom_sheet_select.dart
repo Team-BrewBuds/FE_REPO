@@ -69,7 +69,8 @@ class _WdgtBottomSheetSelectState extends State<WdgtBottomSheetSelect> {
             Divider(
               thickness: 0.5,
             ),
-            _buildOriginFilter(presenter)
+            _buildOriginFilter(presenter, context)
+
 
             // _buildSubjectList(),
           ],
@@ -79,7 +80,7 @@ class _WdgtBottomSheetSelectState extends State<WdgtBottomSheetSelect> {
   }
 }
 
-Widget _buildOriginFilter(CoffeeNotePresenter presenter) {
+Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -228,7 +229,9 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter) {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ButtonFactory.buildRoundedButton(
-                onTapped: () {},
+                onTapped: () {
+                  presenter.clearList(presenter.tasteFlaver);
+                },
                 text: '초기화',
                 style: RoundedButtonStyle.fill(
                     color: ColorStyles.gray30,
@@ -238,7 +241,9 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter) {
               width: 10,
             ),
             ButtonFactory.buildRoundedButton(
-                onTapped: () {},
+                onTapped: () {
+                  Navigator.pop(context);
+                },
                 text: '선택하기',
                 style: RoundedButtonStyle.fill(
                     color: ColorStyles.black,

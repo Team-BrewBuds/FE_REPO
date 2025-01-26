@@ -43,9 +43,9 @@ class _WdgtSelectListState extends State<WdgtSelectList> {
         final List<Widget> _widgets = [
           _buildOriginFilter(presenter), //원두 추출방식
           _buildLoastingPoint(presenter), //원두 로스팅 포인트
-          _buildProcess(presenter),
-          _buildRegion(presenter), //원두 가공방식
-          _buildBevType(presenter), // 원두 생산지역
+          _buildProcess(presenter), //원두 가공방식
+          _buildRegion(presenter), // 원두 생산지역
+          _buildBevType(presenter), // 음료 유형
           _buildRoastery(context, presenter),
           _buildVariety(context, presenter),
         ];
@@ -80,7 +80,9 @@ class _WdgtSelectListState extends State<WdgtSelectList> {
   }
 }
 
-Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
+Widget _buildOriginFilter(
+  CoffeeNotePresenter presenter,
+) {
   final firstRow = presenter.extractionInfo.sublist(0, 3); // 첫 번째 행
   final secondRow = presenter.extractionInfo.sublist(3); // 두 번째 행
 
@@ -106,8 +108,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                 Row(
                   children: firstRow
                       .map(
-                        (item) =>
-                        Padding(
+                        (item) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
                           child: InkWell(
                             onTap: () {
@@ -120,14 +121,14 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                               decoration: BoxDecoration(
                                 // 배경색
                                 color:
-                                presenter.extractionList.contains(item.name)
-                                    ? ColorStyles.background
-                                    : null,
+                                    presenter.extractionList.contains(item.name)
+                                        ? ColorStyles.background
+                                        : null,
                                 borderRadius: BorderRadius.circular(8),
                                 // 둥근 테두리
                                 border: Border.all(
                                   color: presenter.extractionList
-                                      .contains(item.name)
+                                          .contains(item.name)
                                       ? ColorStyles.red
                                       : ColorStyles.gray50, // 테두리 색상
                                   width: 1, // 테두리 두께
@@ -137,7 +138,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                                 item.toString(),
                                 style: TextStyle(
                                     color: presenter.extractionList
-                                        .contains(item.name)
+                                            .contains(item.name)
                                         ? ColorStyles.red
                                         : ColorStyles.black,
                                     fontSize: 13), // 텍스트 스타일
@@ -145,7 +146,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                             ),
                           ),
                         ),
-                  )
+                      )
                       .toList(),
                 ),
                 SizedBox(
@@ -154,8 +155,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                 Row(
                   children: secondRow
                       .map(
-                        (item) =>
-                        Padding(
+                        (item) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
                           child: InkWell(
                             onTap: () {
@@ -166,14 +166,14 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                                   vertical: 6, horizontal: 6),
                               decoration: BoxDecoration(
                                 color:
-                                presenter.extractionList.contains(item.name)
-                                    ? ColorStyles.background
-                                    : null,
+                                    presenter.extractionList.contains(item.name)
+                                        ? ColorStyles.background
+                                        : null,
                                 borderRadius: BorderRadius.circular(8),
                                 // 둥근 테두리
                                 border: Border.all(
                                   color: presenter.extractionList
-                                      .contains(item.name)
+                                          .contains(item.name)
                                       ? ColorStyles.red
                                       : ColorStyles.gray50, // 테두리 색상
                                   width: 1, // 테두리 두께
@@ -183,7 +183,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                                 item.toString(),
                                 style: TextStyle(
                                     color: presenter.extractionList
-                                        .contains(item.name)
+                                            .contains(item.name)
                                         ? ColorStyles.red
                                         : ColorStyles.black,
                                     fontSize: 13), // 텍스트 스타일
@@ -191,7 +191,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                             ),
                           ),
                         ),
-                  )
+                      )
                       .toList(),
                 ),
                 SizedBox(
@@ -233,52 +233,52 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter,) {
                 ),
                 presenter.click
                     ? TextFormField(
-                  controller: textController,
-                  focusNode: focusNode,
-                  keyboardType: TextInputType.text,
-                  onFieldSubmitted: (value) {
-                    presenter.addExtranctionEtcValue(etcValue);
-                  },
-                  style: TextStyles.labelSmallMedium,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: ColorStyles.white,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: ColorStyles.gray40, width: 1),
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                    border: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: ColorStyles.gray40, width: 1),
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                          color: ColorStyles.gray40, width: 1),
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                    contentPadding:
-                    const EdgeInsets.symmetric(vertical: 12),
-                    prefix: const SizedBox(width: 12),
-                    suffixIcon: GestureDetector(
-                      onTap: () {
-                        textController.clear();
-                        presenter.extractionList.clear(); // 텍스트 초기화
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0), // 아이콘 패딩 추가
-                        child: SvgPicture.asset(
-                          'assets/icons/x_round.svg',
-                          color: ColorStyles.gray30, // 아이콘 너비
+                        controller: textController,
+                        focusNode: focusNode,
+                        keyboardType: TextInputType.text,
+                        onFieldSubmitted: (value) {
+                          presenter.addExtranctionEtcValue(etcValue);
+                        },
+                        style: TextStyles.labelSmallMedium,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: ColorStyles.white,
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: ColorStyles.gray40, width: 1),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: ColorStyles.gray40, width: 1),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: ColorStyles.gray40, width: 1),
+                            borderRadius: BorderRadius.circular(1),
+                          ),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 12),
+                          prefix: const SizedBox(width: 12),
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              textController.clear();
+                              presenter.extractionList.clear(); // 텍스트 초기화
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0), // 아이콘 패딩 추가
+                              child: SvgPicture.asset(
+                                'assets/icons/x_round.svg',
+                                color: ColorStyles.gray30, // 아이콘 너비
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  cursorColor: ColorStyles.black,
-                  // cursorErrorColor: ColorStyles.black,
-                  // autovalidateMode: AutovalidateMode.always,
-                )
+                        cursorColor: ColorStyles.black,
+                        // cursorErrorColor: ColorStyles.black,
+                        // autovalidateMode: AutovalidateMode.always,
+                      )
                     : SizedBox.shrink(),
                 SizedBox(
                   height: 24,
@@ -317,37 +317,37 @@ Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) =>
-                        InkWell(
-                          onTap: () {
-                            presenter.onChangeRoastPoing(index);
-                            print(presenter.roastPoint);
-                          },
+                    (index) => InkWell(
+                      onTap: () {
+                        presenter.onChangeRoastPoing(index);
+                        print(presenter.roastPoint);
+                      },
+                      child: Container(
+                        height: 28,
+                        width: 28,
+                        decoration: BoxDecoration(
+                          color: presenter.roastPoint == index
+                              ? ColorStyles.background
+                              : Colors.transparent,
+                          shape: BoxShape.circle,
+                          border: presenter.roastPoint == index
+                              ? Border.all(color: ColorStyles.red)
+                              : null,
+                        ),
+                        child: Center(
                           child: Container(
-                            height: 28,
-                            width: 28,
+                            height: 14,
+                            width: 14,
                             decoration: BoxDecoration(
                               color: presenter.roastPoint == index
-                                  ? ColorStyles.background
-                                  : Colors.transparent,
+                                  ? ColorStyles.red
+                                  : ColorStyles.gray50,
                               shape: BoxShape.circle,
-                              border: presenter.roastPoint == index
-                                  ? Border.all(color: ColorStyles.red)
-                                  : null,
-                            ),
-                            child: Center(
-                              child: Container(
-                                height: 14,
-                                width: 14,
-                                decoration: BoxDecoration(
-                                  color: presenter.roastPoint == index ?
-                                  ColorStyles.red :   ColorStyles.gray50  ,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
                             ),
                           ),
                         ),
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -359,7 +359,7 @@ Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       // Only show text for the selected index
                       if (presenter.roastPoint == index) {
                         // Return the corresponding text for the selected index
@@ -413,7 +413,6 @@ Widget _buildLoastingPoint(CoffeeNotePresenter presenter) {
       ],
     ),
   );
-
 }
 
 Widget _buildProcess(CoffeeNotePresenter presenter) {
@@ -436,13 +435,11 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                 Row(
                   children: firstRow
                       .map(
-                        (item) =>
-                        Padding(
+                        (item) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
                           child: InkWell(
                             onTap: () {
                               presenter.processFilter(item);
-
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -456,9 +453,9 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                                 // 둥근 테두리
                                 border: Border.all(
                                   color:
-                                  presenter.processList.contains(item.name)
-                                      ? Colors.red
-                                      : ColorStyles.gray50, // 테두리 색상
+                                      presenter.processList.contains(item.name)
+                                          ? Colors.red
+                                          : ColorStyles.gray50, // 테두리 색상
                                   width: 1, // 테두리 두께
                                 ),
                               ),
@@ -466,14 +463,14 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                                 item.toString(),
                                 style: TextStyle(
                                     color: presenter.processList
-                                        .contains(item.name)
+                                            .contains(item.name)
                                         ? Colors.red
                                         : Colors.black), // 텍스트 스타일
                               ),
                             ),
                           ),
                         ),
-                  )
+                      )
                       .toList(),
                 ),
                 SizedBox(
@@ -482,13 +479,12 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                 Row(
                   children: secondRow
                       .map(
-                        (item) =>
-                        Padding(
+                        (item) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
                           child: InkWell(
                             onTap: () {
                               presenter.processFilter(item);
-                              if(item.index ==5){
+                              if (item.index == 5) {
                                 presenter.isClick();
                               }
                             },
@@ -503,9 +499,9 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                                 // 둥근 테두리
                                 border: Border.all(
                                   color:
-                                  presenter.processList.contains(item.name)
-                                      ? Colors.red
-                                      : ColorStyles.gray50, // 테두리 색상
+                                      presenter.processList.contains(item.name)
+                                          ? Colors.red
+                                          : ColorStyles.gray50, // 테두리 색상
                                   width: 1, // 테두리 두께
                                 ),
                               ),
@@ -513,18 +509,18 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                                 item.toString(),
                                 style: TextStyle(
                                     color: presenter.processList
-                                        .contains(item.name)
+                                            .contains(item.name)
                                         ? Colors.red
                                         : Colors.black), // 텍스트 스타일
                               ),
                             ),
                           ),
                         ),
-                  )
+                      )
                       .toList(),
                 ),
                 SizedBox(height: 8),
-                if (!presenter.isshow)
+                if (presenter.isshow)
                   TextFormField(
                     controller: _textEditController,
                     focusNode: focusNode,
@@ -555,7 +551,6 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                       prefix: const SizedBox(width: 12),
                       suffixIcon: GestureDetector(
                         onTap: () {
-                          // textController.clear();
                           presenter.processList.clear(); // 텍스트 초기화
                         },
                         child: Padding(
@@ -569,9 +564,6 @@ Widget _buildProcess(CoffeeNotePresenter presenter) {
                     ),
                     cursorColor: ColorStyles.black,
                   ),
-
-
-
                 SizedBox(
                   height: 8,
                 ),
@@ -638,22 +630,39 @@ Widget _buildBevType(CoffeeNotePresenter presenter) {
       children: [
         ButtonFactory.buildRoundedButton(
             onTapped: () {
-              presenter.isBevType;
+              presenter.checkHot();
             },
             text: '핫',
-
-            style: RoundedButtonStyle.line(
-                textColor: presenter.bevType? ColorStyles.red : ColorStyles.black,
-                size: RoundedButtonSize.small)),
+            style: presenter.bevType
+                ? RoundedButtonStyle.line(
+                    size: RoundedButtonSize.small,
+                    backgroundColor: ColorStyles.background,
+                    color: ColorStyles.red,
+                    textColor: ColorStyles.red)
+                : RoundedButtonStyle.line(
+                    size: RoundedButtonSize.small,
+                    color: ColorStyles.gray50,
+                    textColor: ColorStyles.black,
+                  )),
         SizedBox(
           width: 10,
         ),
         ButtonFactory.buildRoundedButton(
             onTapped: () {
-
+              presenter.checkIce();
             },
             text: "아이스",
-            style: RoundedButtonStyle.line(size: RoundedButtonSize.small))
+            style: !presenter.bevType
+                ? RoundedButtonStyle.line(
+                    size: RoundedButtonSize.small,
+                    backgroundColor: ColorStyles.background,
+                    color: ColorStyles.red,
+                    textColor: ColorStyles.red)
+                : RoundedButtonStyle.line(
+                    size: RoundedButtonSize.small,
+                    color: ColorStyles.gray50,
+                    textColor: ColorStyles.black,
+                  ))
       ],
     ),
   );
@@ -763,11 +772,12 @@ Widget _buildVariety(context, presenter) {
   );
 }
 
-Widget listFrame({required String title,
-  required bool isExpanded,
-  required double height,
-  required VoidCallback onIconTap,
-  required Widget buildWidget}) {
+Widget listFrame(
+    {required String title,
+    required bool isExpanded,
+    required double height,
+    required VoidCallback onIconTap,
+    required Widget buildWidget}) {
   return AnimatedContainer(
     height: isExpanded ? height : 48,
     // 확장 시 높이 변화
