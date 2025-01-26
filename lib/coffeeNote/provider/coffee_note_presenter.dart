@@ -34,11 +34,43 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
   String get title => _title;
 
+  // 음료 유형
+  bool _hot = true;
+  bool get hot => _hot;
+  bool _ice = false;
+  bool get ice =>_ice;
   bool _bevType = false;
-
   bool get bevType => _bevType;
 
+  checkHot(){
+   if(!_bevType){
+     _bevType = true;
+   }
+   print(_bevType);
+   notifyListeners();
+  }
+
+  checkIce(){
+    if (_bevType) {
+      _bevType = false;
+    }
+    print(_bevType);
+    notifyListeners();
+  }
+
+
+  void selectA() {
+
+  }
+
+
+
+
+  // 로스팅 점수
   int roastPoint = 0;
+
+
+
 
   List<String> _tag = [];
 
@@ -53,6 +85,13 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     '원두 품종 (선택)'
   ];
 
+  int bodyPoint = 0;
+  int acidityPoint = 0;
+  int bitterPoint = 0;
+  int sweetPoint = 0;
+  int starPoint = 0;
+
+
   List<BeanFlavor> get flavor => BeanFlavor.values;
 
   List<ExtractionType> get extractionInfo => ExtractionType.values;
@@ -61,7 +100,7 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   List<String> extractionList = [];
   List<String> processList = [];
   List<String> tasteFlaver = [];
-
+  List<int> selectedIndexes = List.filled(4, -1);
   //원두 추출방식
   extractionFilter(ExtractionType extraction) {
     if (extractionInfo.contains(extraction)) {
@@ -109,6 +148,11 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
+  onChangeTastPoint(int categoryIndex, int valueIndex){
+    selectedIndexes[categoryIndex] = valueIndex;
+    notifyListeners();
+  }
+
   onSelectTasteFlavor(String value) {
     // tasteFlaver의 길이가 4개 미만인 경우
     if (tasteFlaver.length < 4) {
@@ -130,6 +174,11 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     }
 
     print(tasteFlaver);  // 현재 tasteFlaver 출력
+    notifyListeners();
+  }
+
+  void clearList(List<String> items){
+    items.clear();
     notifyListeners();
   }
 
