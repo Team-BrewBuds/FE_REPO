@@ -92,3 +92,5 @@ enum Continent {
         Continent.etc => '기타',
       };
 }
+
+
