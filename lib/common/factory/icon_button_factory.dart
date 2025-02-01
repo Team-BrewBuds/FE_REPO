@@ -63,7 +63,7 @@ final class IconButtonFactory {
     required Widget iconWidget,
     required String text,
     required TextStyle textStyle,
-    required Function() onTapped,
+    required Function() ? onTapped,
   }) {
     return InkWell(
       onTap: onTapped,
@@ -79,4 +79,6 @@ final class IconButtonFactory {
       ),
     );
   }
+
+
 }

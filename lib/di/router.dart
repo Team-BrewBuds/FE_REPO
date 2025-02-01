@@ -39,7 +39,7 @@ import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
-const String initialPath = '/login';
+const String initialPath = '/home/all';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
 
@@ -222,7 +222,7 @@ final router = GoRouter(
         builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
             create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const BlockView())),
     GoRoute(path: '/account_out', builder: (context, state) => const AccountOutView()),
-    GoRoute(path: '/alarm', builder: (context, state) => const AlarmView()),
+    GoRoute(path: '/alarm', builder: (context, state) => AlarmView()),
     GoRoute(path: '/post_detail', builder: (context, state) => PostDetailView()),
     GoRoute(path: '/tasted_record_detail', builder: (context, state) => TastedRecordDetailView()),
   ],

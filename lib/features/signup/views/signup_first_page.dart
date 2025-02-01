@@ -27,13 +27,15 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
   @override
   int get currentPageIndex => 0;
 
-  @override
-  bool get isSatisfyRequirements =>
-      context.read<SignUpPresenter>().isValidNicknameLength &&
-      !context.read<SignUpPresenter>().isDuplicateNickname &&
-      _ageController.text.length == 4 &&
-      context.read<SignUpPresenter>().isValidYearOfBirth &&
-      context.read<SignUpPresenter>().currentGender != null;
+@override
+bool get isSatisfyRequirements =>
+    (_formKey.currentState?.validate() ?? false) &&
+    context.read<SignUpPresenter>().isValidNicknameLength &&
+    !context.read<SignUpPresenter>().isDuplicateNickname &&
+    _ageController.text.length == 4 &&
+    context.read<SignUpPresenter>().isValidYearOfBirth &&
+    context.read<SignUpPresenter>().currentGender != null;
+
 
   @override
   bool get isSkippablePage => false;
