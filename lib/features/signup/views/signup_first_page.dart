@@ -18,7 +18,6 @@ class SignUpFirstPage extends StatefulWidget {
 }
 
 class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<SignUpFirstPage> {
-  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
@@ -28,10 +27,15 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
   @override
   int get currentPageIndex => 0;
 
-  @override
-  bool get isSatisfyRequirements =>
-      (_formKey.currentState?.validate() ?? false)
-          && context.read<SignUpPresenter>().currentGender != null;
+@override
+bool get isSatisfyRequirements =>
+    (_formKey.currentState?.validate() ?? false) &&
+    context.read<SignUpPresenter>().isValidNicknameLength &&
+    !context.read<SignUpPresenter>().isDuplicateNickname &&
+    _ageController.text.length == 4 &&
+    context.read<SignUpPresenter>().isValidYearOfBirth &&
+    context.read<SignUpPresenter>().currentGender != null;
+
 
   @override
   bool get isSkippablePage => false;
@@ -49,17 +53,11 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SignUpPresenter>().init();
-
-      _nickNameFocusNode.addListener(() {
-        if (!_nickNameFocusNode.hasFocus) {
-          context.read<SignUpPresenter>().checkNickName();
-        }
+      _nicknameController.addListener(() {
+        context.read<SignUpPresenter>().onChangeNickName(_nicknameController.text);
       });
-
-      _yearOfAgeFocusNode.addListener(() {
-        if (!_yearOfAgeFocusNode.hasFocus) {
-          context.read<SignUpPresenter>().checkYearOfBirth();
-        }
+      _ageController.addListener(() {
+        context.read<SignUpPresenter>().onChangeYearOfBirth(_ageController.text);
       });
     });
   }
@@ -70,214 +68,221 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     _nicknameController.dispose();
     _nickNameFocusNode.dispose();
     _yearOfAgeFocusNode.dispose();
-    _nickNameFocusNode.removeListener(() {
-      if (!_nickNameFocusNode.hasFocus) {
-        context.read<SignUpPresenter>().checkNickName();
-      }
-    });
-
-    _yearOfAgeFocusNode.removeListener(() {
-      if (!_yearOfAgeFocusNode.hasFocus) {
-        context.read<SignUpPresenter>().checkYearOfBirth();
-      }
-    });
     super.dispose();
   }
 
   @override
   Widget buildBody(BuildContext context, SignUpPresenter presenter) {
-    return Form(
-      key: _formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('버디님에 대해 알려주세요', style: TextStyles.title04SemiBold),
-          const SizedBox(height: 48),
-          const Text('닉네임', style: TextStyles.title01SemiBold),
-          const SizedBox(height: 8),
-          TextFormField(
-            focusNode: _nickNameFocusNode,
-            controller: _nicknameController,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              hintText: '2 ~ 12자 이내',
-              border: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.gray50, width: 1),
-                borderRadius: BorderRadius.circular(1),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('버디님에 대해 알려주세요', style: TextStyles.title04SemiBold),
+        const SizedBox(height: 48),
+        const Text('닉네임', style: TextStyles.title01SemiBold),
+        const SizedBox(height: 8),
+        TextFormField(
+          focusNode: _nickNameFocusNode,
+          controller: _nicknameController,
+          keyboardType: TextInputType.text,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(12),
+          ],
+          decoration: InputDecoration(
+            hintText: '2 ~ 12자 이내',
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: _nicknameController.text.isEmpty ||
+                        (!presenter.isDuplicateNickname && presenter.isValidNicknameLength)
+                    ? ColorStyles.gray50
+                    : ColorStyles.red,
+                width: 1,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.black, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-              prefix: const SizedBox(width: 12),
-              suffixIcon: _buildNickNameSuffixIcon(presenter),
-              counterStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
-              hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
-              errorStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+              borderRadius: BorderRadius.circular(1),
             ),
-            style: TextStyles.labelSmallMedium,
-            onChanged: presenter.onChangeNickName,
-            onEditingComplete: presenter.checkNickName,
-            onTapOutside: (_) {
-              _nickNameFocusNode.unfocus();
-            },
-            cursorColor: ColorStyles.black,
-            cursorErrorColor: ColorStyles.black,
-            validator: presenter.validatedNickname,
-            autovalidateMode: AutovalidateMode.always,
-            maxLines: 1,
-            maxLength: 12,
-          ),
-          const SizedBox(height: 20),
-          const Text('태어난 연도', style: TextStyles.title01SemiBold),
-          const SizedBox(height: 8),
-          TextFormField(
-            focusNode: _yearOfAgeFocusNode,
-            controller: _ageController,
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              LengthLimitingTextInputFormatter(4),
-              FilteringTextInputFormatter.digitsOnly,
-            ],
-            decoration: InputDecoration(
-              hintText: '4자리 숫자를 입력해주세요',
-              helperText: '버디님과 비슷한 연령대가 선호하는 원두를 추천해드려요',
-              border: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.gray50, width: 1),
-                borderRadius: BorderRadius.circular(1),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: _nicknameController.text.isEmpty ||
+                        (!presenter.isDuplicateNickname && presenter.isValidNicknameLength)
+                    ? ColorStyles.black
+                    : ColorStyles.red,
+                width: 1,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.black, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderSide: const BorderSide(color: ColorStyles.red, width: 1),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 16),
-              prefix: const SizedBox(width: 12),
-              suffixIcon: _buildYearOfAgeSuffixIcon(presenter),
-              counterStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
-              hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
-              helperStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
-              errorStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+              borderRadius: BorderRadius.circular(1),
             ),
-            style: TextStyles.labelSmallMedium,
-            onChanged: presenter.onChangeYearOfBirth,
-            onEditingComplete: presenter.checkYearOfBirth,
-            onTapOutside: (_) {
-              _yearOfAgeFocusNode.unfocus();
-            },
-            cursorColor: ColorStyles.black,
-            cursorErrorColor: ColorStyles.black,
-            validator: presenter.validatedYearOfBirth,
-            autovalidateMode: AutovalidateMode.always,
+            contentPadding: const EdgeInsets.all(12),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              child: _buildNickNameSuffixIcon(presenter),
+            ),
+            suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
+            hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
           ),
-          const SizedBox(height: 20),
-          const Text('성별', style: TextStyles.title01SemiBold),
-          const SizedBox(height: 8),
-          Row(
-            children: Gender.values
-                .map(
-                  (gender) => Expanded(
-                    child: InkWell(
-                      onTap: () {
-                        presenter.onChangeGender(gender);
-                      },
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: presenter.currentGender == gender ? ColorStyles.background : ColorStyles.white,
-                          border: Border.all(
-                            color: presenter.currentGender == gender ? ColorStyles.red : ColorStyles.gray50,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
+          style: TextStyles.labelSmallMedium,
+          cursorColor: ColorStyles.black,
+          cursorErrorColor: ColorStyles.black,
+          cursorHeight: 16,
+          cursorWidth: 1,
+          maxLines: 1,
+        ),
+        if (_nicknameController.text.isEmpty ||
+            (!presenter.isDuplicateNickname && presenter.isValidNicknameLength)) ...[
+          const SizedBox(height: 36),
+        ] else ...[
+          const SizedBox(height: 4),
+          Text(
+            _nicknameController.text.length < 2 ? '2자 이상 입력해 주세요.' : '이미 사용 중인 닉네임이에요.',
+            style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+          ),
+          const SizedBox(height: 17),
+        ],
+        const Text('태어난 연도', style: TextStyles.title01SemiBold),
+        const SizedBox(height: 8),
+        TextFormField(
+          focusNode: _yearOfAgeFocusNode,
+          controller: _ageController,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(4),
+            FilteringTextInputFormatter.digitsOnly,
+          ],
+          decoration: InputDecoration(
+            hintText: '4자리 숫자를 입력해주세요',
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: _ageController.text.length == 4 && !presenter.isValidYearOfBirth
+                    ? ColorStyles.red
+                    : ColorStyles.gray50,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color:
+                    _ageController.text.isEmpty || presenter.isValidYearOfBirth ? ColorStyles.black : ColorStyles.red,
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(1),
+            ),
+            contentPadding: const EdgeInsets.all(12),
+            hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              child: _buildYearOfAgeSuffixIcon(presenter),
+            ),
+            suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
+          ),
+          style: TextStyles.labelSmallMedium,
+          cursorColor: ColorStyles.black,
+          cursorErrorColor: ColorStyles.black,
+          cursorHeight: 16,
+          cursorWidth: 1,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _ageController.text.length == 4 && !presenter.isValidYearOfBirth
+              ? '만 14세 미만은 가입할 수 없어요.'
+              : '버디님과 비슷한 연령대가 선호하는 원두를 추천해드려요.',
+          style: TextStyles.captionSmallMedium.copyWith(
+            color: _ageController.text.length == 4 && !presenter.isValidYearOfBirth
+                ? ColorStyles.red
+                : ColorStyles.gray50,
+          ),
+        ),
+        const SizedBox(height: 36),
+        const Text('성별', style: TextStyles.title01SemiBold),
+        const SizedBox(height: 8),
+        Row(
+          children: Gender.values
+              .map(
+                (gender) => Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      presenter.onChangeGender(gender);
+                    },
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: presenter.currentGender == gender ? ColorStyles.background : ColorStyles.white,
+                        border: Border.all(
+                          color: presenter.currentGender == gender ? ColorStyles.red : ColorStyles.gray50,
+                          width: 1,
                         ),
-                        child: Center(
-                          child: Text(
-                            gender.toString(),
-                            style: TextStyles.labelMediumMedium.copyWith(
-                              color: presenter.currentGender == gender ? ColorStyles.red : ColorStyles.black,
-                            ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Center(
+                        child: Text(
+                          gender.toString(),
+                          style: TextStyles.labelMediumMedium.copyWith(
+                            color: presenter.currentGender == gender ? ColorStyles.red : ColorStyles.black,
                           ),
                         ),
                       ),
                     ),
                   ),
-                )
-                .separator(separatorWidget: const SizedBox(width: 8))
-                .toList(),
-          ),
-        ],
-      ),
+                ),
+              )
+              .separator(separatorWidget: const SizedBox(width: 8))
+              .toList(),
+        ),
+      ],
     );
   }
 
-  Widget? _buildNickNameSuffixIcon(SignUpPresenter presenter) {
-    if (presenter.isNotEmptyNickName) {
-      if (presenter.isValidNickName) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12),
+  Widget _buildNickNameSuffixIcon(SignUpPresenter presenter) {
+    if (_nicknameController.text.isEmpty) {
+      return SizedBox.shrink();
+    } else if (!presenter.isDuplicateNickname && presenter.isValidNicknameLength) {
+      return SvgPicture.asset(
+        'assets/icons/check_fill.svg',
+        height: 24,
+        width: 24,
+      );
+    } else {
+      return InkWell(
+        onTap: () {
+          _nicknameController.clear();
+        },
+        child: SvgPicture.asset(
+          'assets/icons/x_round.svg',
           height: 24,
           width: 24,
-          child: SvgPicture.asset('assets/icons/check_fill.svg'),
-        );
-      } else {
-        return InkWell(
-          onTap: () {
-            _nicknameController.clear();
-          },
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            height: 24,
-            width: 24,
-            child: SvgPicture.asset('assets/icons/x_round.svg'),
-          ),
-        );
-      }
-    } else {
-      return null;
+        ),
+      );
     }
   }
 
   Widget? _buildYearOfAgeSuffixIcon(SignUpPresenter presenter) {
-    if (presenter.isNotEmptyYearOfBirth) {
-      if (presenter.isValidYearOfBirth) {
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 12),
+    if (_ageController.text.isEmpty) {
+      return SizedBox.shrink();
+    } else if (_ageController.text.length < 4 || !presenter.isValidYearOfBirth) {
+      return InkWell(
+        onTap: () {
+          _ageController.clear();
+        },
+        child: SvgPicture.asset(
+          'assets/icons/x_round.svg',
           height: 24,
           width: 24,
-          child: SvgPicture.asset('assets/icons/check_fill.svg'),
-        );
-      } else {
-        return InkWell(
-          onTap: () {
-            _ageController.clear();
-          },
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            height: 24,
-            width: 24,
-            child: SvgPicture.asset('assets/icons/x_round.svg'),
-          ),
-        );
-      }
+        ),
+      );
     } else {
-      return null;
+      return SvgPicture.asset(
+        'assets/icons/check_fill.svg',
+        height: 24,
+        width: 24,
+      );
+    }
+  }
+
+  @override
+  onTappedOutSide() {
+    if (_nickNameFocusNode.hasFocus) {
+      _nickNameFocusNode.unfocus();
+    }
+
+    if (_yearOfAgeFocusNode.hasFocus) {
+      _yearOfAgeFocusNode.unfocus();
     }
   }
 }

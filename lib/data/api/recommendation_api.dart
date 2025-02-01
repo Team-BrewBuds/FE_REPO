@@ -8,7 +8,7 @@ part 'recommendation_api.g.dart';
 
 @RestApi()
 abstract class RecommendationApi {
-  @GET('/recommendation/buddy/')
+  @GET('/recommendation/budy/')
   Future<RecommendedUserPage> fetchRecommendedBuddyPage();
 
   factory RecommendationApi() {

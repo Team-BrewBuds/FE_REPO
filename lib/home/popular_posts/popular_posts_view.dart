@@ -122,6 +122,7 @@ class _PopularPostsViewState extends State<PopularPostsView> {
               writingTime: popularPost.createdAt,
               hitsCount: '조회 ${popularPost.viewCount > 9999 ? '9999+' : popularPost.viewCount}',
               nickName: popularPost.author.nickname,
+              imageUri: popularPost.imagesUri.firstOrNull,
               onTap: () {},
               onTapLikeButton: () {},
               onTapCommentButton: () {},

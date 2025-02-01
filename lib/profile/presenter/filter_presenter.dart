@@ -90,17 +90,6 @@ final class FilterPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeAllTypeState() {
-    if (_selectedTypes.length == 2) {
-      _filter.removeWhere((element) => element is BeanTypeFilter);
-      _selectedTypes.removeAll(BeanType.values);
-    } else {
-      _filter.addAll(BeanType.values.map((type) => CoffeeBeanFilter.beanType(type)));
-      _selectedTypes.addAll(BeanType.values);
-    }
-    notifyListeners();
-  }
-
   onChangeSingleOriginState() {
     if (_selectedTypes.contains(BeanType.singleOrigin)) {
       _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.singleOrigin);
