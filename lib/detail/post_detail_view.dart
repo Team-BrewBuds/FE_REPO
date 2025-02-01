@@ -7,17 +7,13 @@ import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/detail/etc_bottom_sheet.dart';
 import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
-import 'package:brew_buds/home/widgets/slider_view.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:brew_buds/model/user.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class PostDetailView extends StatefulWidget {
   const PostDetailView({super.key});
@@ -204,7 +200,7 @@ class _PostDetailViewState extends State<PostDetailView> {
           const SizedBox(height: 12, width: double.infinity),
           Text(
             '벙커 컴퍼니',
-            style: TextStyles.titleMediumSemiBold,
+            style: TextStyles.title01SemiBold,
           ),
           const SizedBox(height: 12, width: double.infinity),
           Text(

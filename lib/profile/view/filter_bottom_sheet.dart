@@ -89,7 +89,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              height: 564,
+              height: MediaQuery.of(context).size.height - 134,
               decoration: const BoxDecoration(
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
@@ -147,7 +147,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                       ),
                     ),
                     presenter.filter.isNotEmpty
-                        ? Container(
+                        ? SizedBox(
                             height: 56,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
@@ -245,67 +245,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             children: [
               InkWell(
                 onTap: () {
-                  presenter.onChangeAllTypeState();
-                },
-                child: Container(
-                  height: 20,
-                  width: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: presenter.isAllSelectedType ? ColorStyles.red : ColorStyles.gray50,
-                      width: 1,
-                    ),
-                  ),
-                  child: presenter.isAllSelectedType
-                      ? Center(
-                          child: Container(
-                            height: 12,
-                            width: 12,
-                            decoration: const BoxDecoration(
-                              color: ColorStyles.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        )
-                      : Container(),
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text('전체', style: TextStyles.labelMediumMedium),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              InkWell(
-                onTap: () {
                   presenter.onChangeSingleOriginState();
                 },
-                child: Container(
+                child: SvgPicture.asset(
+                  presenter.isSelectedSingleOrigin ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
                   height: 20,
                   width: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: presenter.isSelectedSingleOrigin ? ColorStyles.red : ColorStyles.gray50,
-                      width: 1,
-                    ),
-                  ),
-                  child: presenter.isSelectedSingleOrigin
-                      ? Center(
-                          child: Container(
-                            height: 12,
-                            width: 12,
-                            decoration: const BoxDecoration(
-                              color: ColorStyles.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        )
-                      : Container(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -315,29 +260,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                 onTap: () {
                   presenter.onChangeBlendState();
                 },
-                child: Container(
+                child: SvgPicture.asset(
+                  presenter.isSelectedBlend ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
                   height: 20,
                   width: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: presenter.isSelectedBlend ? ColorStyles.red : ColorStyles.gray50,
-                      width: 1,
-                    ),
-                  ),
-                  child: presenter.isSelectedBlend
-                      ? Center(
-                          child: Container(
-                            height: 12,
-                            width: 12,
-                            decoration: const BoxDecoration(
-                              color: ColorStyles.red,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        )
-                      : Container(),
                 ),
               ),
               const SizedBox(width: 12),
@@ -449,17 +375,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     inactiveTrackHeight: 2,
                     activeTrackColor: ColorStyles.red,
                     inactiveTrackColor: ColorStyles.gray40,
-                    thumbColor: ColorStyles.white,
-                    thumbStrokeColor: ColorStyles.gray50,
-                    thumbStrokeWidth: 2,
-                    thumbRadius: 10,
                     tickOffset: const Offset(0, -6),
                     tickSize: const Size(1, 10),
                     activeTickColor: ColorStyles.red,
                     inactiveTickColor: ColorStyles.gray40,
-                    labelOffset: const Offset(0, 8),
-                    activeLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
-                    inactiveLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
+                    labelOffset: const Offset(0, 14),
+                    activeLabelStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.black),
+                    inactiveLabelStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.black),
                   ),
                   child: SfRangeSlider(
                     min: 0.5,
@@ -468,6 +390,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     interval: 0.5,
                     stepSize: 0.5,
                     showLabels: true,
+                    thumbShape: CircleThumbShape(),
                     labelFormatterCallback: (dynamic actualValue, String formattedText) {
                       return actualValue == 0.5 || actualValue == 5.0 ? '$actualValue' : '';
                     },
@@ -550,17 +473,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     inactiveTrackHeight: 2,
                     activeTrackColor: ColorStyles.red,
                     inactiveTrackColor: ColorStyles.gray40,
-                    thumbColor: ColorStyles.white,
-                    thumbStrokeColor: ColorStyles.gray50,
-                    thumbStrokeWidth: 2,
-                    thumbRadius: 10,
                     tickOffset: const Offset(0, -6),
                     tickSize: const Size(1, 10),
                     activeTickColor: ColorStyles.red,
                     inactiveTickColor: ColorStyles.gray40,
-                    labelOffset: const Offset(0, 8),
-                    activeLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
-                    inactiveLabelStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60),
+                    labelOffset: const Offset(0, 14),
+                    activeLabelStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray60),
+                    inactiveLabelStyle: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray60),
                   ),
                   child: SfRangeSlider(
                     min: 1,
@@ -570,6 +489,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     stepSize: 1,
                     showLabels: true,
                     values: presenter.roastingPointValues,
+                    thumbShape: const CircleThumbShape(),
                     labelFormatterCallback: (dynamic num, String label) {
                       return presenter.toRoastingPointString(num);
                     },
@@ -589,5 +509,44 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
         ],
       ),
     );
+  }
+}
+
+class CircleThumbShape extends SfThumbShape {
+  const CircleThumbShape();
+
+  @override
+  Size getPreferredSize(SfSliderThemeData themeData) {
+    return const Size.fromRadius(10);
+  }
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required RenderBox parentBox,
+    required RenderBox? child,
+    required SfSliderThemeData themeData,
+    SfRangeValues? currentValues,
+    currentValue,
+    required Paint? paint,
+    required Animation<double> enableAnimation,
+    required TextDirection textDirection,
+    required SfThumb? thumb,
+  }) {
+    final Canvas canvas = context.canvas;
+
+    final Paint fillPaint = Paint()
+      ..color = ColorStyles.white
+      ..style = PaintingStyle.fill;
+
+    final Paint borderPaint = Paint()
+      ..color = ColorStyles.gray50
+      ..strokeWidth = 1
+      ..style = PaintingStyle.stroke;
+
+    canvas
+      ..drawCircle(center, 10, fillPaint)
+      ..drawCircle(center, 10, borderPaint);
   }
 }

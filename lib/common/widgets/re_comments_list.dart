@@ -1,6 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:flutter/material.dart';
 
 class ReCommentsList extends StatefulWidget {
@@ -38,8 +37,9 @@ class _ReCommentsListState extends State<ReCommentsList> {
               height: 1,
               color: ColorStyles.gray40,
             ),
+            const SizedBox(width: 4),
             Text(
-              !_isExpanded ? '답글 ${widget.reCommentsLength}개 더보기' : '답글 ${widget.reCommentsLength}개 접기',
+              !_isExpanded ? '답글 ${widget.reCommentsLength}개 더보기' : '답글 ${widget.reCommentsLength}개 숨기기',
               style: TextStyles.captionSmallSemiBold.copyWith(
                 color: ColorStyles.gray40,
               ),

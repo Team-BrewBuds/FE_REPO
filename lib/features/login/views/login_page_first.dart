@@ -1,9 +1,10 @@
-import 'dart:developer';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/signup/models/signup_lists.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class LoginPageFirst extends StatefulWidget {
   const LoginPageFirst({super.key});
@@ -16,93 +17,102 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   int _currentIndex = 0;
   final SignUpLists _lists = SignUpLists();
 
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
   @override
   void initState() {
     super.initState();
-    _checkStorage(); // 저장된 값 확인
-  }
-
-  Future<void> _checkStorage() async {
-    // 로컬 스토리지 토큰 확인 여부
-    String? value = await _storage.read(key: 'auth_token');
-
-    if (value != null) {
-      _storage.deleteAll(); //로그인 전 토큰 남아있으면 모두 삭제.
-    } else {
-      log('storage token is $value');
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(automaticallyImplyLeading: false),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: SizedBox(
-                height: 200,
-                width: double.infinity,
-                child: PageView.builder(
-                  itemCount: _lists.images.length,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        Image.asset(_lists.images[index]),
-                        Text(
-                          _lists.title_data[index],
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-                        ),
-                        Text(
-                          _lists.content_data[index],
-                          style: const TextStyle(fontSize: 15.0),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
-            _buildIndicator(),
-            const Spacer(),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push("/login/sns");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              top: 128,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    _lists.title_data[_currentIndex],
+                    style: TextStyles.title05Bold,
                   ),
-                ),
-                child: Text('로그인/회원가입',style: TextStyle(fontSize: 16),)
+                  const SizedBox(height: 8),
+                  Text(
+                    _lists.content_data[_currentIndex],
+                    style: TextStyles.labelMediumMedium,
+                  ),
+                  const SizedBox(height: 36),
+                  SizedBox(
+                    height: 240,
+                    width: 240,
+                    child: CarouselSlider.builder(
+                      itemCount: _lists.images.length,
+                      itemBuilder: (context, _, index) {
+                        return Image.asset(
+                          _lists.images[index],
+                          fit: BoxFit.cover,
+                        );
+                      },
+                      options: CarouselOptions(
+                        aspectRatio: 1,
+                        viewportFraction: 1.0,
+                        enableInfiniteScroll: false,
+                        initialPage: 0,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  Container(height: 53),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 2),
+                    child: _buildAnimatedSmoothIndicator(),
+                  ),
+                ],
               ),
             ),
-            TextButton(
-              onPressed: () {},
-              child: const Text(
-                '둘러보기',
-                style: TextStyle(color: Colors.black, fontSize: 16.0, decoration: TextDecoration.underline),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 12,
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      context.push("/login/sns");
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: ColorStyles.black),
+                      child: Center(
+                        child: Text(
+                          '로그인/회원가입',
+                          style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  InkWell(
+                    onTap: () {},
+                    child: Container(
+                      decoration: BoxDecoration(border: Border(bottom: BorderSide())),
+                      child: const Text(
+                        '둘러보기',
+                        style: TextStyles.labelSmallMedium,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(
-              height: 30,
             ),
           ],
         ),
@@ -110,22 +120,21 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
     );
   }
 
-  Widget _buildIndicator() {
+  Widget _buildAnimatedSmoothIndicator() {
     return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          for (int i = 0; i < 3; i++) // 페이지 개수만큼 점 생성
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              width: _currentIndex == i ? 25 : 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: _currentIndex == i ? Colors.black : Colors.grey,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-        ],
+      child: AnimatedSmoothIndicator(
+        activeIndex: _currentIndex,
+        count: _lists.images.length, // Replace count
+        axisDirection: Axis.horizontal,
+        effect: const ScrollingDotsEffect(
+          dotHeight: 6,
+          dotWidth: 6,
+          strokeWidth: 0,
+          activeStrokeWidth: 0,
+          spacing: 3,
+          dotColor: Color(0x4D000000),
+          activeDotColor: ColorStyles.red,
+        ),
       ),
     );
   }

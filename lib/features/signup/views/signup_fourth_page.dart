@@ -1,3 +1,4 @@
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
@@ -14,6 +15,11 @@ class SignUpFourthPage extends StatefulWidget {
 }
 
 class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<SignUpFourthPage> {
+  final List<String> _feeling = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
+  final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
+  final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
+  final List<String> _sweet = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
+
   @override
   int get currentPageIndex => 3;
 
@@ -31,8 +37,8 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
 
   @override
   void Function() get onNext => () {
-    context.push('/signup/finish');
-  };
+        context.push('/signup/finish');
+      };
 
   @override
   void Function() get onSkip => () {};
@@ -47,11 +53,11 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
         Text('버디님의 커피 취향에 꼭 맞는 원두를 만나보세요.', style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50)),
         const SizedBox(height: 27),
         _buildBodyFeeling(presenter),
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
         _buildAcidity(presenter),
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
         _buildBitterness(presenter),
-        const SizedBox(height: 16),
+        const SizedBox(height: 32),
         _buildSweet(presenter),
       ],
     );
@@ -64,7 +70,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
         const Text('바디감', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
         SizedBox(
-          height: 42,
+          height: 52,
           child: Stack(
             children: [
               Positioned(
@@ -112,7 +118,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                 ),
               ),
               Positioned(
-                top: 28,
+                top: 34,
                 left: 0,
                 right: 0,
                 child: Row(
@@ -174,7 +180,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
         const Text('산미', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
         SizedBox(
-          height: 42,
+          height: 52,
           child: Stack(
             children: [
               Positioned(
@@ -222,7 +228,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                 ),
               ),
               Positioned(
-                top: 28,
+                top: 34,
                 left: 4,
                 right: 4,
                 child: Row(
@@ -284,7 +290,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
         const Text('쓴맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
         SizedBox(
-          height: 42,
+          height: 52,
           child: Stack(
             children: [
               Positioned(
@@ -300,86 +306,103 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                 top: 0,
                 left: 0,
                 right: 0,
+                bottom: 0,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) => InkWell(
-                      onTap: () {
-                        presenter.onChangeBitternessValue(index);
-                      },
-                      child: Container(
-                        height: 28,
-                        width: 28,
-                        decoration: BoxDecoration(
-                          color: presenter.bitterness == index ? ColorStyles.white : Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: presenter.bitterness == index ? Border.all(color: ColorStyles.red) : null,
-                        ),
-                        child: Center(
+                    (index) => Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            presenter.onChangeBitternessValue(index);
+                          },
                           child: Container(
-                            height: 14,
-                            width: 14,
+                            height: 28,
+                            width: 28,
                             decoration: BoxDecoration(
-                              color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+                              color: presenter.bitterness == index ? ColorStyles.white : Colors.transparent,
                               shape: BoxShape.circle,
+                              border: presenter.bitterness == index ? Border.all(color: ColorStyles.red) : null,
+                            ),
+                            child: Center(
+                              child: Container(
+                                height: 14,
+                                width: 14,
+                                decoration: BoxDecoration(
+                                  color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        SizedBox(height: 6),
+                        Text(
+                          _bitterness[index],
+                          style: TextStyles.captionMediumMedium.copyWith(
+                            color: presenter.bitterness != null && presenter.bitterness == index
+                                ? ColorStyles.red
+                                : presenter.bitterness == null
+                                    ? ColorStyles.gray50
+                                    : Colors.transparent,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                  ).separator(separatorWidget: Spacer()).toList(),
                 ),
               ),
-              Positioned(
-                top: 28,
-                left: 4,
-                right: 4,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List<Widget>.generate(
-                    5,
-                    (index) {
-                      if (index == 0) {
-                        return Text(
-                          '약한',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      } else if (index == 1) {
-                        return Text(
-                          '약간 약한',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      } else if (index == 2) {
-                        return Text(
-                          '보통',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      } else if (index == 3) {
-                        return Text(
-                          '약간 강한',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      } else {
-                        return Text(
-                          '강한',
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ),
+              // Positioned(
+              //   top: 34,
+              //   left: 4,
+              //   right: 4,
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //     children: List<Widget>.generate(
+              //       5,
+              //       (index) {
+              //         if (index == 0) {
+              //           return Text(
+              //             '약한',
+              //             style: TextStyles.captionMediumMedium.copyWith(
+              //               color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+              //             ),
+              //           );
+              //         } else if (index == 1) {
+              //           return Text(
+              //             '약간 약한',
+              //             style: TextStyles.captionMediumMedium.copyWith(
+              //               color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+              //             ),
+              //           );
+              //         } else if (index == 2) {
+              //           return Text(
+              //             '보통',
+              //             style: TextStyles.captionMediumMedium.copyWith(
+              //               color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+              //             ),
+              //           );
+              //         } else if (index == 3) {
+              //           return Text(
+              //             '약간 강한',
+              //             style: TextStyles.captionMediumMedium.copyWith(
+              //               color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+              //             ),
+              //           );
+              //         } else {
+              //           return Text(
+              //             '강한',
+              //             style: TextStyles.captionMediumMedium.copyWith(
+              //               color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
+              //             ),
+              //           );
+              //         }
+              //       },
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -394,7 +417,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
         const Text('단맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
         SizedBox(
-          height: 42,
+          height: 52,
           child: Stack(
             children: [
               Positioned(
@@ -442,7 +465,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                 ),
               ),
               Positioned(
-                top: 28,
+                top: 34,
                 left: 4,
                 right: 4,
                 child: Row(
@@ -496,4 +519,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
       ],
     );
   }
+
+  @override
+  onTappedOutSide() {}
 }
