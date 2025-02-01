@@ -5,7 +5,9 @@ import '../../common/styles/color_styles.dart';
 class CustomTagController extends TextEditingController {
   static const int maxTags = 5; // 태그 최대 개수 제한
   ValueNotifier<int> tagCountNotifier = ValueNotifier<int>(0);
+  List<String> _tags = [];
 
+  List<String> get tags => _tags;
 
 
   @override
@@ -23,6 +25,8 @@ class CustomTagController extends TextEditingController {
     final Iterable<Match> matches = regex.allMatches(text);
 
     int tagCount = 0; // 현재 태그 개수
+
+
 
     for (final Match match in matches) {
       final String word = match.group(0)!;
@@ -67,6 +71,25 @@ class CustomTagController extends TextEditingController {
 
 
 
-  // 텍스트에서 태그 추출
+
+
+  List<String> updateTagsFromContent(String content) {
+    // 예시: 내용에서 해시태그(#)를 추출하여 태그로 설정
+    _tags = content
+        .split(' ')
+        .where((word) => word.startsWith('#'))
+        .map((word) => word.substring(1)) // # 제거
+        .toList();
+
+    return _tags;
+  }
+
+  String extractContentWithoutTags(String content) {
+    if (RegExp(r'#\w+').hasMatch(content)) { // ✅ Check if there are any hashtags
+      return content.replaceAll(RegExp(r'#\w+'), '').trim();
+    }
+    return content; // ✅ Return original content if no hashtags exist
+  }
+
 
 }

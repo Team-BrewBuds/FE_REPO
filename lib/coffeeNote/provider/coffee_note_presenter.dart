@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:brew_buds/coffeeNote/controller/custom_controller.dart';
 import 'package:brew_buds/coffeeNote/model/beanInfo.dart';
+import 'package:brew_buds/data/repository/post_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -10,8 +11,13 @@ import '../../features/signup/state/signup_state.dart';
 import '../../profile/model/country.dart';
 
 final class CoffeeNotePresenter extends ChangeNotifier {
-  final AuthService _authService = AuthService.defaultService();
   SignUpState _state = const SignUpState();
+
+
+
+
+
+
 
   int? get acidity => _state.preferredBeanTaste?.acidity;
 
@@ -231,4 +237,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   void setState(Null Function() param0) {}
 
   void init() {}
+
+
 }

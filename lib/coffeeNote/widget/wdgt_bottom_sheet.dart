@@ -1,4 +1,5 @@
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
+import 'package:brew_buds/coffeeNote/provider/post_presenter.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:flutter/material.dart';
 import '../../common/drag_bar.dart';
@@ -7,14 +8,12 @@ import '../../common/styles/text_styles.dart';
 
 class WdgtBottomSheet extends StatefulWidget {
   final String title;
-  final CoffeeNotePresenter presenter;
-  final Function(String) onTap;
+  final PostPresenter presenter;
 
   const WdgtBottomSheet({
     super.key,
     required this.title,
     required this.presenter,
-    required this.onTap,
   });
 
   @override
@@ -82,8 +81,7 @@ class _WdgtBottomSheetState extends State<WdgtBottomSheet> {
         style: TextStyles.labelMediumMedium,
       ),
       onTap: () {
-        widget.onTap(subject.toString());
-        // widget.presenter.setTitle(subject.toString());
+        widget.presenter.selectTopic(subject.toString());
         Navigator.pop(context, subject);
       },
     );
