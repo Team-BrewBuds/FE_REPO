@@ -18,6 +18,7 @@ class SignUpFirstPage extends StatefulWidget {
 }
 
 class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<SignUpFirstPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
