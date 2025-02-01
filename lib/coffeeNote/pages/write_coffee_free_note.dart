@@ -26,9 +26,9 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<PostPresenter>(context, listen: false);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   Provider.of<PostPresenter>(context, listen: false);
+    // });
   }
 
   @override
