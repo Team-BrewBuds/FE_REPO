@@ -41,7 +41,7 @@ final class ButtonFactory {
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
         decoration: BoxDecoration(
             color: style.backgroundColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.0),
             border: Border.all(
               color: style.borderColor,
               width: style.borderWidth,
@@ -181,6 +181,8 @@ class RoundedButtonStyle {
   final double borderWidth;
   final Color textColor;
   final RoundedButtonSize size;
+  final BorderRadius? radius;
+
 
   const RoundedButtonStyle({
     required this.backgroundColor,
@@ -188,12 +190,14 @@ class RoundedButtonStyle {
     required this.borderColor,
     required this.textColor,
     required this.size,
+    this.radius
   });
 
   factory RoundedButtonStyle.fill({
     Color color = ColorStyles.gray50,
     Color textColor = ColorStyles.white,
-    required RoundedButtonSize size,
+    required RoundedButtonSize size,  BorderRadius ? radius
+
   }) =>
       RoundedButtonStyle(
         backgroundColor: color,
@@ -201,6 +205,7 @@ class RoundedButtonStyle {
         borderColor: Colors.transparent,
         textColor: textColor,
         size: size,
+        radius: BorderRadius.circular(8.0)
       );
 
   factory RoundedButtonStyle.line({

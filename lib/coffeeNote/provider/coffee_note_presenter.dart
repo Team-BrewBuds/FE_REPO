@@ -101,7 +101,7 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   List<BeanFlavor> get flavor => BeanFlavor.values;
 
   List<ExtractionType> get extractionInfo => ExtractionType.values;
-
+  List<Continent> get  continent  =>Continent.values;
   List<ProcessType> get processInfo => ProcessType.values;
   List<String> extractionList = [];
   List<String> processList = [];

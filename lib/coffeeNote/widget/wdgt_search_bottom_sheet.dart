@@ -5,9 +5,13 @@ import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 
 class WdgtSearchBottomSheet extends StatefulWidget {
-  const WdgtSearchBottomSheet(
-      {super.key, required this.title, required this.content, this.height = 500, this.useIcon,
-      });
+  const WdgtSearchBottomSheet({
+    super.key,
+    required this.title,
+    required this.content,
+    this.height = 190,
+    this.useIcon,
+  });
 
   final String title;
   final String content;
@@ -33,78 +37,74 @@ class _WdgtSearchBottomSheetState extends State<WdgtSearchBottomSheet> {
             SizedBox(
               height: 14,
             ),
-            widget.useIcon != null ?
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // 전체 Row를 가로로 중앙 정렬
-              children: [
-                IconButton(
-                          icon: SvgPicture.asset(
-                            'assets/icons/navigation.svg',
-                            width: 16,
-                            height: 16,
-                            fit: BoxFit.cover,
-                          ),
-                          onPressed: () async {
-                            Navigator.pop(context);
-                          },
+            widget.useIcon != null
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // 전체 Row를 가로로 중앙 정렬
+                    children: [
+                      IconButton(
+                        icon: SvgPicture.asset(
+                          'assets/icons/navigation.svg',
+                          width: 16,
+                          height: 16,
+                          fit: BoxFit.cover,
                         ),
-                Text(
-                  widget.title,
-                  textAlign: TextAlign.center, // 텍스트를 가운데 정렬
-                  style: TextStyles.title02SemiBold,
-                ),
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/icons/x.svg',
-                    width: 24,
-                    height: 24,
-                    fit: BoxFit.cover,
+                        onPressed: () async {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      Text(
+                        widget.title,
+                        textAlign: TextAlign.center, // 텍스트를 가운데 정렬
+                        style: TextStyles.title02SemiBold,
+                      ),
+                      IconButton(
+                        icon: SvgPicture.asset(
+                          'assets/icons/x.svg',
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.cover,
+                        ),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 40,
+                      ),
+                      // 왼쪽에 빈 공간을 추가
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            widget.title,
+                            textAlign: TextAlign.center,
+                            style: TextStyles.title02SemiBold,
+                          ),
+                        ),
+                      ),
+                      // X 아이콘 버튼
+                      IconButton(
+                        icon: SvgPicture.asset(
+                          'assets/icons/x.svg',
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.cover,
+                        ),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   ),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ) :
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(width: 40,),
-                // 왼쪽에 빈 공간을 추가
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      style: TextStyles.title02SemiBold,
-                    ),
-                  ),
-                ),
-                // X 아이콘 버튼
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/icons/x.svg',
-                    width: 24,
-                    height: 24,
-                    fit: BoxFit.cover,
-                  ),
-                  onPressed: () async {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-
-
-
-
-
-
             SizedBox(
               height: 24,
             ),
-
             TextFormField(
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
@@ -147,7 +147,6 @@ class _WdgtSearchBottomSheetState extends State<WdgtSearchBottomSheet> {
               cursorErrorColor: ColorStyles.black,
               autovalidateMode: AutovalidateMode.always,
             ),
-
             // _buildSubjectList(),
           ],
         ),
