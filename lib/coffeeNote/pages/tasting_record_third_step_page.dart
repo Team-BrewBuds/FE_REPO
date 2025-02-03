@@ -3,11 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../widget/wdgt_search_bottom_sheet.dart';
 import 'core/tasing_record_mixin.dart';
+import 'locate_permission_page.dart';
 
 class TastingRecordThirdStepPage extends StatefulWidget {
   const TastingRecordThirdStepPage({super.key});
@@ -21,7 +23,6 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     with TasingRecordMixin<TastingRecordThirdStepPage> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _textEditingController = TextEditingController();
-
   DateTime _selectedDate = DateTime.now();
 
   @override
@@ -40,6 +41,16 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   void Function() get onSkip => () {};
 
   bool isOn = false;
+
+
+  void navigateToLocatePermissionPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LocatePermissionPage(),
+      ),
+    );
+  }
 
   void _showDatePicker(BuildContext context) {
     showModalBottomSheet(
@@ -119,7 +130,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     );
   }
 
-  void _showLocatePicker(BuildContext context) {
+  void _showLocatePicker(BuildContext context) async {
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -137,8 +149,21 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
           child: Column(
             children: <Widget>[
               WdgtSearchBottomSheet(title: '위치', content: '시음장소를 검색하세요', useIcon: true,
-                )
-
+                ),
+              SizedBox(height: 24,),
+              Column(
+                children: [
+                  Text('근처 장소 보기', style: TextStyles.labelMediumMedium,),
+                  SizedBox(height: 4,),
+                  Text('근처 장소를 포함하려면 위치 서비스를 설정하세요', style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),),
+                  SizedBox(height: 20,),
+                  ButtonFactory.buildRoundedButton(onTapped: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LocatePermissionPage()));
+                  },
+                      text: '위치 서비스 설정',
+                      style: RoundedButtonStyle.fill(size: RoundedButtonSize.medium, color: ColorStyles.red, radius: BorderRadius.circular(20.0)))
+                ],
+              )
 
 
             ],
@@ -147,6 +172,9 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
       },
     );
   }
+
+
+
 
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
@@ -232,7 +260,9 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                     colorFilter: const ColorFilter.mode(
                         ColorStyles.gray50, BlendMode.srcIn),
                   ),
-                  _showLocatePicker),
+                navigateToLocatePermissionPage,
+
+              ),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: Divider(

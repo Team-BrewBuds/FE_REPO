@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:brew_buds/coffeeNote/pages/tasting_record_third_step_page.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
-import 'package:brew_buds/coffeeNote/widget/wdgt_bottom_sheet_select.dart';
+import 'package:brew_buds/coffeeNote/widget/flavorChoiceWidget.dart';
 import 'package:flutter/material.dart';
 import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
@@ -62,7 +62,7 @@ class _TastingRecordSecStepPageState extends State<TastingRecordSecStepPage>
                           backgroundColor: Colors.white,
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) => WdgtBottomSheetSelect(
+                          builder: (context) => flavorChoiceWidget(
                             title: '원두에서 어떤 맛이 느껴지시나요?',
                           ),
                         )

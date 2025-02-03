@@ -11,6 +11,7 @@ import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../../features/signup/models/gender.dart';
 import '../../features/signup/provider/sign_up_presenter.dart';
+import '../widget/beanCountryWidget.dart';
 import '../widget/wdgt_select_list.dart';
 import 'core/tasing_record_mixin.dart';
 
@@ -221,9 +222,7 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                           backgroundColor: Colors.white,
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) => WdgtSearchBottomSheet(
-                            title: '원두 생산 국가',
-                            content: '생산 국가를 입력해 주세요.',
+                          builder: (context) => Beancountrywidget(
                           ),
                         );
                       },
