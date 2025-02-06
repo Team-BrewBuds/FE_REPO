@@ -81,38 +81,49 @@ class _LocatePermissionPageState extends State<LocatePermissionPage> {
             padding: EdgeInsets.only(bottom: 46, top: 24, right: 16, left: 16),
             child: ButtonFactory.buildRoundedButton(
                 onTapped: () {
-                  _getLocation();
-                  _checkLocation();
+                  _checkLocation(getPermissionInfo());
                 },
                 text: '다음',
                 style: RoundedButtonStyle.fill(
                     size: RoundedButtonSize.xLarge, color: Colors.black))));
   }
 
-  Future<void> _getLocation() async {
+  Future<LocationPermission> getPermissionInfo() async {
     // 권한 요청
     LocationPermission permission = await Geolocator.requestPermission();
+    print(permission);
 
-    if (permission == LocationPermission.always) {
-      // 권한이 영구적으로 거부된 경우
-      print('위치 권한이 거부되었습니다. 앱에서 권한 설정을 변경해야 합니다.');
-    } else if (permission == LocationPermission.denied) {
-      // 권한이 거부된 경우
-      print('위치 권한이 필요합니다.');
-    } else {
-      // 위치 가져오기
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      print('위치: ${position.latitude}, ${position.longitude}');
+    switch (permission) {
+      case LocationPermission.whileInUse:
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        print('위치: ${position.latitude}, ${position.longitude}');
+        print('앱을 사용하는 동안 허용');
+        break;
+      case LocationPermission.always:
+        print('항상 허용');
+      case LocationPermission.deniedForever:
+        print('아예 불가');
+
+      default:
+        print('위치정보');
     }
+
+    return permission;
   }
 
-  Future<bool> _checkLocation() async{
+  Future<bool> _checkLocation(Future<LocationPermission> getPermissionInfo) async {
     LocationPermission permission = await Geolocator.requestPermission();
 
-    print(permission);
+    // 권한이 거부되었거나 영구적으로 거부된 경우
+    if (permission == LocationPermission.deniedForever || permission == LocationPermission.denied) {
+
+    }
+      // 권한 요청
 
     return true;
   }
+
+
 }

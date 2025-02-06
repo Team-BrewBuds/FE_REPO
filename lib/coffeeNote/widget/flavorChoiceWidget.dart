@@ -241,6 +241,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
             ButtonFactory.buildRoundedButton(
                 onTapped: () {
                   Navigator.pop(context);
+                  print(presenter.tasteFlaver);
                 },
                 text: '선택하기',
                 style: RoundedButtonStyle.fill(
