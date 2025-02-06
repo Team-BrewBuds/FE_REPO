@@ -12,7 +12,8 @@ import '../../common/styles/text_styles.dart';
 import '../../features/signup/models/gender.dart';
 import '../../features/signup/provider/sign_up_presenter.dart';
 import '../widget/beanCountryWidget.dart';
-import '../widget/wdgt_select_list.dart';
+import '../widget/blendWidgets.dart';
+import '../widget/singleOriginWidgets.dart';
 import 'core/tasing_record_mixin.dart';
 
 class TasingRecordFirstStepPage extends StatefulWidget {
@@ -108,15 +109,15 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                               text: '싱글오리진',
                               style: single
                                   ? RoundedButtonStyle.line(
-                                      size: RoundedButtonSize.medium,
-                                      backgroundColor: ColorStyles.background,
-                                      color: ColorStyles.red,
-                                      textColor: ColorStyles.red)
+                                  size: RoundedButtonSize.medium,
+                                  backgroundColor: ColorStyles.background,
+                                  color: ColorStyles.red,
+                                  textColor: ColorStyles.red)
                                   : RoundedButtonStyle.line(
-                                      size: RoundedButtonSize.medium,
-                                      color: ColorStyles.gray50,
-                                      textColor: ColorStyles.black,
-                                    )),
+                                size: RoundedButtonSize.medium,
+                                color: ColorStyles.gray50,
+                                textColor: ColorStyles.black,
+                              )),
                           SizedBox(
                             width: 8,
                           ),
@@ -129,15 +130,15 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                               text: '블렌드',
                               style: blend
                                   ? RoundedButtonStyle.line(
-                                      size: RoundedButtonSize.medium,
-                                      backgroundColor: ColorStyles.background,
-                                      color: ColorStyles.red,
-                                      textColor: ColorStyles.red)
+                                  size: RoundedButtonSize.medium,
+                                  backgroundColor: ColorStyles.background,
+                                  color: ColorStyles.red,
+                                  textColor: ColorStyles.red)
                                   : RoundedButtonStyle.line(
-                                      size: RoundedButtonSize.medium,
-                                      color: ColorStyles.gray50,
-                                      textColor: ColorStyles.black,
-                                    )),
+                                size: RoundedButtonSize.medium,
+                                color: ColorStyles.gray50,
+                                textColor: ColorStyles.black,
+                              )),
                         ],
                       ),
                       SizedBox(
@@ -149,23 +150,23 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                           children: [
                             isDecaf
                                 ? SvgPicture.asset(
-                                    'assets/icons/checkbox.svg',
-                                    fit: BoxFit.scaleDown,
-                                    height: 28,
-                                    width: 28,
-                                  )
+                              'assets/icons/checkbox.svg',
+                              fit: BoxFit.scaleDown,
+                              height: 28,
+                              width: 28,
+                            )
                                 : SvgPicture.asset(
-                                    'assets/icons/uncheck.svg',
-                                    fit: BoxFit.scaleDown,
-                                    height: 28,
-                                    width: 28,
-                                  ),
+                              'assets/icons/uncheck.svg',
+                              fit: BoxFit.scaleDown,
+                              height: 28,
+                              width: 28,
+                            ),
                             Text('다카페인',
                                 style: isDecaf
                                     ? TextStyles.labelSmallMedium
-                                        .copyWith(color: ColorStyles.red)
+                                    .copyWith(color: ColorStyles.red)
                                     : TextStyles.labelSmallMedium
-                                        .copyWith(color: ColorStyles.gray50))
+                                    .copyWith(color: ColorStyles.gray50))
                           ],
                         ),
                       )
@@ -176,6 +177,7 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
               SizedBox(
                 height: 20,
               ),
+
 
               //원두 이름 검색
               Column(
@@ -191,10 +193,11 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                           backgroundColor: Colors.white,
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) => WdgtSearchBottomSheet(
-                            title: '원두',
-                            content: '원두 이름을 입력해 주세요.',
-                          ),
+                          builder: (context) =>
+                              WdgtSearchBottomSheet(
+                                title: '원두',
+                                content: '원두 이름을 입력해 주세요.',
+                              ),
                         );
                       },
                       style: RoundedButtonStyle.line(
@@ -222,8 +225,9 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
                           backgroundColor: Colors.white,
                           context: context,
                           isScrollControlled: true,
-                          builder: (context) => Beancountrywidget(
-                          ),
+                          builder: (context) =>
+                              Beancountrywidget(
+                              ),
                         );
                       },
                       style: RoundedButtonStyle.line(
@@ -238,7 +242,12 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
               SizedBox(
                 height: 20,
               ),
-              const WdgtSelectList()
+
+              if(beanType == 'single')
+                sigleOriginWidgets(),
+
+              if(beanType == 'blend')
+                Blendwidgets()
             ],
           ),
         ),
@@ -260,7 +269,8 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
 
   @override
   // TODO: implement onNext
-  void Function() get onNext => () {
+  void Function() get onNext =>
+          () {
         print('next');
         Navigator.push(
             context,
@@ -273,7 +283,7 @@ class _TasingRecordFirstStepPageState extends State<TasingRecordFirstStepPage>
     // TODO: implement buildBottom
     return Padding(
       padding:
-          const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
+      const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
       child: AbsorbPointer(
         absorbing: !isSatisfyRequirements,
         child: InkWell(
