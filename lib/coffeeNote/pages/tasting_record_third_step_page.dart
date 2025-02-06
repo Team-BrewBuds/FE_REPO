@@ -5,12 +5,12 @@ import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../widget/wdgt_search_bottom_sheet.dart';
 import 'core/tasing_record_mixin.dart';
-import 'locate_permission_page.dart';
 
 class TastingRecordThirdStepPage extends StatefulWidget {
   const TastingRecordThirdStepPage({super.key});
@@ -25,7 +25,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   final _formKey = GlobalKey<FormState>();
   TextEditingController _textEditingController = TextEditingController();
 
- late String tastedAt;
+  late String tastedAt;
 
   @override
   int get currentPageIndex => 2;
@@ -44,7 +44,6 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
 
   bool isOn = false;
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -53,12 +52,76 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     tastedAt = DateFormat('yyyy-MM-dd').format(today);
   }
 
-  void navigateToLocatePermissionPage(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => LocatePermissionPage(),
-      ),
+  Future<LocationPermission> getPermissionInfo() async {
+    // 권한 요청
+    LocationPermission permission = await Geolocator.requestPermission();
+    print(permission);
+
+    switch (permission) {
+      case LocationPermission.whileInUse:
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        print('위치: ${position.latitude}, ${position.longitude}');
+        print('앱을 사용하는 동안 허용');
+        break;
+      case LocationPermission.always:
+        print('항상 허용');
+        break; // break 추가
+      case LocationPermission.deniedForever:
+        print('아예 불가');
+        break; // break 추가
+      default:
+        print('위치정보');
+    }
+
+    return permission;
+  }
+
+  Future<bool> checkLocation() async {
+    LocationPermission permission = await getPermissionInfo();
+
+    if (permission == LocationPermission.deniedForever ||
+        permission == LocationPermission.denied) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  void navigateToLocatePermissionPage(BuildContext context) async {
+    bool hasPermission = await checkLocation();
+
+    if (hasPermission) {
+      _showLocatePicker(context);
+    } else {
+      _showNoLocatePermission(context);
+    }
+  }
+
+  void showCupertinoDialogs(BuildContext context) {
+    showCupertinoDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: Text('위치 서비스 켜기'),
+          content: Text('설정을 열고 위치를 누른 다음 앱을 사용하는 동안을 선택하세요'),
+          actions: <Widget>[
+            CupertinoDialogAction(
+              child: Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+              },
+            ),
+            CupertinoDialogAction(
+              child: Text('설정 열기'),
+              onPressed: () async {
+                await launch('app-settings:'); // 다이얼로그 닫기
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -120,9 +183,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                   onDateTimeChanged: (DateTime newDate) {
                     setState(() {
                       selDate = newDate;
-                      pickDate =  DateFormat('yyyy-MM-dd').format(selDate);
-
-
+                      pickDate = DateFormat('yyyy-MM-dd').format(selDate);
                     });
                   },
                   minimumDate: DateTime(2000),
@@ -139,7 +200,6 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                           tastedAt = pickDate;
                         });
                         Navigator.pop(context);
-
                       },
                       text: '선택',
                       style: RoundedButtonStyle.fill(
@@ -152,8 +212,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     );
   }
 
-  void _showLocatePicker(BuildContext context) async {
-
+  void _showNoLocatePermission(BuildContext context) async {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -170,24 +229,42 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
           ),
           child: Column(
             children: <Widget>[
-              WdgtSearchBottomSheet(title: '위치', content: '시음장소를 검색하세요', useIcon: true,
-                ),
-              SizedBox(height: 24,),
+              WdgtSearchBottomSheet(
+                title: '위치',
+                content: '시음장소를 검색하세요',
+                useIcon: true,
+              ),
+              SizedBox(
+                height: 24,
+              ),
               Column(
                 children: [
-                  Text('근처 장소 보기', style: TextStyles.labelMediumMedium,),
-                  SizedBox(height: 4,),
-                  Text('근처 장소를 포함하려면 위치 서비스를 설정하세요', style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),),
-                  SizedBox(height: 20,),
-                  ButtonFactory.buildRoundedButton(onTapped: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LocatePermissionPage()));
-                  },
+                  Text(
+                    '근처 장소 보기',
+                    style: TextStyles.labelMediumMedium,
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Text(
+                    '근처 장소를 포함하려면 위치 서비스를 설정하세요',
+                    style: TextStyles.captionSmallMedium
+                        .copyWith(color: ColorStyles.gray50),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ButtonFactory.buildRoundedButton(
+                      onTapped: () {
+                        showCupertinoDialogs(context);
+                      },
                       text: '위치 서비스 설정',
-                      style: RoundedButtonStyle.fill(size: RoundedButtonSize.medium, color: ColorStyles.red, radius: BorderRadius.circular(20.0)))
+                      style: RoundedButtonStyle.fill(
+                          size: RoundedButtonSize.medium,
+                          color: ColorStyles.red,
+                          radius: BorderRadius.circular(20.0)))
                 ],
               )
-
-
             ],
           ),
         );
@@ -195,12 +272,37 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     );
   }
 
-
-
+  void _showLocatePicker(BuildContext context) async {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height * 0.9,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(8.0), // Adjust this value as needed
+              topRight: Radius.circular(8.0), // Adjust this value as needed
+            ),
+            color: Colors.white, // Set a background color if needed
+          ),
+          child: Column(
+            children: <Widget>[
+              WdgtSearchBottomSheet(
+                title: '위치',
+                content: '시음장소를 검색하세요',
+                useIcon: true,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget buildBody(BuildContext context, CoffeeNotePresenter presenter) {
-
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -266,7 +368,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                     cursorColor: ColorStyles.black,
                   )),
               const SizedBox(height: 28),
-              ListWidget('시음 날짜', null, _showDatePicker,selectedDate( tastedAt) ),
+              ListWidget(
+                  '시음 날짜', null, _showDatePicker, selectedDate(tastedAt)),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: Divider(
@@ -282,21 +385,21 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                     colorFilter: const ColorFilter.mode(
                         ColorStyles.gray50, BlendMode.srcIn),
                   ),
-                navigateToLocatePermissionPage, null
-
-
-              ),
+                  navigateToLocatePermissionPage,
+                  null),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: Divider(
                     height: 0.3,
                   )),
-              isOnlyMe(title:'나만 보기', toggle: (){
-                setState(() {
-                  isOn = !isOn;
-                });
-              }, isOn: isOn),
-
+              isOnlyMe(
+                  title: '나만 보기',
+                  toggle: () {
+                    setState(() {
+                      isOn = !isOn;
+                    });
+                  },
+                  isOn: isOn),
             ],
           ),
         ),
@@ -304,8 +407,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     );
   }
 
-  Widget ListWidget(
-      String title, SvgPicture? icon, void Function(BuildContext)? onTap, Widget  ? result) {
+  Widget ListWidget(String title, SvgPicture? icon,
+      void Function(BuildContext)? onTap, Widget? result) {
     return Container(
       height: 60,
       color: ColorStyles.gray10,
@@ -331,11 +434,9 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                     style: TextStyles.labelSmallMedium,
                   ),
                   Row(
-                    children: [
-                      Container(child: icon)],
+                    children: [Container(child: icon)],
                   ),
-                  if(result != null)
-                  result,
+                  if (result != null) result,
                 ],
               ),
             ),
@@ -394,8 +495,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   }
 
   Widget isOnlyMe(
-       {required Function() toggle, required String title, required bool isOn}) {
-
+      {required Function() toggle, required String title, required bool isOn}) {
     return Container(
       height: 60,
       color: ColorStyles.gray10,
@@ -416,10 +516,12 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                   ),
                   Row(
                     children: [
-                      isOn ?
-                      Container(child: SvgPicture.asset('assets/icons/togOn.svg')) :
-                      Container(child: SvgPicture.asset('assets/icons/togOff.svg'))
-
+                      isOn
+                          ? Container(
+                              child: SvgPicture.asset('assets/icons/togOn.svg'))
+                          : Container(
+                              child:
+                                  SvgPicture.asset('assets/icons/togOff.svg'))
                     ],
                   )
                 ],
@@ -429,28 +531,27 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
         ),
       ),
     );
-
-
   }
 
-  Widget selectedDate(String tastedDate){
+  Widget selectedDate(String tastedDate) {
     return Container(
       width: 95.0,
       height: 18.0,
       decoration: BoxDecoration(
-          color: ColorStyles.gray30,
-        borderRadius: BorderRadius.circular(10.0)
-      ),
+          color: ColorStyles.gray30, borderRadius: BorderRadius.circular(10.0)),
       child: Row(
         children: [
-          SizedBox(width: 8.0,),
+          SizedBox(
+            width: 8.0,
+          ),
           Text(tastedDate, style: TextStyles.captionMediumMedium),
           SvgPicture.asset(
             'assets/icons/arrow.svg',
             height: 16,
             width: 16,
             fit: BoxFit.cover,
-            colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+            colorFilter:
+                const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
           ),
         ],
       ),
