@@ -48,6 +48,8 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   bool _bevType = false;
   bool get bevType => _bevType;
 
+
+
   checkHot(){
    if(!_bevType){
      _bevType = true;
@@ -63,12 +65,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     print(_bevType);
     notifyListeners();
   }
-
-
-  void selectA() {
-
-  }
-
 
 
 

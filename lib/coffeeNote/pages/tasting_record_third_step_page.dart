@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:intl/intl.dart';
 import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
@@ -23,7 +24,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     with TasingRecordMixin<TastingRecordThirdStepPage> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController _textEditingController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+
+ late String tastedAt;
 
   @override
   int get currentPageIndex => 2;
@@ -43,6 +45,14 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   bool isOn = false;
 
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    DateTime today = DateTime.now();
+    tastedAt = DateFormat('yyyy-MM-dd').format(today);
+  }
+
   void navigateToLocatePermissionPage(BuildContext context) {
     Navigator.push(
       context,
@@ -53,6 +63,9 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   }
 
   void _showDatePicker(BuildContext context) {
+    DateTime selDate = DateTime.now();
+    String _selectedDate = DateFormat('yyyy-MM-dd').format(selDate);
+    String pickDate = '';
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -102,11 +115,14 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
               // CupertinoDatePicker 추가
               Expanded(
                 child: CupertinoDatePicker(
-                  initialDateTime: _selectedDate,
+                  initialDateTime: selDate,
                   mode: CupertinoDatePickerMode.date,
                   onDateTimeChanged: (DateTime newDate) {
                     setState(() {
-                      _selectedDate = newDate;
+                      selDate = newDate;
+                      pickDate =  DateFormat('yyyy-MM-dd').format(selDate);
+
+
                     });
                   },
                   minimumDate: DateTime(2000),
@@ -118,7 +134,13 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                   padding: const EdgeInsets.only(
                       top: 24.0, right: 16.0, bottom: 46.0, left: 16.0),
                   child: ButtonFactory.buildRoundedButton(
-                      onTapped: () {},
+                      onTapped: () {
+                        setState(() {
+                          tastedAt = pickDate;
+                        });
+                        Navigator.pop(context);
+
+                      },
                       text: '선택',
                       style: RoundedButtonStyle.fill(
                           size: RoundedButtonSize.xLarge,
@@ -244,7 +266,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                     cursorColor: ColorStyles.black,
                   )),
               const SizedBox(height: 28),
-              ListWidget('시음 날짜', null, _showDatePicker),
+              ListWidget('시음 날짜', null, _showDatePicker,selectedDate( tastedAt) ),
               Padding(
                   padding: EdgeInsets.symmetric(horizontal: 12.0),
                   child: Divider(
@@ -260,7 +282,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                     colorFilter: const ColorFilter.mode(
                         ColorStyles.gray50, BlendMode.srcIn),
                   ),
-                navigateToLocatePermissionPage,
+                navigateToLocatePermissionPage, null
+
 
               ),
               Padding(
@@ -282,7 +305,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   }
 
   Widget ListWidget(
-      String title, SvgPicture? icon, void Function(BuildContext)? onTap) {
+      String title, SvgPicture? icon, void Function(BuildContext)? onTap, Widget  ? result) {
     return Container(
       height: 60,
       color: ColorStyles.gray10,
@@ -310,7 +333,9 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
                   Row(
                     children: [
                       Container(child: icon)],
-                  )
+                  ),
+                  if(result != null)
+                  result,
                 ],
               ),
             ),
@@ -406,6 +431,30 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
     );
 
 
+  }
+
+  Widget selectedDate(String tastedDate){
+    return Container(
+      width: 95.0,
+      height: 18.0,
+      decoration: BoxDecoration(
+          color: ColorStyles.gray30,
+        borderRadius: BorderRadius.circular(10.0)
+      ),
+      child: Row(
+        children: [
+          SizedBox(width: 8.0,),
+          Text(tastedDate, style: TextStyles.captionMediumMedium),
+          SvgPicture.asset(
+            'assets/icons/arrow.svg',
+            height: 16,
+            width: 16,
+            fit: BoxFit.cover,
+            colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
