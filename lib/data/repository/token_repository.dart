@@ -1,4 +1,3 @@
-import 'package:brew_buds/features/login/models/social_login_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -6,13 +5,10 @@ class TokenRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   String _accessToken = '';
   String _refreshToken = '';
-  SocialLoginToken? _socialToken;
 
   String get accessToken => _accessToken;
 
   String get refreshToken => _refreshToken;
-
-  SocialLoginToken? get socialToken => _socialToken;
 
   TokenRepository._() {
     _init();
@@ -42,9 +38,5 @@ class TokenRepository extends ChangeNotifier {
       _refreshToken = refreshToken;
       notifyListeners();
     }
-  }
-
-  setOAuthToken(SocialLoginToken token) {
-    _socialToken = token;
   }
 }

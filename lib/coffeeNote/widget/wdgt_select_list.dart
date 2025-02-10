@@ -5,7 +5,6 @@ import 'package:brew_buds/coffeeNote/widget/wdgt_bottom_sheet.dart';
 import 'package:brew_buds/coffeeNote/widget/wdgt_search_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
