@@ -215,7 +215,9 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
                 const SizedBox(width: 8),
                 ButtonFactory.buildRoundedButton(
-                  onTapped: () {},
+                  onTapped: () {
+                    context.push('/profile_edit');
+                  },
                   text: '프로필 편집',
                   style: RoundedButtonStyle.fill(
                     size: RoundedButtonSize.medium,

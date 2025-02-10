@@ -12,14 +12,14 @@ import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../model/beanInfo.dart';
 
-class sigleOriginWidgets extends StatefulWidget {
-  const sigleOriginWidgets({super.key});
+class singleOriginWidgets extends StatefulWidget {
+  const singleOriginWidgets({super.key});
 
   @override
-  State<sigleOriginWidgets> createState() => _sigleOriginWidgetsState();
+  State<singleOriginWidgets> createState() => _singleOriginWidgetsState();
 }
 
-class _sigleOriginWidgetsState extends State<sigleOriginWidgets> {
+class _singleOriginWidgetsState extends State<singleOriginWidgets> {
   late List<bool> _expandedStates;
 
   final FocusNode _focusNode = FocusNode();

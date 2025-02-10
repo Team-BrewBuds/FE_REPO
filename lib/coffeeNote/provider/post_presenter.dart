@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/http/src/response/response.dart';
 import '../../data/repository/post_repository.dart';
 import '../controller/custom_controller.dart';
 
@@ -50,8 +53,8 @@ final class PostPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  selectTopic(String value) {
-      _topic = value;
+  selectTopic(String ?value) {
+      _topic = value!.toString();
       _isTopicSelect = true;
       notifyListeners();
 
@@ -63,16 +66,36 @@ final class PostPresenter extends ChangeNotifier {
 
 
 
-  Future<void> createPost({
+
+  Future<bool> createPost({
     required String title,
     required String content,
     required String subject,
-    required List<String> tag,
+    required String tag,
     required List<double> tasted_recordes,
     required List<double>  photos
 
 }) async {
-    Map<String, dynamic> data = {};
-    await _postRepository.createPost(data: data);
+    Map<String, dynamic> data = {
+      "title":title,
+      "content":content,
+      "subject":subject,
+      "tag": "tag",
+      "tasted_records" : [1],
+      "photos": [1]
+    };
+    String jsonData = json.encode(data);
+
+    print(jsonData);
+
+    try{
+       await _postRepository.createPosts(data: jsonData);
+      return true;
+    }catch(e){
+        print("등록 실패 ${e}");
+    }
+    return false;
+
+
 }
 }

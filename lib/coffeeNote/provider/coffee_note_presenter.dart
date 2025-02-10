@@ -13,13 +13,8 @@ import '../../profile/model/country.dart';
 final class CoffeeNotePresenter extends ChangeNotifier {
   SignUpState _state = const SignUpState();
 
-
-
-
-
-
-
   int? get acidity => _state.preferredBeanTaste?.acidity;
+  String beanType = '';
 
   bool _isLoading = false;
 
@@ -42,23 +37,24 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
   // 음료 유형
   bool _hot = true;
+
   bool get hot => _hot;
   bool _ice = false;
-  bool get ice =>_ice;
+
+  bool get ice => _ice;
   bool _bevType = false;
+
   bool get bevType => _bevType;
 
-
-
-  checkHot(){
-   if(!_bevType){
-     _bevType = true;
-   }
-   print(_bevType);
-   notifyListeners();
+  checkHot() {
+    if (!_bevType) {
+      _bevType = true;
+    }
+    print(_bevType);
+    notifyListeners();
   }
 
-  checkIce(){
+  checkIce() {
     if (_bevType) {
       _bevType = false;
     }
@@ -66,13 +62,23 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isDecaf = false;
+
+  void deCaf() {
+    isDecaf = !isDecaf;
+    notifyListeners();
+  }
+
+  bool official = false;
+
+   void  checkOfficial() {
+    official = !official;
+    notifyListeners();
+  }
 
 
   // 로스팅 점수
   int roastPoint = 0;
-
-
-
 
   List<String> _tag = [];
 
@@ -93,16 +99,18 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   int sweetPoint = 0;
   int starPoint = 0;
 
-
   List<BeanFlavor> get flavor => BeanFlavor.values;
 
   List<ExtractionType> get extractionInfo => ExtractionType.values;
-  List<Continent> get  continent  =>Continent.values;
+
+  List<Continent> get continent => Continent.values;
+
   List<ProcessType> get processInfo => ProcessType.values;
   List<String> extractionList = [];
   List<String> processList = [];
   List<String> tasteFlaver = [];
   List<int> selectedIndexes = List.filled(4, -1);
+
   //원두 추출방식
   extractionFilter(ExtractionType extraction) {
     if (extractionInfo.contains(extraction)) {
@@ -150,7 +158,7 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeTastPoint(int categoryIndex, int valueIndex){
+  onChangeTastPoint(int categoryIndex, int valueIndex) {
     selectedIndexes[categoryIndex] = valueIndex;
     notifyListeners();
   }
@@ -175,15 +183,14 @@ final class CoffeeNotePresenter extends ChangeNotifier {
       }
     }
 
-    print(tasteFlaver);  // 현재 tasteFlaver 출력
+    print(tasteFlaver); // 현재 tasteFlaver 출력
     notifyListeners();
   }
 
-  void clearList(List<String> items){
+  void clearList(List<String> items) {
     items.clear();
     notifyListeners();
   }
-
 
   // 제목 설정
   void setTitle(String title) {
@@ -225,6 +232,19 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     }
   }
 
+  void beanTypeSelect({required String type, bool}) {
+    if (type == 'single') {
+      beanType = type;
+      print(beanType);
+
+
+    } else {
+      beanType = type;
+      print(beanType);
+    }
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -232,7 +252,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
 
   void setState(Null Function() param0) {}
 
+
   void init() {}
-
-
 }

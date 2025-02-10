@@ -20,10 +20,14 @@ final class ApiInterceptor extends Interceptor {
     }
 
     final token = await _storage.read(key: 'access');
+    final refr = await _storage.read(key: 'refresh');
+    print(token);
 
     if (token != null) {
       options.headers.addAll({'Authorization': 'Bearer $token'});
     }
+
+    options.headers.addAll({'Content-Type': 'application/json'});
 
     // TODO: implement onRequest
     return super.onRequest(options, handler);
@@ -37,7 +41,7 @@ final class ApiInterceptor extends Interceptor {
 
     // final refreshToken = await _storage.read(key: 'refresh');
     final refreshToken =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczNzczMTc3MSwiaWF0IjoxNzM3MTI2OTcxLCJqdGkiOiI1ZGZlNzYwZGU2YmU0MjdkYmNmNzkzMTE4ZDczYTRlYiIsInVzZXJfaWQiOjUwOH0.XPpw-NS8N8T4_Qt11xccm31m5vKIFVWFRnb2cRJmQJY';
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczOTcxNDMwNSwiaWF0IjoxNzM5MTA5NTA1LCJqdGkiOiIwMDJlMDk4YzJkMDY0MTRmOGI3ZDU2ZWIxODBjMWY0OCIsInVzZXJfaWQiOjF9.fL4qNbTurgyhK7CsnHZl8TyHuFBBy6l4BSZfe7744hY';
 
     if (refreshToken == null) {
       return handler.reject(err);
@@ -48,7 +52,7 @@ final class ApiInterceptor extends Interceptor {
     // AccessToken 재발급
     try {
       final resp = await dio.post(
-        '${dotenv.get('API_ADDRESS')}profiles/api/token/refresh/',
+        '${dotenv.get('API_ADDRESS')}/profiles/api/token/refresh/',
         data: {'refresh': refreshToken},
       );
 
