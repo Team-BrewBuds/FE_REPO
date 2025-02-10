@@ -14,6 +14,17 @@ enum CoffeeLife {
   @JsonValue('cafe_operation')
   cafeOperation;
 
+  bool get checking => switch (this) {
+    CoffeeLife.cafeTour => false,
+    CoffeeLife.coffeeExtraction => false,
+    CoffeeLife.coffeeStudy => false,
+    CoffeeLife.cafeAlba => false,
+    CoffeeLife.cafeWork => false,
+    CoffeeLife.cafeOperation => false
+  };
+
+
+
   String get title => switch (this) {
     CoffeeLife.cafeTour => '커피 투어',
     CoffeeLife.coffeeExtraction => '커피 추출',
@@ -40,4 +51,8 @@ enum CoffeeLife {
     CoffeeLife.cafeWork => 'assets/images/maker.png',
     CoffeeLife.cafeOperation => 'assets/images/cafe.png',
   };
+
+
+
+
 }

@@ -213,6 +213,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   }
 
   void _showNoLocatePermission(BuildContext context) async {
+    TextEditingController controller = TextEditingController();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -232,7 +233,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
               WdgtSearchBottomSheet(
                 title: '위치',
                 content: '시음장소를 검색하세요',
-                useIcon: true,
+                useIcon: true, onCheck: () {  }, textCtrl: controller,
               ),
               SizedBox(
                 height: 24,
@@ -273,6 +274,7 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
   }
 
   void _showLocatePicker(BuildContext context) async {
+    TextEditingController controller = TextEditingController();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -292,7 +294,8 @@ class _TastingRecordThirdStepPageState extends State<TastingRecordThirdStepPage>
               WdgtSearchBottomSheet(
                 title: '위치',
                 content: '시음장소를 검색하세요',
-                useIcon: true,
+                useIcon: true, onCheck: () {  }, textCtrl: controller,
+
               ),
             ],
           ),

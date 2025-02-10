@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 import '../../common/styles/text_styles.dart';
+import '../../features/signup/models/coffee_life.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   const ProfileEditScreen({super.key});
@@ -40,28 +41,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _profileFile;
 
-// 프로필 이미지 선택
-  Future<void> _pickImage() async {
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery, imageQuality: 60);
 
-    if (pickedFile != null) {
-      setState(() {
-        _profileFile = File(pickedFile.path);
-      });
-    }
-  }
 
+  late var myProfile = null;
+  late dynamic coffeeLife = '';
+  List<CoffeeLife> selectedCoffeeLives = [];
 
 
 // 프로필 닉네임  가져오기
   Future<void> getProfile() async {
-    // Profile profile = await _repository.fetchProfile();
+    myProfile = await _repository.fetchMyProfile();
+
 
     setState(() {
-      // _nickNameTextController.text = profile.nickname;
+      _nickNameTextController.text = myProfile.nickname;
+      _infoTextController.text = myProfile.detail.introduction;
+      _linkTextController.text = myProfile.detail.profileLink;
+      coffeeLife = myProfile.detail.coffeeLife;
+
+
 
     });
+    print(selectedCoffeeLives);
+
   }
 
 
@@ -69,8 +71,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    _nickNameTextController = TextEditingController();
     getProfile();
+
+
   }
 
   @override
@@ -78,19 +81,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(left: 65.0), // 제목 왼쪽 여백 추가
-          child: Text('프로필 편집'),
-        ),
+        title: Text('프로필 편집', style: TextStyles.title02SemiBold,),
         actions: [
           TextButton(
               onPressed: () {
               },
               child: Text(
                 '저장',
-                style: TextStyle(color: ColorStyles.red, fontSize: 20),
+                style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               )),
-          SizedBox(width: 16),
+
         ],
       ),
       body: Consumer<ProfileEditPresenter>(
@@ -146,14 +146,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    const Text('닉네임', style: TextStyles.title03SemiBold),
+                    const Text('닉네임', style: TextStyles.title01SemiBold),
                     const SizedBox(
-                      height: 5,
+                      height: 8,
                     ),
                     TextFormField(
                         controller: _nickNameTextController,
                         cursorColor: ColorStyles.gray40,
                         decoration: _TextFormFieldStyles.getInputDecoration(
+
                             hintText: _nickNameTextController.text
                             // labelText: _nickNameTextController.text,
                             )),
@@ -170,7 +171,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('소개', style: TextStyles.title03SemiBold),
+                        const Text('소개', style: TextStyles.title01SemiBold),
                       ],
                     ),
                     const SizedBox(
@@ -191,7 +192,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Text('링크', style: TextStyles.title03SemiBold),
+                    const Text('링크', style: TextStyles.title01SemiBold),
                     const SizedBox(
                       height: 5,
                     ),
@@ -203,7 +204,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     const SizedBox(
                       height: 20,
                     ),
-                    const Text('커피 생활', style: TextStyles.title03SemiBold),
+                    const Text('커피 생활', style: TextStyles.title01SemiBold),
                     const SizedBox(
                       height: 5,
                     ),
@@ -222,7 +223,28 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Expanded(
-                                    child: ListView.builder(
+                                    child:
+                                  coffeeLife != null ?
+                                  ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: provider.selectedCoffeeLives.length,
+                                      padding: EdgeInsets.all(8.0),
+                                      itemBuilder: (context, index) {
+
+                                        return Container(
+                                          margin:
+                                          EdgeInsets.symmetric(horizontal: 2.0),
+                                          child: ButtonFactory.buildOvalButton(
+                                              onTapped: () {},
+                                              text: coffeeLife.values[index].title,
+                                              style: OvalButtonStyle.fill(
+                                                color: ColorStyles.black,
+                                                textColor: ColorStyles.white,
+                                                size: OvalButtonSize.medium,
+                                              )),
+                                        );
+                                      }) :
+                                  ListView.builder(
                                         scrollDirection: Axis.horizontal,
                                         itemCount: provider.selectedChoices.length,
                                         padding: EdgeInsets.all(8.0),
@@ -239,7 +261,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                   size: OvalButtonSize.medium,
                                                 )),
                                           );
-                                        }),
+                                        })
                                   ),
                                   SizedBox(
                                     child: IconButton(
@@ -310,8 +332,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                 physics:
                                                     NeverScrollableScrollPhysics(),
                                                 padding: EdgeInsets.all(16),
-                                                itemCount: provider
-                                                    .lists.enjoyItems.length,
+                                                itemCount: CoffeeLife.values.length,
                                                 gridDelegate:
                                                     SliverGridDelegateWithFixedCrossAxisCount(
                                                   crossAxisCount: 2,
@@ -320,12 +341,14 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                   mainAxisSpacing: 10,
                                                 ),
                                                 itemBuilder: (context, index) {
+                                                  var cf = CoffeeLife.values[index];
+                                                  bool isSelected = provider.selectedItems[index];
                                                   return GestureDetector(
                                                     onTap: () {
                                                       setState(() {
-                                                        provider
-                                                            .cardChoices(index);
+                                                        provider.toggleCoffeeLife(cf, index);
                                                       });
+                                                      print(provider.selectedCoffeeLives);
                                                     },
                                                     child: Card(
                                                       elevation: 0,
@@ -336,17 +359,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                                 .circular(8),
                                                         side: BorderSide(
                                                           color:
-                                                              provider.selectedItems[
-                                                                      index]
-                                                                  ? Colors.red
-                                                                  : ColorStyles
-                                                                      .gray30,
+                                                         isSelected
+                                                                  ? Colors.red :
+                                                              ColorStyles.gray30,
                                                           width: 2,
                                                         ),
                                                       ),
-                                                      color: provider
-                                                                  .selectedItems[
-                                                              index]
+                                                      color:              isSelected
                                                           ? Color(0xFFFFF7F5)
                                                           : Colors.white,
                                                       child: Column(
@@ -355,12 +374,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                                 .center,
                                                         children: [
                                                           Image.asset(
-                                                              "assets/images/${provider.lists.enjoyItems[index]['png']}.png"),
+                                                              "${CoffeeLife.values[index].imagePath}"),
                                                           SizedBox(height: 10),
                                                           Text(
-                                                            provider.lists
-                                                                    .enjoyItems[
-                                                                index]['title']!,
+                                                              CoffeeLife.values[index].title,
                                                             style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -371,10 +388,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                                 const EdgeInsets
                                                                     .all(8.0),
                                                             child: Text(
-                                                              provider.lists
-                                                                          .enjoyItems[
-                                                                      index][
-                                                                  'description']!,
+                                                              CoffeeLife.values[index].description,
                                                               textAlign:
                                                                   TextAlign
                                                                       .center,
@@ -427,13 +441,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                                       style: ElevatedButton
                                                           .styleFrom(
                                                         backgroundColor: provider
-                                                                .selectedChoices
+                                                                .selectedCoffeeLives
                                                                 .isEmpty
                                                             ? ColorStyles.gray20
                                                             : ColorStyles
                                                                 .gray30,
                                                         foregroundColor: provider
-                                                                .selectedChoices
+                                                                .selectedCoffeeLives
                                                                 .isEmpty
                                                             ? ColorStyles.gray30
                                                             : ColorStyles.black,
@@ -721,27 +735,49 @@ class _pickImageState extends State<pickImage> {
 }
 
 
-
 class _TextFormFieldStyles {
-  static InputDecoration getInputDecoration(
-      {EdgeInsets? padding, String? hintText, String? labelText}) {
+  static InputDecoration getInputDecoration({
+    EdgeInsets? padding,
+    String? hintText,
+    String? labelText,
+  }) {
     return InputDecoration(
       labelText: labelText,
       hintText: hintText,
-      hintStyle: TextStyle(color: ColorStyles.gray40, fontSize: 13),
+      hintStyle: const TextStyle(color: ColorStyles.gray40, fontSize: 13),
+      filled: true,
+      fillColor: ColorStyles.gray10,
       contentPadding: padding,
-      border: OutlineInputBorder(
+      border: const OutlineInputBorder(
         borderSide: BorderSide(
-          // 테두리 색상
-          width: 2.0, // 테두리 두께
+          width: 1.0, // 테두리 두께
+          color: ColorStyles.red,
         ),
+        borderRadius: BorderRadius.zero, // borderRadius를 0으로 설정하여 직각 테두리로 만듬
       ),
-      focusedBorder: OutlineInputBorder(
+      focusedBorder: const OutlineInputBorder(
         borderSide: BorderSide(
-          color: Colors.grey, // 포커스 시 테두리 색상
-          width: 2.0,
+          // color: Colors.grey, // 포커스 시 테두리 색상
+          width: 1.0,
+          color: ColorStyles.gray50,
         ),
+        borderRadius: BorderRadius.zero, // 포커스 시에도 직각 테두리로 유지
       ),
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(
+            // color: Colors.grey, // 포커스 시 테두리 색상
+            width: 1.0,
+            color: ColorStyles.gray50,
+          ),
+          borderRadius: BorderRadius.zero, // 포커스 시에도 직각 테두리로 유지
+        ),
+        disabledBorder:const OutlineInputBorder(
+          borderSide: BorderSide(
+            // color: Colors.grey, // 포커스 시 테두리 색상
+            width: 1.0,
+            color: ColorStyles.gray50,
+          ),
+        )
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/repository/profile_repository.dart';
+import '../../features/signup/models/coffee_life.dart';
 import '../../features/signup/models/signup_lists.dart';
 import '../../model/profile.dart';
 import '../../model/recommended_user.dart';
@@ -32,7 +33,7 @@ final class ProfileEditPresenter extends ChangeNotifier {
   SignUpLists get lists => _lists;
   List<bool> get selectedItems => _selectedItems;
   List<String> get  selectedChoices => _selectedChoices;
-
+  List<CoffeeLife> selectedCoffeeLives = [];
 
   final List<RecommendedUser> dummyRecommendedUsers = [
     RecommendedUser(user: User(id: 0, nickname: '김씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 1985789),
@@ -52,30 +53,37 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
 
 
+  void toggleCoffeeLife(CoffeeLife coffeeLife, int index) {
+
+      if (selectedCoffeeLives.contains(coffeeLife)) {
+        selectedCoffeeLives.remove(coffeeLife);
+        selectedItems[index] = false;
 
 
-  void cardChoices (int  index) {
-    _selectedItems[index] = !_selectedItems[index];
-    if (_selectedItems[index]) {
-      _selectedChoices.add(_lists.enjoyItems[index]['title']!);
-    } else {
-      _selectedChoices.remove(_lists.enjoyItems[index]['title']!);
-    }
+      } else {
+        selectedCoffeeLives.add(coffeeLife);
+        selectedItems[index] = true;
 
-    print(_selectedChoices);
+        print(coffeeLife.checking);
 
-    notifyListeners();
+      }
+
+      notifyListeners();
   }
 
+
+
   void clearChoices () {
-    _selectedChoices.clear();
+    selectedCoffeeLives.clear();
     _selectedItems = List.generate(_selectedItems.length, (index) => false);
     notifyListeners();
   }
 
 
   void getProfileInfo() async{
-    await _repository.fetchMyProfile();
+    var myData = await _repository.fetchMyProfile();
+
+    // await _repository.fetchMyProfile();
   }
 
   void editProfile() async{

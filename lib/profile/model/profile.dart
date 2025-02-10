@@ -48,7 +48,7 @@ class Profile with _$Profile { //toJson, fromJson 수정필요 (Api Update후)
       profileImageURI: json['profile_image'] as String,
       detail: ProfileDetail(
         introduction: json['introduction'] as String,
-        profileLink: json['profile_link'] as String,
+        profileLink: json['profile_link'] ?? '',
         coffeeLife: _coffeeLifeFromJson(json['coffee_life'] as Map<String, dynamic>),
         preferredBeanTasted: null,
         isCertificated: null,
