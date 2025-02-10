@@ -1,6 +1,6 @@
-import 'package:bot_toast/bot_toast.dart';
 import 'package:brew_buds/coffeeNote/provider/coffee_note_presenter.dart';
 import 'package:brew_buds/coffeeNote/pages/write_coffee_free_note.dart';
+import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
@@ -31,9 +31,22 @@ void main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => TokenRepository.instance),
-      ChangeNotifierProvider(create: (context) => LoginPresenter(tokenRepository: TokenRepository.instance)),
-      ChangeNotifierProvider(create: (context) => SignUpPresenter()),
-      ChangeNotifierProvider(create: (context) => CoffeeNotePresenter(), child: WriteCoffeeFreeNote(),)
+      ChangeNotifierProvider(
+        create: (context) => LoginPresenter(
+          tokenRepository: TokenRepository.instance,
+          loginRepository: LoginRepository.instance,
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => SignUpPresenter(
+          tokenRepository: TokenRepository.instance,
+          loginRepository: LoginRepository.instance,
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => CoffeeNotePresenter(),
+        child: WriteCoffeeFreeNote(),
+      )
     ],
     child: const MyApp(),
   ));
@@ -47,7 +60,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      builder: BotToastInit(),
       routerConfig: router,
       title: 'Brew Buds',
       debugShowCheckedModeBanner: false,

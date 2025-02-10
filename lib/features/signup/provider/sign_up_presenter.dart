@@ -1,4 +1,5 @@
-import 'package:brew_buds/data/signup/auth_service.dart';
+import 'package:brew_buds/data/repository/login_repository.dart';
+import 'package:brew_buds/data/result/result.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
@@ -7,11 +8,18 @@ import 'package:brew_buds/features/signup/state/signup_state.dart';
 import 'package:flutter/foundation.dart';
 
 class SignUpPresenter with ChangeNotifier {
-  final AuthService _authService = AuthService.defaultService();
+  final TokenRepository _tokenRepository;
+  final LoginRepository _loginRepository;
   SignUpState _state = const SignUpState();
   bool _isDuplicateNickname = false;
 
   bool _isLoading = false;
+
+  SignUpPresenter({
+    required TokenRepository tokenRepository,
+    required LoginRepository loginRepository,
+  })  : _loginRepository = loginRepository,
+        _tokenRepository = tokenRepository;
 
   bool get isLoading => _isLoading;
 
@@ -169,16 +177,24 @@ class SignUpPresenter with ChangeNotifier {
   }
 
   Future<void> register() async {
-    final token = TokenRepository.instance.socialToken;
+    _isLoading = true;
+    notifyListeners();
 
-    if (token != null) {
-      _isLoading = true;
-      notifyListeners();
+    await _loginRepository.registerAccount(_state.toJson()).then(
+          (result) {
+            switch (result) {
+              case Success<(String, String)>():
+                _tokenRepository.syncToken(
+                  accessToken: result.data.$1,
+                  refreshToken: result.data.$2,
+                );
+              case Error<(String, String)>():
+                break;
+            }
+          },
+        );
 
-      await _authService.register(token.token, token.platform, _state.toJson());
-
-      _isLoading = false;
-      notifyListeners();
-    }
+    _isLoading = false;
+    notifyListeners();
   }
 }

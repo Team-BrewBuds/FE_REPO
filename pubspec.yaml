@@ -19,7 +19,7 @@ dependencies:
   dio: ^5.7.0
 
   flutter_secure_storage:
-  kakao_flutter_sdk:
+  kakao_flutter_sdk: ^1.9.5
   flutter_naver_login: ^1.7.0
   sign_in_with_apple: ^6.1.3
   flutter_svg: ^2.0.10+1
@@ -46,7 +46,7 @@ dependencies:
 
   bot_toast: ^4.1.3
   flutter_datetime_picker_plus: ^2.2.0
-  flutter_localization: ^0.3.1
+  flutter_localization: ^0.2.1
   permission_handler: ^11.3.1
 
   flutter_staggered_grid_view: ^0.7.0

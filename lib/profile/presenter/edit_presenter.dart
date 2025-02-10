@@ -1,6 +1,4 @@
 import 'dart:developer';
-
-import 'package:brew_buds/data/signup/auth_service.dart';
 import 'package:brew_buds/features/signup/views/signup_first_page.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';

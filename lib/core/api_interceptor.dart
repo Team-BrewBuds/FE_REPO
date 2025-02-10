@@ -19,6 +19,8 @@ final class ApiInterceptor extends Interceptor {
       options.headers.remove('Authorization');
     }
 
+    _storage.deleteAll();
+
     final token = await _storage.read(key: 'access');
 
     if (token != null) {
@@ -35,9 +37,9 @@ final class ApiInterceptor extends Interceptor {
       return handler.reject(err);
     }
 
-    // final refreshToken = await _storage.read(key: 'refresh');
-    final refreshToken =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczNzczMTc3MSwiaWF0IjoxNzM3MTI2OTcxLCJqdGkiOiI1ZGZlNzYwZGU2YmU0MjdkYmNmNzkzMTE4ZDczYTRlYiIsInVzZXJfaWQiOjUwOH0.XPpw-NS8N8T4_Qt11xccm31m5vKIFVWFRnb2cRJmQJY';
+    final refreshToken = await _storage.read(key: 'refresh');
+    // final refreshToken =
+    //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczNzczMTc3MSwiaWF0IjoxNzM3MTI2OTcxLCJqdGkiOiI1ZGZlNzYwZGU2YmU0MjdkYmNmNzkzMTE4ZDczYTRlYiIsInVzZXJfaWQiOjUwOH0.XPpw-NS8N8T4_Qt11xccm31m5vKIFVWFRnb2cRJmQJY';
 
     if (refreshToken == null) {
       return handler.reject(err);

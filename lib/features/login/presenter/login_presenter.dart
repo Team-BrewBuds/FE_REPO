@@ -1,66 +1,68 @@
+import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/token_repository.dart';
-import 'package:brew_buds/features/login/models/login_result.dart';
+import 'package:brew_buds/data/result/result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
-import 'package:brew_buds/features/login/models/social_login_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
+typedef SocialLoginResultData = ({String accessToken, String refreshToken, bool hasAccount});
+
 class LoginPresenter extends ChangeNotifier {
   bool _isLoading = false;
   final TokenRepository _tokenRepository;
+  final LoginRepository _loginRepository;
 
   LoginPresenter({
     required TokenRepository tokenRepository,
-  }) : _tokenRepository = tokenRepository;
+    required LoginRepository loginRepository,
+  })  : _tokenRepository = tokenRepository,
+        _loginRepository = loginRepository;
 
   bool get isLoading => _isLoading;
 
-  Future<LoginResult> socialLogin(SocialLogin socialLogin) async {
+  Future<bool?> login(SocialLogin socialLogin) async {
     _isLoading = true;
     notifyListeners();
-    final SocialLoginToken socialLoginToken;
-    final String? token;
-    switch (socialLogin) {
-      case SocialLogin.kakao:
-        token = await _loginWithKakao();
-        if (token != null) {
-          socialLoginToken = SocialLoginToken.kakao(token);
-          _tokenRepository.setOAuthToken(socialLoginToken);
-          return LoginResult.success(false, token);
+
+    final socialToken = await loginWithSNS(socialLogin);
+
+    if (socialToken != null) {
+      final result = await _registerToken(socialToken, socialLogin.name);
+      if (result) {
+        final hasAccount = await _checkUser();
+        if (hasAccount != null) {
+          return hasAccount;
         }
-      case SocialLogin.naver:
-        token = await _loginWithNaver();
-        if (token != null) {
-          socialLoginToken = SocialLoginToken.naver(token);
-          _tokenRepository.setOAuthToken(socialLoginToken);
-          return LoginResult.success(false, token);
-        }
-      case SocialLogin.apple:
-        token = await _loginWithApple();
-        if (token != null) {
-          socialLoginToken = SocialLoginToken.apple(token);
-          _tokenRepository.setOAuthToken(socialLoginToken);
-          return LoginResult.success(false, token);
-        }
+      }
     }
 
     _isLoading = false;
     notifyListeners();
-    return LoginResult.error('로그인 실패');
+    return null;
+  }
+
+  Future<String?> loginWithSNS(SocialLogin socialLogin) async {
+    switch (socialLogin) {
+      case SocialLogin.kakao:
+        return _loginWithKakao();
+      case SocialLogin.naver:
+        return _loginWithNaver();
+      case SocialLogin.apple:
+        return _loginWithApple();
+    }
   }
 
   Future<String?> _loginWithKakao() async {
     try {
-      OAuthToken token;
+      final String? token;
       if (await isKakaoTalkInstalled()) {
-        token = await UserApi.instance.loginWithKakaoTalk();
+        token = await UserApi.instance.loginWithKakaoTalk().then((value) => value.accessToken, onError: (_) => null);
       } else {
-        token = await UserApi.instance.loginWithKakaoAccount();
+        token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken, onError: (_) => null);
       }
-
-      return token.accessToken;
+      return token;
     } catch (e) {
       return null;
     }
@@ -68,7 +70,6 @@ class LoginPresenter extends ChangeNotifier {
 
   Future<String?> _loginWithNaver() async {
     try {
-      // 로그인 시도
       NaverLoginResult res = await FlutterNaverLogin.logIn();
 
       if (res.status == NaverLoginStatus.loggedIn) {
@@ -87,13 +88,35 @@ class LoginPresenter extends ChangeNotifier {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [AppleIDAuthorizationScopes.email],
       );
-
       return credential.identityToken;
     } catch (e) {
       return null;
     }
   }
 
-// 체크로직 구현필요. Api 미구현상태임으로 미구현으로 진행
-// Future<void> checkUser() async {}
+  Future<bool> _registerToken(String token, String platform) {
+    return _loginRepository.registerToken(token, platform).then(
+          (value) => true,
+          onError: (_) => false,
+        );
+  }
+
+  Future<bool?> _checkUser() async {
+    final loginResult = await _loginRepository.login();
+    switch (loginResult) {
+      case Success<bool>():
+        return loginResult.data;
+      case Error<bool>():
+        return null;
+    }
+  }
+
+  saveToken() async {
+    if (_loginRepository.accessToken.isNotEmpty && _loginRepository.refreshToken.isNotEmpty) {
+      await _tokenRepository.syncToken(
+        accessToken: _loginRepository.accessToken,
+        refreshToken: _loginRepository.refreshToken,
+      );
+    }
+  }
 }

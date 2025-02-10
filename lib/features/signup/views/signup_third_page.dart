@@ -29,7 +29,9 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
       };
 
   @override
-  void Function() get onSkip => () {};
+  void Function() get onSkip => () {
+        context.push('/signup/fourth');
+      };
 
   @override
   Widget buildBody(BuildContext context, SignUpPresenter presenter) {
