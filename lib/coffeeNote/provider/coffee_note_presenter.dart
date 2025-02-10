@@ -6,7 +6,6 @@ import 'package:brew_buds/data/repository/post_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../data/signup/auth_service.dart';
 import '../../features/signup/state/signup_state.dart';
 import '../../profile/model/country.dart';
 
