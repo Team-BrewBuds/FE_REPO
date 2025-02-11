@@ -14,20 +14,13 @@ abstract class CommentApi {
     @Path() required int id,
   });
 
-  //미구현
-  @PATCH('/records/comment/{id}/')
-  Future<CommentsPage> updateComment({
-    @Path() required int id,
-    @Body() required Map<String, dynamic> data,
-  });
-
   @DELETE('/records/comment/{id}/')
-  Future<CommentsPage> deleteComment({
+  Future<void> deleteComment({
     @Path() required int id,
   });
 
-  @GET('/records/comment/{feedType}/{id}/')
-  Future<void> createComment({
+  @POST('/records/comment/{feedType}/{id}/')
+  Future<Comment> createComment({
     @Path() required String feedType,
     @Path() required int id,
     @Body() required Map<String, dynamic> data,
