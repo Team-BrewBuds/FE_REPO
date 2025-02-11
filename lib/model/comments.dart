@@ -12,7 +12,7 @@ class Comment with _$Comment {
     required int id,
     required User author,
     required String content,
-    @JsonKey(name: 'like_cnt') required int likeCount,
+    @JsonKey(name: 'likes') required int likeCount,
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'replies') required List<Comment> reComments,
     @JsonKey(name: 'is_user_liked') required bool isLiked,
