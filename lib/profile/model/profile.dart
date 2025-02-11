@@ -17,6 +17,7 @@ class Profile with _$Profile { //toJson, fromJson 수정필요 (Api Update후)
     required int postCount,
     required bool isUserFollowing,
     required bool isUserBlocking,
+
   }) = _Profile;
 
   const Profile._();

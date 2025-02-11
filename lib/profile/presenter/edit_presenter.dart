@@ -1,27 +1,18 @@
-import 'dart:developer';
-
-import 'package:brew_buds/data/signup/auth_service.dart';
-import 'package:brew_buds/features/signup/views/signup_first_page.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:provider/provider.dart';
-
 import '../../data/repository/profile_repository.dart';
 import '../../features/signup/models/coffee_life.dart';
 import '../../features/signup/models/signup_lists.dart';
-import '../../model/profile.dart';
 import '../../model/recommended_user.dart';
 import '../../model/user.dart';
+import 'package:brew_buds/profile/model/profile.dart';
 
 final class ProfileEditPresenter extends ChangeNotifier {
   // 커피 생활 선택에 필요한 리스트
   final ProfileRepository _repository;
   final SignUpLists _lists = SignUpLists();
-  List<bool> _selectedItems = List.generate(6, (_) => false);
-  List<String> _selectedChoices = [];
-
+  final List<CoffeeLife>? coffeLife = [];
 
 
   ProfileEditPresenter({
@@ -31,9 +22,8 @@ final class ProfileEditPresenter extends ChangeNotifier {
 
 
   SignUpLists get lists => _lists;
-  List<bool> get selectedItems => _selectedItems;
-  List<String> get  selectedChoices => _selectedChoices;
-  List<CoffeeLife> selectedCoffeeLives = [];
+
+
 
   final List<RecommendedUser> dummyRecommendedUsers = [
     RecommendedUser(user: User(id: 0, nickname: '김씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 1985789),
@@ -49,42 +39,12 @@ final class ProfileEditPresenter extends ChangeNotifier {
     RecommendedUser(user: User(id: 10, nickname: '심씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 9456),
     RecommendedUser(user: User(id: 11, nickname: '오씨', profileImageUri: 'https://picsum.photos/600/400',), followerCount: 23457),
   ];
-
-
-
-
-  void toggleCoffeeLife(CoffeeLife coffeeLife, int index) {
-
-      if (selectedCoffeeLives.contains(coffeeLife)) {
-        selectedCoffeeLives.remove(coffeeLife);
-        selectedItems[index] = false;
-
-
-      } else {
-        selectedCoffeeLives.add(coffeeLife);
-        selectedItems[index] = true;
-
-        print(coffeeLife.checking);
-
-      }
-
-      notifyListeners();
-  }
-
-
-
+  //
   void clearChoices () {
-    selectedCoffeeLives.clear();
-    _selectedItems = List.generate(_selectedItems.length, (index) => false);
+    coffeLife?.clear();
     notifyListeners();
   }
 
-
-  void getProfileInfo() async{
-    var myData = await _repository.fetchMyProfile();
-
-    // await _repository.fetchMyProfile();
-  }
 
   void editProfile() async{
     Map<String,dynamic> map = {};
@@ -120,4 +80,17 @@ final class ProfileEditPresenter extends ChangeNotifier {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
   }
+
+  // 프로필 정보  가져오기
+  Future<Profile> getProfile() async {
+    Profile profile  = await _repository.fetchMyProfile();
+    coffeLife?.add(profile.detail.coffeeLife!.first);
+    print("addvalue : ${coffeLife}");
+    return profile;
+  }
+
+
+
+
+
 }
