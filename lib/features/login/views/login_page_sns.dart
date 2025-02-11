@@ -226,7 +226,7 @@ class _SNSLoginState extends State<SNSLogin> {
       final result = await presenter.login(socialLogin);
       if (result != null) {
         if (result) {
-          await presenter.saveToken();
+          await presenter.saveLoginResults();
         } else {
           context.push('/signup');
         }

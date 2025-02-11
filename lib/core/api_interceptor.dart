@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/repository/token_repository.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
@@ -19,8 +19,6 @@ final class ApiInterceptor extends Interceptor {
       options.headers.remove('Authorization');
     }
 
-    _storage.deleteAll();
-
     final token = await _storage.read(key: 'access');
 
     if (token != null) {
@@ -38,8 +36,6 @@ final class ApiInterceptor extends Interceptor {
     }
 
     final refreshToken = await _storage.read(key: 'refresh');
-    // final refreshToken =
-    //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczNzczMTc3MSwiaWF0IjoxNzM3MTI2OTcxLCJqdGkiOiI1ZGZlNzYwZGU2YmU0MjdkYmNmNzkzMTE4ZDczYTRlYiIsInVzZXJfaWQiOjUwOH0.XPpw-NS8N8T4_Qt11xccm31m5vKIFVWFRnb2cRJmQJY';
 
     if (refreshToken == null) {
       return handler.reject(err);
@@ -61,7 +57,7 @@ final class ApiInterceptor extends Interceptor {
 
       options.headers.addAll({'Authorization': 'Bearer $accessToken'});
 
-      TokenRepository.instance.syncToken(accessToken: accessToken, refreshToken: resp.data['refresh']);
+      AccountRepository.instance.saveToken(accessToken: accessToken, refreshToken: resp.data['refresh']);
 
       final response = await dio.fetch(options);
 

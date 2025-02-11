@@ -19,6 +19,7 @@ class LoginRepository {
   final SignUpApi _signUpApi = SignUpApi();
   String _accessToken = '';
   String _refreshToken = '';
+  int? _id;
 
   LoginRepository._();
 
@@ -27,6 +28,8 @@ class LoginRepository {
   static LoginRepository get instance => _instance;
 
   factory LoginRepository() => instance;
+
+  int? get id => _id;
 
   String get accessToken => _accessToken;
 
@@ -60,13 +63,14 @@ class LoginRepository {
       (result) {
         _accessToken = result.accessToken;
         _refreshToken = result.refreshToken;
+        _id = result.user?.id;
         return Result.success(null);
       },
       onError: (_) => Result.error('소셜 로그인/가입 실패'),
     );
   }
 
-  Future<Result<(String, String)>> registerAccount(Map<String, dynamic> data) async {
+  Future<Result<(String, String, int)>> registerAccount(Map<String, dynamic> data) async {
     final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
     dio.interceptors.add(
       InterceptorsWrapper(
@@ -116,8 +120,8 @@ class LoginRepository {
         data: data,
       );
 
-      if (response.statusCode == 200) {
-        return Result.success((_accessToken, _refreshToken));
+      if (response.statusCode == 200 && _id != null) {
+        return Result.success((_accessToken, _refreshToken, id!));
       } else {
         return Result.error('Unexpected status code: ${response.statusCode}');
       }
