@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:brew_buds/home/comments/comments_view.dart';
@@ -221,13 +222,15 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       context: context,
       pageBuilder: (_, __, ___) {
         return ChangeNotifierProvider<CommentsPresenter>(
-            create: (_) => CommentsPresenter(
-                  isPost: isPost,
-                  id: id,
-                  author: author,
-                  repository: CommentsRepository.instance,
-                ),
-            child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7));
+          create: (_) => CommentsPresenter(
+            isPost: isPost,
+            id: id,
+            author: author,
+            accountRepository: AccountRepository.instance,
+            repository: CommentsRepository.instance,
+          ),
+          child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7),
+        );
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
