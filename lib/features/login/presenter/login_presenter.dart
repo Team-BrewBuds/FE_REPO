@@ -1,5 +1,5 @@
 import 'package:brew_buds/data/repository/login_repository.dart';
-import 'package:brew_buds/data/repository/token_repository.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/result/result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
 import 'package:flutter/foundation.dart';
@@ -11,13 +11,13 @@ typedef SocialLoginResultData = ({String accessToken, String refreshToken, bool 
 
 class LoginPresenter extends ChangeNotifier {
   bool _isLoading = false;
-  final TokenRepository _tokenRepository;
+  final AccountRepository _accountRepository;
   final LoginRepository _loginRepository;
 
   LoginPresenter({
-    required TokenRepository tokenRepository,
+    required AccountRepository accountRepository,
     required LoginRepository loginRepository,
-  })  : _tokenRepository = tokenRepository,
+  })  : _accountRepository = accountRepository,
         _loginRepository = loginRepository;
 
   bool get isLoading => _isLoading;
@@ -111,9 +111,13 @@ class LoginPresenter extends ChangeNotifier {
     }
   }
 
-  saveToken() async {
+  saveLoginResults() async {
+    if (_loginRepository.id != null) {
+      _accountRepository.saveId(id: _loginRepository.id!);
+    }
+
     if (_loginRepository.accessToken.isNotEmpty && _loginRepository.refreshToken.isNotEmpty) {
-      await _tokenRepository.syncToken(
+      await _accountRepository.saveToken(
         accessToken: _loginRepository.accessToken,
         refreshToken: _loginRepository.refreshToken,
       );

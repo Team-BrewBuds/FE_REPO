@@ -46,6 +46,15 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
       };
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SignUpPresenter>().resetPreferredBeanTaste();
+    });
+  }
+
+  @override
   Widget buildBody(BuildContext context, SignUpPresenter presenter) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

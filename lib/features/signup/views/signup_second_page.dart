@@ -36,6 +36,15 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
       };
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SignUpPresenter>().resetCoffeeLifes();
+    });
+  }
+
+  @override
   Widget buildBody(BuildContext context, SignUpPresenter presenter) {
     return SingleChildScrollView(
       child: Column(

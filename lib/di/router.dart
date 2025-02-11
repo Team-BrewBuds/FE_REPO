@@ -1,7 +1,7 @@
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
-import 'package:brew_buds/data/repository/token_repository.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/detail/post_detail_view.dart';
 import 'package:brew_buds/detail/tasted_record_detail_view.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
@@ -39,14 +39,14 @@ import '../profile/views/block_view.dart';
 import '../profile/views/edit_view.dart';
 import '../profile/views/fitInfo_view.dart';
 
-const String initialPath = '/home/all';
+const String initialPath = '/login';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
 
 final router = GoRouter(
   initialLocation: initialPath,
   redirect: (context, state) {
-    if (context.read<TokenRepository>().refreshToken.isNotEmpty) {
+    if (context.read<AccountRepository>().refreshToken.isNotEmpty) {
       if (state.uri.path.contains('login') || state.uri.path.contains('signup')) {
         return '/home/all';
       }
@@ -54,7 +54,7 @@ final router = GoRouter(
 
     return state.fullPath;
   },
-  refreshListenable: TokenRepository.instance,
+  refreshListenable: AccountRepository.instance,
   routes: [
     GoRoute(
       path: '/login',
