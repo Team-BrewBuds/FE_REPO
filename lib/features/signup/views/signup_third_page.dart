@@ -34,6 +34,15 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
       };
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SignUpPresenter>().resetCertificated();
+    });
+  }
+
+  @override
   Widget buildBody(BuildContext context, SignUpPresenter presenter) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
