@@ -18,10 +18,11 @@ default_platform(:ios)
 platform :ios do
     desc "Deploy to Firebase App Distribution"
     lane :firebase do
-        build_app(
+	match(type:"adhoc")
+        
+	build_app(
           workspace: "Runner.xcworkspace",
           scheme: "Runner",
-          export_method: "development"
         ) # iOS 빌드
 
     firebase_app_distribution(

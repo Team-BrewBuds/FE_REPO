@@ -31,7 +31,18 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
       };
 
   @override
-  void Function() get onSkip => () {};
+  void Function() get onSkip => () {
+        context.push('/signup/third');
+      };
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SignUpPresenter>().resetCoffeeLifes();
+    });
+  }
 
   @override
   Widget buildBody(BuildContext context, SignUpPresenter presenter) {
