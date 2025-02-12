@@ -1,6 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/features/login/models/login_result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
 import 'package:brew_buds/features/login/presenter/login_presenter.dart';
 import 'package:brew_buds/features/login/widgets/terms_of_use_bottom_sheet.dart';
@@ -210,7 +209,7 @@ class _SNSLoginState extends State<SNSLogin> {
   }
 
   void _checkModal(LoginPresenter presenter, SocialLogin socialLogin) async {
-    return showModalBottomSheet(
+    final agreeToTerms = await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
@@ -221,17 +220,17 @@ class _SNSLoginState extends State<SNSLogin> {
       builder: (BuildContext context) {
         return const TermsOfUseBottomSheet();
       },
-    ).then(
-      (result) {
-        if (result != null && result) {
-          presenter.socialLogin(socialLogin).then(
-                (result) => switch (result) {
-                  LoginSuccess() => result.hasAccount ? context.go('/home/all') : context.push('/signup'),
-                  LoginError() => throw UnimplementedError(), // 화면 에러처리
-                },
-              );
-        }
-      },
     );
+
+    if (agreeToTerms != null && agreeToTerms) {
+      final result = await presenter.login(socialLogin);
+      if (result != null) {
+        if (result) {
+          await presenter.saveLoginResults();
+        } else {
+          context.push('/signup');
+        }
+      }
+    }
   }
 }

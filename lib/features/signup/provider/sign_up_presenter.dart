@@ -1,5 +1,6 @@
-import 'package:brew_buds/data/signup/auth_service.dart';
-import 'package:brew_buds/data/repository/token_repository.dart';
+import 'package:brew_buds/data/repository/login_repository.dart';
+import 'package:brew_buds/data/result/result.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/features/signup/models/gender.dart';
 import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';
@@ -7,11 +8,18 @@ import 'package:brew_buds/features/signup/state/signup_state.dart';
 import 'package:flutter/foundation.dart';
 
 class SignUpPresenter with ChangeNotifier {
-  final AuthService _authService = AuthService.defaultService();
+  final AccountRepository _accountRepository;
+  final LoginRepository _loginRepository;
   SignUpState _state = const SignUpState();
   bool _isDuplicateNickname = false;
 
   bool _isLoading = false;
+
+  SignUpPresenter({
+    required AccountRepository accountRepository,
+    required LoginRepository loginRepository,
+  })  : _loginRepository = loginRepository,
+        _accountRepository = accountRepository;
 
   bool get isLoading => _isLoading;
 
@@ -41,6 +49,21 @@ class SignUpPresenter with ChangeNotifier {
 
   init() {
     _state = const SignUpState();
+    notifyListeners();
+  }
+
+  resetCoffeeLifes() {
+    _state = _state.copyWith(coffeeLifes: []);
+    notifyListeners();
+  }
+
+  resetCertificated() {
+    _state = _state.copyWith(isCertificated: null);
+    notifyListeners();
+  }
+
+  resetPreferredBeanTaste() {
+    _state = _state.copyWith(preferredBeanTaste: const PreferredBeanTaste());
     notifyListeners();
   }
 
@@ -169,16 +192,25 @@ class SignUpPresenter with ChangeNotifier {
   }
 
   Future<void> register() async {
-    final token = TokenRepository.instance.socialToken;
+    _isLoading = true;
+    notifyListeners();
 
-    if (token != null) {
-      _isLoading = true;
-      notifyListeners();
+    await _loginRepository.registerAccount(_state.toJson()).then(
+          (result) {
+            switch (result) {
+              case Success<(String, String, int)>():
+                _accountRepository.saveId(id: result.data.$3);
+                _accountRepository.saveToken(
+                  accessToken: result.data.$1,
+                  refreshToken: result.data.$2,
+                );
+              case Error<(String, String, int)>():
+                break;
+            }
+          },
+        );
 
-      await _authService.register(token.token, token.platform, _state.toJson());
-
-      _isLoading = false;
-      notifyListeners();
-    }
+    _isLoading = false;
+    notifyListeners();
   }
 }
