@@ -60,6 +60,10 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>앱을 사용 중일 때 위치 정보가 필요합니다.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>앱을 실행 중일 때 항상 위치 정보가 필요합니다.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>To capture profile photo please grant camera access</string>
 	<key>NSMicrophoneUsageDescription</key>
