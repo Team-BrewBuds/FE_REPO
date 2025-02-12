@@ -148,12 +148,18 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: page.users.length,
-                itemBuilder: (context, index) => _buildRemandedBuddyProfile(
-                  imageUri: page.users[index].user.profileImageUri,
-                  nickName: page.users[index].user.nickname,
-                  followCount: '${page.users[index].followerCount}',
-                  isFollowed: false,
-                ),
+                itemBuilder: (context, index) {
+                  final remandedBuddy = page.users[index];
+                  return _buildRemandedBuddyProfile(
+                    imageUri: remandedBuddy.user.profileImageUri,
+                    nickName: remandedBuddy.user.nickname,
+                    followCount: '${remandedBuddy.followerCount}',
+                    isFollowed: remandedBuddy.isFollow,
+                    onTappedFollowButton: () {
+                      presenter.onTappedRecommendedUserFollowButton(remandedBuddy, recommendedIndex);
+                    },
+                  );
+                },
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
               ),
             ),
@@ -171,6 +177,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     required String nickName,
     required String followCount,
     required bool isFollowed,
+    required Function() onTappedFollowButton,
   }) {
     return Container(
       width: 134,
@@ -207,7 +214,12 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-          FollowButton(onTap: () {}, isFollowed: isFollowed),
+          FollowButton(
+            onTap: () {
+              onTappedFollowButton.call();
+            },
+            isFollowed: isFollowed,
+          ),
         ],
       ),
     );

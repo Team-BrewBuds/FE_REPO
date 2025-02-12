@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../coffeeNote/widget/wdgt_show_coffeeNote_bottom_sheet.dart';
-import '../profile/widgets/sort_criteria_bottom_sheet.dart';
 
 class MainView extends StatefulWidget {
   final StatefulNavigationShell _navigationShell;
@@ -65,7 +64,6 @@ class _MainViewState extends State<MainView> {
                 const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
             elevation: 0,
             enableFeedback: false,
-            // onTap: (int index) => widget._navigationShell.goBranch(index),
             onTap: (int index) {
               if (index == 2) {  //커피노트는 첫 실행 바텀시트로.
                 showModalBottomSheet(
@@ -96,6 +94,4 @@ class _MainViewState extends State<MainView> {
       ),
     );
   }
-
-
 }

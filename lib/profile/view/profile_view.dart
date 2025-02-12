@@ -3,11 +3,15 @@ import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/model/post_subject.dart';
+import 'package:brew_buds/profile/model/SavedNote/saved_post.dart';
+import 'package:brew_buds/profile/model/SavedNote/saved_tasting_record.dart';
+import 'package:brew_buds/profile/presenter/follower_list_presenter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/filter_presenter.dart';
 import 'package:brew_buds/profile/view/filter_bottom_sheet.dart';
+import 'package:brew_buds/profile/view/follower_list_pa.dart';
 import 'package:brew_buds/profile/widgets/sort_criteria_bottom_sheet.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -23,24 +27,42 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
-  int currentIndex = 0;
-  bool isRefresh = false;
-  late final ScrollController scrollController;
+  late final Throttle paginationThrottle;
   final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
 
   @override
   void initState() {
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
     super.initState();
-    scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<ProfilePresenter>().initState();
+      homeTabBarScrollState.currentState?.innerController.addListener(_scrollListener);
     });
   }
 
   @override
   void dispose() {
-    scrollController.dispose();
+    homeTabBarScrollState.currentState?.innerController.removeListener(_scrollListener);
+    paginationThrottle.cancel();
     super.dispose();
+  }
+
+  _scrollListener() {
+    if ((homeTabBarScrollState.currentState?.innerController.position.pixels ?? 0) >
+        (homeTabBarScrollState.currentState?.innerController.position.maxScrollExtent ?? 0) * 0.7) {
+      paginationThrottle.setValue(null);
+    }
+  }
+
+  _fetchMoreData() {
+    context.read<ProfilePresenter>().paginate();
   }
 
   @override
@@ -50,23 +72,36 @@ class _ProfileViewState extends State<ProfileView> {
       initialIndex: 0,
       child: SafeArea(
         child: Consumer<ProfilePresenter>(
-          builder: (context, presenter, _) => Scaffold(
-            appBar: _buildTitle(presenter),
-            body: NestedScrollView(
-              key: homeTabBarScrollState,
-              controller: scrollController,
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                _buildProfile(presenter),
-              ],
-              body: CustomScrollView(
-                controller: homeTabBarScrollState.currentState?.innerController,
-                slivers: [
-                  _buildContentsAppBar(presenter),
-                  buildContentsList(presenter),
+          builder: (context, presenter, _) {
+            final physics =
+                presenter.checkScrollable() ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics();
+            return Scaffold(
+              appBar: _buildTitle(presenter),
+              body: NestedScrollView(
+                physics: physics,
+                key: homeTabBarScrollState,
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  _buildProfile(presenter),
                 ],
+                body: CustomScrollView(
+                  physics: physics,
+                  controller: homeTabBarScrollState.currentState?.innerController,
+                  slivers: [
+                    _buildContentsAppBar(presenter),
+                    buildContentsList(presenter),
+                    if (presenter.hasNext)
+                      SliverToBoxAdapter(
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: ColorStyles.gray70,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -141,7 +176,20 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                         InkWell(
                           onTap: () {
-                            context.push('/follow/pa?initialIndex=0');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ChangeNotifierProvider<FollowerListPresenter>(
+                                    create: (context) => FollowerListPresenter(
+                                      id: presenter.id,
+                                      nickName: presenter.nickname,
+                                    ),
+                                    builder: (context, presenter) => const FollowerListPA(),
+                                  );
+                                },
+                              ),
+                            ).whenComplete(() => presenter.initState());
                           },
                           child: Column(
                             children: [
@@ -159,7 +207,20 @@ class _ProfileViewState extends State<ProfileView> {
                         ),
                         InkWell(
                           onTap: () {
-                            context.push('/follow/pa?initialIndex=1');
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return ChangeNotifierProvider<FollowerListPresenter>(
+                                    create: (context) => FollowerListPresenter(
+                                      id: presenter.id,
+                                      nickName: presenter.nickname,
+                                    ),
+                                    builder: (context, presenter) => const FollowerListPA(initialIndex: 1),
+                                  );
+                                },
+                              ),
+                            ).whenComplete(() => presenter.initState());
                           },
                           child: Column(
                             children: [
@@ -363,21 +424,21 @@ class _ProfileViewState extends State<ProfileView> {
     return SliverAppBar(
       floating: true,
       titleSpacing: 0,
-      toolbarHeight: currentIndex == 0 || currentIndex == 2 ? 116 : kToolbarHeight,
+      toolbarHeight: presenter.tabIndex == 0 || presenter.tabIndex == 2 ? 116 : kToolbarHeight,
       title: Column(
-        children: currentIndex == 0 || currentIndex == 2
+        children: presenter.tabIndex == 0 || presenter.tabIndex == 2
             ? [
-                _buildTabBar(),
+                _buildTabBar(presenter),
                 _buildFilter(presenter),
               ]
             : [
-                _buildTabBar(),
+                _buildTabBar(presenter),
               ],
       ),
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(ProfilePresenter presenter) {
     return TabBar(
       padding: const EdgeInsets.only(top: 16),
       indicatorWeight: 2,
@@ -399,20 +460,7 @@ class _ProfileViewState extends State<ProfileView> {
         Tab(text: '저장한 노트', height: 31),
       ],
       onTap: (index) {
-        if (currentIndex == index) {
-          setState(() {
-            isRefresh = true;
-          });
-          Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-            setState(() {
-              isRefresh = false;
-            });
-          });
-        } else {
-          setState(() {
-            currentIndex = index;
-          });
-        }
+        presenter.onChangeTabIndex(index);
       },
     );
   }
@@ -521,11 +569,11 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget buildContentsList(ProfilePresenter presenter) {
-    if (currentIndex == 0) {
-      return SliverPadding(padding: const EdgeInsets.symmetric(horizontal: 16), sliver: _buildTastedRecordsList(presenter));
-    } else if (currentIndex == 1) {
+    if (presenter.tabIndex == 0) {
+      return _buildTastedRecordsList(presenter);
+    } else if (presenter.tabIndex == 1) {
       return _buildPostsList(presenter);
-    } else if (currentIndex == 2) {
+    } else if (presenter.tabIndex == 2) {
       return _buildSavedCoffeeBeansList(presenter);
     } else {
       return _buildSavedPostsList(presenter);
@@ -533,243 +581,249 @@ class _ProfileViewState extends State<ProfileView> {
   }
 
   Widget _buildTastedRecordsList(ProfilePresenter presenter) {
-    final _dummy = [
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-      ('https://picsum.photos/600/400', 4.8),
-    ];
-    return SliverGrid(
-      delegate: SliverChildListDelegate(
-        _dummy
-            .map(
-              (item) => SizedBox(
-                height: MediaQuery.of(context).size.width - 36,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Image.network(
-                        item.$1,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: ColorStyles.red,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 6,
-                      bottom: 6.5,
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(
-                            'assets/icons/star_fill.svg',
-                            height: 18,
-                            width: 18,
-                            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-                          ),
-                          Text(
-                            '${item.$2}',
-                            style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+    return presenter.tastingRecords.isEmpty
+        ? const SliverFillRemaining(
+            child: Center(
+              child: Text('첫 시음기록을 작성해 보세요.', style: TextStyles.title02SemiBold),
+            ),
+          )
+        : SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
                 ),
-              ),
-            )
-            .toList(),
-      ),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 4,
-        crossAxisSpacing: 4,
-      ),
-    );
+                itemCount: presenter.tastingRecords.length,
+                itemBuilder: (context, index) {
+                  final tastingRecord = presenter.tastingRecords[index];
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.width - 36,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Image.network(
+                            tastingRecord.imageUri,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              color: ColorStyles.red,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 6,
+                          bottom: 6.5,
+                          child: Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/star_fill.svg',
+                                height: 18,
+                                width: 18,
+                                colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                              ),
+                              Text(
+                                '${tastingRecord.rating}',
+                                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+          );
   }
 
   Widget _buildPostsList(ProfilePresenter presenter) {
-    final _dummy = [
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-      (PostSubject.beans, '제목', '아이디', '시간'),
-    ];
-    return SliverList.separated(
-      itemCount: _dummy.length,
-      itemBuilder: (context, index) {
-        final item = _dummy[index];
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black70),
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          height: 12,
-                          width: 12,
-                          child: SvgPicture.asset(
-                            item.$1.iconPath,
-                            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        Text(item.$1.toString(),
-                            style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white)),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text(
-                item.$2,
-                style: TextStyles.title01SemiBold,
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Text(
-                    item.$3,
-                    style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(width: 1, height: 10, color: ColorStyles.gray30),
-                  const SizedBox(width: 4),
-                  Text(
-                    item.$4,
-                    style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-      separatorBuilder: (context, index) {
-        return Container(height: 1, color: ColorStyles.gray20);
-      },
-    );
-  }
-
-  Widget _buildSavedCoffeeBeansList(ProfilePresenter presenter) {
-    final _dummy = [
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-      ('', '제목', 4.5, 2000),
-    ];
-    return SliverList.separated(
-      itemCount: _dummy.length,
-      itemBuilder: (context, index) {
-        final item = _dummy[index];
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Expanded(
+    return presenter.posts.isEmpty
+        ? const SliverFillRemaining(
+            child: Center(
+              child: Text('첫 게시글을 작성해 보세요.', style: TextStyles.title02SemiBold),
+            ),
+          )
+        : SliverList.separated(
+            itemCount: presenter.posts.length,
+            itemBuilder: (context, index) {
+              final post = presenter.posts[index];
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      item.$2,
-                      style: TextStyles.labelMediumMedium,
-                    ),
-                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        SvgPicture.asset(
-                          'assets/icons/star_fill.svg',
-                          height: 14,
-                          width: 14,
-                          colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+                          decoration:
+                              BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black70),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                height: 12,
+                                width: 12,
+                                child: SvgPicture.asset(
+                                  post.subject.iconPath,
+                                  colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(post.subject.toString(),
+                                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white)),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: 2),
+                        const Spacer(),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      post.title,
+                      style: TextStyles.title01SemiBold,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
                         Text(
-                          '${item.$3} (${item.$4})',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                          post.author,
+                          style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
+                        ),
+                        const SizedBox(width: 4),
+                        Container(width: 1, height: 10, color: ColorStyles.gray30),
+                        const SizedBox(width: 4),
+                        Text(
+                          post.createdAt,
+                          style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
                         ),
                         const Spacer(),
                       ],
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(width: 24),
-              Image.network(
-                item.$1,
-                fit: BoxFit.cover,
-                height: 64,
-                width: 64,
-                errorBuilder: (_, __, ___) => Container(
-                  height: 64,
-                  width: 64,
-                  color: const Color(0xffd9d9d9),
+              );
+            },
+            separatorBuilder: (context, index) {
+              return Container(height: 1, color: ColorStyles.gray20);
+            },
+          );
+  }
+
+  Widget _buildSavedCoffeeBeansList(ProfilePresenter presenter) {
+    return presenter.coffeeBeans.isEmpty
+        ? const SliverFillRemaining(
+            child: Center(
+              child: Text('관심있는 원두를 찜해 보세요.', style: TextStyles.title02SemiBold),
+            ),
+          )
+        : SliverList.separated(
+            itemCount: presenter.coffeeBeans.length,
+            itemBuilder: (context, index) {
+              final bean = presenter.coffeeBeans[index];
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            bean.name,
+                            style: TextStyles.labelMediumMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              SvgPicture.asset(
+                                'assets/icons/star_fill.svg',
+                                height: 14,
+                                width: 14,
+                                colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '${bean.rating} (${bean.tastedRecordsCount})',
+                                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    Image.network(
+                      '',
+                      fit: BoxFit.cover,
+                      height: 64,
+                      width: 64,
+                      errorBuilder: (_, __, ___) => Container(
+                        height: 64,
+                        width: 64,
+                        color: const Color(0xffd9d9d9),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-      separatorBuilder: (context, index) {
-        return Container(height: 1, color: ColorStyles.gray20);
-      },
-    );
+              );
+            },
+            separatorBuilder: (context, index) {
+              return Container(height: 1, color: ColorStyles.gray20);
+            },
+          );
   }
 
   _buildSavedPostsList(ProfilePresenter presenter) {
-    return SliverList.separated(
-      itemCount: 50,
-      itemBuilder: (context, index) {
-        return Padding(padding: const EdgeInsets.all(16), child: index % 2 == 0 ? _buildPost() : _buildTastedRecord());
-      },
-      separatorBuilder: (context, index) {
-        return Container(height: 1, color: ColorStyles.gray20);
-      },
-    );
+    return presenter.saveNotes.isEmpty
+        ? const SliverFillRemaining(
+            child: Center(
+              child: Text('관심있는 커피노트를 저장해 보세요.', style: TextStyles.title02SemiBold),
+            ),
+          )
+        : SliverList.separated(
+            itemCount: presenter.saveNotes.length,
+            itemBuilder: (context, index) {
+              final note = presenter.saveNotes[index];
+              if (note is SavedPost) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildPost(
+                    title: note.title,
+                    subject: note.subject.toString(),
+                    createdAt: note.createdAt,
+                    author: note.author,
+                    imageUri: note.imageUri,
+                  ),
+                );
+              } else if (note is SavedTastingRecord) {
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _buildTastedRecord(
+                    beanName: note.beanName,
+                    rating: '4.5',
+                    likeCount: '22',
+                    flavor: note.flavor,
+                    imageUri: note.imageUri,
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+            separatorBuilder: (context, index) {
+              return Container(height: 1, color: ColorStyles.gray20);
+            },
+          );
   }
 
-  Widget _buildPost() {
+  Widget _buildPost({
+    required String title,
+    required String subject,
+    required String createdAt,
+    required String author,
+    String? imageUri,
+  }) {
     return Row(
       children: [
         Expanded(
@@ -781,29 +835,29 @@ class _ProfileViewState extends State<ProfileView> {
                 style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
               ),
               const SizedBox(height: 4),
-              const Text(
-                '바스켓 크기에 따라서 맛 차이가 나나요?',
+              Text(
+                title,
                 style: TextStyles.title01SemiBold,
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
                   Text(
-                    '정보',
+                    subject,
                     style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
                   ),
                   const SizedBox(width: 4),
                   Container(width: 1, height: 10, color: ColorStyles.gray30),
                   const SizedBox(width: 4),
                   Text(
-                    '10/3',
+                    createdAt,
                     style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
                   ),
                   const SizedBox(width: 4),
                   Container(width: 1, height: 10, color: ColorStyles.gray30),
                   const SizedBox(width: 4),
                   Text(
-                    '커피의신',
+                    author,
                     style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
                   ),
                 ],
@@ -811,23 +865,31 @@ class _ProfileViewState extends State<ProfileView> {
             ],
           ),
         ),
-        const SizedBox(width: 24),
-        Image.network(
-          '',
-          fit: BoxFit.cover,
-          height: 64,
-          width: 64,
-          errorBuilder: (_, __, ___) => Container(
+        if (imageUri != null) ...[
+          const SizedBox(width: 24),
+          Image.network(
+            imageUri,
+            fit: BoxFit.cover,
             height: 64,
             width: 64,
-            color: const Color(0xffd9d9d9),
+            errorBuilder: (_, __, ___) => Container(
+              height: 64,
+              width: 64,
+              color: const Color(0xffd9d9d9),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
 
-  Widget _buildTastedRecord() {
+  Widget _buildTastedRecord({
+    required String beanName,
+    required String rating,
+    required String likeCount,
+    required List<String> flavor,
+    String? imageUri,
+  }) {
     return Row(
       children: [
         Expanded(
@@ -839,8 +901,8 @@ class _ProfileViewState extends State<ProfileView> {
                 style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
               ),
               const SizedBox(height: 4),
-              const Text(
-                '에티오피아 할로 하르투메 G1 워시드',
+              Text(
+                beanName,
                 style: TextStyles.title01SemiBold,
               ),
               const SizedBox(height: 12),
@@ -853,15 +915,16 @@ class _ProfileViewState extends State<ProfileView> {
                     colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
                   ),
                   Text(
-                    '4.5 (21)',
+                    '$rating ($likeCount)',
                     style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
                   ),
                   const Spacer(),
                 ],
               ),
               const SizedBox(height: 4),
+              //Api 누락
               Row(
-                children: ['트로피칼', '트로피칼', '트로피칼', '트로피칼']
+                children: flavor
                     .map(
                       (taste) {
                         return Container(
@@ -884,18 +947,20 @@ class _ProfileViewState extends State<ProfileView> {
             ],
           ),
         ),
-        const SizedBox(width: 24),
-        Image.network(
-          '',
-          fit: BoxFit.cover,
-          height: 64,
-          width: 64,
-          errorBuilder: (_, __, ___) => Container(
+        if (imageUri != null) ...[
+          const SizedBox(width: 24),
+          Image.network(
+            imageUri,
+            fit: BoxFit.cover,
             height: 64,
             width: 64,
-            color: const Color(0xffd9d9d9),
+            errorBuilder: (_, __, ___) => Container(
+              height: 64,
+              width: 64,
+              color: const Color(0xffd9d9d9),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

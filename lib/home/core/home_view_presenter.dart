@@ -1,11 +1,12 @@
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/pages/recommended_user_page.dart';
+import 'package:brew_buds/model/recommended_user.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
   final HomeRepository repository;
-  final List<RecommendedUserPage> _recommendedUserPages = [];
+  List<RecommendedUserPage> recommendedUserPages = [];
 
   HomeViewPresenter({required this.repository});
 
@@ -13,14 +14,12 @@ abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
 
   bool get hasNext;
 
-  List<RecommendedUserPage> get recommendedUserPages => _recommendedUserPages;
-
   Future<void> initState() async {
-    _recommendedUserPages.clear();
+    recommendedUserPages.clear();
   }
 
   Future<void> onRefresh() async {
-    _recommendedUserPages.clear();
+    recommendedUserPages.clear();
   }
 
   Future<void> fetchMoreData();
@@ -46,7 +45,7 @@ abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
           onError: (_, __) => null,
         );
     if (page != null) {
-      _recommendedUserPages.add(page);
+      recommendedUserPages.add(page);
       notifyListeners();
     }
   }
@@ -56,6 +55,8 @@ abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
   onTappedSavedButton(T feed);
 
   onTappedFollowButton(T feed);
+
+  onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex);
 
   Future<void> like({required String type, required int id, required bool isLiked}) {
     if (isLiked) {
