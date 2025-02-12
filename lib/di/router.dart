@@ -50,6 +50,10 @@ final router = GoRouter(
       if (state.uri.path.contains('login') || state.uri.path.contains('signup')) {
         return '/home/all';
       }
+    } else {
+      if (!state.uri.path.contains('login') && !state.uri.path.contains('signup')) {
+        return '/login';
+      }
     }
 
     return state.fullPath;
