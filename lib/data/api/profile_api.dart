@@ -25,8 +25,9 @@ abstract class ProfileApi {
 
   //미구현
   @GET('/profiles/{id}/notes/')
-  Future<void> fetchSavedNotes({
+  Future<String> fetchSavedNotes({
     @Path('id') required int id,
+    @Query('page') required int pageNo,
   });
 
   factory ProfileApi() {

@@ -16,6 +16,7 @@ class Comment with _$Comment {
     @JsonKey(name: 'created_at') required String createdAt,
     @JsonKey(name: 'replies') required List<Comment> reComments,
     @JsonKey(name: 'is_user_liked') required bool isLiked,
+    @JsonKey(name: 'parent', defaultValue: null) int? parentId,
   }) = _Comment;
 
   factory Comment.fromJson(Map<String, Object?> json) => _$CommentFromJson(json);
