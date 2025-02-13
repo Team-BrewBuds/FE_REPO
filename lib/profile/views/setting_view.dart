@@ -1,4 +1,5 @@
 
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -181,7 +182,7 @@ class _SettingViewState extends State<SettingView> {
                                               color: ColorStyles.red,
                                               fontSize: 17)),
                                       onPressed: () {
-                                        // 로그아웃 후 어느 페이지로 이동하는지..?
+                                        AccountRepository.instance.logout();
                                       },
                                     ),
                                     Divider(),

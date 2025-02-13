@@ -189,7 +189,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
   Widget buildSaveButton() {
     return InkWell(
       onTap: () {
-        widget.onTapCommentsButton();
+        widget.onTapSaveButton();
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

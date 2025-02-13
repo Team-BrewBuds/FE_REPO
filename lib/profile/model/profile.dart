@@ -1,75 +1,32 @@
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
-import 'package:brew_buds/profile/model/profile_detail.dart';
+import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 
 part 'profile.freezed.dart';
 
-@Freezed(toJson: false, fromJson: false)
-class Profile with _$Profile { //toJson, fromJson 수정필요 (Api Update후)
+part 'profile.g.dart';
+
+@Freezed(toJson: false)
+class Profile with _$Profile {
   const factory Profile({
     required int id,
     required String nickname,
-    required String profileImageURI,
-    required ProfileDetail detail,
-    required int followingCount,
-    required int followerCount,
-    required int postCount,
-    required bool isUserFollowing,
-    required bool isUserBlocking,
+    @JsonKey(name: 'profile_image', defaultValue: '') required String profileImageURI,
+    @JsonKey(defaultValue: null) required String? introduction,
+    @JsonKey(name: 'profile_link', defaultValue: null) required String? profileLink,
+    @JsonKey(name: 'coffee_life', fromJson: _coffeeLifeFromJson, defaultValue: null) required List<CoffeeLife>? coffeeLife,
+    @JsonKey(name: 'preferred_bean_taste', defaultValue: null) required PreferredBeanTaste? preferredBeanTaste,
+    @JsonKey(name: 'is_certificated', defaultValue: null) required bool? isCertificated,
+    @JsonKey(name: 'following_cnt',defaultValue: 0) required int followingCount,
+    @JsonKey(name: 'follower_cnt',defaultValue: 0) required int followerCount,
+    @JsonKey(name: 'post_cnt',defaultValue: 0) required int postCount,
+    @JsonKey(name: 'is_user_following',defaultValue: null) required bool? isUserFollowing,
+    @JsonKey(name: 'is_user_blocking',defaultValue: null) required bool? isUserBlocking,
   }) = _Profile;
 
-  const Profile._();
-
-  Map<String, dynamic> toJson() {
-    final val = <String, dynamic>{
-      'nickname': nickname,
-    };
-
-    void writeNotNull(String key, dynamic value) {
-      if (value != null) {
-        val[key] = value;
-      }
-    }
-
-    writeNotNull('introduction', detail.introduction);
-    writeNotNull('profile_link', detail.profileLink);
-    writeNotNull('coffee_life', detail.coffeeLife?.map((e) => _coffeeLifeEnumMap[e]!).toList());
-    writeNotNull('preferred_bean_taste', detail.preferredBeanTasted);
-    writeNotNull('is_certificated', detail.isCertificated);
-
-    return val;
-  }
-
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return Profile(
-      id: (json['id'] as num).toInt(),
-      nickname: json['nickname'] as String,
-      profileImageURI: json['profile_image'] as String,
-      detail: ProfileDetail(
-        introduction: json['introduction'] as String,
-        profileLink: json['profile_link'] as String,
-        coffeeLife: _coffeeLifeFromJson(json['coffee_life'] as Map<String, dynamic>),
-        preferredBeanTasted: null,
-        isCertificated: null,
-      ),
-      followingCount: (json['following_cnt'] as num).toInt(),
-      followerCount: (json['follower_cnt'] as num).toInt(),
-      postCount: (json['post_cnt'] as num).toInt(),
-      isUserFollowing: json['is_user_following'] as bool,
-      isUserBlocking: json['is_user_blocking'] as bool,
-    );
-  }
+  factory Profile.fromJson(Map<String, Object?> json) => _$ProfileFromJson(json);
 }
-
-const _coffeeLifeEnumMap = {
-  CoffeeLife.cafeTour: 'cafe_tour',
-  CoffeeLife.coffeeExtraction: 'coffee_extraction',
-  CoffeeLife.coffeeStudy: 'coffee_study',
-  CoffeeLife.cafeAlba: 'cafe_alba',
-  CoffeeLife.cafeWork: 'cafe_work',
-  CoffeeLife.cafeOperation: 'cafe_operation',
-};
 
 List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic> json) {
   final List<CoffeeLife> result = [];

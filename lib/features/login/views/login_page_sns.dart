@@ -130,7 +130,7 @@ class _SNSLoginState extends State<SNSLogin> {
                             const SizedBox(height: 7),
                             InkWell(
                               onTap: () {
-                                _checkModal(presenter, SocialLogin.kakao);
+                                _checkModal(presenter, SocialLogin.apple);
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일

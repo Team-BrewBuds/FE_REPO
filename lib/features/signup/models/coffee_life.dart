@@ -40,4 +40,24 @@ enum CoffeeLife {
     CoffeeLife.cafeWork => 'assets/images/maker.png',
     CoffeeLife.cafeOperation => 'assets/images/cafe.png',
   };
+
+  String get _jsonKey => switch (this) {
+    CoffeeLife.cafeTour => 'cafe_tour',
+    CoffeeLife.coffeeExtraction => 'coffee_extraction',
+    CoffeeLife.coffeeStudy => 'coffee_study',
+    CoffeeLife.cafeAlba => 'cafe_alba',
+    CoffeeLife.cafeWork => 'cafe_work',
+    CoffeeLife.cafeOperation => 'cafe_operation',
+  };
 }
+
+// extension CoffeeLifesToJson on List<CoffeeLife> {
+//   String toJson() {
+//     return map((coffeeLife) => coffeeLife._jsonKey)
+//   }
+// }
+
+/*
+    coffeeLife.map((e) => _coffeeLifeEnumMap[e]!).toList()
+
+ */

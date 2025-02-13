@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:brew_buds/home/comments/comments_view.dart';
@@ -147,12 +148,18 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: page.users.length,
-                itemBuilder: (context, index) => _buildRemandedBuddyProfile(
-                  imageUri: page.users[index].user.profileImageUri,
-                  nickName: page.users[index].user.nickname,
-                  followCount: '${page.users[index].followerCount}',
-                  isFollowed: false,
-                ),
+                itemBuilder: (context, index) {
+                  final remandedBuddy = page.users[index];
+                  return _buildRemandedBuddyProfile(
+                    imageUri: remandedBuddy.user.profileImageUri,
+                    nickName: remandedBuddy.user.nickname,
+                    followCount: '${remandedBuddy.followerCount}',
+                    isFollowed: remandedBuddy.isFollow,
+                    onTappedFollowButton: () {
+                      presenter.onTappedRecommendedUserFollowButton(remandedBuddy, recommendedIndex);
+                    },
+                  );
+                },
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
               ),
             ),
@@ -170,6 +177,7 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     required String nickName,
     required String followCount,
     required bool isFollowed,
+    required Function() onTappedFollowButton,
   }) {
     return Container(
       width: 134,
@@ -206,7 +214,12 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12),
-          FollowButton(onTap: () {}, isFollowed: isFollowed),
+          FollowButton(
+            onTap: () {
+              onTappedFollowButton.call();
+            },
+            isFollowed: isFollowed,
+          ),
         ],
       ),
     );
@@ -221,13 +234,15 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       context: context,
       pageBuilder: (_, __, ___) {
         return ChangeNotifierProvider<CommentsPresenter>(
-            create: (_) => CommentsPresenter(
-                  isPost: isPost,
-                  id: id,
-                  author: author,
-                  repository: CommentsRepository.instance,
-                ),
-            child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7));
+          create: (_) => CommentsPresenter(
+            isPost: isPost,
+            id: id,
+            author: author,
+            accountRepository: AccountRepository.instance,
+            repository: CommentsRepository.instance,
+          ),
+          child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7),
+        );
       },
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
