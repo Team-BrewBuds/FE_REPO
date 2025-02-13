@@ -75,21 +75,16 @@ class CommentItem extends StatelessWidget {
                           style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
                         ),
                         const SizedBox(width: 6),
-                        if (true) ...[
-                          InkWell(
-                            onTap: () {
-
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: ColorStyles.black,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                '작성자',
-                                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white),
-                              ),
+                        if (isWriter) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: ColorStyles.black,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              '작성자',
+                              style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white),
                             ),
                           ),
                         ],
@@ -98,7 +93,7 @@ class CommentItem extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       contents,
-                      style: TextStyles.bodyNarrowRegular,
+                      style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black),
                     ),
                     if (canReply) ...[
                       const SizedBox(height: 6),
@@ -116,27 +111,32 @@ class CommentItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Padding(
-                padding: const EdgeInsets.only(top: 14),
-                child: Column(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/like.svg',
-                      colorFilter: ColorFilter.mode(
-                        !isLiked ? ColorStyles.gray50 : ColorStyles.red,
-                        BlendMode.srcIn,
+              InkWell(
+                onTap: () {
+                  onTappedLikeButton.call();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/like.svg',
+                        colorFilter: ColorFilter.mode(
+                          !isLiked ? ColorStyles.gray50 : ColorStyles.red,
+                          BlendMode.srcIn,
+                        ),
+                        height: 18,
+                        width: 18,
                       ),
-                      height: 18,
-                      width: 18,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      likeCount,
-                      style: TextStyles.captionSmallMedium.copyWith(
-                        color: !isLiked ? ColorStyles.gray50 : ColorStyles.red,
+                      const SizedBox(height: 2),
+                      Text(
+                        likeCount,
+                        style: TextStyles.captionSmallMedium.copyWith(
+                          color: !isLiked ? ColorStyles.gray50 : ColorStyles.red,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

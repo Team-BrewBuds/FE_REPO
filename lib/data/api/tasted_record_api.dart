@@ -35,9 +35,17 @@ abstract class TastedRecordApi {
   });
 
   @GET('/records/tasted_record/user/{userId}/')
-  Future<void> fetchTastedRecordPage({
+  Future<String> fetchTastedRecordPage({
     @Path('userId') required int userId,
-    @Query('subject') required String subject,
+    @Query('page') required int pageNo,
+    @Query('ordering') String? orderBy,
+    @Query('bean_type') String? beanType,
+    @Query('is_decaf') bool? isDecaf,
+    @Query('origin_country') String? country,
+    @Query('roast_point_min') double? roastingPointMin,
+    @Query('roast_point_max') double? roastingPointMax,
+    @Query('star_min') double? ratingMin,
+    @Query('star_max') double? ratingMax,
   });
 
   factory TastedRecordApi() {

@@ -61,7 +61,7 @@ class PopularPost extends StatelessWidget {
                   bodyText,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyles.bodyNarrowRegular,
+                  style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black),
                 ),
                 const SizedBox(height: 10),
                 Row(

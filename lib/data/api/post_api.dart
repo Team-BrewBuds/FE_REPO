@@ -45,9 +45,8 @@ abstract class PostApi {
   });
 
   @GET('/records/post/user/{userId}/')
-  Future<void> fetchPostPage({
+  Future<String> fetchPostPage({
     @Path('userId') required int userId,
-    @Query('subject') required String subject,
   });
 
   factory PostApi() {

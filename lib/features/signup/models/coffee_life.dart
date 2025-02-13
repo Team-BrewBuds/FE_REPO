@@ -14,17 +14,6 @@ enum CoffeeLife {
   @JsonValue('cafe_operation')
   cafeOperation;
 
-  bool get checking => switch (this) {
-    CoffeeLife.cafeTour => false,
-    CoffeeLife.coffeeExtraction => false,
-    CoffeeLife.coffeeStudy => false,
-    CoffeeLife.cafeAlba => false,
-    CoffeeLife.cafeWork => false,
-    CoffeeLife.cafeOperation => false
-  };
-
-
-
   String get title => switch (this) {
     CoffeeLife.cafeTour => '커피 투어',
     CoffeeLife.coffeeExtraction => '커피 추출',
@@ -52,7 +41,23 @@ enum CoffeeLife {
     CoffeeLife.cafeOperation => 'assets/images/cafe.png',
   };
 
-
-
-
+  String get _jsonKey => switch (this) {
+    CoffeeLife.cafeTour => 'cafe_tour',
+    CoffeeLife.coffeeExtraction => 'coffee_extraction',
+    CoffeeLife.coffeeStudy => 'coffee_study',
+    CoffeeLife.cafeAlba => 'cafe_alba',
+    CoffeeLife.cafeWork => 'cafe_work',
+    CoffeeLife.cafeOperation => 'cafe_operation',
+  };
 }
+
+// extension CoffeeLifesToJson on List<CoffeeLife> {
+//   String toJson() {
+//     return map((coffeeLife) => coffeeLife._jsonKey)
+//   }
+// }
+
+/*
+    coffeeLife.map((e) => _coffeeLifeEnumMap[e]!).toList()
+
+ */

@@ -22,6 +22,11 @@ class LoginPresenter extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  init() {
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<bool?> login(SocialLogin socialLogin) async {
     _isLoading = true;
     notifyListeners();

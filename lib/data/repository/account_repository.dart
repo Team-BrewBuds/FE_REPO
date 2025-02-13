@@ -48,4 +48,12 @@ class AccountRepository extends ChangeNotifier {
     _storage.write(key: 'id', value: '$id');
     _id = id;
   }
+
+  logout() {
+    _id = null;
+    _accessToken = '';
+    _refreshToken = '';
+    _storage.deleteAll();
+    notifyListeners();
+  }
 }

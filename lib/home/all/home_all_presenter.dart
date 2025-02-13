@@ -4,6 +4,8 @@ import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 import 'package:brew_buds/model/pages//feed_page.dart';
+import 'package:brew_buds/model/pages/recommended_user_page.dart';
+import 'package:brew_buds/model/recommended_user.dart';
 
 final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
@@ -66,11 +68,19 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   onTappedLikeButton(Feed feed) {
     if (feed is PostInFeed) {
       like(type: 'post', id: feed.id, isLiked: feed.isLiked).then((_) {
-        _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+        _updateFeed(
+            newFeed: feed.copyWith(
+          isLiked: !feed.isLiked,
+          likeCount: feed.isLiked ? feed.likeCount - 1 : feed.likeCount + 1,
+        ));
       });
     } else if (feed is TastingRecordInFeed) {
       like(type: 'tasted_record', id: feed.id, isLiked: feed.isLiked).then((_) {
-        _updateFeed(newFeed: feed.copyWith(isLiked: !feed.isLiked));
+        _updateFeed(
+            newFeed: feed.copyWith(
+          isLiked: !feed.isLiked,
+          likeCount: feed.isLiked ? feed.likeCount - 1 : feed.likeCount + 1,
+        ));
       });
     }
   }
@@ -99,6 +109,25 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
         _updateFeed(newFeed: feed.copyWith(isUserFollowing: !feed.isUserFollowing));
       });
     }
+  }
+
+  @override
+  onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex) {
+    follow(id: user.user.id, isFollowed: user.isFollow).then(
+      (_) => _updateRecommendedPage(user: user, pageIndex: pageIndex),
+    );
+  }
+
+  _updateRecommendedPage({required RecommendedUser user, required int pageIndex}) {
+    recommendedUserPages[pageIndex] = recommendedUserPages[pageIndex].copyWith(
+        users: recommendedUserPages[pageIndex].users.map((e) {
+      if (e.user.id == user.user.id) {
+        return user.copyWith(isFollow: !user.isFollow);
+      } else {
+        return e;
+      }
+    }).toList());
+    notifyListeners();
   }
 
   _updateFeed({required Feed newFeed}) {

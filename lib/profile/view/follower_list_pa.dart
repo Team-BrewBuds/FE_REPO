@@ -1,9 +1,12 @@
 import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/profile/presenter/follower_list_presenter.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class FollowerListPA extends StatefulWidget {
   final int initialIndex;
@@ -18,74 +21,113 @@ class FollowerListPA extends StatefulWidget {
 }
 
 class _FollowerListPAState extends State<FollowerListPA> {
-  late int currentIndex;
+  late final Throttle paginationThrottle;
+  late final ScrollController scrollController;
   bool isRefresh = false;
 
   @override
   void initState() {
-    currentIndex = widget.initialIndex;
+    scrollController = ScrollController();
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<FollowerListPresenter>().init(widget.initialIndex);
+      scrollController.addListener(_scrollListener);
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.removeListener(_scrollListener);
+    paginationThrottle.cancel();
+    super.dispose();
+  }
+
+  _scrollListener() {
+    if (scrollController.position.pixels > scrollController.position.maxScrollExtent * 0.7) {
+      paginationThrottle.setValue(null);
+    }
+  }
+
+  _fetchMoreData() {
+    context.read<FollowerListPresenter>().moreData();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildTitle(),
-      body: DefaultTabController(
-        length: 2,
-        child: Column(
-          children: [
-            _buildTabBar(),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: 48,
-                          width: 48,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Color(0xffD9D9D9),
+    return Consumer<FollowerListPresenter>(builder: (context, presenter, _) {
+      return Scaffold(
+        appBar: _buildTitle(nickName: presenter.nickName),
+        body: DefaultTabController(
+          length: 2,
+          initialIndex: widget.initialIndex,
+          child: Column(
+            children: [
+              _buildTabBar(presenter),
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: presenter.users.length,
+                  itemBuilder: (context, index) {
+                    final user = presenter.users[index];
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 48,
+                            width: 48,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Color(0xffD9D9D9),
+                            ),
+                            child: Image.network(
+                              user.user.profileImageUri,
+                              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                            ),
                           ),
-                          child: Image.network(
-                            '',
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              user.user.nickname,
+                              style: TextStyles.labelMediumMedium,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Text(
-                            '커피의 신',
-                            style: TextStyles.labelMediumMedium,
+                          const SizedBox(width: 8),
+                          ButtonFactory.buildOvalButton(
+                            onTapped: () {
+                              presenter.onTappedFollowButton(user, index);
+                            },
+                            text: user.isFollowing ? '팔로우 취소' : '맞팔로우',
+                            style: user.isFollowing
+                                ? OvalButtonStyle.fill(
+                                    color: ColorStyles.gray20,
+                                    textColor: ColorStyles.gray80,
+                                    size: OvalButtonSize.large)
+                                : OvalButtonStyle.fill(
+                                    color: ColorStyles.red, textColor: ColorStyles.white, size: OvalButtonSize.large),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        ButtonFactory.buildOvalButton(
-                          onTapped: () {},
-                          text: currentIndex == 1 ? '팔로우 취소' : '맞팔로우',
-                          style: currentIndex == 1
-                              ? OvalButtonStyle.fill(
-                              color: ColorStyles.gray20, textColor: ColorStyles.gray80, size: OvalButtonSize.large)
-                              : OvalButtonStyle.fill(
-                              color: ColorStyles.red, textColor: ColorStyles.white, size: OvalButtonSize.large),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            )
-          ],
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              )
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  AppBar _buildTitle() {
+  AppBar _buildTitle({required String nickName}) {
     return AppBar(
       leadingWidth: 0,
       leading: const SizedBox.shrink(),
@@ -107,7 +149,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
               ),
             ),
             const Spacer(),
-            const Text('아이디', style: TextStyles.title02SemiBold),
+            Text(nickName, style: TextStyles.title02SemiBold),
             const Spacer(),
             const SizedBox(width: 24),
           ],
@@ -116,7 +158,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(FollowerListPresenter presenter) {
     return TabBar(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 8),
       isScrollable: true,
@@ -138,20 +180,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
         Tab(text: '팔로잉', height: 31),
       ],
       onTap: (index) {
-        if (currentIndex == index) {
-          setState(() {
-            isRefresh = true;
-          });
-          Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-            setState(() {
-              isRefresh = false;
-            });
-          });
-        } else {
-          setState(() {
-            currentIndex = index;
-          });
-        }
+        presenter.onChangeTab(index);
       },
     );
   }
