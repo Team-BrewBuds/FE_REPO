@@ -8,8 +8,8 @@ part 'beans_api.g.dart';
 @RestApi()
 abstract class BeansApi {
   @GET('/beans/profile/{id}/')
-  Future<void> fetchBeans({
-    @Path('id') required String id,
+  Future<String> fetchBeans({
+    @Path('id') required int id,
     @Query('page') required int pageNo,
     @Query('avg_star_max') double? starMax,
     @Query('avg_star_min') double? starMin,
@@ -17,8 +17,8 @@ abstract class BeansApi {
     @Query('is_decaf') bool? isDecaf,
     @Query('ordering') String? ordering,
     @Query('origin_country') String? country,
-    @Query('roast_point_max') int? roastingPointMax,
-    @Query('roast_point_min') int? roastingPointMin,
+    @Query('roast_point_max') double? roastingPointMax,
+    @Query('roast_point_min') double? roastingPointMin,
   });
 
   @GET('/beans/search/')

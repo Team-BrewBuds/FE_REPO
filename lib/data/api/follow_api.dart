@@ -8,9 +8,9 @@ part 'follow_api.g.dart';
 @RestApi()
 abstract class FollowApi {
   @GET('/interactions/relationship/follow/')
-  Future<void> fetchMyFollowList({
+  Future<String> fetchMyFollowList({
     @Query('page') required int pageNo,
-    @Query('String') required String type,
+    @Query('type') required String type,
   });
 
   @GET('/interactions/relationship/follow/{id}/')

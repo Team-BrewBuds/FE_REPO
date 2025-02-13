@@ -77,7 +77,7 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                   itemBuilder: (context, index) {
                     return buildListItem(presenter, index);
                   },
-                  separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray60),
+                  separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray20),
                 ),
                 SliverToBoxAdapter(
                   child: SizedBox(
@@ -103,10 +103,7 @@ class _PopularPostsViewState extends State<PopularPostsView> {
     final popularPost = presenter.popularPosts[index];
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
-      decoration: BoxDecoration(
-        color: ColorStyles.white,
-        border: Border.all(color: ColorStyles.gray20),
-      ),
+      color: ColorStyles.white,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
