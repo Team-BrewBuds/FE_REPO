@@ -108,6 +108,7 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   List<String> extractionList = [];
   List<String> processList = [];
   List<String> tasteFlaver = [];
+  List<String> coffeeCountry = [];
   List<int> selectedIndexes = List.filled(4, -1);
 
   //원두 추출방식
@@ -185,6 +186,20 @@ final class CoffeeNotePresenter extends ChangeNotifier {
     print(tasteFlaver); // 현재 tasteFlaver 출력
     notifyListeners();
   }
+
+  onSelectCountry(String value) {
+    if (coffeeCountry.contains(value)) {
+      // 중복된 값이 있으면 제거
+      coffeeCountry.remove(value);
+    } else {
+      // 중복되지 않으면 리스트에 추가
+      coffeeCountry.add(value);
+    }
+
+    print(coffeeCountry); // 현재 coffeeCountry 출력
+    notifyListeners();
+  }
+
 
   void clearList(List<String> items) {
     items.clear();

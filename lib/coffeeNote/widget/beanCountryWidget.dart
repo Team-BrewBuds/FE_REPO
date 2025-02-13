@@ -89,7 +89,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
                             continent.countries().length - (columnIndex * 5)),
                             (rowIndex) => InkWell(
                           onTap: () {
-                            presenter.onSelectTasteFlavor(continent
+                            presenter.onSelectCountry(continent
                                 .countries()[columnIndex * 5 + rowIndex]
                                 .toString());
                           },
@@ -97,7 +97,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
                             padding: const EdgeInsets.symmetric(
                                 vertical: 8, horizontal: 8),
                             decoration: BoxDecoration(
-                                color: presenter.tasteFlaver.contains(continent
+                                color: presenter.coffeeCountry.contains(continent
                                     .countries()[
                                 columnIndex * 5 + rowIndex]
                                     .toString())
@@ -105,7 +105,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
                                     : ColorStyles.white,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                  color: presenter.tasteFlaver.contains(
+                                  color: presenter.coffeeCountry.contains(
                                       continent
                                           .countries()[
                                       columnIndex * 5 +
@@ -121,7 +121,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
                                   .toString(),
                               style:
                               TextStyles.captionMediumMedium.copyWith(
-                                color: presenter.tasteFlaver.contains(continent
+                                color: presenter.coffeeCountry.contains(continent
                                     .countries()[
                                 columnIndex * 5 + rowIndex]
                                     .toString())
@@ -151,7 +151,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
       SizedBox(
         height: 12,
       ),
-      presenter.tasteFlaver.isNotEmpty
+      presenter.coffeeCountry.isNotEmpty
           ? Container(
         height: 50,
         color: ColorStyles.gray10,
@@ -159,7 +159,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: presenter.tasteFlaver.length,
+            itemCount: presenter.coffeeCountry.length,
             itemBuilder: (context, index) {
               return Container(
                 padding: EdgeInsets.symmetric(
@@ -172,15 +172,15 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      presenter.tasteFlaver[index],
+                      presenter.coffeeCountry[index],
                       style: TextStyles.labelSmallSemiBold
                           .copyWith(color: ColorStyles.white),
                     ),
                     const SizedBox(width: 2),
                     InkWell(
                       onTap: () {
-                        presenter.onSelectTasteFlavor(
-                            presenter.tasteFlaver[index]);
+                        presenter.onSelectCountry(
+                            presenter.coffeeCountry[index]);
                       },
                       child: SvgPicture.asset(
                         'assets/icons/x.svg',
@@ -211,7 +211,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
           children: [
             ButtonFactory.buildRoundedButton(
                 onTapped: () {
-                  presenter.clearList(presenter.tasteFlaver);
+                  presenter.clearList(presenter.coffeeCountry);
                 },
                 text: '초기화',
                 style: RoundedButtonStyle.fill(
