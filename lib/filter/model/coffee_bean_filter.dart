@@ -1,5 +1,5 @@
-import 'package:brew_buds/profile/model/bean_type.dart';
-import 'package:brew_buds/profile/model/country.dart';
+import 'package:brew_buds/filter/model/bean_type.dart';
+import 'package:brew_buds/filter/model/country.dart';
 
 sealed class CoffeeBeanFilter {
   String get text;

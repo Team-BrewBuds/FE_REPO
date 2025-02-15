@@ -1,10 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/factory/icon_button_factory.dart';
-import 'package:brew_buds/common/factory/tag_factory.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CommentItem extends StatelessWidget {
@@ -17,6 +13,7 @@ class CommentItem extends StatelessWidget {
   final bool isLiked;
   final String likeCount;
   final bool canReply;
+  final void Function() onTappedProfile;
   final void Function()? onTappedReply;
   final void Function() onTappedLikeButton;
 
@@ -31,6 +28,7 @@ class CommentItem extends StatelessWidget {
     required this.isLiked,
     required this.likeCount,
     this.canReply = false,
+    required this.onTappedProfile,
     this.onTappedReply,
     required this.onTappedLikeButton,
   });
@@ -44,18 +42,23 @@ class CommentItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 36,
-                width: 36,
-                clipBehavior: Clip.antiAlias,
-                decoration: const BoxDecoration(
-                  color: Color(0xffD9D9D9),
-                  shape: BoxShape.circle,
-                ),
-                child: Image.network(
-                  profileImageUri,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, _, trace) => Container(),
+              InkWell(
+                onTap: () {
+                  onTappedProfile.call();
+                },
+                child: Container(
+                  height: 36,
+                  width: 36,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: const BoxDecoration(
+                    color: Color(0xffD9D9D9),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Image.network(
+                    profileImageUri,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, _, trace) => Container(),
+                  ),
                 ),
               ),
               const SizedBox(width: 12),

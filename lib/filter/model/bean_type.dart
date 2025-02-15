@@ -1,5 +1,9 @@
+import 'package:json_annotation/json_annotation.dart';
+
 enum BeanType {
+  @JsonValue('single')
   singleOrigin,
+  @JsonValue('blend')
   blend;
 
   @override

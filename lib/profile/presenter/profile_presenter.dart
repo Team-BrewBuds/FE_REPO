@@ -1,64 +1,28 @@
 import 'package:brew_buds/data/repository/profile_repository.dart';
-import 'package:brew_buds/profile/model/bean_in_profile.dart';
-import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
-import 'package:brew_buds/profile/model/SavedNote/saved_note.dart';
-import 'package:brew_buds/profile/model/post_in_profile.dart';
+import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
+import 'package:brew_buds/filter/model/search_sort_criteria.dart';
+import 'package:brew_buds/profile/model/in_profile/bean_in_profile.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
+import 'package:brew_buds/profile/model/in_profile/post_in_profile.dart';
 import 'package:brew_buds/profile/model/profile.dart';
-import 'package:brew_buds/profile/model/tasting_record_in_profile.dart';
-import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
 import 'package:flutter/foundation.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-
-enum SortCriteria {
-  upToDate,
-  rating,
-  tastingRecords;
-
-  String get buttonString => switch (this) {
-        SortCriteria.upToDate => '최근저장순',
-        SortCriteria.rating => '별점높은순',
-        SortCriteria.tastingRecords => '시음기록순',
-      };
-
-  String get columnString => switch (this) {
-        SortCriteria.upToDate => '최근 찜한 순',
-        SortCriteria.rating => '평균 별점 높은 순',
-        SortCriteria.tastingRecords => '시음 기록 많은 순',
-      };
-}
-
-enum BeanType {
-  singleOrigin,
-  blend;
-
-  @override
-  String toString() => switch (this) {
-        BeanType.singleOrigin => 'single',
-        // TODO: Handle this case.
-        BeanType.blend => 'blend',
-      };
-}
-
-final class _PageInfo {
-  final int currentPage;
-
-  _PageInfo(this.currentPage);
-}
 
 class ProfilePresenter extends ChangeNotifier {
-  final ProfileRepository _repository;
-  Profile? _profile;
+  final ProfileRepository repository;
+  Profile? profile;
 
   final List<SortCriteria> _sortCriteriaList = [
     SortCriteria.upToDate,
     SortCriteria.rating,
     SortCriteria.tastingRecords,
   ];
-  int _currentSortCriteriaIndex = 0;
-  SfRangeValues _ratingValues = SfRangeValues(0.5, 5.0);
-  SfRangeValues _roastingPointValues = SfRangeValues(1, 5);
 
-  final List<CoffeeBeanFilter> _filter = [];
+  int _currentSortCriteriaIndex = 0;
+
+  int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
+
+  final List<CoffeeBeanFilter> _filters = [];
 
   int _tabIndex = 0;
 
@@ -86,62 +50,58 @@ class ProfilePresenter extends ChangeNotifier {
 
   int get tabIndex => _tabIndex;
 
-  bool get hasFilter => _filter.isNotEmpty;
+  List<CoffeeBeanFilter> get filters => _filters;
 
-  bool get hasBeanTypeFilter => _filter.whereType<BeanTypeFilter>().isNotEmpty;
+  bool get hasFilter => _filters.isNotEmpty;
 
-  bool get hasCountryFilter => _filter.whereType<CountryFilter>().isNotEmpty;
+  bool get hasBeanTypeFilter => _filters.whereType<BeanTypeFilter>().isNotEmpty;
 
-  bool get hasRatingFilter => _filter.whereType<RatingFilter>().isNotEmpty;
+  bool get hasCountryFilter => _filters.whereType<CountryFilter>().isNotEmpty;
 
-  bool get hasDecafFilter => _filter.whereType<DecafFilter>().isNotEmpty;
+  bool get hasRatingFilter => _filters.whereType<RatingFilter>().isNotEmpty;
 
-  bool get hasRoastingPointFilter => _filter.whereType<RoastingPointFilter>().isNotEmpty;
+  bool get hasDecafFilter => _filters.whereType<DecafFilter>().isNotEmpty;
+
+  bool get hasRoastingPointFilter => _filters.whereType<RoastingPointFilter>().isNotEmpty;
 
   List<SortCriteria> get sortCriteriaList => _sortCriteriaList;
 
-  String get ratingString => '${_ratingValues.start}점 ~ ${_ratingValues.end}점';
+  int get id => profile?.id ?? 0;
 
-  String get roastingPointString =>
-      '${_toRoastingPointString(_roastingPointValues.start)} ~ ${_toRoastingPointString(_roastingPointValues.end)}';
+  String get nickname => profile?.nickname ?? '';
 
-  String get currentSortCriteria => _sortCriteriaList[_currentSortCriteriaIndex].buttonString;
+  String get profileImageURI => profile?.profileImageURI ?? '';
 
-  int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
+  String get tastingRecordCount => _countToString(profile?.postCount ?? 0);
 
-  int get id => _profile?.id ?? 0;
+  String get followerCount => _countToString(profile?.followerCount ?? 0);
 
-  String get nickname => _profile?.nickname ?? '';
+  String get followingCount => _countToString(profile?.followingCount ?? 0);
 
-  String get profileImageURI => _profile?.profileImageURI ?? '';
+  bool get hasDetail =>
+      profile?.introduction != null || profile?.profileLink != null || (profile?.coffeeLife.isNotEmpty ?? false);
 
-  String get tastingRecordCount => _countToString(_profile?.postCount ?? 0);
+  String? get introduction => profile?.introduction;
 
-  String get followerCount => _countToString(_profile?.followerCount ?? 0);
+  String? get profileLink => profile?.profileLink;
 
-  String get followingCount => _countToString(_profile?.followingCount ?? 0);
+  List<String>? get coffeeLife => profile?.coffeeLife.map((coffeeLife) => coffeeLife.title).toList();
 
-  bool get hasDetail => _profile?.introduction != null || _profile?.profileLink != null || _profile?.coffeeLife != null;
+  bool get isFollow => profile?.isUserFollowing ?? false;
 
-  String? get introduction => _profile?.introduction;
-
-  String? get profileLink => _profile?.profileLink;
-
-  List<String>? get coffeeLife => _profile?.coffeeLife?.map((coffeeLife) => coffeeLife.title).toList();
-
-  ProfilePresenter({
-    required ProfileRepository repository,
-  }) : _repository = repository;
+  ProfilePresenter({required this.repository});
 
   initState() async {
-    _profile = await _repository.fetchMyProfile();
-    if (_profile?.id != null) {
+    profile = await fetchProfile();
+    if (profile?.id != null) {
       paginate(isPageChanged: true);
     }
     notifyListeners();
   }
 
   refresh() {}
+
+  Future<Profile> fetchProfile() => repository.fetchMyProfile();
 
   paginate({bool isPageChanged = false}) {
     if (isPageChanged) {
@@ -157,22 +117,22 @@ class ProfilePresenter extends ChangeNotifier {
   }
 
   _throttlePagination() {
-    if (_profile?.id != null && _hasNext) {
+    if (profile?.id != null && _hasNext) {
       if (tabIndex == 0) {
-        _repository
+        repository
             .fetchTastingRecordPage(
-          userId: _profile!.id,
+          userId: profile!.id,
           pageNo: _pageNo + 1,
           //수정 필요 정렬 이상함(api)
           orderBy: null,
-          beanType: _filter.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
-          isDecaf: _filter.whereType<DecafFilter>().firstOrNull?.isDecaf,
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
+          isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           //국가 여러개?(api)
-          country: _filter.whereType<CountryFilter>().firstOrNull?.country.toString(),
-          roastingPointMin: _filter.whereType<RoastingPointFilter>().firstOrNull?.start,
-          roastingPointMax: _filter.whereType<RoastingPointFilter>().firstOrNull?.end,
-          ratingMin: _filter.whereType<RatingFilter>().firstOrNull?.start,
-          ratingMax: _filter.whereType<RatingFilter>().firstOrNull?.end,
+          country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
+          roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
+          roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
+          ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
+          ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         )
             .then((page) {
           _pageNo += 1;
@@ -182,7 +142,7 @@ class ProfilePresenter extends ChangeNotifier {
           notifyListeners();
         });
       } else if (tabIndex == 1) {
-        _repository.fetchPostPage(userId: _profile!.id).then((page) {
+        repository.fetchPostPage(userId: profile!.id).then((page) {
           _pageNo += 1;
           _hasNext = page.hasNext;
           _posts.addAll(page.result);
@@ -190,20 +150,20 @@ class ProfilePresenter extends ChangeNotifier {
           notifyListeners();
         });
       } else if (tabIndex == 2) {
-        _repository
+        repository
             .fetchCoffeeBeanPage(
-          userId: _profile!.id,
+          userId: profile!.id,
           pageNo: _pageNo + 1,
           //수정 필요 정렬 이상함(api)
           orderBy: null,
-          beanType: _filter.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
-          isDecaf: _filter.whereType<DecafFilter>().firstOrNull?.isDecaf,
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
+          isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           //국가 여러개?(api)
-          country: _filter.whereType<CountryFilter>().firstOrNull?.country.toString(),
-          roastingPointMin: _filter.whereType<RoastingPointFilter>().firstOrNull?.start,
-          roastingPointMax: _filter.whereType<RoastingPointFilter>().firstOrNull?.end,
-          ratingMin: _filter.whereType<RatingFilter>().firstOrNull?.start,
-          ratingMax: _filter.whereType<RatingFilter>().firstOrNull?.end,
+          country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
+          roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
+          roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
+          ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
+          ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         )
             .then((page) {
           _pageNo += 1;
@@ -213,7 +173,7 @@ class ProfilePresenter extends ChangeNotifier {
           notifyListeners();
         });
       } else {
-        _repository.fetchNotePage(userId: _profile!.id, pageNo: _pageNo + 1).then((page) {
+        repository.fetchNotePage(userId: profile!.id, pageNo: _pageNo + 1).then((page) {
           _pageNo += 1;
           _hasNext = page.hasNext;
           _savedNotes.addAll(page.result);
@@ -229,6 +189,8 @@ class ProfilePresenter extends ChangeNotifier {
       refresh();
     } else {
       _tabIndex = index;
+      _currentSortCriteriaIndex = 0;
+      _filters.clear();
       paginate(isPageChanged: true);
     }
     notifyListeners();
@@ -239,19 +201,9 @@ class ProfilePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeRatingValues(SfRangeValues values) {
-    _ratingValues = values;
-    notifyListeners();
-  }
-
-  onChangeRoastingPointValues(SfRangeValues values) {
-    _roastingPointValues = values;
-    notifyListeners();
-  }
-
-  onChangeFilter(List<CoffeeBeanFilter> filter) {
-    _filter.clear();
-    _filter.addAll(filter);
+  onChangeFilter(List<CoffeeBeanFilter> newFilters) {
+    _filters.clear();
+    _filters.addAll(newFilters);
     notifyListeners();
   }
 
@@ -264,23 +216,6 @@ class ProfilePresenter extends ChangeNotifier {
       return coffeeBeans.isNotEmpty;
     } else {
       return saveNotes.isNotEmpty;
-    }
-  }
-
-  String _toRoastingPointString(double value) {
-    switch (value) {
-      case 1:
-        return '라이트';
-      case 2:
-        return '라이트 미디엄';
-      case 3:
-        return '미디엄';
-      case 4:
-        return '미디엄 다크';
-      case 5:
-        return '다크';
-      default:
-        return '';
     }
   }
 

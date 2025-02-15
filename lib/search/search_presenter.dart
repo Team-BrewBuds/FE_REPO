@@ -1,7 +1,7 @@
-import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
+import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/search/models/search_filter.dart';
 import 'package:brew_buds/search/models/search_result_model.dart';
-import 'package:brew_buds/search/models/search_sort_criteria.dart';
+import 'package:brew_buds/filter/model/search_sort_criteria.dart';
 import 'package:brew_buds/search/models/search_subject.dart';
 import 'package:flutter/foundation.dart';
 
@@ -34,11 +34,11 @@ final class SearchPresenter extends ChangeNotifier {
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
-  List<SearchSortCriteria> get sortCriteriaList => switch(_tabIndex) {
-    0 => SearchSortCriteria.coffeeBean(),
-    1 => SearchSortCriteria.buddy(),
-    2 => SearchSortCriteria.tastedRecord(),
-    3 => SearchSortCriteria.post(),
+  List<SortCriteria> get sortCriteriaList => switch(_tabIndex) {
+    0 => SortCriteria.coffeeBean(),
+    1 => SortCriteria.buddy(),
+    2 => SortCriteria.tastedRecord(),
+    3 => SortCriteria.post(),
     int() => throw UnimplementedError(),
   };
 

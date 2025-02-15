@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
 import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
@@ -12,12 +13,12 @@ import 'package:go_router/go_router.dart';
 
 class HomePostView extends StatefulWidget {
   final ScrollController? scrollController;
-  final void Function()? jumpToTop;
+  final Function() scrollToTop;
 
   const HomePostView({
     super.key,
     this.scrollController,
-    this.jumpToTop,
+    required this.scrollToTop,
   });
 
   @override
@@ -50,7 +51,9 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
                   rating: tastingRecord.rating,
                   flavors: tastingRecord.flavors,
                   imageUri: tastingRecord.thumbnailUri,
-                  onTap: () {},
+                  onTap: () {
+                    pushToTastingRecordDetail(context: context, id: tastingRecord.id);
+                  },
                 ),
               )
               .toList());
@@ -64,8 +67,12 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
       isFollowed: post.isUserFollowing,
-      onTapProfile: () {},
-      onTapFollowButton: () {},
+      onTapProfile: () {
+        pushToProfile(context: context, id: post.author.id);
+      },
+      onTapFollowButton: () {
+        presenter.onTappedFollowButton(post);
+      },
       isLiked: post.isLiked,
       likeCount: '${post.likeCount > 999 ? '999+' : post.likeCount}',
       isLeaveComment: post.isLeaveComment,
@@ -87,7 +94,9 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
         post.subject.iconPath,
         colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
-      onTapMoreButton: () {},
+      onTapMoreButton: () {
+        pushToPostDetail(context: context, id: post.id);
+      },
       child: child,
     );
   }
@@ -108,7 +117,7 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
               (index) {
                 if (index == 0) {
                   return ButtonFactory.buildOvalButton(
-                    onTapped: () => GoRouter.of(context).push('/popular_post'),
+                    onTapped: () => context.push('/home/popular_post'),
                     text: '인기',
                     style: OvalButtonStyle.line(
                       color: ColorStyles.red,
@@ -119,7 +128,6 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
                 } else {
                   return ButtonFactory.buildOvalButton(
                     onTapped: () {
-                      widget.jumpToTop?.call();
                       return presenter.onChangeSubject(index - 1);
                     },
                     text: presenter.postSubjectFilterList[index - 1],

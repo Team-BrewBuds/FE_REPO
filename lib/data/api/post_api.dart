@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/detail/model/post.dart';
 import 'package:brew_buds/model/pages/popular_post_page.dart';
 import 'package:brew_buds/model/pages/post_feed_page.dart';
 import 'package:dio/dio.dart';
@@ -21,7 +22,7 @@ abstract class PostApi {
   });
 
   @GET('/records/post/{id}/')
-  Future<void> fetchPost({
+  Future<Post> fetchPost({
     @Path('id') required int id,
   });
 

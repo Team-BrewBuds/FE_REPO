@@ -9,7 +9,7 @@ class TastingRecordInProfile {
   final String beanName;
   @JsonKey(name: 'star')
   final double rating;
-  @JsonKey(name: 'photo_url')
+  @JsonKey(name: 'photo_url', defaultValue: '')
   final String imageUri;
   @JsonKey(name: 'likes')
   final int likeCount;
