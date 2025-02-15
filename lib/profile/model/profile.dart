@@ -15,7 +15,7 @@ class Profile with _$Profile {
     @JsonKey(name: 'profile_image', defaultValue: '') required String profileImageURI,
     @JsonKey(defaultValue: null) required String? introduction,
     @JsonKey(name: 'profile_link', defaultValue: null) required String? profileLink,
-    @JsonKey(name: 'coffee_life', fromJson: _coffeeLifeFromJson, defaultValue: null) required List<CoffeeLife>? coffeeLife,
+    @JsonKey(name: 'coffee_life', fromJson: _coffeeLifeFromJson) required List<CoffeeLife> coffeeLife,
     @JsonKey(name: 'preferred_bean_taste', defaultValue: null) required PreferredBeanTaste? preferredBeanTaste,
     @JsonKey(name: 'is_certificated', defaultValue: null) required bool? isCertificated,
     @JsonKey(name: 'following_cnt',defaultValue: 0) required int followingCount,
@@ -28,9 +28,9 @@ class Profile with _$Profile {
   factory Profile.fromJson(Map<String, Object?> json) => _$ProfileFromJson(json);
 }
 
-List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic> json) {
+List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic>? json) {
   final List<CoffeeLife> result = [];
-  json.forEach((key, value) {
+  json?.forEach((key, value) {
     if (value) {
       switch (key) {
         case 'cafe_tour':

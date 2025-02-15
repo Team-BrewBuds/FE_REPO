@@ -1,27 +1,40 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/home/all/home_all_presenter.dart';
+import 'package:brew_buds/home/all/home_all_view.dart';
+import 'package:brew_buds/home/post/home_post_presenter.dart';
+import 'package:brew_buds/home/post/home_post_view.dart';
+import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
+import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/home/widgets/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
   final GlobalKey<NestedScrollViewState> nestedScrollViewState;
-  final Widget child;
 
   const HomeView({
     super.key,
     required this.nestedScrollViewState,
-    required this.child,
   });
 
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
   bool isRefresh = false;
   int currentIndex = 0;
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 3, vsync: this);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +71,7 @@ class _HomeViewState extends State<HomeView> {
               forceElevated: innerBoxIsScrolled,
               titleSpacing: 0,
               title: TabBar(
+                controller: _tabController,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 indicator: const UnderlineTabIndicator(
                   borderSide: BorderSide(width: 2, color: ColorStyles.black),
@@ -79,34 +93,30 @@ class _HomeViewState extends State<HomeView> {
                 ],
                 onTap: (index) {
                   widget.nestedScrollViewState.currentState?.outerController.jumpTo(0);
-                  if (currentIndex == index) {
-                    setState(() {
-                      isRefresh = true;
-                    });
-                    Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-                      setState(() {
-                        isRefresh = false;
-                      });
-                    });
+                  if (index == 0) {
+                    context.read<HomeAllPresenter>().onRefresh();
+                  } else if (index == 1) {
+                    context.read<HomeTastingRecordPresenter>().onRefresh();
                   } else {
-                    currentIndex = index;
-                    switch (index) {
-                      case 0:
-                        context.go('/home/all');
-                        break;
-                      case 1:
-                        context.go('/home/tastingRecord');
-                        break;
-                      case 2:
-                        context.go('/home/post');
-                        break;
-                    }
+                    context.read<HomePostPresenter>().onRefresh();
                   }
                 },
               ),
             )
           ],
-          body: isRefresh ? Container() : widget.child,
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              HomeAllView(scrollController: widget.nestedScrollViewState.currentState?.innerController),
+              HomeTastingRecordView(scrollController: widget.nestedScrollViewState.currentState?.innerController),
+              HomePostView(
+                scrollController: widget.nestedScrollViewState.currentState?.innerController,
+                scrollToTop: () {
+                  widget.nestedScrollViewState.currentState?.outerController.jumpTo(0);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

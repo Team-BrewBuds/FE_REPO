@@ -1,36 +1,37 @@
-import 'package:brew_buds/profile/model/bean_type.dart';
-import 'package:brew_buds/profile/model/country.dart';
-import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
+import 'package:brew_buds/filter/model/bean_type.dart';
+import 'package:brew_buds/filter/model/country.dart';
+import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 final class FilterPresenter extends ChangeNotifier {
-  final List<CoffeeBeanFilter> _filter = [];
-  final Set<BeanType> _selectedTypes;
+  final List<CoffeeBeanFilter> _filter;
+  BeanType? _selectedTypes;
   final Set<Country> _selectedOrigins;
   SfRangeValues _ratingValues;
   bool _isDecaf;
   SfRangeValues _roastingPointValues;
 
   FilterPresenter({
-    Set<BeanType>? selectedType,
-    Set<Country>? selectedOrigins,
-    SfRangeValues? ratingValues,
-    bool isDecaf = false,
-    SfRangeValues? roastingPointValues,
-  })  : _selectedTypes = selectedType ?? <BeanType>{},
-        _selectedOrigins = selectedOrigins ?? <Country>{},
-        _ratingValues = ratingValues ?? const SfRangeValues(0.5, 5.0),
-        _isDecaf = isDecaf,
-        _roastingPointValues = roastingPointValues ?? const SfRangeValues(1, 5);
+    List<CoffeeBeanFilter> filter = const [],
+  })  : _filter = List.from(filter),
+        _selectedTypes = filter.whereType<BeanTypeFilter>().firstOrNull?.type,
+        _selectedOrigins = filter.whereType<CountryFilter>().map((e) => e.country).toSet(),
+        _ratingValues = SfRangeValues(
+          filter.whereType<RatingFilter>().firstOrNull?.start ?? 0.5,
+          filter.whereType<RatingFilter>().firstOrNull?.end ?? 5.0,
+        ),
+        _isDecaf = filter.whereType<DecafFilter>().firstOrNull?.isDecaf ?? false,
+        _roastingPointValues = SfRangeValues(
+          filter.whereType<RoastingPointFilter>().firstOrNull?.start ?? 1,
+          filter.whereType<RoastingPointFilter>().firstOrNull?.end ?? 5,
+        );
 
   List<CoffeeBeanFilter> get filter => _filter;
 
-  bool get isAllSelectedType => _selectedTypes.length == 2;
+  bool get isSelectedSingleOrigin => _selectedTypes == BeanType.singleOrigin;
 
-  bool get isSelectedSingleOrigin => _selectedTypes.contains(BeanType.singleOrigin);
-
-  bool get isSelectedBlend => _selectedTypes.contains(BeanType.blend);
+  bool get isSelectedBlend => _selectedTypes == BeanType.blend;
 
   List<String> get selectedOrigins => _selectedOrigins.map((e) => e.toString()).toList();
 
@@ -50,34 +51,13 @@ final class FilterPresenter extends ChangeNotifier {
       ? toRoastingPointString(_roastingPointValues.start)
       : '${toRoastingPointString(_roastingPointValues.start)} ~ ${toRoastingPointString(_roastingPointValues.end)}';
 
-  init() {
-    _filter.addAll(
-      _selectedTypes.map((type) => CoffeeBeanFilter.beanType(type)),
-    );
-
-    _filter.addAll(
-      _selectedOrigins.map((origin) => CoffeeBeanFilter.country(origin)),
-    );
-
-    if (_isDecaf) {
-      _filter.add(CoffeeBeanFilter.decaf(true));
-    }
-
-    if (_ratingValues.start != 0.5 && _ratingValues.end != 5.0) {
-      _filter.add(CoffeeBeanFilter.rating(_ratingValues.start, _ratingValues.end));
-    }
-
-    if (_roastingPointValues.start != 1 && _roastingPointValues.end != 5.0) {
-      _filter.add(CoffeeBeanFilter.roastingPoint(_roastingPointValues.start, _roastingPointValues.end));
-    }
-    notifyListeners();
-  }
+  init() {}
 
   removeAtFilter(int index) {
     final removedFilter = _filter.removeAt(index);
     switch (removedFilter) {
       case BeanTypeFilter():
-        _selectedTypes.remove(removedFilter.type);
+        _selectedTypes = null;
       case CountryFilter():
         _selectedOrigins.remove(removedFilter.country);
       case RatingFilter():
@@ -90,24 +70,13 @@ final class FilterPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeSingleOriginState() {
-    if (_selectedTypes.contains(BeanType.singleOrigin)) {
-      _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.singleOrigin);
-      _selectedTypes.remove(BeanType.singleOrigin);
+  onChangeBeanType(BeanType beanType) {
+    _filter.removeWhere((element) => element is BeanTypeFilter);
+    if (_selectedTypes == beanType) {
+      _selectedTypes = null;
     } else {
-      _filter.add(CoffeeBeanFilter.beanType(BeanType.singleOrigin));
-      _selectedTypes.add(BeanType.singleOrigin);
-    }
-    notifyListeners();
-  }
-
-  onChangeBlendState() {
-    if (_selectedTypes.contains(BeanType.blend)) {
-      _filter.removeWhere((element) => element is BeanTypeFilter && element.type == BeanType.blend);
-      _selectedTypes.remove(BeanType.blend);
-    } else {
-      _filter.add(CoffeeBeanFilter.beanType(BeanType.blend));
-      _selectedTypes.add(BeanType.blend);
+      _selectedTypes = beanType;
+      _filter.add(CoffeeBeanFilter.beanType(beanType));
     }
     notifyListeners();
   }

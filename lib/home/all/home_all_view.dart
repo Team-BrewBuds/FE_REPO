@@ -1,4 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
@@ -9,12 +10,14 @@ import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 
 class HomeAllView extends StatefulWidget {
   final ScrollController? scrollController;
 
-  const HomeAllView({super.key, this.scrollController});
+  const HomeAllView({
+    super.key,
+    this.scrollController,
+  });
 
   @override
   State<HomeAllView> createState() => _HomeAllViewState();
@@ -56,7 +59,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
                   flavors: tastingRecord.flavors,
                   imageUri: tastingRecord.thumbnailUri,
                   onTap: () {
-                    context.push('/tasted_record_detail');
+                    pushToTastingRecordDetail(context: context, id: tastingRecord.id);
                   },
                 ),
               )
@@ -71,7 +74,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       writingTime: post.createdAt,
       hits: '조회 ${post.viewCount}',
       isFollowed: post.isUserFollowing,
-      onTapProfile: () {},
+      onTapProfile: () {
+        pushToProfile(context: context, id: post.author.id);
+      },
       onTapFollowButton: () {
         presenter.onTappedFollowButton(post);
       },
@@ -97,7 +102,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
         colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
       onTapMoreButton: () {
-        context.push('/post_detail');
+        pushToPostDetail(context: context, id: post.id);
       },
       child: child,
     );
@@ -110,7 +115,9 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       writingTime: tastingRecord.createdAt,
       hits: '조회 ${tastingRecord.viewCount}',
       isFollowed: tastingRecord.isUserFollowing,
-      onTapProfile: () {},
+      onTapProfile: () {
+        pushToProfile(context: context, id: tastingRecord.author.id);
+      },
       onTapFollowButton: () {
         presenter.onTappedFollowButton(tastingRecord);
       },
@@ -135,7 +142,7 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       tags: tastingRecord.flavors,
       body: tastingRecord.contents,
       onTapMoreButton: () {
-        context.push('/tasted_record_detail');
+        pushToTastingRecordDetail(context: context, id: tastingRecord.id);
       },
     );
   }

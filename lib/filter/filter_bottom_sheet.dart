@@ -3,8 +3,9 @@ import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/profile/model/coffee_bean_filter.dart';
-import 'package:brew_buds/profile/presenter/filter_presenter.dart';
+import 'package:brew_buds/filter/model/bean_type.dart';
+import 'package:brew_buds/filter/filter_presenter.dart';
+import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,10 +15,14 @@ import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class FilterBottomSheet extends StatefulWidget {
-  final Function(List<CoffeeBeanFilter> filter) onDone;
   final int initialTab;
+  final Function(List<CoffeeBeanFilter> filters) onDone;
 
-  const FilterBottomSheet({super.key, required this.onDone, this.initialTab = 0});
+  const FilterBottomSheet({
+    super.key,
+    this.initialTab = 0,
+    required this.onDone,
+  });
 
   @override
   State<FilterBottomSheet> createState() => _FilterBottomSheetState();
@@ -206,7 +211,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                           const SizedBox(width: 8),
                           ButtonFactory.buildRoundedButton(
                             onTapped: () {
-                              widget.onDone(presenter.filter);
+                              widget.onDone.call(presenter.filter);
                               context.pop();
                             },
                             text: '선택하기',
@@ -245,7 +250,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             children: [
               InkWell(
                 onTap: () {
-                  presenter.onChangeSingleOriginState();
+                  presenter.onChangeBeanType(BeanType.singleOrigin);
                 },
                 child: SvgPicture.asset(
                   presenter.isSelectedSingleOrigin ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
@@ -258,7 +263,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
               const SizedBox(width: 80),
               InkWell(
                 onTap: () {
-                  presenter.onChangeBlendState();
+                  presenter.onChangeBeanType(BeanType.blend);
                 },
                 child: SvgPicture.asset(
                   presenter.isSelectedBlend ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
@@ -390,7 +395,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     interval: 0.5,
                     stepSize: 0.5,
                     showLabels: true,
-                    thumbShape: CircleThumbShape(),
+                    thumbShape: const CircleThumbShape(),
                     labelFormatterCallback: (dynamic actualValue, String formattedText) {
                       return actualValue == 0.5 || actualValue == 5.0 ? '$actualValue' : '';
                     },

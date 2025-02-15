@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/detail/model/tasting_record.dart';
 import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,7 +20,7 @@ abstract class TastedRecordApi {
   });
 
   @GET('/records/tasted_record/{id}/')
-  Future<void> fetchTastedRecord({
+  Future<TastingRecord> fetchTastedRecord({
     @Path('id') required int id,
   });
 

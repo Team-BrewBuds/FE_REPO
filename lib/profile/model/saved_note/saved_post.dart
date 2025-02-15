@@ -1,5 +1,5 @@
 import 'package:brew_buds/model/post_subject.dart';
-import 'package:brew_buds/profile/model/SavedNote/saved_note.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'saved_post.g.dart';

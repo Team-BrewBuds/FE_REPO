@@ -1,4 +1,4 @@
-import 'package:brew_buds/profile/model/SavedNote/saved_note.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'saved_tasting_record.g.dart';

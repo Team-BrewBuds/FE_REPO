@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../features/signup/state/signup_state.dart';
-import '../../profile/model/country.dart';
 
 final class CoffeeNotePresenter extends ChangeNotifier {
   SignUpState _state = const SignUpState();

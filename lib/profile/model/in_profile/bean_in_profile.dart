@@ -11,7 +11,7 @@ class BeanInProfile {
   @JsonKey(name: 'roast_point')
   final int roastingPoint;
   @JsonKey(name: 'avg_star')
-  final double rating;
+  final String rating;
   @JsonKey(name: 'tasted_records_cnt')
   final int tastedRecordsCount;
 

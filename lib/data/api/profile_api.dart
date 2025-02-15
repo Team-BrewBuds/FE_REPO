@@ -19,7 +19,7 @@ abstract class ProfileApi {
 
   //미구현
   @GET('/profiles/{id}/')
-  Future<void> fetchProfile({
+  Future<Profile> fetchProfile({
     @Path('id') required int id,
   });
 
