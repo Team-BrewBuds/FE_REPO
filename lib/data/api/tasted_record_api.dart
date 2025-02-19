@@ -10,7 +10,7 @@ part 'tasted_record_api.g.dart';
 @RestApi()
 abstract class TastedRecordApi {
   @GET('/records/tasted_record/')
-  Future<TastingRecordFeedPage> fetchTastingRecordFeedPage({
+  Future<String> fetchTastingRecordFeedPage({
     @Query('page') required int pageNo,
   });
 

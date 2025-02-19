@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/follow_list/follow_user.dart';
 import 'package:brew_buds/follow_list/follower_list_presenter.dart';
 import 'package:brew_buds/model/default_page.dart';
@@ -86,17 +87,12 @@ class _FollowerListPAState extends State<FollowerListPA> {
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                           child: Row(
                             children: [
-                              Container(
+                              MyNetworkImage(
+                                imageUri: user.user.profileImageUri,
                                 height: 48,
                                 width: 48,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Color(0xffD9D9D9),
-                                ),
-                                child: Image.network(
-                                  user.user.profileImageUri,
-                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                                ),
+                                color: const Color(0xffD9D9D9),
+                                shape: BoxShape.circle,
                               ),
                               const SizedBox(width: 12),
                               Expanded(

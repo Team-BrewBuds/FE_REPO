@@ -5,12 +5,13 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
+import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/detail/model/tasting_review.dart';
 import 'package:brew_buds/detail/tasted_record_presenter.dart';
 import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -171,7 +172,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                 context.pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/back.svg',
+                'assets/icons/x.svg',
                 fit: BoxFit.cover,
                 height: 24,
                 width: 24,
@@ -254,7 +255,16 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
   }
 
   Widget _buildImageListView({required List<String> imageUriList}) {
-    return HorizontalImageListView(imagesUrl: imageUriList);
+    final width = MediaQuery.of(context).size.width;
+    return HorizontalSliderWidget(
+      itemLength: imageUriList.length,
+      itemBuilder: (context, index) => MyNetworkImage(
+        imageUri: imageUriList[index],
+        height: width,
+        width: width,
+        color: const Color(0xffD9D9D9),
+      ),
+    );
   }
 
   Widget _buildButtons({
@@ -369,25 +379,19 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
         onTap: () {
           final id = authorId;
           if (id != null) {
+            context.pop();
             pushToProfile(context: context, id: id);
           }
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Container(
+            MyNetworkImage(
+              imageUri: profileImageUri,
               height: 36,
               width: 36,
-              clipBehavior: Clip.antiAlias,
-              decoration: const BoxDecoration(
-                color: Color(0xffD9D9D9),
-                shape: BoxShape.circle,
-              ),
-              child: Image.network(
-                profileImageUri,
-                fit: BoxFit.cover,
-                errorBuilder: (context, _, trace) => Container(),
-              ),
+              color: const Color(0xffD9D9D9),
+              shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -694,6 +698,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                       likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                       canReply: true,
                       onTappedProfile: () {
+                        context.pop();
                         pushToProfile(context: context, id: comment.author.id);
                       },
                       onTappedReply: () {},
@@ -722,6 +727,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                             isLiked: reComment.isLiked,
                             likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                             onTappedProfile: () {
+                              context.pop();
                               pushToProfile(context: context, id: reComment.author.id);
                             },
                             onTappedLikeButton: () {
@@ -731,7 +737,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                                   );
                             },
                           ),
-                          canDelete: context.read<TastedRecordPresenter>().canDeleteComment(authorId: comment.author.id),
+                          canDelete:
+                              context.read<TastedRecordPresenter>().canDeleteComment(authorId: comment.author.id),
                           onDelete: () {
                             context.read<TastedRecordPresenter>().onTappedDeleteCommentButton(reComment);
                           },

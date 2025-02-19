@@ -3,15 +3,26 @@ import 'dart:math';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/detail/detail_builder.dart';
 import 'package:brew_buds/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/filter/filter_presenter.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/filter/sort_criteria_bottom_sheet.dart';
+import 'package:brew_buds/model/default_page.dart';
+import 'package:brew_buds/profile/model/in_profile/bean_in_profile.dart';
+import 'package:brew_buds/profile/model/in_profile/post_in_profile.dart';
+import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
 import 'package:brew_buds/profile/model/saved_note/saved_post.dart';
 import 'package:brew_buds/profile/model/saved_note/saved_tasting_record.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/profile/widgets/profile_post_item_widget.dart';
+import 'package:brew_buds/profile/widgets/saved_coffee_bean_widget.dart';
+import 'package:brew_buds/profile/widgets/saved_post_widget.dart';
+import 'package:brew_buds/profile/widgets/saved_tasting_record_widget.dart';
+import 'package:brew_buds/profile/widgets/tasting_record_item_widget.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -20,6 +31,14 @@ import 'package:provider/provider.dart';
 mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter> on State<T> {
   late final Throttle paginationThrottle;
   final GlobalKey<NestedScrollViewState> scrollKey = GlobalKey<NestedScrollViewState>();
+
+  String get tastingRecordsEmptyText;
+
+  String get postsEmptyText;
+
+  String get beansEmptyText;
+
+  String get savedNotesEmptyText;
 
   @override
   void initState() {
@@ -56,11 +75,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     context.read<Presenter>().paginate();
   }
 
-  Widget buildProfileBottomButtons(Presenter presenter);
+  Widget buildProfileBottomButtons();
 
-  pushFollowList(Presenter presenter, int index);
+  pushFollowList(int index);
 
-  onTappedSettingDetailButton(Presenter presenter);
+  onTappedSettingDetailButton();
 
   AppBar buildTitle();
 
@@ -69,40 +88,96 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
-      child: Consumer<Presenter>(
-        builder: (context, presenter, _) {
-          final physics =
-              presenter.checkScrollable() ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics();
-          return Scaffold(
-            appBar: buildTitle(),
-            body: NestedScrollView(
-              physics: physics,
-              key: scrollKey,
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                _buildProfile(presenter),
-              ],
-              body: CustomScrollView(
+      child: Scaffold(
+        appBar: buildTitle(),
+        body: Selector<Presenter, bool>(
+            selector: (context, presenter) => presenter.isScrollable,
+            builder: (context, isScrollable, child) {
+              final physics = isScrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics();
+              return NestedScrollView(
+                key: scrollKey,
                 physics: physics,
-                controller: scrollKey.currentState?.innerController,
-                slivers: [
-                  _buildContentsAppBar(presenter),
-                  buildContentsList(presenter),
-                  if (presenter.hasNext)
-                    const SliverToBoxAdapter(
-                      child: Center(
-                        child: CircularProgressIndicator(color: ColorStyles.gray70),
-                      ),
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  Selector<Presenter, ProfileState>(
+                    selector: (context, presenter) => presenter.profileState,
+                    builder: (context, profileState, child) => _buildProfile(
+                      imageUri: profileState.imageUri,
+                      tastingRecordCount: profileState.tastingRecordCount,
+                      followerCount: profileState.followerCount,
+                      followingCount: profileState.followingCount,
                     ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  Selector<Presenter, ProfileDetailState>(
+                    selector: (context, presenter) => presenter.profileDetailState,
+                    builder: (context, profileDetailState, child) => _buildDetail(
+                      coffeeLife: profileDetailState.coffeeLife,
+                      introduction: profileDetailState.introduction,
+                      profileLink: profileDetailState.profileLink,
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: buildProfileBottomButtons(),
+                  ),
                 ],
-              ),
-            ),
-          );
-        },
+                body: SafeArea(
+                  child: CustomScrollView(
+                    physics: physics,
+                    controller: scrollKey.currentState?.innerController,
+                    slivers: [
+                      _buildTabBar(),
+                      Selector<Presenter, FilterBarState>(
+                        selector: (context, presenter) => presenter.filterBarState,
+                        builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
+                            ? _buildFilterBar(
+                                sortCriteriaList: filterBarState.sortCriteriaList,
+                                currentIndex: filterBarState.currentIndex,
+                                filters: filterBarState.filters,
+                              )
+                            : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                      ),
+                      buildContentsList(),
+                      Selector<Presenter, bool>(
+                        selector: (context, presenter) => presenter.hasNext,
+                        builder: (context, hasNext, child) => hasNext
+                            ? const SliverToBoxAdapter(
+                                child: Center(
+                                  child: CircularProgressIndicator(color: ColorStyles.gray70),
+                                ),
+                              )
+                            : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
       ),
     );
   }
 
-  SliverToBoxAdapter _buildProfile(Presenter presenter) {
+  SliverToBoxAdapter _buildProfile({
+    required String imageUri,
+    required int tastingRecordCount,
+    required int followerCount,
+    required int followingCount,
+  }) {
+    String countToString(int count) {
+      if (count == 0) {
+        return '000';
+      } else if (count >= 1000 && count < 1000000) {
+        return '${count / 1000}.${count / 100}K';
+      } else if (count >= 1000000 && count < 1000000000) {
+        return '${count / 1000000}.${count / 100000}M';
+      } else if (count >= 1000000000) {
+        return '${count / 1000000000}.${count / 10000000}G';
+      } else {
+        return '$count';
+      }
+    }
+
     return SliverToBoxAdapter(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -110,17 +185,12 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           children: [
             Row(
               children: [
-                Container(
+                MyNetworkImage(
+                  imageUri: imageUri,
                   height: 80,
                   width: 80,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFD9D9D9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Image.network(
-                    presenter.profileImageURI,
-                    errorBuilder: (context, object, stackTracer) => Container(),
-                  ),
+                  color: const Color(0xffD9D9D9),
+                  shape: BoxShape.circle,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -131,18 +201,18 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       children: [
                         Column(
                           children: [
-                            Text(presenter.tastingRecordCount, style: TextStyles.captionMediumMedium),
+                            Text(countToString(tastingRecordCount), style: TextStyles.captionMediumMedium),
                             const SizedBox(height: 6),
                             const Text('시음기록', style: TextStyles.captionMediumRegular),
                           ],
                         ),
                         InkWell(
                           onTap: () {
-                            pushFollowList(presenter, 0);
+                            pushFollowList(0);
                           },
                           child: Column(
                             children: [
-                              Text(presenter.followerCount, style: TextStyles.captionMediumMedium),
+                              Text(countToString(followerCount), style: TextStyles.captionMediumMedium),
                               const SizedBox(height: 6),
                               const Text('팔로워', style: TextStyles.captionMediumRegular),
                             ],
@@ -150,11 +220,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                         ),
                         InkWell(
                           onTap: () {
-                            pushFollowList(presenter, 1);
+                            pushFollowList(1);
                           },
                           child: Column(
                             children: [
-                              Text(presenter.followingCount, style: TextStyles.captionMediumMedium),
+                              Text(countToString(followingCount), style: TextStyles.captionMediumMedium),
                               const SizedBox(height: 6),
                               const Text('팔로잉', style: TextStyles.captionMediumRegular),
                             ],
@@ -166,46 +236,52 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            presenter.hasDetail
-                ? _buildDetail(presenter)
-                : InkWell(
-                    onTap: () {},
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
-                      decoration: const BoxDecoration(
-                        color: ColorStyles.gray20,
-                        borderRadius: BorderRadius.all(Radius.circular(40)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
-                          const SizedBox(width: 2),
-                          SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
-                        ],
-                      ),
-                    ),
-                  ),
-            const SizedBox(height: 24),
-            buildProfileBottomButtons(presenter),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetail(Presenter presenter) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (presenter.coffeeLife?.isNotEmpty ?? false) _buildCoffeeLife(presenter.coffeeLife!),
-        if (presenter.introduction?.isNotEmpty ?? false) _buildIntroduction(presenter.introduction!),
-        if (presenter.profileLink?.isNotEmpty ?? false) _buildProfileLink(presenter.profileLink!),
-      ].separator(separatorWidget: const SizedBox(height: 2)).toList(),
+  Widget _buildDetail({
+    required List<String> coffeeLife,
+    required String introduction,
+    required String profileLink,
+  }) {
+    final hasDetail = coffeeLife.isNotEmpty || introduction.isNotEmpty || profileLink.isNotEmpty;
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: hasDetail
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (coffeeLife.isNotEmpty) _buildCoffeeLife(coffeeLife: coffeeLife),
+                  if (introduction.isNotEmpty) _buildIntroduction(introduction: introduction),
+                  if (profileLink.isNotEmpty) _buildProfileLink(profileLink: profileLink),
+                ].separator(separatorWidget: const SizedBox(height: 2)).toList(),
+              )
+            : InkWell(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.gray20,
+                    borderRadius: BorderRadius.all(Radius.circular(40)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
+                      const SizedBox(width: 2),
+                      SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
+                    ],
+                  ),
+                ),
+              ),
+      ),
     );
   }
 
-  Widget _buildCoffeeLife(List<String> coffeeLife) {
+  Widget _buildCoffeeLife({required List<String> coffeeLife}) {
     return Row(
       children: List<Widget>.generate(
         min(coffeeLife.length, 3),
@@ -242,7 +318,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     );
   }
 
-  Widget _buildIntroduction(String introduction) {
+  Widget _buildIntroduction({required String introduction}) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final span = TextSpan(
@@ -280,124 +356,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     );
   }
 
-  SliverAppBar _buildContentsAppBar(Presenter presenter) {
-    return SliverAppBar(
-      leadingWidth: 0,
-      leading: const SizedBox.shrink(),
-      floating: true,
-      titleSpacing: 0,
-      toolbarHeight: presenter.tabIndex == 0 || presenter.tabIndex == 2 ? 116 : kToolbarHeight,
-      title: Column(children: [
-        _buildTabBar(presenter),
-        if (presenter.tabIndex == 0 || presenter.tabIndex == 2) _buildFilter(presenter),
-      ]),
-    );
-  }
-
-  Widget _buildTabBar(Presenter presenter) {
-    return TabBar(
-      padding: const EdgeInsets.only(top: 16),
-      indicatorWeight: 2,
-      indicatorPadding: const EdgeInsets.only(top: 4),
-      indicatorSize: TabBarIndicatorSize.tab,
-      indicatorColor: ColorStyles.black,
-      labelPadding: const EdgeInsets.only(top: 8),
-      labelStyle: TextStyles.title01SemiBold,
-      labelColor: ColorStyles.black,
-      unselectedLabelStyle: TextStyles.title01SemiBold,
-      unselectedLabelColor: ColorStyles.gray50,
-      dividerHeight: 1,
-      dividerColor: ColorStyles.gray20,
-      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-      tabs: const [
-        Tab(text: '시음기록', height: 31),
-        Tab(text: '게시글', height: 31),
-        Tab(text: '찜한 원두', height: 31),
-        Tab(text: '저장한 노트', height: 31),
-      ],
-      onTap: (index) {
-        presenter.onChangeTabIndex(index);
-      },
-    );
-  }
-
-  Widget _buildFilter(Presenter presenter) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Row(
-          children: [
-            _buildIcon(
-              onTap: () {
-                _showSortCriteriaBottomSheet(presenter);
-              },
-              text: presenter.sortCriteriaList[presenter.currentSortCriteriaIndex].toString(),
-              iconPath: 'assets/icons/arrow_up_down.svg',
-              isLeftIcon: true,
-            ),
-            _buildIcon(
-              onTap: () {
-                _showCoffeeBeanFilterBottomSheet(presenter);
-              },
-              text: '필터',
-              iconPath: 'assets/icons/union.svg',
-              isLeftIcon: true,
-              isActive: presenter.hasFilter,
-            ),
-            _buildIcon(
-              onTap: () {
-                _showCoffeeBeanFilterBottomSheet(presenter);
-              },
-              text: '원두유형',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: presenter.hasBeanTypeFilter,
-            ),
-            _buildIcon(
-              onTap: () {
-                _showCoffeeBeanFilterBottomSheet(presenter, initialIndex: 1);
-              },
-              text: '생산 국가',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: presenter.hasCountryFilter,
-            ),
-            _buildIcon(
-              onTap: () {
-                _showCoffeeBeanFilterBottomSheet(presenter, initialIndex: 2);
-              },
-              text: '평균 별점',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: presenter.hasRatingFilter,
-            ),
-            _buildIcon(
-              onTap: () {
-                _showCoffeeBeanFilterBottomSheet(presenter, initialIndex: 4);
-              },
-              text: '로스팅 포인트',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: presenter.hasRoastingPointFilter,
-            ),
-            _buildIcon(
-              onTap: () {
-                _showCoffeeBeanFilterBottomSheet(presenter, initialIndex: 3);
-              },
-              text: '디카페인',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: presenter.hasDecafFilter,
-            ),
-          ].separator(separatorWidget: const SizedBox(width: 4)).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfileLink(String profileLink) {
+  Widget _buildProfileLink({required String profileLink}) {
     return Row(
       children: [
         InkWell(
@@ -421,23 +380,160 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     );
   }
 
-  Widget buildContentsList(Presenter presenter) {
-    if (presenter.tabIndex == 0) {
-      return _buildTastedRecordsList(presenter);
-    } else if (presenter.tabIndex == 1) {
-      return _buildPostsList(presenter);
-    } else if (presenter.tabIndex == 2) {
-      return _buildSavedCoffeeBeansList(presenter);
-    } else {
-      return _buildSavedPostsList(presenter);
-    }
+  Widget _buildTabBar() {
+    return SliverAppBar(
+      leadingWidth: 0,
+      leading: const SizedBox.shrink(),
+      floating: true,
+      titleSpacing: 0,
+      title: TabBar(
+        padding: const EdgeInsets.only(top: 16),
+        indicatorWeight: 2,
+        indicatorPadding: const EdgeInsets.only(top: 4),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicatorColor: ColorStyles.black,
+        labelPadding: const EdgeInsets.only(top: 8),
+        labelStyle: TextStyles.title01SemiBold,
+        labelColor: ColorStyles.black,
+        unselectedLabelStyle: TextStyles.title01SemiBold,
+        unselectedLabelColor: ColorStyles.gray50,
+        dividerHeight: 1,
+        dividerColor: ColorStyles.gray20,
+        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        tabs: const [
+          Tab(text: '시음기록', height: 31),
+          Tab(text: '게시글', height: 31),
+          Tab(text: '찜한 원두', height: 31),
+          Tab(text: '저장한 노트', height: 31),
+        ],
+        onTap: (index) {
+          context.read<Presenter>().onChangeTabIndex(index);
+        },
+      ),
+    );
   }
 
-  Widget _buildTastedRecordsList(Presenter presenter) {
-    return presenter.tastingRecords.isEmpty
-        ? const SliverFillRemaining(
+  Widget _buildFilterBar({
+    required List<String> sortCriteriaList,
+    required int currentIndex,
+    required List<CoffeeBeanFilter> filters,
+  }) {
+    final String currentSortCriteria = sortCriteriaList[currentIndex].toString();
+    final bool hasFilter = filters.isNotEmpty;
+    final bool hasBeanTypeFilter = filters.whereType<BeanTypeFilter>().isNotEmpty;
+    final bool hasCountryFilter = filters.whereType<CountryFilter>().isNotEmpty;
+    final bool hasRatingFilter = filters.whereType<RatingFilter>().isNotEmpty;
+    final bool hasRoastingPointFilter = filters.whereType<DecafFilter>().isNotEmpty;
+    final bool hasDecafFilter = filters.whereType<RoastingPointFilter>().isNotEmpty;
+
+    return SliverAppBar(
+      leadingWidth: 0,
+      leading: const SizedBox.shrink(),
+      floating: true,
+      titleSpacing: 0,
+      title: Padding(
+        padding: const EdgeInsets.only(top: 16, bottom: 12),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              _buildIcon(
+                onTap: () {
+                  _showSortCriteriaBottomSheet(sortCriteriaList: sortCriteriaList, currentIndex: currentIndex);
+                },
+                text: currentSortCriteria,
+                iconPath: 'assets/icons/arrow_up_down.svg',
+                isLeftIcon: true,
+              ),
+              _buildIcon(
+                onTap: () {
+                  _showCoffeeBeanFilterBottomSheet(filters: filters);
+                },
+                text: '필터',
+                iconPath: 'assets/icons/union.svg',
+                isLeftIcon: true,
+                isActive: hasFilter,
+              ),
+              _buildIcon(
+                onTap: () {
+                  _showCoffeeBeanFilterBottomSheet(filters: filters);
+                },
+                text: '원두유형',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
+                isActive: hasBeanTypeFilter,
+              ),
+              _buildIcon(
+                onTap: () {
+                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 1);
+                },
+                text: '생산 국가',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
+                isActive: hasCountryFilter,
+              ),
+              _buildIcon(
+                onTap: () {
+                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 2);
+                },
+                text: '평균 별점',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
+                isActive: hasRatingFilter,
+              ),
+              _buildIcon(
+                onTap: () {
+                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 4);
+                },
+                text: '로스팅 포인트',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
+                isActive: hasRoastingPointFilter,
+              ),
+              _buildIcon(
+                onTap: () {
+                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 3);
+                },
+                text: '디카페인',
+                iconPath: 'assets/icons/down.svg',
+                isLeftIcon: false,
+                isActive: hasDecafFilter,
+              ),
+            ].separator(separatorWidget: const SizedBox(width: 4)).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildContentsList() {
+    return Selector<Presenter, DefaultPage?>(
+      selector: (context, presenter) => presenter.currentPage,
+      builder: (context, page, child) {
+        final currentPage = page;
+        if (currentPage != null) {
+          final result = currentPage.result;
+          if (result is List<TastingRecordInProfile>) {
+            return _buildTastedRecordsList(tastingRecords: result);
+          } else if (result is List<PostInProfile>) {
+            return _buildPostsList(posts: result);
+          } else if (result is List<BeanInProfile>) {
+            return _buildSavedCoffeeBeansList(beans: result);
+          } else if (result is List<SavedNote>) {
+            return _buildSavedPostsList(savedNotes: result);
+          }
+        }
+        return const SliverToBoxAdapter(child: SizedBox.shrink());
+      },
+    );
+  }
+
+  Widget _buildTastedRecordsList({required List<TastingRecordInProfile> tastingRecords}) {
+    return tastingRecords.isEmpty
+        ? SliverFillRemaining(
             child: Center(
-              child: Text('첫 시음기록을 작성해 보세요.', style: TextStyles.title02SemiBold),
+              child: Text(tastingRecordsEmptyText, style: TextStyles.title02SemiBold),
             ),
           )
         : SliverPadding(
@@ -448,125 +544,38 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   mainAxisSpacing: 4,
                   crossAxisSpacing: 4,
                 ),
-                itemCount: presenter.tastingRecords.length,
+                itemCount: tastingRecords.length,
                 itemBuilder: (context, index) {
-                  final tastingRecord = presenter.tastingRecords[index];
-                  return InkWell(
-                    onTap: () {
-                      pushToTastingRecordDetail(context: context, id: tastingRecord.id);
-                    },
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.width - 36,
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Image.network(
-                              tastingRecord.imageUri,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Container(
-                                color: ColorStyles.gray40,
-                                child: const Center(
-                                  child: Text('No Image', style: TextStyles.bodyRegular),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 6,
-                            bottom: 6.5,
-                            child: Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/icons/star_fill.svg',
-                                  height: 18,
-                                  width: 18,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${tastingRecord.rating}',
-                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                  final tastingRecord = tastingRecords[index];
+                  return buildOpenableTastingRecordDetailView(
+                    id: tastingRecord.id,
+                    closeBuilder: (context, action) => TastingRecordItemWidget(
+                      imageUri: tastingRecord.imageUri,
+                      rating: tastingRecord.rating,
                     ),
                   );
                 }),
           );
   }
 
-  Widget _buildPostsList(Presenter presenter) {
-    return presenter.posts.isEmpty
-        ? const SliverFillRemaining(
+  Widget _buildPostsList({required List<PostInProfile> posts}) {
+    return posts.isEmpty
+        ? SliverFillRemaining(
             child: Center(
-              child: Text('첫 게시글을 작성해 보세요.', style: TextStyles.title02SemiBold),
+              child: Text(postsEmptyText, style: TextStyles.title02SemiBold),
             ),
           )
         : SliverList.separated(
-            itemCount: presenter.posts.length,
+            itemCount: posts.length,
             itemBuilder: (context, index) {
-              final post = presenter.posts[index];
-              return InkWell(
-                onTap: () {
-                  pushToPostDetail(context: context, id: post.id);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-                            decoration:
-                                BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black70),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  height: 12,
-                                  width: 12,
-                                  child: SvgPicture.asset(
-                                    post.subject.iconPath,
-                                    colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-                                  ),
-                                ),
-                                const SizedBox(width: 2),
-                                Text(post.subject.toString(),
-                                    style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white)),
-                              ],
-                            ),
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        post.title,
-                        style: TextStyles.title01SemiBold,
-                      ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Text(
-                            post.author,
-                            style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
-                          ),
-                          const SizedBox(width: 4),
-                          Container(width: 1, height: 10, color: ColorStyles.gray30),
-                          const SizedBox(width: 4),
-                          Text(
-                            post.createdAt,
-                            style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                    ],
-                  ),
+              final post = posts[index];
+              return buildOpenablePostDetailView(
+                id: post.id,
+                closeBuilder: (context, action) => ProfilePostItemWidget(
+                  title: post.title,
+                  author: post.author,
+                  createdAt: post.createdAt,
+                  subject: post.subject,
                 ),
               );
             },
@@ -576,66 +585,22 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           );
   }
 
-  Widget _buildSavedCoffeeBeansList(Presenter presenter) {
-    return presenter.coffeeBeans.isEmpty
-        ? const SliverFillRemaining(
+  Widget _buildSavedCoffeeBeansList({required List<BeanInProfile> beans}) {
+    return beans.isEmpty
+        ? SliverFillRemaining(
             child: Center(
-              child: Text('관심있는 원두를 찜해 보세요.', style: TextStyles.title02SemiBold),
+              child: Text(beansEmptyText, style: TextStyles.title02SemiBold),
             ),
           )
         : SliverList.separated(
-            itemCount: presenter.coffeeBeans.length,
+            itemCount: beans.length,
             itemBuilder: (context, index) {
-              final bean = presenter.coffeeBeans[index];
-              return InkWell(
-                onTap: () {},
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text(
-                              bean.name,
-                              style: TextStyles.labelMediumMedium,
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/icons/star_fill.svg',
-                                  height: 14,
-                                  width: 14,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                ),
-                                const SizedBox(width: 2),
-                                Text(
-                                  '${bean.rating} (${bean.tastedRecordsCount})',
-                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                                ),
-                                const Spacer(),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      Image.network(
-                        '',
-                        fit: BoxFit.cover,
-                        height: 64,
-                        width: 64,
-                        errorBuilder: (_, __, ___) => Container(
-                          height: 64,
-                          width: 64,
-                          color: const Color(0xffd9d9d9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              final bean = beans[index];
+              return SavedCoffeeBeanWidget(
+                name: bean.name,
+                rating: bean.rating,
+                tastedRecordsCount: bean.tastedRecordsCount,
+                imageUri: '',
               );
             },
             separatorBuilder: (context, index) {
@@ -644,47 +609,37 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           );
   }
 
-  _buildSavedPostsList(Presenter presenter) {
-    return presenter.saveNotes.isEmpty
-        ? const SliverFillRemaining(
+  _buildSavedPostsList({required List<SavedNote> savedNotes}) {
+    return savedNotes.isEmpty
+        ? SliverFillRemaining(
             child: Center(
-              child: Text('관심있는 커피노트를 저장해 보세요.', style: TextStyles.title02SemiBold),
+              child: Text(savedNotesEmptyText, style: TextStyles.title02SemiBold),
             ),
           )
         : SliverList.separated(
-            itemCount: presenter.saveNotes.length,
+            itemCount: savedNotes.length,
             itemBuilder: (context, index) {
-              final note = presenter.saveNotes[index];
+              final note = savedNotes[index];
               if (note is SavedPost) {
-                return InkWell(
-                  onTap: () {
-                    pushToPostDetail(context: context, id: note.id);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _buildPost(
-                      title: note.title,
-                      subject: note.subject.toString(),
-                      createdAt: note.createdAt,
-                      author: note.author,
-                      imageUri: note.imageUri,
-                    ),
+                return buildOpenablePostDetailView(
+                  id: note.id,
+                  closeBuilder: (context, action) => SavedPostWidget(
+                    title: note.title,
+                    subject: note.subject.toString(),
+                    createdAt: note.createdAt,
+                    author: note.author,
+                    imageUri: note.imageUri,
                   ),
                 );
               } else if (note is SavedTastingRecord) {
-                return InkWell(
-                  onTap: () {
-                    pushToTastingRecordDetail(context: context, id: note.id);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _buildTastedRecord(
-                      beanName: note.beanName,
-                      rating: '4.5',
-                      likeCount: '22',
-                      flavor: note.flavor,
-                      imageUri: note.imageUri,
-                    ),
+                return buildOpenableTastingRecordDetailView(
+                  id: note.id,
+                  closeBuilder: (context, action) => SavedTastingRecordWidget(
+                    beanName: note.beanName,
+                    rating: '4.5',
+                    likeCount: '22',
+                    flavor: note.flavor,
+                    imageUri: note.imageUri,
                   ),
                 );
               } else {
@@ -697,164 +652,16 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           );
   }
 
-  Widget _buildPost({
-    required String title,
-    required String subject,
-    required String createdAt,
-    required String author,
-    String? imageUri,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '게시글',
-                style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: TextStyles.title01SemiBold,
-              ),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Text(
-                    subject,
-                    style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(width: 1, height: 10, color: ColorStyles.gray30),
-                  const SizedBox(width: 4),
-                  Text(
-                    createdAt,
-                    style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                  ),
-                  const SizedBox(width: 4),
-                  Container(width: 1, height: 10, color: ColorStyles.gray30),
-                  const SizedBox(width: 4),
-                  Text(
-                    author,
-                    style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        if (imageUri != null) ...[
-          const SizedBox(width: 24),
-          Image.network(
-            imageUri,
-            fit: BoxFit.cover,
-            height: 64,
-            width: 64,
-            errorBuilder: (_, __, ___) => Container(
-              height: 64,
-              width: 64,
-              color: const Color(0xffd9d9d9),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildTastedRecord({
-    required String beanName,
-    required String rating,
-    required String likeCount,
-    required List<String> flavor,
-    String? imageUri,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '시음기록',
-                style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                beanName,
-                style: TextStyles.title01SemiBold,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/star_fill.svg',
-                    height: 16,
-                    width: 16,
-                    colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                  ),
-                  Text(
-                    '$rating ($likeCount)',
-                    style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                  ),
-                  const Spacer(),
-                ],
-              ),
-              const SizedBox(height: 4),
-              //Api 누락
-              Row(
-                children: flavor
-                    .map(
-                      (taste) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-                          decoration: BoxDecoration(
-                              border: Border.all(color: ColorStyles.gray70, width: 0.8),
-                              borderRadius: BorderRadius.circular(6)),
-                          child: Center(
-                            child: Text(
-                              taste,
-                              style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray70),
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                    .separator(separatorWidget: const SizedBox(width: 2))
-                    .toList(),
-              ),
-            ],
-          ),
-        ),
-        if (imageUri != null) ...[
-          const SizedBox(width: 24),
-          Image.network(
-            imageUri,
-            fit: BoxFit.cover,
-            height: 64,
-            width: 64,
-            errorBuilder: (_, __, ___) => Container(
-              height: 64,
-              width: 64,
-              color: const Color(0xffd9d9d9),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  _showCoffeeBeanFilterBottomSheet(Presenter presenter, {initialIndex = 0}) {
-    showBarrierDialog<List<CoffeeBeanFilter>>(
+  _showCoffeeBeanFilterBottomSheet({required List<CoffeeBeanFilter> filters, initialIndex = 0}) {
+    showBarrierDialog(
       context: context,
       pageBuilder: (_, __, ___) {
         return ChangeNotifierProvider<FilterPresenter>(
-          create: (_) => FilterPresenter(filter: presenter.filters),
+          create: (_) => FilterPresenter(filter: List.from(filters)),
           child: FilterBottomSheet(
             initialTab: initialIndex,
             onDone: (filters) {
-              presenter.onChangeFilter(filters);
+              context.read<Presenter>().onChangeFilter(filters);
             },
           ),
         );
@@ -862,22 +669,22 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     );
   }
 
-  _showSortCriteriaBottomSheet(Presenter presenter) {
+  _showSortCriteriaBottomSheet({required List<String> sortCriteriaList, required int currentIndex}) {
     showBarrierDialog(
       context: context,
       pageBuilder: (_, __, ___) {
         return SortCriteriaBottomSheet(
-          items: presenter.sortCriteriaList.indexed.map(
-            (sortCriteria) {
+          items: sortCriteriaList.indexed.map(
+            (indexedSortCriteria) {
               return (
-                sortCriteria.$2.toString(),
+                indexedSortCriteria.$2.toString(),
                 () {
-                  presenter.onChangeSortCriteriaIndex(sortCriteria.$1);
+                  context.read<Presenter>().onChangeSortCriteriaIndex(indexedSortCriteria.$1);
                 },
               );
             },
           ).toList(),
-          currentIndex: presenter.currentSortCriteriaIndex,
+          currentIndex: currentIndex,
         );
       },
     );

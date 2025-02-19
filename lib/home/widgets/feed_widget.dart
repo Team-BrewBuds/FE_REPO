@@ -2,10 +2,12 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/factory/icon_button_factory.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 abstract class FeedWidget extends StatefulWidget {
+  final int id;
   final String writerThumbnailUri;
   final String writerNickName;
   final String writingTime;
@@ -24,6 +26,7 @@ abstract class FeedWidget extends StatefulWidget {
 
   const FeedWidget({
     super.key,
+    required this.id,
     required this.writerThumbnailUri,
     required this.writerNickName,
     required this.writingTime,
@@ -72,19 +75,12 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             //프로필 사진
-            Container(
+            MyNetworkImage(
+              imageUri: widget.writerThumbnailUri,
               height: 36,
               width: 36,
-              clipBehavior: Clip.antiAlias,
-              decoration: const BoxDecoration(
-                color: Color(0xffD9D9D9),
-                shape: BoxShape.circle,
-              ),
-              child: Image.network(
-                widget.writerThumbnailUri,
-                fit: BoxFit.cover,
-                errorBuilder: (context, _, trace) => Container(),
-              ),
+              color: const Color(0xffD9D9D9),
+              shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),
             Expanded(

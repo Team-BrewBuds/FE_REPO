@@ -3,16 +3,16 @@ import 'package:brew_buds/model/recommended_user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 
-part 'recommended_user_page.freezed.dart';
+part 'recommended_users.freezed.dart';
 
-part 'recommended_user_page.g.dart';
+part 'recommended_users.g.dart';
 
 @Freezed(toJson: false)
-class RecommendedUserPage with _$RecommendedUserPage {
-  const factory RecommendedUserPage({
+class RecommendedUsers with _$RecommendedUsers {
+  const factory RecommendedUsers({
     required List<RecommendedUser> users,
     @JsonKey(unknownEnumValue: RecommendedCategory.cafeAlba) required RecommendedCategory category
-  }) = _RecommendedUserPage;
+  }) = _RecommendedUsers;
 
-  factory RecommendedUserPage.fromJson(Map<String, Object?> json) => _$RecommendedUserPageFromJson(json);
+  factory RecommendedUsers.fromJson(Map<String, Object?> json) => _$RecommendedUsersFromJson(json);
 }

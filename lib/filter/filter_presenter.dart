@@ -14,7 +14,7 @@ final class FilterPresenter extends ChangeNotifier {
 
   FilterPresenter({
     List<CoffeeBeanFilter> filter = const [],
-  })  : _filter = List.from(filter),
+  })  : _filter = filter,
         _selectedTypes = filter.whereType<BeanTypeFilter>().firstOrNull?.type,
         _selectedOrigins = filter.whereType<CountryFilter>().map((e) => e.country).toSet(),
         _ratingValues = SfRangeValues(

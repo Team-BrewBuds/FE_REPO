@@ -1,18 +1,17 @@
 import 'package:brew_buds/home/core/home_view_presenter.dart';
-import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
+import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
 import 'package:brew_buds/model/recommended_user.dart';
 
 final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordInFeed> {
-  TastingRecordFeedPage _page = TastingRecordFeedPage.initial();
+  DefaultPage<TastingRecordInFeed> _page = DefaultPage.empty();
   int _currentPage = 0;
 
   HomeTastingRecordPresenter({
     required super.repository,
   });
 
-  @override
-  List<TastingRecordInFeed> get feeds => _page.feeds;
+  DefaultPage<TastingRecordInFeed> get page => _page;
 
   @override
   bool get hasNext => _page.hasNext;
@@ -20,12 +19,12 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
   @override
   Future<void> fetchMoreData() async {
     if (_page.hasNext) {
-      final result = await repository.fetchTastingRecordFeedPage(
+      final newPage = await repository.fetchTastingRecordFeedPage(
         pageNo: _currentPage + 1,
       );
       _page = _page.copyWith(
-        feeds: _page.feeds + result.feeds,
-        hasNext: result.hasNext,
+        result: _page.result + newPage.result,
+        hasNext: newPage.hasNext,
       );
       _currentPage += 1;
       notifyListeners();
@@ -39,7 +38,7 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
 
   @override
   Future<void> onRefresh() async {
-    _page = TastingRecordFeedPage.initial();
+    _page = DefaultPage.empty();
     _currentPage = 0;
     notifyListeners();
     fetchMoreData();
@@ -70,28 +69,9 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
     });
   }
 
-  @override
-  onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex) {
-    follow(id: user.user.id, isFollowed: user.isFollow).then(
-          (_) => _updateRecommendedPage(user: user, pageIndex: pageIndex),
-    );
-  }
-
-  _updateRecommendedPage({required RecommendedUser user, required int pageIndex}) {
-    recommendedUserPages[pageIndex] = recommendedUserPages[pageIndex].copyWith(
-        users: recommendedUserPages[pageIndex].users.map((e) {
-          if (e.user.id == user.user.id) {
-            return user.copyWith(isFollow: !user.isFollow);
-          } else {
-            return e;
-          }
-        }).toList());
-    notifyListeners();
-  }
-
   _updateFeed({required TastingRecordInFeed newFeed}) {
     _page = _page.copyWith(
-      feeds: _page.feeds.map(
+      result: _page.result.map(
         (feed) {
           if (feed.id == newFeed.id) {
             return newFeed;

@@ -2,8 +2,6 @@ import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/detail/post_detail_view.dart';
-import 'package:brew_buds/detail/tasted_record_detail_view.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/login/views/login_page_sns.dart';
 import 'package:brew_buds/features/signup/views/signup_third_page.dart';
@@ -20,7 +18,6 @@ import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart
 import 'package:brew_buds/main/main_view.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/view/my_profile_view.dart';
-import 'package:brew_buds/profile/view/other_profile_view.dart';
 import 'package:brew_buds/profile/views/account_out_view.dart';
 import 'package:brew_buds/profile/views/alarm_view.dart';
 import 'package:brew_buds/profile/views/setting_view.dart';
@@ -77,13 +74,13 @@ final router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (BuildContext context, GoRouterState state) {
-        return SignUpFirstPage();
+        return const SignUpFirstPage();
       },
       routes: [
         GoRoute(
           path: 'second',
           builder: (BuildContext context, GoRouterState state) {
-            return SignUpSecondPage();
+            return const SignUpSecondPage();
           },
         ),
         GoRoute(
@@ -95,13 +92,13 @@ final router = GoRouter(
         GoRoute(
           path: 'fourth',
           builder: (BuildContext context, GoRouterState state) {
-            return SignUpFourthPage();
+            return const SignUpFourthPage();
           },
         ),
         GoRoute(
           path: 'finish',
           builder: (BuildContext context, GoRouterState state) {
-            return SignupFinishPage();
+            return const SignupFinishPage();
           },
         ),
       ],
@@ -148,7 +145,7 @@ final router = GoRouter(
               path: '/search',
               builder: (context, state) => ChangeNotifierProvider<SearchPresenter>(
                 create: (_) => SearchPresenter(),
-                child: SearchScreen(),
+                child: const SearchScreen(),
               ),
             ),
           ],
@@ -166,7 +163,7 @@ final router = GoRouter(
               path: '/profile',
               builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
                 create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-                child: MyProfileView(),
+                child: const MyProfileView(),
               ),
             ),
           ],
@@ -188,15 +185,6 @@ final router = GoRouter(
       ),
     ),
     GoRoute(path: '/account_out', builder: (context, state) => const AccountOutView()),
-    GoRoute(path: '/alarm', builder: (context, state) => AlarmView()),
-    GoRoute(path: '/post_detail', builder: (context, state) => PostDetailView()),
-    GoRoute(path: '/tasted_record_detail', builder: (context, state) => TastedRecordDetailView()),
-    GoRoute(
-      path: '/other_profile',
-      builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
-        create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-        child: const OtherProfileView(),
-      ),
-    ),
+    GoRoute(path: '/alarm', builder: (context, state) => const AlarmView()),
   ],
 );

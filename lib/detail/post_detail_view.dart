@@ -4,14 +4,16 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
+import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/detail/detail_builder.dart';
 import 'package:brew_buds/detail/post_detail_presenter.dart';
 import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/home/widgets/post_feed/horizontal_image_list_view.dart';
-import 'package:brew_buds/home/widgets/post_feed/horizontal_tasting_record_list_view.dart';
+import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_button.dart';
+import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';
 import 'package:brew_buds/model/comments.dart';
-import 'package:brew_buds/model/pages/comments_page.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:brew_buds/model/tasting_record_in_post.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +119,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                 context.pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/back.svg',
+                'assets/icons/x.svg',
                 fit: BoxFit.cover,
                 height: 24,
                 width: 24,
@@ -164,6 +166,7 @@ class _PostDetailViewState extends State<PostDetailView> {
     return InkWell(
       onTap: () {
         if (authorId != null) {
+          context.pop();
           pushToProfile(context: context, id: authorId);
         }
       },
@@ -174,19 +177,12 @@ class _PostDetailViewState extends State<PostDetailView> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             //프로필 사진
-            Container(
+            MyNetworkImage(
+              imageUri: imageUri,
               height: 36,
               width: 36,
-              clipBehavior: Clip.antiAlias,
-              decoration: const BoxDecoration(
-                color: Color(0xffD9D9D9),
-                shape: BoxShape.circle,
-              ),
-              child: Image.network(
-                imageUri,
-                fit: BoxFit.cover,
-                errorBuilder: (context, _, trace) => Container(),
-              ),
+              color: const Color(0xffD9D9D9),
+              shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -227,24 +223,44 @@ class _PostDetailViewState extends State<PostDetailView> {
     required String tag,
     required PostSubject subject,
   }) {
+    final width = MediaQuery.of(context).size.width;
     return Column(
       children: [
-        if (imageUriList.isNotEmpty) HorizontalImageListView(imagesUrl: imageUriList),
+        if (imageUriList.isNotEmpty)
+          HorizontalSliderWidget(
+            itemLength: imageUriList.length,
+            itemBuilder: (context, index) => MyNetworkImage(
+              imageUri: imageUriList[index],
+              height: width,
+              width: width,
+              color: const Color(0xffD9D9D9),
+            ),
+          ),
         if (tastingRecords.isNotEmpty)
-          HorizontalTastingRecordListView(
-            items: tastingRecords
-                .map(
-                  (tastingRecord) => (
-                    beanName: tastingRecord.beanName,
-                    beanType: tastingRecord.beanType,
-                    contents: tastingRecord.contents,
-                    rating: tastingRecord.rating,
-                    flavors: tastingRecord.flavors,
-                    imageUri: tastingRecord.imagesUri.firstOrNull ?? '',
-                    onTap: () {},
-                  ),
-                )
-                .toList(),
+          HorizontalSliderWidget(
+            itemLength: tastingRecords.length,
+            itemBuilder: (context, index) => TastingRecordCard(
+              image: MyNetworkImage(
+                imageUri: tastingRecords[index].thumbnailUri,
+                height: width,
+                width: width,
+                color: const Color(0xffD9D9D9),
+              ),
+              rating: '${tastingRecords[index].rating}',
+              type: tastingRecords[index].beanType,
+              name: tastingRecords[index].beanName,
+              tags: tastingRecords[index].flavors,
+            ),
+            childBuilder: (context, index) => buildOpenableTastingRecordDetailView(
+              id: tastingRecords[index].id,
+              closeBuilder: (context, _) => Container(
+                color: ColorStyles.white,
+                child: TastingRecordButton(
+                  name: tastingRecords[index].beanName,
+                  bodyText: tastingRecords[index].contents,
+                ),
+              ),
+            ),
           ),
         _buildTextBody(
           title: title,
@@ -436,6 +452,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                     likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                     canReply: true,
                     onTappedProfile: () {
+                      context.pop();
                       pushToProfile(context: context, id: comment.author.id);
                     },
                     onTappedReply: () {},
@@ -466,6 +483,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                           isLiked: reComment.isLiked,
                           likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                           onTappedProfile: () {
+                            context.pop();
                             pushToProfile(context: context, id: reComment.author.id);
                           },
                           onTappedLikeButton: () {

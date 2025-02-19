@@ -18,8 +18,19 @@ class MyProfileView extends StatefulWidget {
 
 class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfileView, ProfilePresenter> {
   @override
+  String get beansEmptyText => '찜한 원두가 없습니다.';
+
+  @override
+  String get postsEmptyText => '첫 게시글을 작성해 보세요.';
+
+  @override
+  String get savedNotesEmptyText => '저장한 노트가 없습니다.';
+
+  @override
+  String get tastingRecordsEmptyText => '첫 시음기록을 작성해 보세요.';
+
+  @override
   AppBar buildTitle() {
-    final nickName = context.read<ProfilePresenter>().nickname;
     return AppBar(
       titleSpacing: 0,
       title: Padding(
@@ -27,7 +38,10 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(nickName, style: TextStyles.title02Bold),
+            Selector<ProfilePresenter, String>(
+              selector: (context, presenter) => presenter.nickName,
+              builder: (context, nickName, child) => Text(nickName, style: TextStyles.title02Bold),
+            ),
             const Spacer(),
             InkWell(
               onTap: () {
@@ -47,40 +61,42 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
   }
 
   @override
-  Widget buildProfileBottomButtons(ProfilePresenter presenter) {
-    return Row(
-      children: [
-        ButtonFactory.buildRoundedButton(
-          onTapped: () {},
-          text: '취향 리포트 보기',
-          style: RoundedButtonStyle.fill(
-            size: RoundedButtonSize.medium,
-            color: ColorStyles.black,
-            textColor: ColorStyles.white,
+  Widget buildProfileBottomButtons() {
+    return SliverToBoxAdapter(
+      child: Row(
+        children: [
+          ButtonFactory.buildRoundedButton(
+            onTapped: () {},
+            text: '취향 리포트 보기',
+            style: RoundedButtonStyle.fill(
+              size: RoundedButtonSize.medium,
+              color: ColorStyles.black,
+              textColor: ColorStyles.white,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        ButtonFactory.buildRoundedButton(
-          onTapped: () {},
-          text: '프로필 편집',
-          style: RoundedButtonStyle.fill(
-            size: RoundedButtonSize.medium,
-            color: ColorStyles.gray30,
-            textColor: ColorStyles.black,
+          const SizedBox(width: 8),
+          ButtonFactory.buildRoundedButton(
+            onTapped: () {},
+            text: '프로필 편집',
+            style: RoundedButtonStyle.fill(
+              size: RoundedButtonSize.medium,
+              color: ColorStyles.gray30,
+              textColor: ColorStyles.black,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   @override
-  pushFollowList(ProfilePresenter presenter, int index) {
-    pushToFollowListPA(context: context, id: presenter.id, nickName: presenter.nickname, initialIndex: index);
+  pushFollowList(int index) {
+    final profile = context.read<ProfilePresenter>().profile;
+    if (profile != null) {
+      pushToFollowListPA(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
+    }
   }
 
   @override
-  onTappedSettingDetailButton(ProfilePresenter presenter) {
-    // TODO: implement onTappedSettingDetailButton
-    throw UnimplementedError();
-  }
+  onTappedSettingDetailButton() {}
 }
