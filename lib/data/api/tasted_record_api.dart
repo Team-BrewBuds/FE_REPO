@@ -1,6 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
 import 'package:brew_buds/detail/model/tasting_record.dart';
-import 'package:brew_buds/model/pages/tasting_record_feed_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
