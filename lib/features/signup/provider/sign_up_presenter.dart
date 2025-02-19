@@ -63,7 +63,7 @@ class SignUpPresenter with ChangeNotifier {
   }
 
   resetPreferredBeanTaste() {
-    _state = _state.copyWith(preferredBeanTaste: const PreferredBeanTaste());
+    _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste.init());
     notifyListeners();
   }
 
@@ -122,9 +122,9 @@ class SignUpPresenter with ChangeNotifier {
       if (_state.preferredBeanTaste?.body == newValue) {
         _state = _state.copyWith(
           preferredBeanTaste: PreferredBeanTaste(
-            acidity: _state.preferredBeanTaste?.acidity,
-            bitterness: _state.preferredBeanTaste?.bitterness,
-            sweetness: _state.preferredBeanTaste?.sweetness,
+            acidity: _state.preferredBeanTaste?.acidity ?? 0,
+            bitterness: _state.preferredBeanTaste?.bitterness ?? 0,
+            sweetness: _state.preferredBeanTaste?.sweetness ?? 0,
           ),
         );
       } else {
@@ -141,9 +141,9 @@ class SignUpPresenter with ChangeNotifier {
       if (_state.preferredBeanTaste?.acidity == newValue) {
         _state = _state.copyWith(
           preferredBeanTaste: PreferredBeanTaste(
-            body: _state.preferredBeanTaste?.body,
-            bitterness: _state.preferredBeanTaste?.bitterness,
-            sweetness: _state.preferredBeanTaste?.sweetness,
+            body: _state.preferredBeanTaste?.body ?? 0,
+            bitterness: _state.preferredBeanTaste?.bitterness ?? 0,
+            sweetness: _state.preferredBeanTaste?.sweetness ?? 0,
           ),
         );
       } else {
@@ -160,9 +160,9 @@ class SignUpPresenter with ChangeNotifier {
       if (_state.preferredBeanTaste?.bitterness == newValue) {
         _state = _state.copyWith(
           preferredBeanTaste: PreferredBeanTaste(
-            body: _state.preferredBeanTaste?.body,
-            acidity: _state.preferredBeanTaste?.acidity,
-            sweetness: _state.preferredBeanTaste?.sweetness,
+            body: _state.preferredBeanTaste?.body ?? 0,
+            acidity: _state.preferredBeanTaste?.acidity ?? 0,
+            sweetness: _state.preferredBeanTaste?.sweetness ?? 0,
           ),
         );
       } else {
@@ -179,9 +179,9 @@ class SignUpPresenter with ChangeNotifier {
       if (_state.preferredBeanTaste?.sweetness == newValue) {
         _state = _state.copyWith(
           preferredBeanTaste: PreferredBeanTaste(
-            body: _state.preferredBeanTaste?.body,
-            acidity: _state.preferredBeanTaste?.acidity,
-            bitterness: _state.preferredBeanTaste?.bitterness,
+            body: _state.preferredBeanTaste?.body ?? 0,
+            acidity: _state.preferredBeanTaste?.acidity ?? 0,
+            bitterness: _state.preferredBeanTaste?.bitterness ?? 0,
           ),
         );
       } else {

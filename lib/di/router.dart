@@ -18,20 +18,18 @@ import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart
 import 'package:brew_buds/main/main_view.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/view/my_profile_view.dart';
-import 'package:brew_buds/profile/views/account_out_view.dart';
-import 'package:brew_buds/profile/views/alarm_view.dart';
-import 'package:brew_buds/profile/views/setting_view.dart';
+import 'package:brew_buds/setting/presenter/account_detail_presenter.dart';
+import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.dart';
+import 'package:brew_buds/setting/view/account_detail_view.dart';
+import 'package:brew_buds/setting/view/account_info_view.dart';
+import 'package:brew_buds/setting/setting_screen.dart';
 import 'package:brew_buds/search/search_presenter.dart';
 import 'package:brew_buds/search/search_screen.dart';
+import 'package:brew_buds/setting/view/blocking_user_management_view.dart';
+import 'package:brew_buds/setting/view/notification_setting_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import 'package:brew_buds/profile/presenter/edit_presenter.dart';
-import '../profile/views/account_info_view.dart';
-import '../profile/views/block_view.dart';
-import '../profile/views/edit_view.dart';
-import '../profile/views/fitInfo_view.dart';
 
 const String initialPath = '/login';
 
@@ -165,26 +163,30 @@ final router = GoRouter(
                 create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
                 child: const MyProfileView(),
               ),
+              routes: [
+                GoRoute(path: 'setting', builder: (context, state) => const SettingScreen(), routes: [
+                  GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
+                  GoRoute(
+                    path: 'block',
+                    builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
+                      create: (_) => BlockingUserManagementPresenter(),
+                      child: const BlockingUserManagementView(),
+                    ),
+                  ),
+                  GoRoute(path: 'account_info', builder: (context, state) => const AccountInfoView()),
+                  GoRoute(
+                    path: 'account_detail',
+                    builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
+                      create: (_) => AccountDetailPresenter(),
+                      child: const AccountDetailView(),
+                    ),
+                  ),
+                ]),
+              ],
             ),
           ],
         ),
       ],
     ),
-    GoRoute(path: '/profile_setting', builder: (context, state) => const SettingView()),
-    GoRoute(
-        path: '/profile_edit',
-        builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
-            create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const ProfileEditScreen())),
-    GoRoute(path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
-    GoRoute(path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
-    GoRoute(
-      path: '/profile_block',
-      builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
-        create: (_) => ProfileEditPresenter(repository: ProfileRepository()),
-        child: const BlockView(),
-      ),
-    ),
-    GoRoute(path: '/account_out', builder: (context, state) => const AccountOutView()),
-    GoRoute(path: '/alarm', builder: (context, state) => const AlarmView()),
   ],
 );

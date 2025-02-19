@@ -45,7 +45,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
             const Spacer(),
             InkWell(
               onTap: () {
-                context.push('/profile_setting');
+                context.push('/profile/setting');
               },
               child: SvgPicture.asset(
                 'assets/icons/setting.svg',

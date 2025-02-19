@@ -7,6 +7,7 @@ import 'package:brew_buds/profile/presenter/other_profile_presenter.dart';
 import 'package:brew_buds/profile/view/profile_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -120,6 +121,14 @@ class _OtherProfileViewState extends State<OtherProfileView>
 
   @override
   onTappedSettingDetailButton() {}
+
+  Future<void> onTappedBlock() async {
+    final result = await context.read<OtherProfilePresenter>().onTappedBlockButton();
+    if (result) {
+      context.pop();
+      context.pop();
+    }
+  }
 
   _showBlockBottomSheet() {
     showBarrierDialog(
@@ -238,10 +247,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                             Expanded(
                               child: InkWell(
                                 onTap: () async {
-                                  final result = await context.read<OtherProfilePresenter>().onTappedBlockButton();
-                                  if (context.mounted) {
-                                    context.pop(result);
-                                  }
+                                  await onTappedBlock.call();
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

@@ -11,19 +11,16 @@ abstract class ProfileApi {
   @GET('/profiles/')
   Future<Profile> fetchMyProfile();
 
-  //미구현
   @PATCH('/profiles/')
   Future<void> updateMyProfile({
     @Body() required Map<String, dynamic> body,
   });
 
-  //미구현
   @GET('/profiles/{id}/')
   Future<Profile> fetchProfile({
     @Path('id') required int id,
   });
 
-  //미구현
   @GET('/profiles/{id}/notes/')
   Future<String> fetchSavedNotes({
     @Path('id') required int id,

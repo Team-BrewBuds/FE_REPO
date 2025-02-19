@@ -12,13 +12,6 @@ final class CoffeeNotePresenter extends ChangeNotifier {
   SignUpState _state = const SignUpState();
 
 
-
-
-
-
-
-  int? get acidity => _state.preferredBeanTaste?.acidity;
-
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;

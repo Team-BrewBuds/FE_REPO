@@ -1,7 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
 import 'package:brew_buds/detail/model/post.dart';
-import 'package:brew_buds/model/pages/popular_post_page.dart';
-import 'package:brew_buds/model/pages/post_feed_page.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
