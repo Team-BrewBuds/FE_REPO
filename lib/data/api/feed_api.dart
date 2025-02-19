@@ -9,7 +9,7 @@ part 'feed_api.g.dart';
 @RestApi()
 abstract class FeedApi {
   @GET('/records/feed/')
-  Future<FeedPage> fetchFeedPage({
+  Future<String> fetchFeedPage({
     @Query('feed_type') required String feedType,
     @Query('page') required int pageNo,
   });

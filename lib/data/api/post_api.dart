@@ -11,7 +11,7 @@ part 'post_api.g.dart';
 @RestApi()
 abstract class PostApi {
   @GET('/records/post/')
-  Future<PostFeedPage> fetchPostFeedPage({
+  Future<String> fetchPostFeedPage({
     @Query('subject') required String? subject,
     @Query('page') required int pageNo,
   });
@@ -38,7 +38,7 @@ abstract class PostApi {
   });
 
   @GET('/records/post/top/')
-  Future<PopularPostsPage> fetchPopularPostsPage({
+  Future<String> fetchPopularPostsPage({
     @Query('subject') required String subject,
     @Query('page') required int pageNo,
   });

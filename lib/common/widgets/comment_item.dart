@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -46,19 +47,12 @@ class CommentItem extends StatelessWidget {
                 onTap: () {
                   onTappedProfile.call();
                 },
-                child: Container(
+                child: MyNetworkImage(
+                  imageUri: profileImageUri,
                   height: 36,
                   width: 36,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: const BoxDecoration(
-                    color: Color(0xffD9D9D9),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Image.network(
-                    profileImageUri,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, _, trace) => Container(),
-                  ),
+                  color: const Color(0xffD9D9D9),
+                  shape: BoxShape.circle,
                 ),
               ),
               const SizedBox(width: 12),

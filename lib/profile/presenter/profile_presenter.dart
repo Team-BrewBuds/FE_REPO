@@ -1,93 +1,81 @@
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/filter/model/search_sort_criteria.dart';
+import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
 import 'package:brew_buds/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/profile/model/profile.dart';
 import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:brew_buds/profile/model/profile.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
 import 'package:flutter/foundation.dart';
 
-class ProfilePresenter extends ChangeNotifier {
-  final ProfileRepository repository;
-  Profile? profile;
+typedef ProfileState = ({String imageUri, int tastingRecordCount, int followerCount, int followingCount});
+typedef ProfileDetailState = ({List<String> coffeeLife, String introduction, String profileLink});
+typedef FilterBarState = ({
+  bool canShowFilterBar,
+  List<String> sortCriteriaList,
+  int currentIndex,
+  List<CoffeeBeanFilter> filters,
+});
 
+class ProfilePresenter extends ChangeNotifier {
   final List<SortCriteria> _sortCriteriaList = [
     SortCriteria.upToDate,
     SortCriteria.rating,
     SortCriteria.tastingRecords,
   ];
 
+  final ProfileRepository repository;
+  Profile? profile;
+  DefaultPage<TastingRecordInProfile>? _tastingRecordsPage;
+  DefaultPage<PostInProfile>? _postsPage;
+  DefaultPage<BeanInProfile>? _beansPage;
+  DefaultPage<SavedNote>? _savedNotesPage;
   int _currentSortCriteriaIndex = 0;
+  final List<CoffeeBeanFilter> _filters = [];
+  int _tabIndex = 0;
+  int _pageNo = 0;
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
-  final List<CoffeeBeanFilter> _filters = [];
+  String get nickName => profile?.nickname ?? '';
 
-  int _tabIndex = 0;
+  ProfileState get profileState => (
+        imageUri: profile?.profileImageURI ?? '',
+        tastingRecordCount: profile?.postCount ?? 0,
+        followerCount: profile?.followerCount ?? 0,
+        followingCount: profile?.followingCount ?? 0,
+      );
 
-  int _pageNo = 0;
+  ProfileDetailState get profileDetailState => (
+        coffeeLife: profile?.coffeeLife.map((coffeeLife) => coffeeLife.title).toList() ?? [],
+        introduction: profile?.introduction ?? '',
+        profileLink: profile?.profileLink ?? '',
+      );
 
-  bool _hasNext = true;
+  FilterBarState get filterBarState => (
+        canShowFilterBar: _tabIndex == 0 || _tabIndex == 2,
+        sortCriteriaList: _sortCriteriaList.map((sortCriteria) => sortCriteria.toString()).toList(),
+        currentIndex: _currentSortCriteriaIndex,
+        filters: _filters,
+      );
 
-  bool get hasNext => _hasNext;
+  DefaultPage? get currentPage {
+    if (_tabIndex == 0) {
+      return _tastingRecordsPage;
+    } else if (_tabIndex == 1) {
+      return _postsPage;
+    } else if (_tabIndex == 2) {
+      return _beansPage;
+    } else {
+      return _savedNotesPage;
+    }
+  }
 
-  final List<TastingRecordInProfile> _tastingRecords = [];
+  bool get hasNext => currentPage?.hasNext ?? false;
 
-  List<TastingRecordInProfile> get tastingRecords => _tastingRecords;
-
-  final List<PostInProfile> _posts = [];
-
-  List<PostInProfile> get posts => _posts;
-
-  final List<BeanInProfile> _coffeeBeans = [];
-
-  List<BeanInProfile> get coffeeBeans => _coffeeBeans;
-
-  final List<SavedNote> _savedNotes = [];
-
-  List<SavedNote> get saveNotes => _savedNotes;
-
-  int get tabIndex => _tabIndex;
-
-  List<CoffeeBeanFilter> get filters => _filters;
-
-  bool get hasFilter => _filters.isNotEmpty;
-
-  bool get hasBeanTypeFilter => _filters.whereType<BeanTypeFilter>().isNotEmpty;
-
-  bool get hasCountryFilter => _filters.whereType<CountryFilter>().isNotEmpty;
-
-  bool get hasRatingFilter => _filters.whereType<RatingFilter>().isNotEmpty;
-
-  bool get hasDecafFilter => _filters.whereType<DecafFilter>().isNotEmpty;
-
-  bool get hasRoastingPointFilter => _filters.whereType<RoastingPointFilter>().isNotEmpty;
-
-  List<SortCriteria> get sortCriteriaList => _sortCriteriaList;
-
-  int get id => profile?.id ?? 0;
-
-  String get nickname => profile?.nickname ?? '';
-
-  String get profileImageURI => profile?.profileImageURI ?? '';
-
-  String get tastingRecordCount => _countToString(profile?.postCount ?? 0);
-
-  String get followerCount => _countToString(profile?.followerCount ?? 0);
-
-  String get followingCount => _countToString(profile?.followingCount ?? 0);
-
-  bool get hasDetail =>
-      profile?.introduction != null || profile?.profileLink != null || (profile?.coffeeLife.isNotEmpty ?? false);
-
-  String? get introduction => profile?.introduction;
-
-  String? get profileLink => profile?.profileLink;
-
-  List<String>? get coffeeLife => profile?.coffeeLife.map((coffeeLife) => coffeeLife.title).toList();
-
-  bool get isFollow => profile?.isUserFollowing ?? false;
+  bool get isScrollable => currentPage?.result.isNotEmpty ?? false;
 
   ProfilePresenter({required this.repository});
 
@@ -105,23 +93,26 @@ class ProfilePresenter extends ChangeNotifier {
 
   paginate({bool isPageChanged = false}) {
     if (isPageChanged) {
-      _hasNext = true;
       _pageNo = 0;
-      _tastingRecords.clear();
-      _posts.clear();
-      _coffeeBeans.clear();
-      _savedNotes.clear();
+      _tastingRecordsPage = DefaultPage.empty();
+      _postsPage = DefaultPage.empty();
+      _beansPage = DefaultPage.empty();
+      _savedNotesPage = DefaultPage.empty();
+      notifyListeners();
     }
 
-    _throttlePagination();
+    if (hasNext) {
+      _fetchPage();
+    }
   }
 
-  _throttlePagination() {
-    if (profile?.id != null && _hasNext) {
-      if (tabIndex == 0) {
+  _fetchPage() {
+    final id = profile?.id;
+    if (id != null) {
+      if (_tabIndex == 0) {
         repository
             .fetchTastingRecordPage(
-          userId: profile!.id,
+          userId: id,
           pageNo: _pageNo + 1,
           //수정 필요 정렬 이상함(api)
           orderBy: null,
@@ -135,24 +126,32 @@ class ProfilePresenter extends ChangeNotifier {
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         )
             .then((page) {
+          final previous = _tastingRecordsPage;
+          if (previous != null) {
+            _tastingRecordsPage = previous.copyWith(result: previous.result + page.result, hasNext: page.hasNext);
+          } else {
+            _tastingRecordsPage = page;
+          }
           _pageNo += 1;
-          _hasNext = page.hasNext;
-          _tastingRecords.addAll(page.result);
         }).whenComplete(() {
           notifyListeners();
         });
-      } else if (tabIndex == 1) {
-        repository.fetchPostPage(userId: profile!.id).then((page) {
+      } else if (_tabIndex == 1) {
+        repository.fetchPostPage(userId: id).then((page) {
+          final previous = _postsPage;
+          if (previous != null) {
+            _postsPage = previous.copyWith(result: previous.result + page.result, hasNext: page.hasNext);
+          } else {
+            _postsPage = page;
+          }
           _pageNo += 1;
-          _hasNext = page.hasNext;
-          _posts.addAll(page.result);
         }).whenComplete(() {
           notifyListeners();
         });
-      } else if (tabIndex == 2) {
+      } else if (_tabIndex == 2) {
         repository
             .fetchCoffeeBeanPage(
-          userId: profile!.id,
+          userId: id,
           pageNo: _pageNo + 1,
           //수정 필요 정렬 이상함(api)
           orderBy: null,
@@ -166,17 +165,25 @@ class ProfilePresenter extends ChangeNotifier {
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         )
             .then((page) {
+          final previous = _beansPage;
+          if (previous != null) {
+            _beansPage = previous.copyWith(result: previous.result + page.result, hasNext: page.hasNext);
+          } else {
+            _beansPage = page;
+          }
           _pageNo += 1;
-          _hasNext = page.hasNext;
-          _coffeeBeans.addAll(page.result);
         }).whenComplete(() {
           notifyListeners();
         });
       } else {
-        repository.fetchNotePage(userId: profile!.id, pageNo: _pageNo + 1).then((page) {
+        repository.fetchNotePage(userId: id, pageNo: _pageNo + 1).then((page) {
+          final previous = _savedNotesPage;
+          if (previous != null) {
+            _savedNotesPage = previous.copyWith(result: previous.result + page.result, hasNext: page.hasNext);
+          } else {
+            _savedNotesPage = page;
+          }
           _pageNo += 1;
-          _hasNext = page.hasNext;
-          _savedNotes.addAll(page.result);
         }).whenComplete(() {
           notifyListeners();
         });
@@ -205,31 +212,5 @@ class ProfilePresenter extends ChangeNotifier {
     _filters.clear();
     _filters.addAll(newFilters);
     notifyListeners();
-  }
-
-  bool checkScrollable() {
-    if (_tabIndex == 0) {
-      return tastingRecords.isNotEmpty;
-    } else if (_tabIndex == 1) {
-      return posts.isNotEmpty;
-    } else if (_tabIndex == 2) {
-      return coffeeBeans.isNotEmpty;
-    } else {
-      return saveNotes.isNotEmpty;
-    }
-  }
-
-  String _countToString(int count) {
-    if (count == 0) {
-      return '000';
-    } else if (count >= 1000 && count < 1000000) {
-      return '${count / 1000}.${count / 100}K';
-    } else if (count >= 1000000 && count < 1000000000) {
-      return '${count / 1000000}.${count / 100000}M';
-    } else if (count >= 1000000000) {
-      return '${count / 1000000000}.${count / 10000000}G';
-    } else {
-      return '$count';
-    }
   }
 }

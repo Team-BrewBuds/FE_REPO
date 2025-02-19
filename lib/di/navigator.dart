@@ -1,9 +1,5 @@
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
-import 'package:brew_buds/detail/post_detail_presenter.dart';
-import 'package:brew_buds/detail/post_detail_view.dart';
-import 'package:brew_buds/detail/tasted_record_detail_view.dart';
-import 'package:brew_buds/detail/tasted_record_presenter.dart';
 import 'package:brew_buds/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/follow_list/follower_list_pb_presenter.dart';
@@ -27,28 +23,6 @@ pushToProfile({required BuildContext context, required int id}) {
       ),
     );
   }
-}
-
-Future<T?> pushToPostDetail<T>({required BuildContext context, required int id}) {
-  return Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => ChangeNotifierProvider<PostDetailPresenter>(
-        create: (_) => PostDetailPresenter(id: id),
-        child: const PostDetailView(),
-      ),
-    ),
-  );
-}
-
-Future<T?> pushToTastingRecordDetail<T>({required BuildContext context, required int id}) {
-  return Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (context) => ChangeNotifierProvider<TastedRecordPresenter>(
-        create: (_) => TastedRecordPresenter(id: id),
-        child: const TastedRecordDetailView(),
-      ),
-    ),
-  );
 }
 
 Future<T?> pushToFollowListPA<T>({

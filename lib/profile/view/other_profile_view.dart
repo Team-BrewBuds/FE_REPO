@@ -20,37 +20,53 @@ class OtherProfileView extends StatefulWidget {
 class _OtherProfileViewState extends State<OtherProfileView>
     with ProfileMixin<OtherProfileView, OtherProfilePresenter> {
   @override
-  Widget buildProfileBottomButtons(OtherProfilePresenter presenter) {
-    return Row(
-      children: [
-        ButtonFactory.buildRoundedButton(
-          onTapped: () {},
-          text: '취향 리포트 보기',
-          style: RoundedButtonStyle.fill(
-            size: RoundedButtonSize.medium,
-            color: ColorStyles.black,
-            textColor: ColorStyles.white,
+  String get beansEmptyText => '찜한 원두가 없습니다.';
+
+  @override
+  String get postsEmptyText => '작성한 게시글이 없습니다.';
+
+  @override
+  String get savedNotesEmptyText => '저장한 노트가 없습니다.';
+
+  @override
+  String get tastingRecordsEmptyText => '작성한 시음기록이 없습니다.';
+
+  @override
+  Widget buildProfileBottomButtons() {
+    return SliverToBoxAdapter(
+      child: Row(
+        children: [
+          ButtonFactory.buildRoundedButton(
+            onTapped: () {},
+            text: '취향 리포트 보기',
+            style: RoundedButtonStyle.fill(
+              size: RoundedButtonSize.medium,
+              color: ColorStyles.black,
+              textColor: ColorStyles.white,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        ButtonFactory.buildRoundedButton(
-          onTapped: () {
-            presenter.onTappedFollowButton();
-          },
-          text: presenter.isFollow ? '팔로잉' : '팔로우',
-          style: RoundedButtonStyle.fill(
-            size: RoundedButtonSize.medium,
-            color: presenter.isFollow ? ColorStyles.gray30 : ColorStyles.red,
-            textColor: presenter.isFollow ? ColorStyles.black : ColorStyles.white,
+          const SizedBox(width: 8),
+          Selector<OtherProfilePresenter, bool>(
+            selector: (context, presenter) => presenter.isFollow,
+            builder: (context, isFollow, child) => ButtonFactory.buildRoundedButton(
+              onTapped: () {
+                // presenter.onTappedFollowButton();
+              },
+              text: isFollow ? '팔로잉' : '팔로우',
+              style: RoundedButtonStyle.fill(
+                size: RoundedButtonSize.medium,
+                color: isFollow ? ColorStyles.gray30 : ColorStyles.red,
+                textColor: isFollow ? ColorStyles.black : ColorStyles.white,
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   @override
   AppBar buildTitle() {
-    final nickName = context.read<OtherProfilePresenter>().nickname;
     return AppBar(
       leading: const SizedBox.shrink(),
       leadingWidth: 0,
@@ -72,7 +88,10 @@ class _OtherProfileViewState extends State<OtherProfileView>
               ),
             ),
             const Spacer(),
-            Text(nickName, style: TextStyles.title02Bold),
+            Selector<OtherProfilePresenter, String>(
+              selector: (context, presenter) => presenter.nickName,
+              builder: (context, nickName, child) => Text(nickName, style: TextStyles.title02Bold),
+            ),
             const Spacer(),
             InkWell(
               onTap: () {
@@ -92,12 +111,15 @@ class _OtherProfileViewState extends State<OtherProfileView>
   }
 
   @override
-  pushFollowList(OtherProfilePresenter presenter, int index) {
-    pushToFollowListPB(context: context, id: presenter.id, nickName: presenter.nickname, initialIndex: index);
+  pushFollowList(int index) {
+    final profile = context.read<OtherProfilePresenter>().profile;
+    if (profile != null) {
+      pushToFollowListPB(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
+    }
   }
 
   @override
-  onTappedSettingDetailButton(OtherProfilePresenter presenter) {}
+  onTappedSettingDetailButton() {}
 
   _showBlockBottomSheet() {
     showBarrierDialog(
