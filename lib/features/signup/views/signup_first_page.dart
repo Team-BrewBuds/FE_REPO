@@ -110,7 +110,7 @@ bool get isSatisfyRequirements =>
             ),
             contentPadding: const EdgeInsets.all(12),
             suffixIcon: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              padding: const EdgeInsets.all(12),
               child: _buildNickNameSuffixIcon(presenter),
             ),
             suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),

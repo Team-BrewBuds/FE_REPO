@@ -7,6 +7,7 @@ class MyNetworkImage extends StatelessWidget {
   final double width;
   final Color color;
   final BoxShape? shape;
+  final BoxBorder? border;
 
   @override
   Widget build(BuildContext context) {
@@ -14,13 +15,18 @@ class MyNetworkImage extends StatelessWidget {
         ? Container(
             height: height,
             width: width,
-            decoration: BoxDecoration(color: color, shape: shape ?? BoxShape.rectangle),
+            decoration: BoxDecoration(
+              color: color,
+              shape: shape ?? BoxShape.rectangle,
+              border: border
+            ),
           )
         : ExtendedImage.network(
             imageUri,
             height: height,
             width: width,
             shape: shape,
+            border: border,
             fit: BoxFit.cover,
             printError: false,
           );
@@ -33,5 +39,6 @@ class MyNetworkImage extends StatelessWidget {
     required this.width,
     required this.color,
     this.shape,
+    this.border,
   });
 }

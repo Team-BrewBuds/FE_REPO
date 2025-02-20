@@ -87,7 +87,13 @@ class ProfilePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  refresh() {}
+  refresh() async {
+    profile = await fetchProfile();
+    if (profile?.id != null) {
+      paginate(isPageChanged: true);
+    }
+    notifyListeners();
+  }
 
   Future<Profile> fetchProfile() => repository.fetchMyProfile();
 
