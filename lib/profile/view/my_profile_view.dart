@@ -2,12 +2,21 @@ import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/view/profile_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+typedef EditProfileData = ({
+  String nickname,
+  String introduction,
+  String link,
+  String imageUri,
+  List<CoffeeLife> coffeeLife,
+});
 
 class MyProfileView extends StatefulWidget {
   const MyProfileView({super.key});
@@ -76,7 +85,23 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
           ),
           const SizedBox(width: 8),
           ButtonFactory.buildRoundedButton(
-            onTapped: () {},
+            onTapped: () {
+              final nickname = context.read<ProfilePresenter>().nickName;
+              final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';
+              final profileLink = context.read<ProfilePresenter>().profile?.profileLink ?? '';
+              final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageURI ?? '';
+              final coffeeLife = context.read<ProfilePresenter>().profile?.coffeeLife ?? [];
+              final EditProfileData data = (
+                nickname: nickname,
+                introduction: introduction,
+                link: profileLink,
+                imageUri: profileImageURI,
+                coffeeLife: coffeeLife,
+              );
+              context.push('/profile/edit', extra: data).then(
+                    (_) => context.read<ProfilePresenter>().refresh(),
+                  );
+            },
             text: '프로필 편집',
             style: RoundedButtonStyle.fill(
               size: RoundedButtonSize.medium,

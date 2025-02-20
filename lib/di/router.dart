@@ -16,7 +16,9 @@ import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/main/main_view.dart';
+import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/profile/view/edit_profile_view.dart';
 import 'package:brew_buds/profile/view/my_profile_view.dart';
 import 'package:brew_buds/setting/presenter/account_detail_presenter.dart';
 import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.dart';
@@ -164,6 +166,26 @@ final router = GoRouter(
                 child: const MyProfileView(),
               ),
               routes: [
+                GoRoute(
+                  path: 'edit',
+                  builder: (context, state) {
+                    final EditProfileData data = state.extra as EditProfileData;
+                    return ChangeNotifierProvider<EditProfilePresenter>(
+                      create: (_) => EditProfilePresenter(
+                        selectedCoffeeLifeList: data.coffeeLife,
+                        imageUri: data.imageUri,
+                        nickname: data.nickname,
+                        introduction: data.introduction,
+                        link: data.link,
+                      ),
+                      child: EditProfileView(
+                        nickname: data.nickname,
+                        introduction: data.introduction,
+                        link: data.link,
+                      ),
+                    );
+                  },
+                ),
                 GoRoute(path: 'setting', builder: (context, state) => const SettingScreen(), routes: [
                   GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
                   GoRoute(

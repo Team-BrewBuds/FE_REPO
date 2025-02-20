@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 Future<Result?> showBarrierDialog<Result>({
   required BuildContext context,
   required Widget Function(
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-      ) pageBuilder,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) pageBuilder,
 }) {
   return showGeneralDialog<Result>(
     barrierLabel: "Barrier",

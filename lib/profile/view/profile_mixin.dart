@@ -255,10 +255,10 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (coffeeLife.isNotEmpty) _buildCoffeeLife(coffeeLife: coffeeLife),
                   if (introduction.isNotEmpty) _buildIntroduction(introduction: introduction),
+                  if (coffeeLife.isNotEmpty) _buildCoffeeLife(coffeeLife: coffeeLife),
                   if (profileLink.isNotEmpty) _buildProfileLink(profileLink: profileLink),
-                ].separator(separatorWidget: const SizedBox(height: 2)).toList(),
+                ].separator(separatorWidget: const SizedBox(height: 8)).toList(),
               )
             : InkWell(
                 onTap: () {},
