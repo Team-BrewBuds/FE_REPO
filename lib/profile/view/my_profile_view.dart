@@ -75,7 +75,9 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
       child: Row(
         children: [
           ButtonFactory.buildRoundedButton(
-            onTapped: () {},
+            onTapped: () {
+              pushToTasteReport(context: context);
+            },
             text: '취향 리포트 보기',
             style: RoundedButtonStyle.fill(
               size: RoundedButtonSize.medium,

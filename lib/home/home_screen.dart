@@ -1,6 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/all/home_all_view.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
@@ -10,7 +9,6 @@ import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/home/widgets/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
