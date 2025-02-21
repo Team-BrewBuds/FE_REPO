@@ -7,7 +7,6 @@ import 'package:brew_buds/profile/presenter/other_profile_presenter.dart';
 import 'package:brew_buds/profile/view/profile_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -38,7 +37,9 @@ class _OtherProfileViewState extends State<OtherProfileView>
       child: Row(
         children: [
           ButtonFactory.buildRoundedButton(
-            onTapped: () {},
+            onTapped: () {
+              pushToTasteReport(context: context);
+            },
             text: '취향 리포트 보기',
             style: RoundedButtonStyle.fill(
               size: RoundedButtonSize.medium,
@@ -50,9 +51,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
           Selector<OtherProfilePresenter, bool>(
             selector: (context, presenter) => presenter.isFollow,
             builder: (context, isFollow, child) => ButtonFactory.buildRoundedButton(
-              onTapped: () {
-                // presenter.onTappedFollowButton();
-              },
+              onTapped: () {},
               text: isFollow ? '팔로잉' : '팔로우',
               style: RoundedButtonStyle.fill(
                 size: RoundedButtonSize.medium,

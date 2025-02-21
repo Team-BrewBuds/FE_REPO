@@ -5,7 +5,10 @@ import 'package:brew_buds/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/follow_list/follower_list_pb_presenter.dart';
 import 'package:brew_buds/follow_list/follower_list_presenter.dart';
 import 'package:brew_buds/profile/presenter/other_profile_presenter.dart';
+import 'package:brew_buds/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/profile/view/other_profile_view.dart';
+import 'package:brew_buds/profile/view/taste_report_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -52,6 +55,17 @@ Future<T?> pushToFollowListPB<T>({
       builder: (context) => ChangeNotifierProvider<FollowerListPBPresenter>(
         create: (_) => FollowerListPBPresenter(id: id, nickName: nickName),
         child: FollowerListPB(initialIndex: initialIndex),
+      ),
+    ),
+  );
+}
+
+Future<T?> pushToTasteReport<T>({required BuildContext context}) {
+  return Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => ChangeNotifierProvider<TasteReportPresenter>(
+        create: (_) => TasteReportPresenter(id: 1, nickname: '닉네임'),
+        child: TasteReportView(),
       ),
     ),
   );
