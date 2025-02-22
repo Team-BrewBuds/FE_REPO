@@ -41,9 +41,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     _textFieldFocusNode = FocusNode();
 
     _textFieldFocusNode.addListener(() {
-      setState(() {
-        _searchHint = _searchHint.isEmpty ? '검색어를 입력하세요' : '';
-      });
+      setState(() {});
     });
 
     super.initState();
@@ -79,7 +77,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             child: Scaffold(
               appBar: _buildAppBar(presenter),
               body: _textFieldFocusNode.hasFocus
-                  ? _buildSuggest(presenter)
+                  ? _buildSuggest()
                   : _textEditingController.text.isNotEmpty
                       ? presenter.searchResult.isNotEmpty
                           ? CustomScrollView(
@@ -181,6 +179,12 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                         ))
                     : const SizedBox.shrink(),
               ),
+              onChanged: (_) {
+                print('onChanged');
+              },
+              onEditingComplete: () {
+                _textFieldFocusNode.unfocus();
+              },
             ),
           ),
         ],
@@ -272,21 +276,22 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildSuggest(SearchPresenter presenter) {
-    return presenter.suggestWords.isNotEmpty
-        ? Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
-                Expanded(
-                  child: presenter.suggestWords.isNotEmpty
-                      ? ListView.builder(
-                          itemCount: presenter.suggestWords.length,
-                          itemBuilder: (context, index) {
+  Widget _buildSuggest() {
+    return Selector<SearchPresenter, SuggestState>(
+      selector: (context, presenter) => presenter.suggestState,
+      builder: (context, suggestState, child) =>
+          suggestState.suggestWords.isNotEmpty || suggestState.suggestRecentWords.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ...suggestState.suggestRecentWords.map<Widget>(
+                          (suggestWord) {
                             return InkWell(
                               onTap: () {
-                                _textEditingController.text = presenter.suggestWords[index];
+                                _textEditingController.text = suggestWord;
                                 _textFieldFocusNode.unfocus();
                               },
                               child: Padding(
@@ -294,65 +299,92 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                                 child: Row(
                                   children: [
                                     Expanded(
-                                        child: RichText(
-                                      text: TextSpan(
-                                        style: TextStyles.title01SemiBold.copyWith(
-                                          color: ColorStyles.black,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                        children: _getSpans(
-                                          presenter.suggestWords[index],
-                                          presenter.searchWord,
-                                          TextStyles.title01SemiBold.copyWith(
-                                            color: ColorStyles.red,
+                                      child: RichText(
+                                        text: TextSpan(
+                                          style: TextStyles.title01SemiBold.copyWith(
+                                            color: ColorStyles.black,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                          children: _getSpans(
+                                            suggestWord,
+                                            _textEditingController.text,
+                                            TextStyles.title01SemiBold.copyWith(
+                                              color: ColorStyles.red,
+                                            ),
                                           ),
                                         ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    )),
-                                    presenter.haveSearchedWords.contains(presenter.suggestWords[index])
-                                        ? SvgPicture.asset(
-                                            'assets/icons/clock.svg',
-                                            height: 24,
-                                            width: 24,
-                                            colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                                          )
-                                        : const SizedBox.shrink()
+                                    ),
+                                    SvgPicture.asset(
+                                      'assets/icons/clock.svg',
+                                      height: 24,
+                                      width: 24,
+                                      colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                                    ),
                                   ],
                                 ),
                               ),
                             );
                           },
-                        )
-                      : Container(
-                          color: Colors.blue,
                         ),
+                        ...suggestState.suggestWords.map<Widget>(
+                          (suggestWord) {
+                            return InkWell(
+                              onTap: () {
+                                _textEditingController.text = suggestWord;
+                                _textFieldFocusNode.unfocus();
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 10.5),
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: TextStyles.title01SemiBold.copyWith(
+                                      color: ColorStyles.black,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                    children: _getSpans(
+                                      suggestWord,
+                                      _textEditingController.text,
+                                      TextStyles.title01SemiBold.copyWith(
+                                        color: ColorStyles.red,
+                                      ),
+                                    ),
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 70),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '검색 결과가 없어요',
+                          style: TextStyles.title01SemiBold,
+                        ),
+                        Text(
+                          '검색어의 철자가 정확한지 확인해 주세요.\n등록되지 않은 원두거나, 해당 검색어와 관련된글이 없으면 검색되지 않을 수 있어요.',
+                          style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray50),
+                          textAlign: TextAlign.center,
+                          textWidthBasis: TextWidthBasis.longestLine,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ],
-            ),
-          )
-        : Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 70),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    '검색 결과가 없어요',
-                    style: TextStyles.title01SemiBold,
-                  ),
-                  Text(
-                    '검색어의 철자가 정확한지 확인해 주세요.\n등록되지 않은 원두거나, 해당 검색어와 관련된글이 없으면 검색되지 않을 수 있어요.',
-                    style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray50),
-                    textAlign: TextAlign.center,
-                    textWidthBasis: TextWidthBasis.longestLine,
-                  ),
-                ],
-              ),
-            ),
-          );
+    );
   }
 
   Widget _buildFilter(SearchPresenter presenter) {

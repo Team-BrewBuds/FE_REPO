@@ -4,6 +4,7 @@ sealed class SearchResultModel {
     required String name,
     required double rating,
     required int recordedCount,
+    required String imageUrl,
   }) = CoffeeBeanSearchResultModel;
 
   factory SearchResultModel.buddy({
@@ -43,12 +44,14 @@ class CoffeeBeanSearchResultModel implements SearchResultModel {
   final String name;
   final double rating;
   final int recordedCount;
+  final String imageUrl;
 
   const CoffeeBeanSearchResultModel({
     required this.id,
     required this.name,
     required this.rating,
     required this.recordedCount,
+    required this.imageUrl,
   });
 }
 

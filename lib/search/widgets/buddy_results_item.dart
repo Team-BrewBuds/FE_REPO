@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BuddyResultsItem extends StatelessWidget {
@@ -25,18 +26,16 @@ class BuddyResultsItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       child: Row(
         children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: const BoxDecoration(
+          if (_imageUri.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            MyNetworkImage(
+              imageUri: _imageUri,
+              height: 40,
+              width: 40,
+              color: const Color(0xffd9d9d9),
               shape: BoxShape.circle,
-              color: Color(0xffd9d9d9),
             ),
-            child: Image.network(
-              _imageUri,
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-            ),
-          ),
+          ],
           const SizedBox(width: 8),
           Expanded(
             child: Column(
