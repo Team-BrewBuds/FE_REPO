@@ -13,7 +13,6 @@ import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';

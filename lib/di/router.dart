@@ -20,6 +20,10 @@ import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/view/edit_profile_view.dart';
 import 'package:brew_buds/profile/view/my_profile_view.dart';
+import 'package:brew_buds/search/search_home_presenter.dart';
+import 'package:brew_buds/search/search_home_view.dart';
+import 'package:brew_buds/search/search_result_presenter.dart';
+import 'package:brew_buds/search/search_result_view.dart';
 import 'package:brew_buds/setting/presenter/account_detail_presenter.dart';
 import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.dart';
 import 'package:brew_buds/setting/view/account_detail_view.dart';
@@ -143,10 +147,25 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: '/search',
-              builder: (context, state) => ChangeNotifierProvider<SearchPresenter>(
-                create: (_) => SearchPresenter(),
-                child: const SearchScreen(),
+              builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
+                create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
+                child: const SearchHomeView(),
               ),
+              routes: [
+                GoRoute(
+                  path: 'result',
+                  builder: (context, state) {
+                    final data = state.extra as SearchResultInitState?;
+                    return ChangeNotifierProvider<SearchResultPresenter>(
+                      create: (_) => SearchResultPresenter(
+                        currentTabIndex: data?.tabIndex ?? 0,
+                        searchWord: data?.searchWord ?? '',
+                      ),
+                      child: SearchResultView(initialText: data?.searchWord ?? ''),
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),
