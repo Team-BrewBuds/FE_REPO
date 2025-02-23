@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -49,11 +50,7 @@ class TastedRecordResultsItem extends StatelessWidget {
                           color: ColorStyles.black,
                           fontWeight: FontWeight.w400,
                         ),
-                        children: _getSpans(
-                          _beanName,
-                          _searchWord,
-                          TextStyles.title01SemiBold
-                        ),
+                        children: _getSpans(_beanName, _searchWord, TextStyles.title01SemiBold),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -106,16 +103,10 @@ class TastedRecordResultsItem extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                height: 64,
-                width: 64,
-                color: const Color(0xffd9d9d9),
-                child: Image.network(
-                  _imageUri,
-                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                ),
-              ),
+              if (_imageUri.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                MyNetworkImage(imageUri: _imageUri, height: 64, width: 64, color: Colors.transparent),
+              ],
             ],
           ),
           if (_contents.isNotEmpty) ...[

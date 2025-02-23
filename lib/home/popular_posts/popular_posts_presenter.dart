@@ -1,8 +1,10 @@
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
+import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
-import 'package:brew_buds/model/pages/popular_post_page.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:flutter/foundation.dart';
+
+typedef PopularPostSubjectFilterState = ({List<String> postSubjectFilterList, int currentIndex});
 
 final class PopularPostsPresenter extends ChangeNotifier {
   final List<PostSubject> _postSubjectFilterList = [
@@ -15,7 +17,7 @@ final class PopularPostsPresenter extends ChangeNotifier {
     PostSubject.worry,
   ];
   final PopularPostsRepository _repository;
-  PopularPostsPage _page = PopularPostsPage.initial();
+  DefaultPage<PostInFeed> _page = DefaultPage.empty();
   int _currentPage = 0;
   int _currentFilterIndex = 0;
 
@@ -23,13 +25,20 @@ final class PopularPostsPresenter extends ChangeNotifier {
     required PopularPostsRepository repository,
   }) : _repository = repository;
 
-  List<PostInFeed> get popularPosts => _page.popularPosts;
+  PopularPostSubjectFilterState get subjectFilterState => (
+        postSubjectFilterList: _postSubjectFilterList.map((subject) => subject.toString()).toList(),
+        currentIndex: _currentFilterIndex,
+      );
 
-  bool get hasNext => _page.hasNext;
+  DefaultPage<PostInFeed> get page => _page;
 
   List<String> get postSubjectFilterList => _postSubjectFilterList.map((subject) => subject.toString()).toList();
 
   int get currentFilterIndex => _currentFilterIndex;
+
+  List<PostInFeed> get popularPosts => _page.result;
+
+  bool get hasNext => _page.hasNext;
 
   String get currentSubjectFilter => _postSubjectFilterList[_currentFilterIndex].toString();
 
@@ -38,7 +47,7 @@ final class PopularPostsPresenter extends ChangeNotifier {
   }
 
   Future<void> onRefresh() async {
-    _page = PopularPostsPage.initial();
+    _page = DefaultPage.empty();
     _currentPage = 0;
     notifyListeners();
     fetchMoreData();
@@ -46,13 +55,13 @@ final class PopularPostsPresenter extends ChangeNotifier {
 
   Future<void> fetchMoreData() async {
     if (_page.hasNext) {
-      final result = await _repository.fetchPopularPostsPage(
+      final nextPage = await _repository.fetchPopularPostsPage(
         subject: _postSubjectFilterList[_currentFilterIndex].toJsonValue() ?? '',
         pageNo: _currentPage + 1,
       );
       _page = _page.copyWith(
-        popularPosts: _page.popularPosts + result.popularPosts,
-        hasNext: result.hasNext,
+        result: _page.result + nextPage.result,
+        hasNext: nextPage.hasNext,
       );
       _currentPage += 1;
       notifyListeners();
@@ -76,7 +85,7 @@ final class PopularPostsPresenter extends ChangeNotifier {
 
   onChangeSubject(int index) {
     if (_currentFilterIndex != index) {
-      _page = PopularPostsPage.initial();
+      _page = DefaultPage.empty();
       _currentPage = 0;
       _currentFilterIndex = index;
       notifyListeners();

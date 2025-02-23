@@ -1,6 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/factory/text_button_factory.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/detail/detail_builder.dart';
 import 'package:brew_buds/home/widgets/feed_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -10,13 +10,13 @@ class PostFeed extends FeedWidget {
   final String tagText;
   final Widget tagIcon;
   final Widget? child;
-  final void Function() onTapMoreButton;
 
   @override
   FeedWidgetState createState() => _PostFeedState();
 
   const PostFeed({
     super.key,
+    required super.id,
     required super.writerThumbnailUri,
     required super.writerNickName,
     required super.writingTime,
@@ -37,7 +37,6 @@ class PostFeed extends FeedWidget {
     required this.tagText,
     required this.tagIcon,
     this.child,
-    required this.onTapMoreButton,
   });
 }
 
@@ -54,10 +53,11 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
 
   @override
   Widget buildBody() {
-    if (widget.child != null) {
+    final child = widget.child;
+    if (child != null) {
       return Column(
         children: [
-          widget.child!,
+          child,
           _buildTextBody(bodyMaxLines: 2),
         ],
       );
@@ -91,15 +91,14 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: isOverFlow ? 8 : 0),
-          isOverFlow
-              ? TextButtonFactory.build(
-                  onTapped: () {
-                    widget.onTapMoreButton();
-                  },
-                  style: TextButtonStyle(size: TextButtonSize.small),
-                  text: '더보기',
-                )
-              : Container(),
+          if (isOverFlow)
+            buildOpenablePostDetailView(
+              id: widget.id,
+              closeBuilder: (context, action) => Text(
+                '더보기',
+                style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
+              ),
+            ),
         ],
       ),
     );

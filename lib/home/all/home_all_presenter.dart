@@ -1,67 +1,69 @@
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
+import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/model/feeds/feed.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
-import 'package:brew_buds/model/pages//feed_page.dart';
-import 'package:brew_buds/model/pages/recommended_user_page.dart';
 import 'package:brew_buds/model/recommended_user.dart';
 
 final class HomeAllPresenter extends HomeViewPresenter<Feed> {
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
   int _currentTypeIndex = 0;
   int _currentPage = 0;
-  FeedPage _page = FeedPage.initial();
+  DefaultPage<Feed> _page = DefaultPage.empty();
 
   HomeAllPresenter({
     required super.repository,
   });
 
-  @override
-  List<Feed> get feeds => _page.feeds;
+  DefaultPage<Feed> get page => _page;
 
   @override
-  bool get hasNext => _page.hasNext;
+  bool get hasNext => _page.hasNext || _currentTypeIndex < 3;
 
   @override
   Future<void> fetchMoreData() async {
-    final result = await repository.fetchFeedPage(
+    if (!hasNext) return;
+
+    final newPage = await repository.fetchFeedPage(
       feedType: _feedTypeList[_currentTypeIndex],
       pageNo: _currentPage + 1,
     );
-    if (result.hasNext == false) {
+
+    _page = _page.copyWith(
+      result: _page.result + newPage.result,
+      hasNext: newPage.hasNext,
+    );
+
+    notifyListeners();
+
+    if (!newPage.hasNext && _currentTypeIndex < 3) {
       _currentTypeIndex += 1;
       _currentPage = 0;
-      _page = _page.copyWith(
-        feeds: _page.feeds + result.feeds,
-        hasNext: true,
-      );
     } else {
       _currentPage += 1;
-      _page = _page.copyWith(
-        feeds: _page.feeds + result.feeds,
-        hasNext: result.hasNext,
-      );
     }
-    notifyListeners();
+
+    if(_page.result.length < 12 && _currentTypeIndex < 3) {
+      fetchMoreData();
+    }
   }
 
   @override
-  Future<void> initState() async {
-    while (feeds.isEmpty) {
-      await fetchMoreData();
-    }
+  initState() async {
+    super.initState();
+    await fetchMoreData();
   }
 
   @override
   Future<void> onRefresh() async {
+    super.onRefresh();
     _currentTypeIndex = 0;
     _currentPage = 0;
-    _page = FeedPage.initial();
+    _page = DefaultPage.empty();
     notifyListeners();
-    while (feeds.isEmpty) {
-      await fetchMoreData();
-    }
+
+    await fetchMoreData();
   }
 
   @override
@@ -111,28 +113,9 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
     }
   }
 
-  @override
-  onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex) {
-    follow(id: user.user.id, isFollowed: user.isFollow).then(
-      (_) => _updateRecommendedPage(user: user, pageIndex: pageIndex),
-    );
-  }
-
-  _updateRecommendedPage({required RecommendedUser user, required int pageIndex}) {
-    recommendedUserPages[pageIndex] = recommendedUserPages[pageIndex].copyWith(
-        users: recommendedUserPages[pageIndex].users.map((e) {
-      if (e.user.id == user.user.id) {
-        return user.copyWith(isFollow: !user.isFollow);
-      } else {
-        return e;
-      }
-    }).toList());
-    notifyListeners();
-  }
-
   _updateFeed({required Feed newFeed}) {
     _page = _page.copyWith(
-      feeds: _page.feeds.map(
+      result: _page.result.map(
         (feed) {
           if (feed.id == newFeed.id) {
             return newFeed;

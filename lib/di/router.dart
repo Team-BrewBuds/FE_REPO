@@ -2,8 +2,6 @@ import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/detail/post_detail_view.dart';
-import 'package:brew_buds/detail/tasted_record_detail_view.dart';
 import 'package:brew_buds/features/login/views/login_page_first.dart';
 import 'package:brew_buds/features/login/views/login_page_sns.dart';
 import 'package:brew_buds/features/signup/views/signup_third_page.dart';
@@ -12,43 +10,44 @@ import 'package:brew_buds/features/signup/views/signup_second_page.dart';
 import 'package:brew_buds/features/signup/views/signup_finish_page.dart';
 import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
-import 'package:brew_buds/home/all/home_all_view.dart';
 import 'package:brew_buds/home/home_screen.dart';
 import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
 import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
-import 'package:brew_buds/home/post/home_post_view.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
-import 'package:brew_buds/home/tasting_record/home_tasting_record_view.dart';
 import 'package:brew_buds/main/main_view.dart';
+import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
-import 'package:brew_buds/profile/view/profile_view.dart';
-import 'package:brew_buds/profile/views/account_out_view.dart';
-import 'package:brew_buds/profile/views/alarm_view.dart';
-import 'package:brew_buds/profile/views/setting_view.dart';
-import 'package:brew_buds/search/search_presenter.dart';
-import 'package:brew_buds/search/search_screen.dart';
+import 'package:brew_buds/profile/view/edit_profile_view.dart';
+import 'package:brew_buds/profile/view/my_profile_view.dart';
+import 'package:brew_buds/search/search_home_presenter.dart';
+import 'package:brew_buds/search/search_home_view.dart';
+import 'package:brew_buds/search/search_result_presenter.dart';
+import 'package:brew_buds/search/search_result_view.dart';
+import 'package:brew_buds/setting/presenter/account_detail_presenter.dart';
+import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.dart';
+import 'package:brew_buds/setting/view/account_detail_view.dart';
+import 'package:brew_buds/setting/view/account_info_view.dart';
+import 'package:brew_buds/setting/setting_screen.dart';
+import 'package:brew_buds/setting/view/blocking_user_management_view.dart';
+import 'package:brew_buds/setting/view/notification_setting_view.dart';
 import 'package:flutter/material.dart';
-import 'package:animations/animations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import 'package:brew_buds/profile/presenter/edit_presenter.dart';
-import '../profile/views/account_info_view.dart';
-import '../profile/views/block_view.dart';
-import '../profile/views/edit_view.dart';
-import '../profile/views/fitInfo_view.dart';
 
 const String initialPath = '/login';
 
 final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
+final GlobalKey<NavigatorState> mainRootNavigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> homeRootNavigatorKey = GlobalKey<NavigatorState>();
 
 final router = GoRouter(
+  navigatorKey: mainRootNavigatorKey,
   initialLocation: initialPath,
   redirect: (context, state) {
     if (context.read<AccountRepository>().refreshToken.isNotEmpty) {
       if (state.uri.path.contains('login') || state.uri.path.contains('signup')) {
-        return '/home/all';
+        return '/home';
       }
     } else {
       if (!state.uri.path.contains('login') && !state.uri.path.contains('signup')) {
@@ -77,13 +76,13 @@ final router = GoRouter(
     GoRoute(
       path: '/signup',
       builder: (BuildContext context, GoRouterState state) {
-        return SignUpFirstPage();
+        return const SignUpFirstPage();
       },
       routes: [
         GoRoute(
           path: 'second',
           builder: (BuildContext context, GoRouterState state) {
-            return SignUpSecondPage();
+            return const SignUpSecondPage();
           },
         ),
         GoRoute(
@@ -95,84 +94,47 @@ final router = GoRouter(
         GoRoute(
           path: 'fourth',
           builder: (BuildContext context, GoRouterState state) {
-            return SignUpFourthPage();
+            return const SignUpFourthPage();
           },
         ),
         GoRoute(
           path: 'finish',
           builder: (BuildContext context, GoRouterState state) {
-            return SignupFinishPage();
+            return const SignupFinishPage();
           },
         ),
       ],
     ),
     StatefulShellRoute.indexedStack(
+      parentNavigatorKey: mainRootNavigatorKey,
       builder: (context, state, bottomNavigationShell) => MainView(navigationShell: bottomNavigationShell),
       branches: [
         StatefulShellBranch(
           //홈 화면
           routes: [
-            ShellRoute(
-              builder: (context, state, child) => HomeView(nestedScrollViewState: homeTabBarScrollState, child: child),
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => MultiProvider(
+                providers: [
+                  ChangeNotifierProvider(
+                    create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
+                  ),
+                  ChangeNotifierProvider(
+                    create: (_) => HomePostPresenter(repository: HomeRepository.instance),
+                  ),
+                  ChangeNotifierProvider(
+                    create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
+                  ),
+                ],
+                child: HomeView(nestedScrollViewState: homeTabBarScrollState),
+              ),
               routes: [
                 GoRoute(
-                  path: '/home/all',
-                  pageBuilder: (context, state) {
-                    return CustomTransitionPage(
-                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
-                        return FadeThroughTransition(
-                          animation: primaryAnimation,
-                          secondaryAnimation: secondaryAnimation,
-                          child: child, // 자식 위젯
-                        );
-                      },
-                      child: ChangeNotifierProvider<HomeAllPresenter>(
-                        create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
-                        child: HomeAllView(scrollController: homeTabBarScrollState.currentState?.innerController),
-                      ),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: '/home/tastingRecord',
-                  pageBuilder: (context, state) {
-                    return CustomTransitionPage(
-                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
-                        return FadeThroughTransition(
-                          animation: primaryAnimation,
-                          secondaryAnimation: secondaryAnimation,
-                          child: child, // 자식 위젯
-                        );
-                      },
-                      child: ChangeNotifierProvider<HomeTastingRecordPresenter>(
-                        create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
-                        child: HomeTastingRecordView(
-                          scrollController: homeTabBarScrollState.currentState?.innerController,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: '/home/post',
-                  pageBuilder: (context, state) {
-                    return CustomTransitionPage(
-                      transitionsBuilder: (context, primaryAnimation, secondaryAnimation, Widget child) {
-                        return FadeThroughTransition(
-                          animation: primaryAnimation,
-                          secondaryAnimation: secondaryAnimation,
-                          child: child,
-                        );
-                      },
-                      child: ChangeNotifierProvider<HomePostPresenter>(
-                        create: (_) => HomePostPresenter(repository: HomeRepository.instance),
-                        child: HomePostView(
-                          scrollController: homeTabBarScrollState.currentState?.innerController,
-                          jumpToTop: () => homeTabBarScrollState.currentState?.outerController.jumpTo(0),
-                        ),
-                      ),
-                    );
-                  },
+                  path: '/popular_post',
+                  builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
+                    create: (_) => PopularPostsPresenter(repository: PopularPostsRepository.instance),
+                    child: const PopularPostsView(),
+                  ),
                 ),
               ],
             ),
@@ -181,10 +143,28 @@ final router = GoRouter(
         StatefulShellBranch(
           //검색 화면
           routes: [
-            GoRoute(path: '/search', builder: (context, state) => ChangeNotifierProvider<SearchPresenter>(
-              create: (_) => SearchPresenter(),
-              child: SearchScreen(),
-            ),),
+            GoRoute(
+              path: '/search',
+              builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
+                create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
+                child: const SearchHomeView(),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'result',
+                  builder: (context, state) {
+                    final data = state.extra as SearchResultInitState?;
+                    return ChangeNotifierProvider<SearchResultPresenter>(
+                      create: (_) => SearchResultPresenter(
+                        currentTabIndex: data?.tabIndex ?? 0,
+                        searchWord: data?.searchWord ?? '',
+                      ),
+                      child: SearchResultView(initialText: data?.searchWord ?? ''),
+                    );
+                  },
+                ),
+              ],
+            ),
           ],
         ),
         StatefulShellBranch(
@@ -200,34 +180,52 @@ final router = GoRouter(
               path: '/profile',
               builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
                 create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-                child: ProfileView(),
+                child: const MyProfileView(),
               ),
+              routes: [
+                GoRoute(
+                  path: 'edit',
+                  builder: (context, state) {
+                    final EditProfileData data = state.extra as EditProfileData;
+                    return ChangeNotifierProvider<EditProfilePresenter>(
+                      create: (_) => EditProfilePresenter(
+                        selectedCoffeeLifeList: data.coffeeLife,
+                        imageUri: data.imageUri,
+                        nickname: data.nickname,
+                        introduction: data.introduction,
+                        link: data.link,
+                      ),
+                      child: EditProfileView(
+                        nickname: data.nickname,
+                        introduction: data.introduction,
+                        link: data.link,
+                      ),
+                    );
+                  },
+                ),
+                GoRoute(path: 'setting', builder: (context, state) => const SettingScreen(), routes: [
+                  GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
+                  GoRoute(
+                    path: 'block',
+                    builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
+                      create: (_) => BlockingUserManagementPresenter(),
+                      child: const BlockingUserManagementView(),
+                    ),
+                  ),
+                  GoRoute(path: 'account_info', builder: (context, state) => const AccountInfoView()),
+                  GoRoute(
+                    path: 'account_detail',
+                    builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
+                      create: (_) => AccountDetailPresenter(),
+                      child: const AccountDetailView(),
+                    ),
+                  ),
+                ]),
+              ],
             ),
           ],
         ),
       ],
     ),
-    GoRoute(
-      path: '/popular_post',
-      builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
-        create: (_) => PopularPostsPresenter(repository: PopularPostsRepository.instance),
-        child: const PopularPostsView(),
-      ),
-    ),
-    GoRoute(path: '/profile_setting', builder: (context, state) => const SettingView()),
-    GoRoute(
-        path: '/profile_edit',
-        builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
-            create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const ProfileEditScreen())),
-    GoRoute(path: '/profile_fitInfo', builder: (context, state) => const FitInfoView()),
-    GoRoute(path: '/profile_accountInfo', builder: (context, state) => const ProfileAccountInfoView()),
-    GoRoute(
-        path: '/profile_block',
-        builder: (context, state) => ChangeNotifierProvider<ProfileEditPresenter>(
-            create: (_) => ProfileEditPresenter(repository: ProfileRepository()), child: const BlockView())),
-    GoRoute(path: '/account_out', builder: (context, state) => const AccountOutView()),
-    GoRoute(path: '/alarm', builder: (context, state) => AlarmView()),
-    GoRoute(path: '/post_detail', builder: (context, state) => PostDetailView()),
-    GoRoute(path: '/tasted_record_detail', builder: (context, state) => TastedRecordDetailView()),
   ],
 );
