@@ -8,7 +8,7 @@ part 'block_api.g.dart';
 @RestApi()
 abstract class BlockApi {
   @GET('/interactions/relationship/block/')
-  Future<void> fetchBlockList();
+  Future<String> fetchBlockList();
 
   @POST('/interactions/relationship/block/{id}/')
   Future<void> block({

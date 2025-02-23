@@ -5,13 +5,13 @@ import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/api/tasted_record_api.dart';
 import 'package:brew_buds/model/default_page.dart';
-import 'package:brew_buds/profile/model/SavedNote/saved_post.dart';
-import 'package:brew_buds/profile/model/SavedNote/saved_tasting_record.dart';
-import 'package:brew_buds/profile/model/bean_in_profile.dart';
-import 'package:brew_buds/profile/model/SavedNote/saved_note.dart';
-import 'package:brew_buds/profile/model/post_in_profile.dart';
+import 'package:brew_buds/profile/model/in_profile/bean_in_profile.dart';
+import 'package:brew_buds/profile/model/in_profile/post_in_profile.dart';
+import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
 import 'package:brew_buds/profile/model/profile.dart';
-import 'package:brew_buds/profile/model/tasting_record_in_profile.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_post.dart';
+import 'package:brew_buds/profile/model/saved_note/saved_tasting_record.dart';
 
 class ProfileRepository {
   final ProfileApi _api = ProfileApi();
@@ -28,6 +28,8 @@ class ProfileRepository {
   factory ProfileRepository() => instance;
 
   Future<Profile> fetchMyProfile() => _api.fetchMyProfile();
+
+  Future<Profile> fetchProfile({required int id}) => _api.fetchProfile(id: id);
 
   Future<void> fetchUpdateProfile(Map<String, dynamic> data) => _api.updateMyProfile(body: data);
 

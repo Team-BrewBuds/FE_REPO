@@ -9,7 +9,7 @@ import '../../common/factory/button_factory.dart';
 import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../../features/signup/models/signup_lists.dart';
-import '../../profile/presenter/filter_presenter.dart';
+import '../../filter/filter_presenter.dart';
 import '../widget/wdgt_bottom_sheet.dart';
 import '../widget/wdgt_search_bottom_sheet.dart';
 import 'core/tasing_record_mixin.dart';

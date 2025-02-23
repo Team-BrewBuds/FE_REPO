@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
+import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -307,6 +308,10 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                   isLiked: comment.isLiked,
                   likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                   canReply: true,
+                  onTappedProfile: () {
+                    context.pop();
+                    pushToProfile(context: context, id: comment.author.id);
+                  },
                   onTappedReply: () {
                     presenter.onTappedReply(comment);
                   },
@@ -334,6 +339,10 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                         contents: reComment.content,
                         isLiked: reComment.isLiked,
                         likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                        onTappedProfile: () {
+                          context.pop();
+                          pushToProfile(context: context, id: reComment.author.id);
+                        },
                         onTappedLikeButton: () {
                           presenter.onTappedLikeButton(comment: reComment);
                         },

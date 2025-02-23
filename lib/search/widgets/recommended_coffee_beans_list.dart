@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -49,15 +50,8 @@ class RecommendedCoffeeBeansList extends StatelessWidget {
                     width: 109,
                     child: Column(
                       children: [
-                        Container(
-                          height: 109,
-                          width: 109,
-                          color: const Color(0xffd9d9d9),
-                          child: Image.network(
-                            item.$1,
-                            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                          ),
-                        ),
+                        if (item.$1.isNotEmpty)
+                          MyNetworkImage(imageUri: item.$1, height: 109, width: 109, color: const Color(0xffd9d9d9)),
                         const SizedBox(height: 4),
                         Text(
                           item.$2,

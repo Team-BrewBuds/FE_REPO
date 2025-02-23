@@ -1,11 +1,14 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/home/comments/comments_presenter.dart';
 import 'package:brew_buds/home/comments/comments_view.dart';
 import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
+import 'package:brew_buds/model/default_page.dart';
+import 'package:brew_buds/model/pages/recommended_users.dart';
 import 'package:brew_buds/model/user.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,14 +49,14 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
   }
 
   _scrollListener() {
-    final presenter = context.read<Presenter>();
-    if (presenter.feeds.length - currentIndex < 4 && presenter.hasNext) {
+    if (scrollController.position.pixels > scrollController.position.maxScrollExtent * 0.7) {
       paginationThrottle.setValue(null);
     }
   }
 
   _fetchMoreData() {
     context.read<Presenter>().fetchMoreData();
+    context.read<Presenter>().fetchMoreRecommendedUsers();
   }
 
   @override
@@ -61,25 +64,18 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     return Consumer<Presenter>(builder: (context, presenter, _) {
       return Container(
         color: ColorStyles.gray20,
-        child: CustomScrollView(
-          controller: scrollController,
-          slivers: [
-            buildListViewTitle(presenter),
-            buildRefreshWidget(presenter),
-            buildListView(presenter),
-          ],
-        ),
+        child: buildBody(context),
       );
     });
   }
 
-  SliverAppBar buildListViewTitle(Presenter presenter) => const SliverAppBar(toolbarHeight: 0);
+  Widget buildBody(BuildContext context);
 
-  Widget buildListItem(Presenter presenter, int index);
-
-  Widget buildRefreshWidget(Presenter presenter) {
+  Widget buildRefreshWidget() {
     return CupertinoSliverRefreshControl(
-      onRefresh: presenter.onRefresh,
+      onRefresh: () {
+        return context.read<Presenter>().onRefresh();
+      },
       builder: (
         BuildContext context,
         RefreshIndicatorMode refreshState,
@@ -102,77 +98,52 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     );
   }
 
-  SliverList buildListView(Presenter presenter) {
-    return SliverList.separated(
-      itemCount: presenter.feeds.length,
-      itemBuilder: (context, index) {
-        currentIndex = index;
-        if (index % 12 == 11) {
-          return Column(
-            children: [
-              buildListItem(presenter, index),
-              Container(height: 12, color: ColorStyles.gray20),
-              _buildRemandedBuddies(presenter, (index / 12).floor()),
-            ],
-          );
-        } else {
-          return buildListItem(presenter, index);
-        }
-      },
-      separatorBuilder: (context, index) => buildSeparatorWidget(index),
-    );
-  }
-
-  Widget buildSeparatorWidget(int index) {
-    return Container(height: 12, color: ColorStyles.gray20);
-  }
-
-  Widget _buildRemandedBuddies(Presenter presenter, int recommendedIndex) {
-    if (presenter.recommendedUserPages.length > recommendedIndex) {
-      final page = presenter.recommendedUserPages[recommendedIndex];
-      return Container(
-        height: 304,
-        color: ColorStyles.white,
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(page.category.title(), style: TextStyles.title01SemiBold),
-            Text(
-              page.category.contents(),
-              style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: page.users.length,
-                itemBuilder: (context, index) {
-                  final remandedBuddy = page.users[index];
-                  return _buildRemandedBuddyProfile(
-                    imageUri: remandedBuddy.user.profileImageUri,
-                    nickName: remandedBuddy.user.nickname,
-                    followCount: '${remandedBuddy.followerCount}',
-                    isFollowed: remandedBuddy.isFollow,
-                    onTappedFollowButton: () {
-                      presenter.onTappedRecommendedUserFollowButton(remandedBuddy, recommendedIndex);
+  Widget buildRemandedBuddies({required int currentPageIndex}) {
+      return Selector<Presenter, DefaultPage<RecommendedUsers>>(
+        selector: (context, presenter) => presenter.recommendedUserPage,
+        builder: (context, recommendedUserPage, child) {
+          final currentRecommended = recommendedUserPage.result[currentPageIndex];
+          return Container(
+            height: 304,
+            color: ColorStyles.white,
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(currentRecommended.category.title(), style: TextStyles.title01SemiBold),
+                Text(
+                  currentRecommended.category.contents(),
+                  style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
+                ),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: currentRecommended.users.length,
+                    itemBuilder: (context, index) {
+                      final remandedBuddy = currentRecommended.users[index];
+                      return buildRemandedBuddyProfile(
+                        imageUri: remandedBuddy.user.profileImageUri,
+                        nickName: remandedBuddy.user.nickname,
+                        followCount: '${remandedBuddy.followerCount}',
+                        isFollowed: remandedBuddy.isFollow,
+                        onTappedFollowButton: () {
+                          context.read<Presenter>().onTappedRecommendedUserFollowButton(remandedBuddy, currentPageIndex);
+                        },
+                      );
                     },
-                  );
-                },
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-              ),
+                    separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        }
       );
-    } else {
-      presenter.fetchMoreRecommendedUsers();
-      return Container();
-    }
   }
 
-  Widget _buildRemandedBuddyProfile({
+  Widget buildRemandedBuddyProfile({
     required String imageUri,
     required String nickName,
     required String followCount,
@@ -189,15 +160,12 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       ),
       child: Column(
         children: [
-          Container(
+          MyNetworkImage(
+            imageUri: imageUri,
             height: 80,
             width: 80,
-            clipBehavior: Clip.antiAlias,
-            decoration: const BoxDecoration(
-              color: Color(0xffD9D9D9),
-              shape: BoxShape.circle,
-            ),
-            child: Image.network(imageUri, fit: BoxFit.cover),
+            color: const Color(0xffD9D9D9),
+            shape: BoxShape.circle,
           ),
           const SizedBox(height: 12),
           Text(

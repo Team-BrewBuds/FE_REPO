@@ -1,5 +1,7 @@
-import 'package:brew_buds/common/factory/text_button_factory.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/detail/detail_builder.dart';
 import 'package:brew_buds/home/widgets/feed_widget.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +13,10 @@ class TastingRecordFeed extends FeedWidget {
   final String name;
   final List<String> tags;
   final String body;
-  final void Function() onTapMoreButton;
 
   const TastingRecordFeed({
     super.key,
+    required super.id,
     required super.writerThumbnailUri,
     required super.writerNickName,
     required super.writingTime,
@@ -36,7 +38,6 @@ class TastingRecordFeed extends FeedWidget {
     required this.name,
     required this.tags,
     required this.body,
-    required this.onTapMoreButton,
   });
 
   @override
@@ -46,16 +47,16 @@ class TastingRecordFeed extends FeedWidget {
 class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
   @override
   Widget buildBody() {
+    final width = MediaQuery.of(context).size.width;
     final isOverFlow = _calcOverFlow(context);
     return Column(
       children: [
         TastingRecordCard(
-          image: Image.network(
-            widget.thumbnailUri,
-            fit: BoxFit.cover,
-            errorBuilder: (context, _, trace) => const Center(
-              child: Text('No Image'),
-            ),
+          image: MyNetworkImage(
+            imageUri: widget.thumbnailUri,
+            height: width,
+            width: width,
+            color: const Color(0xffD9D9D9),
           ),
           rating: widget.rating,
           type: widget.type,
@@ -74,15 +75,14 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
                 overflow: TextOverflow.ellipsis,
               ),
               SizedBox(height: isOverFlow ? 8 : 0),
-              isOverFlow
-                  ? TextButtonFactory.build(
-                      onTapped: () {
-                        widget.onTapMoreButton();
-                      },
-                      style: TextButtonStyle(size: TextButtonSize.small),
-                      text: '더보기',
-                    )
-                  : Container(),
+              if (isOverFlow)
+                buildOpenableTastingRecordDetailView(
+                  id: widget.id,
+                  closeBuilder: (context, action) => Text(
+                    '더보기',
+                    style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
+                  ),
+                ),
             ],
           ),
         ),

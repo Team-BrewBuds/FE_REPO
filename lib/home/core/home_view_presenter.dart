@@ -1,25 +1,32 @@
 import 'package:brew_buds/data/repository/home_repository.dart';
+import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/model/feeds/feed.dart';
-import 'package:brew_buds/model/pages/recommended_user_page.dart';
+import 'package:brew_buds/model/pages/recommended_users.dart';
 import 'package:brew_buds/model/recommended_user.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
   final HomeRepository repository;
-  List<RecommendedUserPage> recommendedUserPages = [];
+  DefaultPage<RecommendedUsers> _recommendedUserPage = DefaultPage.empty();
 
-  HomeViewPresenter({required this.repository});
+  DefaultPage<RecommendedUsers> get recommendedUserPage => _recommendedUserPage;
 
-  List<T> get feeds;
+  HomeViewPresenter({
+    required this.repository,
+  });
 
   bool get hasNext;
 
-  Future<void> initState() async {
-    recommendedUserPages.clear();
+  initState() {
+    _recommendedUserPage = DefaultPage.empty();
+    notifyListeners();
+    fetchMoreRecommendedUsers();
   }
 
   Future<void> onRefresh() async {
-    recommendedUserPages.clear();
+    _recommendedUserPage = DefaultPage.empty();
+    notifyListeners();
+    fetchMoreRecommendedUsers();
   }
 
   Future<void> fetchMoreData();
@@ -40,14 +47,10 @@ abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
   }
 
   fetchMoreRecommendedUsers() async {
-    final RecommendedUserPage? page = await repository.fetchRecommendedUserPage().then(
-          (value) => value,
-          onError: (_, __) => null,
-        );
-    if (page != null) {
-      recommendedUserPages.add(page);
-      notifyListeners();
-    }
+    final newPage = await repository.fetchRecommendedUserPage();
+
+    _recommendedUserPage = _recommendedUserPage.copyWith(result: _recommendedUserPage.result + newPage.result);
+    notifyListeners();
   }
 
   onTappedLikeButton(T feed);
@@ -56,7 +59,20 @@ abstract class HomeViewPresenter<T extends Feed> extends ChangeNotifier {
 
   onTappedFollowButton(T feed);
 
-  onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex);
+  onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex) {
+    follow(id: user.user.id, isFollowed: user.isFollow).then((_) {
+      final newUsers = _recommendedUserPage.result[pageIndex].users
+          .map((e) => e.user.id == user.user.id ? user.copyWith(isFollow: !user.isFollow) : e).toList();
+      _recommendedUserPage.copyWith(result: _recommendedUserPage.result.indexed.map((indexed) {
+        if (indexed.$1 == pageIndex) {
+          return indexed.$2.copyWith(users: newUsers);
+        } else {
+          return indexed.$2;
+        }
+      }).toList());
+      notifyListeners();
+    });
+  }
 
   Future<void> like({required String type, required int id, required bool isLiked}) {
     if (isLiked) {

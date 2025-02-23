@@ -14,10 +14,10 @@ abstract class FollowApi {
   });
 
   @GET('/interactions/relationship/follow/{id}/')
-  Future<void> fetchFollowList({
+  Future<String> fetchFollowList({
     @Path('id') required int id,
     @Query('page') required int pageNo,
-    @Query('String') required String type,
+    @Query('type') required String type,
   });
 
   @POST('/interactions/relationship/follow/{id}/')

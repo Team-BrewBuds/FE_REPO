@@ -12,12 +12,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'features/signup/provider/sign_up_presenter.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  await initializeDateFormatting('ko');
   await dotenv.load(fileName: ".env");
 
   //카카오 앱키

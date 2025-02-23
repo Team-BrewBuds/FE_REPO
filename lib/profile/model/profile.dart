@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:brew_buds/profile/model/profile_detail.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -10,56 +12,51 @@ class Profile with _$Profile { //toJson, fromJson 수정필요 (Api Update후)
   const factory Profile({
     required int id,
     required String nickname,
-    required String profileImageURI,
-    required ProfileDetail detail,
-    required int followingCount,
-    required int followerCount,
-    required int postCount,
-    required bool isUserFollowing,
-    required bool isUserBlocking,
-
+    @JsonKey(name: 'profile_image', defaultValue: '') required String profileImageURI,
+    @JsonKey(defaultValue: null) required String? introduction,
+    @JsonKey(name: 'profile_link', defaultValue: null) required String? profileLink,
+    @JsonKey(name: 'coffee_life', fromJson: _coffeeLifeFromJson, defaultValue: []) required List<CoffeeLife> coffeeLife,
+    @JsonKey(name: 'preferred_bean_taste', fromJson: _preferredBeanTasteFromJson)
+    @Default(PreferredBeanTaste())
+    PreferredBeanTaste preferredBeanTaste,
+    @JsonKey(name: 'is_certificated', defaultValue: null) required bool? isCertificated,
+    @JsonKey(name: 'following_cnt', defaultValue: 0) required int followingCount,
+    @JsonKey(name: 'follower_cnt', defaultValue: 0) required int followerCount,
+    @JsonKey(name: 'post_cnt', defaultValue: 0) required int postCount,
+    @JsonKey(name: 'is_user_following', defaultValue: null) required bool? isUserFollowing,
+    @JsonKey(name: 'is_user_blocking', defaultValue: null) required bool? isUserBlocking,
   }) = _Profile;
 
   const Profile._();
 
+  factory Profile.fromJson(Map<String, Object?> json) => _$ProfileFromJson(json);
+
   Map<String, dynamic> toJson() {
-    final val = <String, dynamic>{
-      'nickname': nickname,
-    };
+    final Map<String, dynamic> jsonMap = {};
+    jsonMap['nickname'] = '"$nickname"';
+
+    final detail = _toJsonDetail();
+    if (detail.isNotEmpty) jsonMap['user_detail'] = detail;
+
+    return jsonMap;
+  }
+
+  Map<String, dynamic> _toJsonDetail() {
+    final Map<String, dynamic> jsonMap = {};
 
     void writeNotNull(String key, dynamic value) {
       if (value != null) {
-        val[key] = value;
+        jsonMap[key] = value;
       }
     }
 
-    writeNotNull('introduction', detail.introduction);
-    writeNotNull('profile_link', detail.profileLink);
-    writeNotNull('coffee_life', detail.coffeeLife?.map((e) => _coffeeLifeEnumMap[e]!).toList());
-    writeNotNull('preferred_bean_taste', detail.preferredBeanTasted);
-    writeNotNull('is_certificated', detail.isCertificated);
+    writeNotNull('introduction', introduction);
+    writeNotNull('profile_link', profileLink);
+    writeNotNull('coffee_life', _coffeeLifeToJson(coffeeLife));
+    writeNotNull('preferred_bean_taste', _preferredBeanTasteToJson(preferredBeanTaste));
+    writeNotNull('is_certificated', isCertificated);
 
-    return val;
-  }
-
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return Profile(
-      id: (json['id'] as num).toInt(),
-      nickname: json['nickname'] as String,
-      profileImageURI: json['profile_image'] as String,
-      detail: ProfileDetail(
-        introduction: json['introduction'] as String,
-        profileLink: json['profile_link'] ?? '',
-        coffeeLife: _coffeeLifeFromJson(json['coffee_life'] as Map<String, dynamic>),
-        preferredBeanTasted: null,
-        isCertificated: null,
-      ),
-      followingCount: (json['following_cnt'] as num).toInt(),
-      followerCount: (json['follower_cnt'] as num).toInt(),
-      postCount: (json['post_cnt'] as num).toInt(),
-      isUserFollowing: json['is_user_following'] as bool,
-      isUserBlocking: json['is_user_blocking'] as bool,
-    );
+    return jsonMap;
   }
 }
 
@@ -74,29 +71,37 @@ const _coffeeLifeEnumMap = {
 
 List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic> json) {
   final List<CoffeeLife> result = [];
-  json.forEach((key, value) {
-    if (value) {
-      switch (key) {
-        case 'cafe_tour':
-          result.add(CoffeeLife.cafeTour);
-          break;
-        case 'coffee_extraction':
-          result.add(CoffeeLife.coffeeExtraction);
-          break;
-        case 'coffee_study':
-          result.add(CoffeeLife.coffeeStudy);
-          break;
-        case 'cafe_alba':
-          result.add(CoffeeLife.cafeAlba);
-          break;
-        case 'cafe_work':
-          result.add(CoffeeLife.cafeWork);
-          break;
-        case 'cafe_operation':
-          result.add(CoffeeLife.cafeOperation);
-          break;
-      }
+  for (var coffeeLife in CoffeeLife.values) {
+    final data = json[coffeeLife.jsonKey] as bool;
+    if (data) {
+      result.add(coffeeLife);
     }
-  });
+  }
   return result;
+}
+
+PreferredBeanTaste _preferredBeanTasteFromJson(dynamic jsonString) {
+  try {
+    final valueList = (jsonString as String).split(',').map((e) => int.parse(e.substring(e.length - 1))).toList();
+    return PreferredBeanTaste(
+      body: valueList[0],
+      acidity: valueList[1],
+      sweetness: valueList[2],
+      bitterness: valueList[3],
+    );
+  } catch (_) {
+    return const PreferredBeanTaste();
+  }
+}
+
+String? _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {
+  if (coffeeLife.isEmpty) {
+    return null;
+  } else {
+    return '"cafe_tour: ${coffeeLife.contains(CoffeeLife.cafeTour)}, coffee_extraction: ${coffeeLife.contains(CoffeeLife.coffeeExtraction)}, coffee_study: ${coffeeLife.contains(CoffeeLife.coffeeStudy)}, cafe_alba: ${coffeeLife.contains(CoffeeLife.cafeAlba)}, cafe_work: ${coffeeLife.contains(CoffeeLife.cafeWork)}, cafe_operation: ${coffeeLife.contains(CoffeeLife.cafeOperation)}"';
+  }
+}
+
+String? _preferredBeanTasteToJson(PreferredBeanTaste preferredBeanTaste) {
+  return '"body: ${preferredBeanTaste.body}, acidity: ${preferredBeanTaste.acidity}, sweetness: ${preferredBeanTaste.sweetness}, bitterness: ${preferredBeanTaste.bitterness}"';
 }

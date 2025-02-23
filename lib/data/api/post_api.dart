@@ -1,6 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
-import 'package:brew_buds/model/pages/popular_post_page.dart';
-import 'package:brew_buds/model/pages/post_feed_page.dart';
+import 'package:brew_buds/detail/model/post.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
@@ -10,7 +9,7 @@ part 'post_api.g.dart';
 @RestApi()
 abstract class PostApi {
   @GET('/records/post/')
-  Future<PostFeedPage> fetchPostFeedPage({
+  Future<String> fetchPostFeedPage({
     @Query('subject') required String? subject,
     @Query('page') required int pageNo,
   });
@@ -23,7 +22,7 @@ abstract class PostApi {
 
 
   @GET('/records/post/{id}/')
-  Future<void> fetchPost({
+  Future<Post> fetchPost({
     @Path('id') required int id,
   });
 
@@ -39,7 +38,7 @@ abstract class PostApi {
   });
 
   @GET('/records/post/top/')
-  Future<PopularPostsPage> fetchPopularPostsPage({
+  Future<String> fetchPopularPostsPage({
     @Query('subject') required String subject,
     @Query('page') required int pageNo,
   });

@@ -4,21 +4,23 @@ part 'preferred_bean_taste.g.dart';
 
 @JsonSerializable(includeIfNull: false)
 final class PreferredBeanTaste {
-  @JsonKey(defaultValue: null) final int? body;
-  @JsonKey(defaultValue: null) final int? acidity;
-  @JsonKey(defaultValue: null) final int? bitterness;
-  @JsonKey(defaultValue: null) final int? sweetness;
+  @JsonKey(defaultValue: 0) final int body;
+  @JsonKey(defaultValue: 0) final int acidity;
+  @JsonKey(defaultValue: 0) final int bitterness;
+  @JsonKey(defaultValue: 0) final int sweetness;
 
   const PreferredBeanTaste({
-    this.body,
-    this.acidity,
-    this.bitterness,
-    this.sweetness,
+    this.body = 0,
+    this.acidity = 0,
+    this.bitterness = 0,
+    this.sweetness = 0,
   });
 
-  Map<String, dynamic> toJson() => _$PreferredBeanTasteToJson(this);
+  factory PreferredBeanTaste.init() => const PreferredBeanTaste(body: 0, acidity: 0, bitterness: 0, sweetness: 0);
 
   factory PreferredBeanTaste.fromJson(Map<String, dynamic> json) => _$PreferredBeanTasteFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PreferredBeanTasteToJson(this);
 
   PreferredBeanTaste copyWith({
     int? body,

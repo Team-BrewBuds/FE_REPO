@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -55,17 +56,10 @@ class CoffeeBeanResultsItem extends StatelessWidget {
               ],
             ),
           ),
-          Image.network(
-            _imageUri,
-            height: 64,
-            width: 64,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
-              height: 64,
-              width: 64,
-              color: Color(0xFFD9D9D9),
-            ),
-          ),
+          if (_imageUri.isNotEmpty) ...[
+            const SizedBox(width: 8),
+            MyNetworkImage(imageUri: _imageUri, height: 64, width: 64, color: Colors.transparent),
+          ],
         ],
       ),
     );
