@@ -101,9 +101,9 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
         Consumer<PostPresenter>(
           builder: (context, presenter, child) {
             return TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (presenter.isEnabled) {
-                  presenter.createPost(
+                 bool  result =  await presenter.createPost(
                       title: presenter.title,
                       content: presenter.tagController
                           .extractContentWithoutTags(presenter.tag),
@@ -112,6 +112,10 @@ class _WriteCoffeeFreeNoteState extends State<WriteCoffeeFreeNote> {
                           .updateTagsFromContent(presenter.tag),
                       tasted_recordes: [1],
                       photos: [0]);
+
+                  if(result == true){
+                    Navigator.pop(context);
+                  }
                 } else {
                   if (presenter.title.length < 2) {
                     _showToast('제목을 2글자 이상 입력하세요',

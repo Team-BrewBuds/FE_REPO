@@ -11,16 +11,16 @@ import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../provider/coffee_note_presenter.dart';
 
-class WdgtBottomSheetSelect extends StatefulWidget {
+class flavorChoiceWidget extends StatefulWidget {
   final String title;
 
-  const WdgtBottomSheetSelect({super.key, required this.title});
+  const flavorChoiceWidget({super.key, required this.title});
 
   @override
-  State<WdgtBottomSheetSelect> createState() => _WdgtBottomSheetSelectState();
+  State<flavorChoiceWidget> createState() => _flavorChoiceWidgetState();
 }
 
-class _WdgtBottomSheetSelectState extends State<WdgtBottomSheetSelect> {
+class _flavorChoiceWidgetState extends State<flavorChoiceWidget> {
   void _showToast(String message, {Color backgroundColor = Colors.black}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -172,53 +172,51 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
           ? Container(
               height: 50,
               color: ColorStyles.gray10,
-              child: Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: presenter.tasteFlaver.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 4.0), // 텍스트 주위에 여백을 추가
-                        decoration: BoxDecoration(
-                          color: ColorStyles.black, // 배경색
-                          borderRadius: BorderRadius.circular(20), // 둥근 모서리
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              presenter.tasteFlaver[index],
-                              style: TextStyles.labelSmallSemiBold
-                                  .copyWith(color: ColorStyles.white),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: presenter.tasteFlaver.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 10.0, vertical: 4.0), // 텍스트 주위에 여백을 추가
+                      decoration: BoxDecoration(
+                        color: ColorStyles.black, // 배경색
+                        borderRadius: BorderRadius.circular(20), // 둥근 모서리
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            presenter.tasteFlaver[index],
+                            style: TextStyles.labelSmallSemiBold
+                                .copyWith(color: ColorStyles.white),
+                          ),
+                          const SizedBox(width: 2),
+                          InkWell(
+                            onTap: () {
+                              presenter.onSelectTasteFlavor(
+                                  presenter.tasteFlaver[index]);
+                            },
+                            child: SvgPicture.asset(
+                              'assets/icons/x.svg',
+                              width: 12,
+                              height: 12,
+                              fit: BoxFit.cover,
+                              colorFilter: const ColorFilter.mode(
+                                  ColorStyles.white, BlendMode.srcIn),
                             ),
-                            const SizedBox(width: 2),
-                            InkWell(
-                              onTap: () {
-                                presenter.onSelectTasteFlavor(
-                                    presenter.tasteFlaver[index]);
-                              },
-                              child: SvgPicture.asset(
-                                'assets/icons/x.svg',
-                                width: 12,
-                                height: 12,
-                                fit: BoxFit.cover,
-                                colorFilter: const ColorFilter.mode(
-                                    ColorStyles.white, BlendMode.srcIn),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return SizedBox(
-                        width: 4,
-                      );
-                    },
-                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return SizedBox(
+                      width: 4,
+                    );
+                  },
                 ),
               ),
             )
@@ -243,6 +241,7 @@ Widget _buildOriginFilter(CoffeeNotePresenter presenter, BuildContext context) {
             ButtonFactory.buildRoundedButton(
                 onTapped: () {
                   Navigator.pop(context);
+                  print(presenter.tasteFlaver);
                 },
                 text: '선택하기',
                 style: RoundedButtonStyle.fill(

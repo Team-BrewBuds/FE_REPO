@@ -1,16 +1,14 @@
 import 'dart:convert';
 
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
-import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';
+import 'package:brew_buds/profile/model/profile_detail.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 
 part 'profile.freezed.dart';
 
-part 'profile.g.dart';
-
-@Freezed(toJson: false)
-class Profile with _$Profile {
+@Freezed(toJson: false, fromJson: false)
+class Profile with _$Profile { //toJson, fromJson 수정필요 (Api Update후)
   const factory Profile({
     required int id,
     required String nickname,
@@ -61,6 +59,15 @@ class Profile with _$Profile {
     return jsonMap;
   }
 }
+
+const _coffeeLifeEnumMap = {
+  CoffeeLife.cafeTour: 'cafe_tour',
+  CoffeeLife.coffeeExtraction: 'coffee_extraction',
+  CoffeeLife.coffeeStudy: 'coffee_study',
+  CoffeeLife.cafeAlba: 'cafe_alba',
+  CoffeeLife.cafeWork: 'cafe_work',
+  CoffeeLife.cafeOperation: 'cafe_operation',
+};
 
 List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic> json) {
   final List<CoffeeLife> result = [];
