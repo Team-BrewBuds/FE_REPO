@@ -1,13 +1,12 @@
-import 'dart:convert';
-
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
-import 'package:brew_buds/profile/model/profile_detail.dart';
+import 'package:brew_buds/features/signup/models/preferred_bean_taste.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 
 part 'profile.freezed.dart';
+part 'profile.g.dart';
 
-@Freezed(toJson: false, fromJson: false)
+@Freezed(toJson: false)
 class Profile with _$Profile { //toJson, fromJson 수정필요 (Api Update후)
   const factory Profile({
     required int id,
