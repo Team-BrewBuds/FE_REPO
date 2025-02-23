@@ -1,6 +1,8 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/filter/filter_presenter.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
@@ -141,7 +143,9 @@ class _SearchResultViewState extends State<SearchResultView>
 
   Widget _buildUserResultItem(BuddySearchResultModel model) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        pushToProfile(context: context, id: model.id);
+      },
       child: BuddyResultsItem(
         imageUri: model.profileImageUri,
         nickname: model.nickname,
@@ -152,6 +156,18 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildTastingRecordResultItem(TastedRecordSearchResultModel model) {
+    return buildOpenableTastingRecordDetailView(
+      id: model.id,
+      closeBuilder: (context, _) => TastedRecordResultsItem(
+        imageUri: model.imageUri,
+        beanName: model.title,
+        beanType: model.beanType,
+        rating: model.rating,
+        tasteList: model.taste,
+        contents: model.contents,
+        searchWord: textEditingController.text,
+      ),
+    );
     return InkWell(
       onTap: () {},
       child: TastedRecordResultsItem(
@@ -167,6 +183,21 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildPostResultItem(PostSearchResultModel model) {
+    return buildOpenablePostDetailView(
+      id: model.id,
+      closeBuilder: (context, _) => PostResultsItem(
+        title: model.title,
+        contents: model.contents,
+        searchWord: textEditingController.text,
+        likeCount: model.likeCount,
+        commentsCount: model.commentCount,
+        subject: model.subject,
+        createdAt: model.createdAt,
+        hits: model.hits,
+        writerNickName: model.authorNickname,
+        imageUri: model.imageUri,
+      ),
+    );
     return InkWell(
       onTap: () {},
       child: PostResultsItem(

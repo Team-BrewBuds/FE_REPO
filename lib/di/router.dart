@@ -29,8 +29,6 @@ import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.d
 import 'package:brew_buds/setting/view/account_detail_view.dart';
 import 'package:brew_buds/setting/view/account_info_view.dart';
 import 'package:brew_buds/setting/setting_screen.dart';
-import 'package:brew_buds/search/search_presenter.dart';
-import 'package:brew_buds/search/search_screen.dart';
 import 'package:brew_buds/setting/view/blocking_user_management_view.dart';
 import 'package:brew_buds/setting/view/notification_setting_view.dart';
 import 'package:flutter/material.dart';

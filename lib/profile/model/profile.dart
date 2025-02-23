@@ -73,14 +73,18 @@ List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic> json) {
   return result;
 }
 
-PreferredBeanTaste _preferredBeanTasteFromJson(String jsonString) {
-  final valueList = jsonString.split(',').map((e) => int.parse(e.substring(e.length - 1))).toList();
-  return PreferredBeanTaste(
-    body: valueList[0],
-    acidity: valueList[1],
-    sweetness: valueList[2],
-    bitterness: valueList[3],
-  );
+PreferredBeanTaste _preferredBeanTasteFromJson(dynamic jsonString) {
+  try {
+    final valueList = (jsonString as String).split(',').map((e) => int.parse(e.substring(e.length - 1))).toList();
+    return PreferredBeanTaste(
+      body: valueList[0],
+      acidity: valueList[1],
+      sweetness: valueList[2],
+      bitterness: valueList[3],
+    );
+  } catch (_) {
+    return const PreferredBeanTaste();
+  }
 }
 
 String? _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {
