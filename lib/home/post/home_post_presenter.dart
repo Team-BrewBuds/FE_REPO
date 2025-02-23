@@ -2,7 +2,8 @@ import 'package:brew_buds/home/core/home_view_presenter.dart';
 import 'package:brew_buds/model/default_page.dart';
 import 'package:brew_buds/model/feeds/post_in_feed.dart';
 import 'package:brew_buds/model/post_subject.dart';
-import 'package:brew_buds/model/recommended_user.dart';
+
+typedef HomePostFeedFilterState = ({List<String> postSubjectFilterList, int currentFilterIndex});
 
 final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
   DefaultPage<PostInFeed> _page = DefaultPage.empty();
@@ -12,6 +13,11 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
   HomePostPresenter({
     required super.repository,
   });
+
+  HomePostFeedFilterState get homePostFeedFilterState => (
+        postSubjectFilterList: postSubjectFilterList,
+        currentFilterIndex: currentFilterIndex,
+      );
 
   List<String> get postSubjectFilterList => PostSubject.values.map((subject) => subject.toString()).toList();
 

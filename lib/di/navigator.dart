@@ -8,7 +8,6 @@ import 'package:brew_buds/profile/presenter/other_profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/profile/view/other_profile_view.dart';
 import 'package:brew_buds/profile/view/taste_report_view.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
