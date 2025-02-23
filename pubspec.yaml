@@ -18,7 +18,7 @@ dependencies:
   go_router: ^14.2.7
   dio: ^5.7.0
 
-  flutter_secure_storage:
+  flutter_secure_storage: ^9.2.4
   kakao_flutter_sdk: ^1.9.5
   flutter_naver_login: ^1.7.0
   sign_in_with_apple: ^6.1.3
