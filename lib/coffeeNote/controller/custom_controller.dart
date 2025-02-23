@@ -5,9 +5,9 @@ import '../../common/styles/color_styles.dart';
 class CustomTagController extends TextEditingController {
   static const int maxTags = 5; // 태그 최대 개수 제한
   ValueNotifier<int> tagCountNotifier = ValueNotifier<int>(0);
-  List<String> _tags = [];
+  String _tags = '';
 
-  List<String> get tags => _tags;
+  String get tags => _tags;
 
 
   @override
@@ -73,13 +73,13 @@ class CustomTagController extends TextEditingController {
 
 
 
-  List<String> updateTagsFromContent(String content) {
+  String updateTagsFromContent(String content) {
     // 예시: 내용에서 해시태그(#)를 추출하여 태그로 설정
     _tags = content
         .split(' ')
         .where((word) => word.startsWith('#'))
         .map((word) => word.substring(1)) // # 제거
-        .toList();
+    .toString();
 
     return _tags;
   }

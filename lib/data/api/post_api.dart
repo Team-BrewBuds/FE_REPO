@@ -14,10 +14,12 @@ abstract class PostApi {
     @Query('page') required int pageNo,
   });
 
+
   @POST('/records/post/')
-  Future<void> createPost({
-    @Body() required Map<String, dynamic> data,
+  Future<void> createPosts({
+    @Body() required String data
   });
+
 
   @GET('/records/post/{id}/')
   Future<Post> fetchPost({

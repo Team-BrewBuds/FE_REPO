@@ -81,7 +81,7 @@ class _WdgtBottomSheetState extends State<WdgtBottomSheet> {
         style: TextStyles.labelMediumMedium,
       ),
       onTap: () {
-        widget.presenter.selectTopic(subject.toString());
+        widget.presenter.selectTopic(subject.toJsonValue());
         Navigator.pop(context, subject);
       },
     );

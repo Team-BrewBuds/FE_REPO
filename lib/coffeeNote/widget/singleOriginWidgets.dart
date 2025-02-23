@@ -11,14 +11,14 @@ import '../../common/styles/color_styles.dart';
 import '../../common/styles/text_styles.dart';
 import '../model/beanInfo.dart';
 
-class WdgtSelectList extends StatefulWidget {
-  const WdgtSelectList({super.key});
+class singleOriginWidgets extends StatefulWidget {
+  const singleOriginWidgets({super.key});
 
   @override
-  State<WdgtSelectList> createState() => _WdgtSelectListState();
+  State<singleOriginWidgets> createState() => _singleOriginWidgetsState();
 }
 
-class _WdgtSelectListState extends State<WdgtSelectList> {
+class _singleOriginWidgetsState extends State<singleOriginWidgets> {
   late List<bool> _expandedStates;
 
   final FocusNode _focusNode = FocusNode();
