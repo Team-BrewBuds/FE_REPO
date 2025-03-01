@@ -203,24 +203,28 @@ final router = GoRouter(
                     );
                   },
                 ),
-                GoRoute(path: 'setting', builder: (context, state) => const SettingScreen(), routes: [
-                  GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
-                  GoRoute(
-                    path: 'block',
-                    builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
-                      create: (_) => BlockingUserManagementPresenter(),
-                      child: const BlockingUserManagementView(),
+                GoRoute(
+                  path: 'setting',
+                  builder: (context, state) => const SettingScreen(),
+                  routes: [
+                    GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
+                    GoRoute(
+                      path: 'block',
+                      builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
+                        create: (_) => BlockingUserManagementPresenter(),
+                        child: const BlockingUserManagementView(),
+                      ),
                     ),
-                  ),
-                  GoRoute(path: 'account_info', builder: (context, state) => const AccountInfoView()),
-                  GoRoute(
-                    path: 'account_detail',
-                    builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
-                      create: (_) => AccountDetailPresenter(),
-                      child: const AccountDetailView(),
+                    GoRoute(path: 'account_info', builder: (context, state) => const AccountInfoView()),
+                    GoRoute(
+                      path: 'account_detail',
+                      builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
+                        create: (_) => AccountDetailPresenter(),
+                        child: const AccountDetailView(),
+                      ),
                     ),
-                  ),
-                ]),
+                  ],
+                ),
               ],
             ),
           ],

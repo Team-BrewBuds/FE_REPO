@@ -67,11 +67,15 @@
     <key>NSLocationAlwaysUsageDescription</key>
     <string>앱을 실행 중일 때 항상 위치 정보가 필요합니다.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>To capture profile photo please grant camera access</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app required NSMicrophoneUsageDescription permission</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>App needs access to photo lib for profile images</string>
+    <string>카메라를 사용하여 사진을 촬영합니다.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Brewbuds가 회원님의 커피노트를 작성을 위해 사진 촬영 및 첨부를 지원합니다.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Brewbuds가 회원님의 사진을 저장하기 위해 사진 라이브러리에 접근합니다.</string>
+    <key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+    <true/>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>To enable GPS location access for Exif data</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
