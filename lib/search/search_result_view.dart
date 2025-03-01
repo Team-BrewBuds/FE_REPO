@@ -168,39 +168,12 @@ class _SearchResultViewState extends State<SearchResultView>
         searchWord: textEditingController.text,
       ),
     );
-    return InkWell(
-      onTap: () {},
-      child: TastedRecordResultsItem(
-        imageUri: model.imageUri,
-        beanName: model.title,
-        beanType: model.beanType,
-        rating: model.rating,
-        tasteList: model.taste,
-        contents: model.contents,
-        searchWord: textEditingController.text,
-      ),
-    );
   }
 
   Widget _buildPostResultItem(PostSearchResultModel model) {
     return buildOpenablePostDetailView(
       id: model.id,
       closeBuilder: (context, _) => PostResultsItem(
-        title: model.title,
-        contents: model.contents,
-        searchWord: textEditingController.text,
-        likeCount: model.likeCount,
-        commentsCount: model.commentCount,
-        subject: model.subject,
-        createdAt: model.createdAt,
-        hits: model.hits,
-        writerNickName: model.authorNickname,
-        imageUri: model.imageUri,
-      ),
-    );
-    return InkWell(
-      onTap: () {},
-      child: PostResultsItem(
         title: model.title,
         contents: model.contents,
         searchWord: textEditingController.text,
