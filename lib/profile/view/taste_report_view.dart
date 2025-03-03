@@ -2,7 +2,7 @@ import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/profile/model/in_profile/bean_in_profile.dart';
 import 'package:brew_buds/profile/model/in_profile/post_in_profile.dart';
 import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
@@ -440,9 +440,11 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 (index) {
                   final activity = activityListState.page.result[index];
                   if (activity is TastingRecordInProfile) {
-                    return buildOpenableTastingRecordDetailView(
-                      id: activity.id,
-                      closeBuilder: (context, action) => SavedTastingRecordWidget(
+                    return GestureDetector(
+                      onTap: () {
+                        showTastingRecordDetail(context: context, id: activity.id);
+                      },
+                      child: SavedTastingRecordWidget(
                         beanName: activity.beanName,
                         rating: '4.5',
                         likeCount: '22',
@@ -451,9 +453,11 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                       ),
                     );
                   } else if (activity is PostInProfile) {
-                    return buildOpenablePostDetailView(
-                      id: activity.id,
-                      closeBuilder: (context, action) => ProfilePostItemWidget(
+                    return GestureDetector(
+                      onTap: () {
+                        showTastingRecordDetail(context: context, id: activity.id);
+                      },
+                      child: ProfilePostItemWidget(
                         title: activity.title,
                         author: activity.author,
                         createdAt: activity.createdAt,
@@ -468,9 +472,11 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                       imageUri: '',
                     );
                   } else if (activity is SavedPost) {
-                    return buildOpenablePostDetailView(
-                      id: activity.id,
-                      closeBuilder: (context, action) => SavedPostWidget(
+                    return GestureDetector(
+                      onTap: () {
+                        showTastingRecordDetail(context: context, id: activity.id);
+                      },
+                      child: SavedPostWidget(
                         title: activity.title,
                         subject: activity.subject.toString(),
                         createdAt: activity.createdAt,
@@ -479,13 +485,15 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                       ),
                     );
                   } else if (activity is SavedTastingRecord) {
-                    return buildOpenableTastingRecordDetailView(
-                      id: activity.id,
-                      closeBuilder: (context, action) => SavedTastingRecordWidget(
+                    return GestureDetector(
+                      onTap: () {
+                        showTastingRecordDetail(context: context, id: activity.id);
+                      },
+                      child: SavedTastingRecordWidget(
                         beanName: activity.beanName,
                         rating: '4.5',
                         likeCount: '22',
-                        flavor: [],
+                        flavor: activity.flavor,
                         imageUri: activity.imageUri,
                       ),
                     );

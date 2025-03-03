@@ -22,5 +22,12 @@ class TastingRecordInProfile {
     this.likeCount,
   );
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || other is TastingRecordInProfile && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
   factory TastingRecordInProfile.fromJson(Map<String, dynamic> json) => _$TastingRecordInProfileFromJson(json);
 }

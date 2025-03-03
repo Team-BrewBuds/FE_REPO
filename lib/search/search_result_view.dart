@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/filter/filter_presenter.dart';
@@ -156,9 +156,11 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildTastingRecordResultItem(TastedRecordSearchResultModel model) {
-    return buildOpenableTastingRecordDetailView(
-      id: model.id,
-      closeBuilder: (context, _) => TastedRecordResultsItem(
+    return GestureDetector(
+      onTap: () {
+        showTastingRecordDetail(context: context, id: model.id);
+      },
+      child: TastedRecordResultsItem(
         imageUri: model.imageUri,
         beanName: model.title,
         beanType: model.beanType,
@@ -171,9 +173,11 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildPostResultItem(PostSearchResultModel model) {
-    return buildOpenablePostDetailView(
-      id: model.id,
-      closeBuilder: (context, _) => PostResultsItem(
+    return GestureDetector(
+      onTap: () {
+        showTastingRecordDetail(context: context, id: model.id);
+      },
+      child: PostResultsItem(
         title: model.title,
         contents: model.contents,
         searchWord: textEditingController.text,

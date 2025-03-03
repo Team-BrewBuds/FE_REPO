@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/all/home_all_presenter.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
@@ -105,9 +105,11 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
           name: post.tastingRecords[index].beanName,
           tags: post.tastingRecords[index].flavors,
         ),
-        childBuilder: (context, index) => buildOpenableTastingRecordDetailView(
-          id: post.tastingRecords[index].id,
-          closeBuilder: (context, _) => Container(
+        childBuilder: (context, index) => GestureDetector(
+          onTap: () {
+            showTastingRecordDetail(context: context, id: post.tastingRecords[index].id);
+          },
+          child: Container(
             color: ColorStyles.white,
             child: TastingRecordButton(
               name: post.tastingRecords[index].beanName,

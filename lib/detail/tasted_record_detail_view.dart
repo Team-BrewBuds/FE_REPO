@@ -57,101 +57,102 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: _buildAppbar(),
-        body: LayoutBuilder(builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Selector<TastedRecordPresenter, List<String>>(
-                  selector: (context, presenter) => presenter.imageUriList,
-                  builder: (context, imageUriList, child) => _buildImageListView(imageUriList: imageUriList),
-                ),
-                Selector<TastedRecordPresenter, BottomButtonInfo>(
-                  selector: (context, presenter) => presenter.bottomButtonInfo,
-                  builder: (context, bottomButtonInfo, child) => _buildButtons(
-                    likeCount: bottomButtonInfo.likeCount,
-                    isLiked: bottomButtonInfo.isLiked,
-                    commentCount: bottomButtonInfo.commentCount,
-                    isSaved: bottomButtonInfo.isSaved,
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: _buildAppbar(),
+          body: LayoutBuilder(builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Selector<TastedRecordPresenter, List<String>>(
+                    selector: (context, presenter) => presenter.imageUriList,
+                    builder: (context, imageUriList, child) => _buildImageListView(imageUriList: imageUriList),
                   ),
-                ),
-                Selector<TastedRecordPresenter, String>(
-                  selector: (context, presenter) => presenter.title,
-                  builder: (context, title, child) => _buildTitle(title: title),
-                ),
-                Selector<TastedRecordPresenter, ProfileInfo>(
-                  selector: (context, presenter) => presenter.profileInfo,
-                  builder: (context, profileInfo, child) => _buildAuthorProfile(
-                    nickName: profileInfo.nickName,
-                    authorId: profileInfo.authorId,
-                    profileImageUri: profileInfo.profileImageUri,
-                    isFollow: profileInfo.isFollow,
+                  Selector<TastedRecordPresenter, BottomButtonInfo>(
+                    selector: (context, presenter) => presenter.bottomButtonInfo,
+                    builder: (context, bottomButtonInfo, child) => _buildButtons(
+                      likeCount: bottomButtonInfo.likeCount,
+                      isLiked: bottomButtonInfo.isLiked,
+                      isSaved: bottomButtonInfo.isSaved,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Selector<TastedRecordPresenter, ContentsInfo>(
-                  selector: (context, presenter) => presenter.contentsInfo,
-                  builder: (context, contentsInfo, child) => _buildContents(
-                    rating: contentsInfo.rating,
-                    flavors: contentsInfo.flavors,
-                    tastedAt: contentsInfo.tastedAt,
-                    contents: contentsInfo.contents,
-                    location: contentsInfo.location,
+                  Selector<TastedRecordPresenter, String>(
+                    selector: (context, presenter) => presenter.title,
+                    builder: (context, title, child) => _buildTitle(title: title),
                   ),
-                ),
-                const SizedBox(height: 48),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
-                  decoration: BoxDecoration(
-                    color: ColorStyles.gray10,
-                    borderRadius: BorderRadius.circular(4),
+                  Selector<TastedRecordPresenter, ProfileInfo>(
+                    selector: (context, presenter) => presenter.profileInfo,
+                    builder: (context, profileInfo, child) => _buildAuthorProfile(
+                      nickName: profileInfo.nickName,
+                      authorId: profileInfo.authorId,
+                      profileImageUri: profileInfo.profileImageUri,
+                      isFollow: profileInfo.isFollow,
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Selector<TastedRecordPresenter, BeanInfo>(
-                        selector: (context, presenter) => presenter.beanInfo,
-                        builder: (context, beanInfo, child) => _buildBeanDetail(
-                          beanType: beanInfo.beanType,
-                          isDecaf: beanInfo.isDecaf,
-                          country: beanInfo.country,
-                          region: beanInfo.region,
-                          process: beanInfo.process,
-                          roastingPoint: beanInfo.roastingPoint,
+                  const SizedBox(height: 32),
+                  Selector<TastedRecordPresenter, ContentsInfo>(
+                    selector: (context, presenter) => presenter.contentsInfo,
+                    builder: (context, contentsInfo, child) => _buildContents(
+                      rating: contentsInfo.rating,
+                      flavors: contentsInfo.flavors,
+                      tastedAt: contentsInfo.tastedAt,
+                      contents: contentsInfo.contents,
+                      location: contentsInfo.location,
+                    ),
+                  ),
+                  const SizedBox(height: 48),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
+                    decoration: BoxDecoration(
+                      color: ColorStyles.gray10,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Column(
+                      children: [
+                        Selector<TastedRecordPresenter, BeanInfo>(
+                          selector: (context, presenter) => presenter.beanInfo,
+                          builder: (context, beanInfo, child) => _buildBeanDetail(
+                            beanType: beanInfo.beanType,
+                            isDecaf: beanInfo.isDecaf,
+                            country: beanInfo.country,
+                            region: beanInfo.region,
+                            process: beanInfo.process,
+                            roastingPoint: beanInfo.roastingPoint,
+                          ),
                         ),
-                      ),
-                      Selector<TastedRecordPresenter, TastingReview?>(
-                        selector: (context, presenter) => presenter.tastingReview,
-                        builder: (context, tastingReview, child) => tastingReview != null
-                            ? _buildTastingGraph(
-                                bodyValue: tastingReview.body,
-                                acidityValue: tastingReview.acidity,
-                                acerbityValue: tastingReview.bitterness,
-                                sweetnessValue: tastingReview.sweetness,
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                        Selector<TastedRecordPresenter, TastingReview?>(
+                          selector: (context, presenter) => presenter.tastingReview,
+                          builder: (context, tastingReview, child) => tastingReview != null
+                              ? _buildTastingGraph(
+                                  bodyValue: tastingReview.body,
+                                  acidityValue: tastingReview.acidity,
+                                  acerbityValue: tastingReview.bitterness,
+                                  sweetnessValue: tastingReview.sweetness,
+                                )
+                              : const SizedBox.shrink(),
+                        ),
+                      ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 48),
-                Selector<TastedRecordPresenter, CommentsInfo>(
-                  selector: (context, presenter) => presenter.commentsInfo,
-                  builder: (context, commentsInfo, child) => buildComments(
-                    authorId: commentsInfo.authorId,
-                    comments: commentsInfo.page?.comments ?? [],
+                  const SizedBox(height: 48),
+                  Selector<TastedRecordPresenter, CommentsInfo>(
+                    selector: (context, presenter) => presenter.commentsInfo,
+                    builder: (context, commentsInfo, child) => buildComments(
+                      authorId: commentsInfo.authorId,
+                      comments: commentsInfo.page?.comments ?? [],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }),
-        bottomNavigationBar: Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: _buildBottomTextField(),
+                ],
+              ),
+            );
+          }),
+          bottomNavigationBar: Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: _buildBottomTextField(),
+          ),
         ),
       ),
     );
@@ -212,7 +213,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
   Widget _buildBottomTextField() {
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 12),
+        padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 24),
         decoration:
             const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20)), color: ColorStyles.white),
         child: TextField(
@@ -270,7 +271,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
   Widget _buildButtons({
     required int likeCount,
     required isLiked,
-    required int commentCount,
     required bool isSaved,
   }) {
     return Padding(
@@ -278,8 +278,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
       child: Row(
         children: [
           buildLikeButton(likeCount: likeCount, isLiked: isLiked),
-          const SizedBox(width: 6),
-          buildCommentButton(commentCount: commentCount),
           const Spacer(),
           buildSaveButton(isSaved: isSaved),
         ],
