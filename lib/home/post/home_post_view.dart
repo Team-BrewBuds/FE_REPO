@@ -3,7 +3,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/core/home_view_mixin.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
@@ -45,83 +45,78 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       slivers: [
         Selector<HomePostPresenter, HomePostFeedFilterState>(
           selector: (context, presenter) => presenter.homePostFeedFilterState,
-          builder: (context, homePostFeedFilterState, child) =>
-              buildListViewTitle(filters: homePostFeedFilterState.postSubjectFilterList,
-                currentFilterIndex: homePostFeedFilterState.currentFilterIndex,),
+          builder: (context, homePostFeedFilterState, child) => buildListViewTitle(
+            filters: homePostFeedFilterState.postSubjectFilterList,
+            currentFilterIndex: homePostFeedFilterState.currentFilterIndex,
+          ),
         ),
         buildRefreshWidget(),
         Selector<HomePostPresenter, DefaultPage<PostInFeed>>(
           selector: (context, presenter) => presenter.page,
-          builder: (context, page, child) =>
-              SliverList.separated(
-                itemCount: page.result.length,
-                itemBuilder: (context, index) {
-                  final post = page.result[index];
-                  if (index % 12 == 11) {
-                    return Column(
-                      children: [
-                        _buildPostFeed(post),
-                        Container(height: 12, color: ColorStyles.gray20),
-                        buildRemandedBuddies(currentPageIndex: (index / 12).floor()),
-                      ],
-                    );
-                  } else {
-                    return _buildPostFeed(post);
-                  }
-                },
-                separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
-              ),
+          builder: (context, page, child) => SliverList.separated(
+            itemCount: page.result.length,
+            itemBuilder: (context, index) {
+              final post = page.result[index];
+              if (index % 12 == 11) {
+                return Column(
+                  children: [
+                    _buildPostFeed(post),
+                    Container(height: 12, color: ColorStyles.gray20),
+                    buildRemandedBuddies(currentPageIndex: (index / 12).floor()),
+                  ],
+                );
+              } else {
+                return _buildPostFeed(post);
+              }
+            },
+            separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildPostFeed(PostInFeed post) {
-    final width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    final width = MediaQuery.of(context).size.width;
     final Widget? child;
 
     if (post.imagesUri.isNotEmpty) {
       child = HorizontalSliderWidget(
         itemLength: post.imagesUri.length,
-        itemBuilder: (context, index) =>
-            MyNetworkImage(
-              imageUri: post.imagesUri[index],
-              height: width,
-              width: width,
-              color: const Color(0xffD9D9D9),
-            ),
+        itemBuilder: (context, index) => MyNetworkImage(
+          imageUri: post.imagesUri[index],
+          height: width,
+          width: width,
+          color: const Color(0xffD9D9D9),
+        ),
       );
     } else if (post.tastingRecords.isNotEmpty) {
       child = HorizontalSliderWidget(
         itemLength: post.tastingRecords.length,
-        itemBuilder: (context, index) =>
-            TastingRecordCard(
-              image: MyNetworkImage(
-                imageUri: post.tastingRecords[index].thumbnailUri,
-                height: width,
-                width: width,
-                color: const Color(0xffD9D9D9),
-              ),
-              rating: '${post.tastingRecords[index].rating}',
-              type: post.tastingRecords[index].beanType,
+        itemBuilder: (context, index) => TastingRecordCard(
+          image: MyNetworkImage(
+            imageUri: post.tastingRecords[index].thumbnailUri,
+            height: width,
+            width: width,
+            color: const Color(0xffD9D9D9),
+          ),
+          rating: '${post.tastingRecords[index].rating}',
+          type: post.tastingRecords[index].beanType,
+          name: post.tastingRecords[index].beanName,
+          tags: post.tastingRecords[index].flavors,
+        ),
+        childBuilder: (context, index) => GestureDetector(
+          onTap: () {
+            showTastingRecordDetail(context: context, id: post.tastingRecords[index].id);
+          },
+          child: Container(
+            color: ColorStyles.white,
+            child: TastingRecordButton(
               name: post.tastingRecords[index].beanName,
-              tags: post.tastingRecords[index].flavors,
+              bodyText: post.tastingRecords[index].contents,
             ),
-        childBuilder: (context, index) =>
-            buildOpenableTastingRecordDetailView(
-              id: post.tastingRecords[index].id,
-              closeBuilder: (context, _) =>
-                  Container(
-                    color: ColorStyles.white,
-                    child: TastingRecordButton(
-                      name: post.tastingRecords[index].beanName,
-                      bodyText: post.tastingRecords[index].contents,
-                    ),
-                  ),
-            ),
+          ),
+        ),
       );
     } else {
       child = null;
@@ -177,7 +172,7 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
           child: Row(
             children: List<Widget>.generate(
               filters.length + 1,
-                  (index) {
+              (index) {
                 if (index == 0) {
                   return ButtonFactory.buildOvalButton(
                     onTapped: () => context.push('/home/popular_post'),
@@ -196,15 +191,15 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
                     text: filters[index - 1],
                     style: index - 1 == currentFilterIndex
                         ? OvalButtonStyle.fill(
-                      color: ColorStyles.black,
-                      textColor: ColorStyles.white,
-                      size: OvalButtonSize.medium,
-                    )
+                            color: ColorStyles.black,
+                            textColor: ColorStyles.white,
+                            size: OvalButtonSize.medium,
+                          )
                         : OvalButtonStyle.line(
-                      color: ColorStyles.gray70,
-                      textColor: ColorStyles.gray70,
-                      size: OvalButtonSize.medium,
-                    ),
+                            color: ColorStyles.gray70,
+                            textColor: ColorStyles.gray70,
+                            size: OvalButtonSize.medium,
+                          ),
                   );
                 }
               },

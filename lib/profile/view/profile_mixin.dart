@@ -5,7 +5,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/filter/filter_presenter.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
@@ -539,22 +539,25 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         : SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverGrid.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 4,
-                  crossAxisSpacing: 4,
-                ),
-                itemCount: tastingRecords.length,
-                itemBuilder: (context, index) {
-                  final tastingRecord = tastingRecords[index];
-                  return buildOpenableTastingRecordDetailView(
-                    id: tastingRecord.id,
-                    closeBuilder: (context, action) => TastingRecordItemWidget(
-                      imageUri: tastingRecord.imageUri,
-                      rating: tastingRecord.rating,
-                    ),
-                  );
-                }),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+              ),
+              itemCount: tastingRecords.length,
+              itemBuilder: (context, index) {
+                final tastingRecord = tastingRecords[index];
+                return GestureDetector(
+                  onTap: () {
+                    showTastingRecordDetail(context: context, id: tastingRecords[index].id);
+                  },
+                  child: TastingRecordItemWidget(
+                    imageUri: tastingRecord.imageUri,
+                    rating: tastingRecord.rating,
+                  ),
+                );
+              },
+            ),
           );
   }
 
@@ -569,9 +572,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final post = posts[index];
-              return buildOpenablePostDetailView(
-                id: post.id,
-                closeBuilder: (context, action) => ProfilePostItemWidget(
+              return GestureDetector(
+                onTap: () {
+                  showTastingRecordDetail(context: context, id: post.id);
+                },
+                child: ProfilePostItemWidget(
                   title: post.title,
                   author: post.author,
                   createdAt: post.createdAt,
@@ -621,9 +626,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             itemBuilder: (context, index) {
               final note = savedNotes[index];
               if (note is SavedPost) {
-                return buildOpenablePostDetailView(
-                  id: note.id,
-                  closeBuilder: (context, action) => SavedPostWidget(
+                return GestureDetector(
+                  onTap: () {
+                    showTastingRecordDetail(context: context, id: note.id);
+                  },
+                  child: SavedPostWidget(
                     title: note.title,
                     subject: note.subject.toString(),
                     createdAt: note.createdAt,
@@ -632,9 +639,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   ),
                 );
               } else if (note is SavedTastingRecord) {
-                return buildOpenableTastingRecordDetailView(
-                  id: note.id,
-                  closeBuilder: (context, action) => SavedTastingRecordWidget(
+                return GestureDetector(
+                  onTap: () {
+                    showTastingRecordDetail(context: context, id: note.id);
+                  },
+                  child: SavedTastingRecordWidget(
                     beanName: note.beanName,
                     rating: '4.5',
                     likeCount: '22',

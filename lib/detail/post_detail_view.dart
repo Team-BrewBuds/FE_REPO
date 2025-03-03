@@ -8,7 +8,7 @@ import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/detail/post_detail_presenter.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_button.dart';
@@ -50,56 +50,63 @@ class _PostDetailViewState extends State<PostDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildTitle(),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Selector<PostDetailPresenter, ProfileInfo>(
-              selector: (context, presenter) => presenter.profileInfo,
-              builder: (context, profileInfo, child) => _buildProfile(
-                authorId: profileInfo.authorId,
-                nickName: profileInfo.nickName,
-                imageUri: profileInfo.profileImageUri,
-                createdAt: profileInfo.createdAt,
-                viewCount: profileInfo.viewCount,
-              ),
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: true,
+          appBar: _buildTitle(),
+          body: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Selector<PostDetailPresenter, ProfileInfo>(
+                  selector: (context, presenter) => presenter.profileInfo,
+                  builder: (context, profileInfo, child) => _buildProfile(
+                    authorId: profileInfo.authorId,
+                    nickName: profileInfo.nickName,
+                    imageUri: profileInfo.profileImageUri,
+                    createdAt: profileInfo.createdAt,
+                    viewCount: profileInfo.viewCount,
+                  ),
+                ),
+                Selector<PostDetailPresenter, BodyInfo>(
+                  selector: (context, presenter) => presenter.bodyInfo,
+                  builder: (context, bodyInfo, child) => buildBody(
+                    imageUriList: bodyInfo.imageUriList,
+                    tastingRecords: bodyInfo.tastingRecords,
+                    title: bodyInfo.title,
+                    contents: bodyInfo.contents,
+                    tag: bodyInfo.tag,
+                    subject: bodyInfo.subject,
+                  ),
+                ),
+                Selector<PostDetailPresenter, BottomButtonInfo>(
+                  selector: (context, presenter) => presenter.bottomButtonInfo,
+                  builder: (context, bottomButtonInfo, child) => buildBottomButtons(
+                    likeCount: bottomButtonInfo.likeCount,
+                    isLiked: bottomButtonInfo.isLiked,
+                    isSaved: bottomButtonInfo.isSaved,
+                  ),
+                ),
+                Container(height: 12, color: ColorStyles.gray20),
+                Selector<PostDetailPresenter, CommentsInfo>(
+                  selector: (context, presenter) => presenter.commentsInfo,
+                  builder: (context, commentsInfo, child) => buildComments(
+                    authorId: commentsInfo.authorId,
+                    comments: commentsInfo.page?.comments ?? [],
+                  ),
+                ),
+              ],
             ),
-            Selector<PostDetailPresenter, BodyInfo>(
-              selector: (context, presenter) => presenter.bodyInfo,
-              builder: (context, bodyInfo, child) => buildBody(
-                imageUriList: bodyInfo.imageUriList,
-                tastingRecords: bodyInfo.tastingRecords,
-                title: bodyInfo.title,
-                contents: bodyInfo.contents,
-                tag: bodyInfo.tag,
-                subject: bodyInfo.subject,
-              ),
-            ),
-            Selector<PostDetailPresenter, BottomButtonInfo>(
-              selector: (context, presenter) => presenter.bottomButtonInfo,
-              builder: (context, bottomButtonInfo, child) => buildBottomButtons(
-                likeCount: bottomButtonInfo.likeCount,
-                isLiked: bottomButtonInfo.isLiked,
-                commentCount: bottomButtonInfo.commentCount,
-                isSaved: bottomButtonInfo.isSaved,
-              ),
-            ),
-            Container(height: 12, color: ColorStyles.gray20),
-            Selector<PostDetailPresenter, CommentsInfo>(
-              selector: (context, presenter) => presenter.commentsInfo,
-              builder: (context, commentsInfo, child) => buildComments(
-                authorId: commentsInfo.authorId,
-                comments: commentsInfo.page?.comments ?? [],
-              ),
-            ),
-          ],
+          ),
+          bottomNavigationBar: Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: _buildBottomTextField(),
+          ),
         ),
-      ),
-      bottomNavigationBar: Padding(
-        padding: MediaQuery.of(context).viewInsets,
-        child: _buildBottomTextField(),
       ),
     );
   }
@@ -251,9 +258,11 @@ class _PostDetailViewState extends State<PostDetailView> {
               name: tastingRecords[index].beanName,
               tags: tastingRecords[index].flavors,
             ),
-            childBuilder: (context, index) => buildOpenableTastingRecordDetailView(
-              id: tastingRecords[index].id,
-              closeBuilder: (context, _) => Container(
+            childBuilder: (context, index) => GestureDetector(
+              onTap: () {
+                showTastingRecordDetail(context: context, id: tastingRecords[index].id);
+              },
+              child: Container(
                 color: ColorStyles.white,
                 child: TastingRecordButton(
                   name: tastingRecords[index].beanName,
@@ -327,7 +336,6 @@ class _PostDetailViewState extends State<PostDetailView> {
   Widget buildBottomButtons({
     required int likeCount,
     required isLiked,
-    required int commentCount,
     required bool isSaved,
   }) {
     return Padding(
@@ -335,8 +343,6 @@ class _PostDetailViewState extends State<PostDetailView> {
       child: Row(
         children: [
           buildLikeButton(likeCount: likeCount, isLiked: isLiked),
-          const SizedBox(width: 6),
-          buildCommentButton(commentCount: commentCount),
           const Spacer(),
           buildSaveButton(isSaved: isSaved),
         ],
@@ -571,7 +577,7 @@ class _PostDetailViewState extends State<PostDetailView> {
 
   Widget _buildBottomTextField() {
     return Container(
-      padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 0),
+      padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 12),
       decoration:
           const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20)), color: ColorStyles.white),
       child: TextField(

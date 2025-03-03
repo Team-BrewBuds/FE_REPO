@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
-import 'package:brew_buds/detail/detail_builder.dart';
+import 'package:brew_buds/detail/show_detail.dart';
 import 'package:brew_buds/home/widgets/feed_widget.dart';
 import 'package:brew_buds/home/widgets/tasting_record_feed/tasting_record_card.dart';
 import 'package:flutter/material.dart';
@@ -76,9 +76,11 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
               ),
               SizedBox(height: isOverFlow ? 8 : 0),
               if (isOverFlow)
-                buildOpenableTastingRecordDetailView(
-                  id: widget.id,
-                  closeBuilder: (context, action) => Text(
+                GestureDetector(
+                  onTap: () {
+                    showTastingRecordDetail(context: context, id: widget.id);
+                  },
+                  child: Text(
                     '더보기',
                     style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
                   ),
