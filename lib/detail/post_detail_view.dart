@@ -260,6 +260,7 @@ class _PostDetailViewState extends State<PostDetailView> {
             ),
             childBuilder: (context, index) => GestureDetector(
               onTap: () {
+                context.pop();
                 showTastingRecordDetail(context: context, id: tastingRecords[index].id);
               },
               child: Container(
@@ -299,9 +300,7 @@ class _PostDetailViewState extends State<PostDetailView> {
           Text(contents, style: TextStyles.bodyRegular),
           const SizedBox(height: 12, width: double.infinity),
           Text(
-            tag
-                .split(',')
-                .fold('', (previousValue, element) => previousValue.isEmpty ? '#$element' : '$previousValue #$element'),
+            tag.replaceAll(',', '#').startsWith('#') ? tag.replaceAll(',', '#') : '#${tag.replaceAll(',', '#')}',
             style: TextStyles.labelSmallMedium.copyWith(
               color: ColorStyles.red,
             ),

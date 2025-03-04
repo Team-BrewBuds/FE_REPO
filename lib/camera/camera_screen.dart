@@ -9,16 +9,19 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 class CameraScreen extends StatefulWidget {
   final BoxShape _previewShape;
+  final Function(BuildContext context)? onCancel;
+  final Function(BuildContext context, Uint8List? imageData)? onDone;
 
   const CameraScreen({
     super.key,
-    BoxShape previewShape = BoxShape.circle,
+    this.onCancel,
+    this.onDone,
+    BoxShape previewShape = BoxShape.rectangle,
   }) : _previewShape = previewShape;
 
   @override
@@ -64,7 +67,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        context.pop();
+                                        Navigator.of(context).pop();
                                       },
                                       child: thumbnail != null
                                           ? Container(
@@ -118,7 +121,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          context.pop();
+                          widget.onCancel?.call(context);
                         },
                         child: SvgPicture.asset(
                           'assets/icons/x.svg',
@@ -132,13 +135,13 @@ class _CameraScreenState extends State<CameraScreen> {
                         state: state,
                         onFlashTap: (sensorConfig, flashMode) {
                           if (flashMode == FlashMode.none) {
-                            sensorConfig.setFlashMode(FlashMode.always);
-                          } else if (flashMode == FlashMode.always) {
+                            sensorConfig.setFlashMode(FlashMode.on);
+                          } else if (flashMode == FlashMode.on) {
                             sensorConfig.setFlashMode(FlashMode.auto);
                           } else if (flashMode == FlashMode.auto) {
                             sensorConfig.setFlashMode(FlashMode.none);
                           } else {
-                            sensorConfig.setFlashMode(FlashMode.none);
+                            sensorConfig.setFlashMode(FlashMode.auto);
                           }
                         },
                         iconBuilder: (flashMode) {
@@ -239,7 +242,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      context.pop();
+                      widget.onCancel?.call(context);
                     },
                     child: SvgPicture.asset(
                       'assets/icons/x.svg',
@@ -322,7 +325,9 @@ class _CameraScreenState extends State<CameraScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    widget.onDone?.call(context, imageData.value);
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     decoration: const BoxDecoration(

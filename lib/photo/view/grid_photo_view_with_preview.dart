@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:brew_buds/camera/camera_screen.dart';
 import 'package:brew_buds/photo/check_selected_images_screen.dart';
 import 'package:brew_buds/photo/presenter/photo_presenter.dart';
@@ -8,7 +6,6 @@ import 'package:brew_buds/photo/widget/management_bottom_sheet.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/permission/permission_denied_view.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -90,7 +87,7 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview> {
               ),
             ),
             const Spacer(),
-            Selector<PhotoPresenter, List<Uint8List>>(
+            Selector<PhotoPresenter, List<AssetEntity>>(
               selector: (context, presenter) => presenter.selectedImages,
               builder: (context, selectedImages, child) {
                 final hasSelectedItem = selectedImages.isNotEmpty;
@@ -130,7 +127,7 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview> {
   }
 
   Widget _buildPreview() {
-    return Selector<PhotoPresenter, Uint8List?>(
+    return Selector<PhotoPresenter, AssetEntity?>(
       selector: (context, presenter) => presenter.preview,
       builder: (context, preview, child) {
         final image = preview;
@@ -138,10 +135,10 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview> {
           aspectRatio: 1,
           child: image != null
               ? widget._previewShape == BoxShape.rectangle
-                  ? ExtendedImage.memory(image, fit: BoxFit.cover)
+                  ? AssetEntityImage(image, fit: BoxFit.cover)
                   : Stack(
                       children: [
-                        Positioned.fill(child: ExtendedImage.memory(image, fit: BoxFit.cover)),
+                        Positioned.fill(child: AssetEntityImage(image, fit: BoxFit.cover)),
                         Positioned.fill(child: CustomPaint(painter: _CircleCropOverlayPainter())),
                       ],
                     )

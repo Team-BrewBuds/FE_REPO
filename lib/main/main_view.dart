@@ -1,9 +1,12 @@
 import 'package:animations/animations.dart';
+import 'package:brew_buds/coffee_note/post_write_screen.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/photo/album_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -122,57 +125,16 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      buildTastingRecordWriteScreen(
-                        closeBuilder: (context, _) {
-                          return Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: const BoxDecoration(
-                              border: Border(bottom: BorderSide(color: ColorStyles.gray10)),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 48,
-                                  width: 48,
-                                  decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                                    color: ColorStyles.gray10,
-                                  ),
-                                  child: Center(
-                                    child: SvgPicture.asset(
-                                      'assets/icons/post_fill.svg',
-                                      height: 28,
-                                      width: 28,
-                                      colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      const Text('게시글', style: TextStyles.title01SemiBold),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '자유롭게 커피에 대한 것을 공유해보세요 ',
-                                        style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                        onClosed: (_) {
-                          context.pop();
-                        }
-                      ),
                       GestureDetector(
-                        onTap: () {},
-                        child: Padding(
+                        onTap: () {
+                          context.pop();
+                          showPostWriteScreen(context: context);
+                        },
+                        child: Container(
                           padding: const EdgeInsets.all(16),
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: ColorStyles.gray10)),
+                          ),
                           child: Row(
                             children: [
                               Container(
@@ -184,7 +146,7 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                                 ),
                                 child: Center(
                                   child: SvgPicture.asset(
-                                    'assets/icons/coffee_note_fill.svg',
+                                    'assets/icons/post_fill.svg',
                                     height: 28,
                                     width: 28,
                                     colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
@@ -196,10 +158,10 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    const Text('시음기록', style: TextStyles.title01SemiBold),
+                                    const Text('게시글', style: TextStyles.title01SemiBold),
                                     const SizedBox(height: 4),
                                     Text(
-                                      '어떤 커피를 드셨나요?',
+                                      '자유롭게 커피에 대한 것을 공유해보세요 ',
                                       style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
                                     ),
                                   ],
@@ -208,6 +170,47 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                             ],
                           ),
                         ),
+                      ),
+                      buildTastingRecordWriteScreen(
+                        closeBuilder: (context, _) {
+                          return Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Container(
+                                  height: 48,
+                                  width: 48,
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                                    color: ColorStyles.gray10,
+                                  ),
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      'assets/icons/coffee_note_fill.svg',
+                                      height: 28,
+                                      width: 28,
+                                      colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      const Text('시음기록', style: TextStyles.title01SemiBold),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '어떤 커피를 드셨나요?',
+                                        style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 24, right: 42, left: 42, bottom: 16),
@@ -225,11 +228,12 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                               child: Text(
                                 '닫기',
                                 style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    height: 16.71 / 14,
-                                    letterSpacing: -0.01,
-                                    color: ColorStyles.white),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  height: 16.71 / 14,
+                                  letterSpacing: -0.01,
+                                  color: ColorStyles.white,
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ),

@@ -151,11 +151,12 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
       },
       title: post.title,
       body: post.contents,
-      tagText: post.subject.toString(),
-      tagIcon: SvgPicture.asset(
+      subjectText: post.subject.toString(),
+      subjectIcon: SvgPicture.asset(
         post.subject.iconPath,
         colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
+      tag: post.tag,
       child: child,
     );
   }

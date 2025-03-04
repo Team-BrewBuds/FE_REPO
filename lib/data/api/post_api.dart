@@ -17,7 +17,7 @@ abstract class PostApi {
 
   @POST('/records/post/')
   Future<void> createPosts({
-    @Body() required String data
+    @Body() required Map<String, dynamic> data
   });
 
 

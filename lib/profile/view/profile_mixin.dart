@@ -574,7 +574,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               final post = posts[index];
               return GestureDetector(
                 onTap: () {
-                  showTastingRecordDetail(context: context, id: post.id);
+                  showPostDetail(context: context, id: post.id);
                 },
                 child: ProfilePostItemWidget(
                   title: post.title,

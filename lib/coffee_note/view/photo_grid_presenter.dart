@@ -5,48 +5,51 @@ import 'package:photo_manager/photo_manager.dart';
 
 typedef AlbumTitleState = ({List<Album> albumList, Album? currentAlbum});
 
-typedef ImageViewState = ({List<AssetEntity> images, List<int> selectedIndexList});
+typedef ImageViewState = ({List<AssetEntity> images, List<AssetEntity> selectedImages});
 
-final class PhotoPresenter extends ChangeNotifier {
+final class PhotoGridPresenter extends ChangeNotifier {
   final PermissionStatus _permissionState;
   List<Album> _albumList = [];
   List<AssetEntity> _currentAlbumImages = [];
-  List<int> _selectedImageIndexList = [];
+  List<AssetEntity> _selectedImages = [];
   int _currentPage = 0;
   int _currentAlbumIndex = 0;
 
-  PhotoPresenter({
+  PhotoGridPresenter({
     required PermissionStatus permissionStatus,
   }) : _permissionState = permissionStatus;
 
   String get title => _albumList.elementAtOrNull(_currentAlbumIndex)?.name ?? '최근 항목';
-
-  PermissionStatus get permissionState => _permissionState;
 
   AlbumTitleState get albumTitleState => (
         albumList: _albumList,
         currentAlbum: _albumList.elementAtOrNull(_currentAlbumIndex),
       );
 
-  List<AssetEntity> get selectedImages => _selectedImageIndexList.map((index) => _currentAlbumImages[index]).toList();
-
-  AssetEntity? get preview => selectedImages.lastOrNull;
+  List<AssetEntity> get selectedImages => _selectedImages;
 
   ImageViewState get imageViewState => (
         images: _currentAlbumImages,
-        selectedIndexList: _selectedImageIndexList,
+        selectedImages: _selectedImages,
       );
 
   initState() async {
-    if ((_permissionState.isGranted) || (_permissionState.isLimited)) {
+    if (_permissionState.isGranted || _permissionState.isLimited) {
       _fetchAlbums();
     }
   }
 
   onRefresh() async {}
 
+  checkSelectedImagesContain() {
+    if (_permissionState.isLimited) {
+      _selectedImages = List.from(_selectedImages)..removeWhere((image) => !_currentAlbumImages.contains(image));
+      notifyListeners();
+    }
+  }
+
   /// 앨범 불러오기
-  _fetchAlbums() {
+  _fetchAlbums({Function()? onDone}) {
     PhotoManager.getAssetPathList(type: RequestType.image).then((assetsPathList) async {
       final List<Album> newAlbumList = [];
       for (int i = 0; i < assetsPathList.length; i++) {
@@ -65,23 +68,24 @@ final class PhotoPresenter extends ChangeNotifier {
         }
       }
       _albumList = List.from(newAlbumList);
-      fetchPhotos(albumChange: true);
+      fetchPhotos(albumChange: true, onDone: onDone);
     });
   }
 
   /// 앨범 내 사진 불러오기
-  fetchPhotos({bool albumChange = false}) {
+  fetchPhotos({bool albumChange = false, Function()? onDone}) {
     if (_albumList.isEmpty) return;
     if (albumChange) {
       _currentPage = 0;
-      _currentAlbumImages = List.from([]);
+      _currentAlbumImages = List.empty();
     } else {
       _currentPage++;
     }
     AssetPathEntity.fromId(_albumList[_currentAlbumIndex].id, type: RequestType.image).then(
       (assetPathEntity) {
-        assetPathEntity.getAssetListPaged(page: _currentPage, size: 20).then((images) {
-          _currentAlbumImages = List.from(_currentAlbumImages + images);
+        assetPathEntity.getAssetListPaged(page: _currentPage, size: 40).then((images) {
+          _currentAlbumImages = List.from(_currentAlbumImages)..addAll(images);
+          onDone?.call();
           notifyListeners();
         });
       },
@@ -89,17 +93,18 @@ final class PhotoPresenter extends ChangeNotifier {
   }
 
   onChangeAlbum(int index) async {
-    _currentAlbumIndex = index;
-    _selectedImageIndexList = List.from([]);
-    await fetchPhotos(albumChange: true);
+    if (_currentAlbumIndex != index) {
+      _currentAlbumIndex = index;
+      await fetchPhotos(albumChange: true);
+    }
   }
 
-  Future<bool> onSelectedImage(int index) async {
-    if (_selectedImageIndexList.contains(index)) {
-      _selectedImageIndexList = List.from(_selectedImageIndexList..remove(index));
+  Future<bool> onSelectedImage(AssetEntity image) async {
+    if (_selectedImages.contains(image)) {
+      _selectedImages = List.from(_selectedImages)..remove(image);
     } else {
-      if (_selectedImageIndexList.length < 10) {
-        _selectedImageIndexList = List.from(_selectedImageIndexList + [index]);
+      if (_selectedImages.length < 10) {
+        _selectedImages = List.from(_selectedImages)..add(image);
       } else {
         return false;
       }
@@ -110,7 +115,11 @@ final class PhotoPresenter extends ChangeNotifier {
 
   reselectedImage() {
     PhotoManager.presentLimited(type: RequestType.image).then((value) {
-      _fetchAlbums();
+      _fetchAlbums(
+        onDone: () {
+          checkSelectedImagesContain();
+        },
+      );
     });
   }
 }
