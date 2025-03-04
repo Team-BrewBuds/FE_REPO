@@ -1,4 +1,3 @@
-import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/filter/model/search_sort_criteria.dart';

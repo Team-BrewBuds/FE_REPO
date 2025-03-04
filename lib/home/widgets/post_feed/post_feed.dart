@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 class PostFeed extends FeedWidget {
   final String title;
   final String body;
-  final String tagText;
-  final Widget tagIcon;
+  final String subjectText;
+  final Widget subjectIcon;
+  final String tag;
   final Widget? child;
 
   @override
@@ -34,8 +35,9 @@ class PostFeed extends FeedWidget {
     required super.onTapSaveButton,
     required this.title,
     required this.body,
-    required this.tagText,
-    required this.tagIcon,
+    required this.subjectText,
+    required this.subjectIcon,
+    required this.tag,
     this.child,
   });
 }
@@ -74,7 +76,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: [_buildTag(), const Spacer()],
+            children: [_buildSubject(), const Spacer()],
           ),
           const SizedBox(height: 12, width: double.infinity),
           Text(
@@ -101,20 +103,31 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
                 style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
               ),
             ),
+          if (widget.tag.isNotEmpty) ...[
+            const SizedBox(height: 12, width: double.infinity),
+            Text(
+              widget.tag.replaceAll(',', '#').startsWith('#')
+                  ? widget.tag.replaceAll(',', '#')
+                  : '#${widget.tag.replaceAll(',', '#')}',
+              style: TextStyles.labelSmallMedium.copyWith(
+                color: ColorStyles.red,
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildTag() {
+  Widget _buildSubject() {
     return Container(
       padding: const EdgeInsets.all(5.5),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black),
       child: Row(
         children: [
-          SizedBox(height: 12, width: 12, child: widget.tagIcon),
+          SizedBox(height: 12, width: 12, child: widget.subjectIcon),
           const SizedBox(width: 2),
-          Text(widget.tagText, style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white)),
+          Text(widget.subjectText, style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white)),
         ],
       ),
     );

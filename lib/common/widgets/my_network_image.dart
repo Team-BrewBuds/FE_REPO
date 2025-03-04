@@ -5,7 +5,7 @@ class MyNetworkImage extends StatelessWidget {
   final String imageUri;
   final double height;
   final double width;
-  final Color color;
+  final Color? color;
   final BoxShape? shape;
   final BoxBorder? border;
 
@@ -37,7 +37,7 @@ class MyNetworkImage extends StatelessWidget {
     required this.imageUri,
     required this.height,
     required this.width,
-    required this.color,
+    this.color,
     this.shape,
     this.border,
   });

@@ -1,35 +1,42 @@
+import 'dart:typed_data';
+
+import 'package:brew_buds/camera/camera_screen.dart';
+import 'package:brew_buds/coffee_note/view/photo_grid_presenter.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/permission/permission_denied_view.dart';
-import 'package:brew_buds/photo/model/photo.dart';
-import 'package:brew_buds/photo/presenter/photo_presenter.dart';
 import 'package:brew_buds/photo/view/album_list_view.dart';
 import 'package:brew_buds/photo/widget/management_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:provider/provider.dart';
 
-class GridPhotoView extends StatefulWidget {
+class PhotoGridView extends StatefulWidget {
   final PermissionStatus _permissionStatus;
+  final Function(BuildContext context)? onCancel;
+  final Function(BuildContext context, List<AssetEntity> selectedImages)? onDone;
+  final Function(BuildContext context, Uint8List? imageData)? onDoneCamera;
 
-  const GridPhotoView({
+  const PhotoGridView({
     super.key,
     required PermissionStatus permissionStatus,
+    this.onCancel,
+    this.onDone,
+    this.onDoneCamera,
   }) : _permissionStatus = permissionStatus;
 
   @override
-  State<GridPhotoView> createState() => _GridPhotoViewState();
+  State<PhotoGridView> createState() => _PhotoGridViewState();
 }
 
-class _GridPhotoViewState extends State<GridPhotoView> {
+class _PhotoGridViewState extends State<PhotoGridView> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<PhotoPresenter>().initState();
+      context.read<PhotoGridPresenter>().initState();
     });
     super.initState();
   }
@@ -77,7 +84,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
               left: 0,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).pop();
+                  widget.onCancel?.call(context);
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',
@@ -87,7 +94,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
                 ),
               ),
             ),
-            Selector<PhotoPresenter, AlbumTitleState>(
+            Selector<PhotoGridPresenter, AlbumTitleState>(
               selector: (context, presenter) => presenter.albumTitleState,
               builder: (context, albumTitleState, child) {
                 final currentAlbum = albumTitleState.currentAlbum;
@@ -101,7 +108,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
                             ),
                           );
                           if (result != null && context.mounted) {
-                            context.read<PhotoPresenter>().onChangeAlbum(result);
+                            context.read<PhotoGridPresenter>().onChangeAlbum(result);
                           }
                         },
                         child: Row(
@@ -120,7 +127,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
             ),
             Positioned(
               right: 0,
-              child: Selector<PhotoPresenter, List<AssetEntity>>(
+              child: Selector<PhotoGridPresenter, List<AssetEntity>>(
                 selector: (context, presenter) => presenter.selectedImages,
                 builder: (context, selectedImages, child) {
                   final hasSelectedItem = selectedImages.isNotEmpty;
@@ -128,7 +135,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
                     absorbing: !hasSelectedItem,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pop(selectedImages);
+                        widget.onDone?.call(context, selectedImages);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -185,11 +192,11 @@ class _GridPhotoViewState extends State<GridPhotoView> {
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scroll) {
         if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-          context.read<PhotoPresenter>().fetchPhotos();
+          context.read<PhotoGridPresenter>().fetchPhotos();
         }
         return false;
       },
-      child: Selector<PhotoPresenter, ImageViewState>(
+      child: Selector<PhotoGridPresenter, ImageViewState>(
         selector: (context, presenter) => presenter.imageViewState,
         builder: (context, imageViewState, child) {
           return GridView.builder(
@@ -205,8 +212,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
               } else {
                 return _buildImage(
                   image: imageViewState.images[index - 1],
-                  index: index - 1,
-                  selectedIndexList: imageViewState.selectedIndexList,
+                  selectedImages: imageViewState.selectedImages,
                 );
               }
             },
@@ -216,14 +222,40 @@ class _GridPhotoViewState extends State<GridPhotoView> {
     );
   }
 
+  Widget _buildCameraButton() {
+    return GestureDetector(
+      onTap: () async {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CameraScreen(
+              onCancel: (context) => Navigator.of(context).pop(),
+              onDone: widget.onDoneCamera,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        color: ColorStyles.gray50,
+        child: Center(
+          child: SvgPicture.asset(
+            'assets/icons/camera.svg',
+            height: 32,
+            width: 32,
+            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildImage({
     required AssetEntity image,
-    required int index,
-    required List<int> selectedIndexList,
+    required List<AssetEntity> selectedImages,
   }) {
+    final isSelected = selectedImages.contains(image);
     return GestureDetector(
       onTap: () {
-        context.read<PhotoPresenter>().onSelectedImage(index);
+        context.read<PhotoGridPresenter>().onSelectedImage(image);
       },
       child: Stack(
         children: [
@@ -231,13 +263,13 @@ class _GridPhotoViewState extends State<GridPhotoView> {
             aspectRatio: 1,
             child: AssetEntityImage(image, fit: BoxFit.cover),
           ),
-          if (selectedIndexList.contains(index)) // 선택된 사진 음영표시
+          if (isSelected) // 선택된 사진 음영표시
             Container(color: Colors.black.withOpacity(0.3)),
           Positioned(
             // 선택된 사진 순번표시
             top: 8,
             right: 8,
-            child: selectedIndexList.contains(index)
+            child: isSelected
                 ? Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -247,14 +279,14 @@ class _GridPhotoViewState extends State<GridPhotoView> {
                     width: 20,
                     height: 20,
                     child: Center(
-                      child: selectedIndexList.length == 1
+                      child: selectedImages.length == 1
                           ? SvgPicture.asset(
                               'assets/icons/check_red_filled.svg',
                               height: 20,
                               width: 20,
                             )
                           : Text(
-                              (selectedIndexList.indexOf(index) + 1).toString(),
+                              (selectedImages.indexOf(image) + 1).toString(),
                               style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.white),
                             ),
                     ),
@@ -270,23 +302,6 @@ class _GridPhotoViewState extends State<GridPhotoView> {
                   ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget _buildCameraButton() {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-        color: ColorStyles.gray50,
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/icons/camera.svg',
-            height: 32,
-            width: 32,
-            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-          ),
-        ),
       ),
     );
   }
@@ -308,7 +323,7 @@ class _GridPhotoViewState extends State<GridPhotoView> {
     );
     switch (result) {
       case ManagementBottomSheetResult.management:
-        context.read<PhotoPresenter>().reselectedImage();
+        context.read<PhotoGridPresenter>().reselectedImage();
       case ManagementBottomSheetResult.openSetting:
         openAppSettings();
         break;

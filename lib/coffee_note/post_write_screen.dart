@@ -1,11 +1,81 @@
+import 'package:brew_buds/coffee_note/post_write_presenter.dart';
+import 'package:brew_buds/coffee_note/view/photo_grid_presenter.dart';
+import 'package:brew_buds/coffee_note/view/photo_grid_view.dart';
+import 'package:brew_buds/coffee_note/view/tasting_record_grid_presenter.dart';
+import 'package:brew_buds/coffee_note/view/tasting_record_grid_view.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/model/photo.dart';
+import 'package:brew_buds/model/post_subject.dart';
+import 'package:brew_buds/photo/view/grid_photo_view.dart';
+import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:provider/provider.dart';
+
+showPostWriteScreen({required BuildContext context}) {
+  showCupertinoModalPopup(
+    barrierColor: ColorStyles.white,
+    barrierDismissible: false,
+    context: context,
+    builder: (context) {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => PostWritePresenter()),
+          ChangeNotifierProvider(create: (context) => TastingRecordGridPresenter()),
+        ],
+        child: MaterialApp(
+          title: 'Brew Buds',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            fontFamily: 'Pretendard',
+            scaffoldBackgroundColor: Colors.white,
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              scrolledUnderElevation: 0,
+            ),
+            useMaterial3: true,
+          ),
+          home: const PostWriteScreen(),
+        ),
+      );
+      return ChangeNotifierProvider(
+        create: (context) => PostWritePresenter(),
+        child: MaterialApp(
+          title: 'Brew Buds',
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            fontFamily: 'Pretendard',
+            scaffoldBackgroundColor: Colors.white,
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              scrolledUnderElevation: 0,
+            ),
+            useMaterial3: true,
+          ),
+          home: const PostWriteScreen(),
+        ),
+      );
+    },
+  );
+}
+
+typedef SelectedItemsState = ({List<Photo> photos, List<TastingRecordInProfile> tastingRecords});
 
 class PostWriteScreen extends StatefulWidget {
   const PostWriteScreen({
@@ -25,6 +95,28 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
   final FocusNode _tagFocusNode = FocusNode();
 
   @override
+  void initState() {
+    _tagFocusNode.addListener(() {
+      _handleFocusChange();
+    });
+    super.initState();
+  }
+
+  void _handleFocusChange() {
+    if (_tagFocusNode.hasFocus) {
+      // **1️⃣ Focus 되면 자동으로 `#` 추가**
+      if (_tagController.text.isEmpty) {
+        _tagController.value = TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
+      }
+    } else {
+      // **2️⃣ Focus 해제 시 `#`만 남아있다면 모두 삭제**
+      if (_tagController.text == '#') {
+        _tagController.value = TextEditingValue(text: '');
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _titleController.dispose();
     _contentController.dispose();
@@ -35,25 +127,25 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     super.dispose();
   }
 
-  unfocusAll() {
-    _titleFocusNode.unfocus();
-    _contentFocusNode.unfocus();
-    _tagFocusNode.unfocus();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        unfocusAll();
+        FocusManager.instance.primaryFocus?.unfocus();
       },
       child: SafeArea(
         child: Scaffold(
           appBar: _buildAppBar(),
           body: SingleChildScrollView(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildSubjectSelector(subject: null),
+                Selector<PostWritePresenter, PostSubject?>(
+                    selector: (context, presenter) => presenter.subject,
+                    builder: (context, subject, child) {
+                      return _buildSubjectSelector(subject: subject);
+                    }),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: _buildTitleTextField(),
@@ -71,48 +163,80 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: _buildTagTextField(),
                 ),
+                Selector2<PostWritePresenter, TastingRecordGridPresenter, SelectedItemsState>(
+                  selector: (context, postWritePresenter, tastingRecordGridPresenter) => (
+                    photos: postWritePresenter.images,
+                    tastingRecords: tastingRecordGridPresenter.selectedTastingRecords,
+                  ),
+                  builder: (context, selectedItemsState, _) {
+                    context.read<PostWritePresenter>().onSyncTastingRecords(selectedItemsState.tastingRecords);
+                    if (selectedItemsState.photos.isNotEmpty) {
+                      return _buildAttachedContent(
+                        itemLength: selectedItemsState.photos.length,
+                        itemBuilder: (index) {
+                          final photo = selectedItemsState.photos[index];
+                          return _buildGridItem(
+                            imageWidget: switch (photo) {
+                              PhotoWithUrl() => ExtendedImage.network(
+                                  photo.url,
+                                  fit: BoxFit.cover,
+                                  border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                ),
+                              PhotoWithData() => ExtendedImage.memory(
+                                  photo.data,
+                                  fit: BoxFit.cover,
+                                  border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                ),
+                            },
+                            isRepresentative: index == 0,
+                            onDeleteTap: () {
+                              context.read<PostWritePresenter>().onDeleteImageAt(index);
+                            },
+                          );
+                        },
+                      );
+                    } else if (selectedItemsState.tastingRecords.isNotEmpty) {
+                      return _buildAttachedContent(
+                        itemLength: selectedItemsState.tastingRecords.length,
+                        itemBuilder: (index) {
+                          final tastingRecord = selectedItemsState.tastingRecords[index];
+                          return _buildGridItem(
+                            imageWidget: ExtendedImage.network(
+                              tastingRecord.imageUri,
+                              fit: BoxFit.cover,
+                              border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                              borderRadius: const BorderRadius.all(Radius.circular(8)),
+                            ),
+                            isRepresentative: index == 0,
+                            onDeleteTap: () {
+                              context.read<TastingRecordGridPresenter>().onDeletedAt(index);
+                            },
+                          );
+                        },
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
               ],
             ),
           ),
           bottomNavigationBar: Padding(
             padding: MediaQuery.of(context).viewInsets,
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20, width: 1))),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {},
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.5),
-                          child: SvgPicture.asset('assets/icons/image.svg', width: 24, height: 24),
-                        ),
-                        SizedBox(height: 2),
-                        Text('사진', style: TextStyles.captionSmallMedium),
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.5),
-                          child: SvgPicture.asset('assets/icons/coffee.svg', width: 24, height: 24),
-                        ),
-                        SizedBox(height: 2),
-                        Text('기록', style: TextStyles.captionSmallMedium),
-                      ],
-                    ),
-                  ),
-                  Spacer(),
-                ],
+            child: Selector2<PostWritePresenter, TastingRecordGridPresenter, SelectedItemsState>(
+              selector: (context, postWritePresenter, tastingRecordGridPresenter) => (
+                photos: postWritePresenter.images,
+                tastingRecords: tastingRecordGridPresenter.selectedTastingRecords,
               ),
+              builder: (context, selectedItemsState, _) {
+                return _buildBottomButtons(
+                  hasImages: selectedItemsState.photos.isNotEmpty,
+                  hasTastingRecords: selectedItemsState.tastingRecords.isNotEmpty,
+                );
+              },
             ),
           ),
         ),
@@ -157,17 +281,37 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
             ),
             Positioned(
               right: 0,
-              child: GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  decoration: const BoxDecoration(
-                    color: ColorStyles.gray20,
-                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                  ),
-                  child: const Text('완료', style: TextStyles.labelSmallMedium),
-                ),
-              ),
+              child: Selector<PostWritePresenter, AppBarState>(
+                  selector: (context, presenter) => presenter.appBarState,
+                  builder: (context, state, child) {
+                    return GestureDetector(
+                      onTap: () async {
+                        if (state.isValid) {
+                          final result = await context.read<PostWritePresenter>().write();
+                          if (result && context.mounted) {
+                            context.pop();
+                          } else {
+                            _showErrorSnackBar(errorMessage: '게시물 작성에 실패했습니다.');
+                          }
+                        } else {
+                          _showErrorSnackBar(errorMessage: state.errorMessage);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: state.isValid ? ColorStyles.red : ColorStyles.gray20,
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                        ),
+                        child: Text(
+                          '완료',
+                          style: TextStyles.labelSmallMedium.copyWith(
+                            color: state.isValid ? ColorStyles.white : ColorStyles.gray40,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
             ),
           ],
         ),
@@ -175,9 +319,11 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     );
   }
 
-  Widget _buildSubjectSelector({required String? subject}) {
+  Widget _buildSubjectSelector({required PostSubject? subject}) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        _showSubjectSelector(currentSubject: subject);
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: const BoxDecoration(
@@ -185,7 +331,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
         ),
         child: Row(
           children: [
-            Text(subject ?? '게시물 주제를 선택해주세요', style: TextStyles.labelMediumMedium),
+            Text(subject?.toString() ?? '게시물 주제를 선택해주세요', style: TextStyles.labelMediumMedium),
             const Spacer(),
             SvgPicture.asset('assets/icons/down.svg', height: 24, width: 24),
           ],
@@ -215,6 +361,9 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
         cursorHeight: 16,
         cursorWidth: 1,
         maxLines: 1,
+        onChanged: (newTitle) {
+          context.read<PostWritePresenter>().onChangeTitle(newTitle);
+        },
       ),
     );
   }
@@ -240,6 +389,9 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
       cursorErrorColor: ColorStyles.black,
       cursorHeight: 16,
       cursorWidth: 1,
+      onChanged: (newContent) {
+        context.read<PostWritePresenter>().onChangeContent(newContent);
+      },
     );
   }
 
@@ -264,30 +416,321 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
       cursorErrorColor: ColorStyles.black,
       cursorHeight: 16,
       cursorWidth: 1,
+      onChanged: (newTag) {
+        context.read<PostWritePresenter>().onChangeTag(newTag);
+      },
     );
+  }
+
+  Widget _buildAttachedContent({
+    required int itemLength,
+    required Widget Function(int index) itemBuilder,
+  }) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: List<Widget>.generate(itemLength, itemBuilder)
+            .separator(separatorWidget: const SizedBox(width: 8))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildGridItem({
+    required Widget imageWidget,
+    required bool isRepresentative,
+    required Function() onDeleteTap,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          clipBehavior: Clip.hardEdge,
+          decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          child: Stack(
+            children: [
+              Positioned.fill(child: imageWidget),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: GestureDetector(
+                  onTap: () {
+                    onDeleteTap.call();
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: ColorStyles.black.withOpacity(0.7),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: SvgPicture.asset('assets/icons/x_white.svg', width: 10, height: 10),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+          decoration: BoxDecoration(
+            color: isRepresentative ? ColorStyles.red : ColorStyles.white,
+            borderRadius: const BorderRadius.all(Radius.circular(20)),
+          ),
+          child: Text(
+            '대표 이미지',
+            style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomButtons({required bool hasImages, required bool hasTastingRecords}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20, width: 1))),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (!hasTastingRecords) {
+                _fetchImagesAtAlbum();
+              } else {
+                _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.5),
+                  child: SvgPicture.asset('assets/icons/image.svg', width: 24, height: 24),
+                ),
+                const SizedBox(height: 2),
+                const Text('사진', style: TextStyles.captionSmallMedium),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              if (!hasImages) {
+                _fetchTastingRecords();
+              } else {
+                _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
+              }
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.5),
+                  child: SvgPicture.asset('assets/icons/coffee.svg', width: 24, height: 24),
+                ),
+                const SizedBox(height: 2),
+                const Text('기록', style: TextStyles.captionSmallMedium),
+              ],
+            ),
+          ),
+          const Spacer(),
+        ],
+      ),
+    );
+  }
+
+  _fetchImagesAtAlbum() async {
+    Navigator.of(context).push<Uint8List>(
+      MaterialPageRoute(
+        builder: (context) => ChangeNotifierProvider<PhotoGridPresenter>(
+          create: (context) => PhotoGridPresenter(permissionStatus: PermissionRepository.instance.photos),
+          child: PhotoGridView(
+            permissionStatus: PermissionRepository.instance.photos,
+            onCancel: (context) => Navigator.of(context).pop(),
+            onDone: (context, selectedImages) {
+              _addImages(selectedImages);
+              Navigator.of(context).pop();
+            },
+            onDoneCamera: (context, imageData) {
+              if (imageData != null) {
+                _addImageData(imageData);
+              }
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  _fetchTastingRecords() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TastingRecordGridView()));
+  }
+
+  _addImages(List<AssetEntity> images) async {
+    if (!await context.read<PostWritePresenter>().addImages(images)) {
+      _showErrorSnackBar(errorMessage: '이미지는 최대 10개까지 등록 가능합니다.');
+    }
+  }
+
+  _addImageData(Uint8List imageData) {
+    if (!context.read<PostWritePresenter>().addImageData(imageData)) {
+      _showErrorSnackBar(errorMessage: '이미지는 최대 10개까지 등록 가능합니다.');
+    }
+  }
+
+  _showSubjectSelector({required PostSubject? currentSubject}) async {
+    final subjectList = [
+      PostSubject.normal,
+      PostSubject.caffe,
+      PostSubject.beans,
+      PostSubject.information,
+      PostSubject.gear,
+      PostSubject.question,
+      PostSubject.worry,
+    ];
+    final result = await showBarrierDialog<PostSubject>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return Stack(
+          children: [
+            Positioned(
+              right: 0,
+              left: 0,
+              bottom: 0,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(bottom: 48),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 16, bottom: 24),
+                        decoration: const BoxDecoration(
+                          border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
+                        ),
+                        child: const Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                      ),
+                      ...List<Widget>.generate(
+                        subjectList.length,
+                        (index) {
+                          final subject = subjectList[index];
+                          return GestureDetector(
+                            onTap: () {
+                              context.pop(subject);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      subject.toString(),
+                                      style: TextStyles.labelMediumMedium.copyWith(
+                                        color: currentSubject == subject ? ColorStyles.red : ColorStyles.black,
+                                      ),
+                                    ),
+                                  ),
+                                  if (currentSubject == subject)
+                                    const Icon(Icons.check, size: 18, color: ColorStyles.red),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ).separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (result != null) {
+      _onSelectedSubject(result);
+    }
+  }
+
+  _onSelectedSubject(PostSubject subject) {
+    context.read<PostWritePresenter>().onChangeSubject(subject);
+  }
+
+  _showErrorSnackBar({required String? errorMessage}) {
+    final message = errorMessage;
+    if (message != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration:
+                const BoxDecoration(color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(4))),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+              ),
+            ),
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+    }
   }
 }
 
 class HashLimiterFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    final regex = RegExp(r'(^|\s)(?!#)(\w+)');
-    final duplicateHashRegex = RegExp(r'#{2,}'); // 연속된 ## 제거
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text;
+    int cursorPosition = newValue.selection.baseOffset;
 
-    // 단어 앞에 # 자동 추가
-    String formatted = newValue.text.replaceAllMapped(regex, (match) {
-      return '${match.group(1)}#${match.group(2)}';
-    });
+    // 1️⃣ 입력값이 '#' 하나뿐인데 삭제하려고 하면 유지
+    if (oldValue.text == '#' && text.isEmpty) {
+      return TextEditingValue(
+        text: oldValue.text,
+        selection: TextSelection.collapsed(offset: oldValue.text.length),
+      );
+    }
 
-    // 연속된 #을 하나로 변환
-    formatted = formatted.replaceAll(duplicateHashRegex, '#');
+    // 2️⃣ 특수문자 제한 (한글, 영문, 숫자, `#`, 띄어쓰기만 허용)
+    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}#\s]', unicode: true), '');
+
+    // 3️⃣ 공백(` `)을 `#`으로 변환
+    text = text.replaceAll(' ', '#');
+
+    // 4️⃣ `#`이 여러 개 연속 입력되면 하나로 변환
+    text = text.replaceAll(RegExp(r'#{2,}'), '#');
+
+    if (text.isNotEmpty && !text.startsWith('#')) {
+      text = '#$text';
+    }
+
+    // 6️⃣ 커서 위치 보정
+    int diff = text.length - newValue.text.length;
+    int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
 
     return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
+      text: text,
+      selection: TextSelection.collapsed(offset: newCursorPosition),
     );
   }
 }
