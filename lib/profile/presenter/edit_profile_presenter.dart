@@ -1,16 +1,25 @@
+import 'package:brew_buds/core/image_compress.dart';
+import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
 import 'package:flutter/foundation.dart';
 
+typedef ProfileImageState = ({String imageUrl, Uint8List? imageData});
+
 final class EditProfilePresenter extends ChangeNotifier {
+  final PhotoApi _photoApi = PhotoApi();
   final ProfileApi _profileApi = ProfileApi();
   String _imageUri;
   List<CoffeeLife> _selectedCoffeeLifeList;
   String _nickname;
   String _introduction;
   String _link;
+  Uint8List? _imageData;
 
   String get imageUri => _imageUri;
+
+  ProfileImageState get profileImageState => (imageUrl: _imageUri, imageData: _imageData);
 
   List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
 
@@ -29,6 +38,11 @@ final class EditProfilePresenter extends ChangeNotifier {
         _nickname = nickname,
         _introduction = introduction,
         _link = link;
+
+  onChangeImageData(Uint8List imageData) {
+    _imageData = imageData;
+    notifyListeners();
+  }
 
   onChangeImageUri(String imageUri) {
     _imageUri = imageUri;
@@ -55,7 +69,7 @@ final class EditProfilePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onSave() async {
+  Future<Result<String>> onSave() async {
     final Map<String, dynamic> jsonMap = {};
 
     writeNotNull(String key, dynamic value) {
@@ -68,9 +82,24 @@ final class EditProfilePresenter extends ChangeNotifier {
     writeNotNull('profile_link', _link);
     writeNotNull('coffee_life', _coffeeLifeToJson(_selectedCoffeeLifeList));
 
-    if (jsonMap.isNotEmpty) {
-      return _profileApi.updateMyProfile(body: {'nickname': _nickname, 'user_detail': jsonMap});
+    var imageData = _imageData;
+    if (imageData != null) {
+      final imageResult = await _photoApi
+          .createProfilePhoto(imageData: await compressList(imageData))
+          .onError((error, stackTrace) => '');
+      if (imageResult.isEmpty) {
+        return Result.error('프로필 이미지 등록 실패.');
+      }
     }
+
+    if (jsonMap.isNotEmpty) {
+      return _profileApi
+          .updateMyProfile(body: {'nickname': _nickname, 'user_detail': jsonMap})
+          .then((value) => Result.success('프로필 수성 성공.'))
+          .onError((error, stackTrace) => Result.error('프로필 수정 실패.'));
+    }
+
+    return Result.error('프로필 수정 실패.');
   }
 
   String? _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {

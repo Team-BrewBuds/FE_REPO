@@ -3,10 +3,14 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
+import 'package:brew_buds/photo/view/photo_grid_view_with_preview.dart';
 import 'package:brew_buds/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/profile/widgets/coffee_life_bottom_sheet.dart';
+import 'package:extended_image/extended_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -63,9 +67,12 @@ class _EditProfileViewState extends State<EditProfileView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Selector<EditProfilePresenter, String>(
-                    selector: (context, presenter) => presenter.imageUri,
-                    builder: (context, imageUri, child) => _buildProfileImage(imageUri: imageUri),
+                  Selector<EditProfilePresenter, ProfileImageState>(
+                    selector: (context, presenter) => presenter.profileImageState,
+                    builder: (context, state, child) => _buildProfileImage(
+                      imageUri: state.imageUrl,
+                      imageData: state.imageData,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   _buildNickname(),
@@ -144,34 +151,48 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 
-  Widget _buildProfileImage({required String imageUri}) {
+  Widget _buildProfileImage({required String imageUri, Uint8List? imageData}) {
     return SizedBox(
       width: 98,
       height: 98,
       child: Stack(
         children: [
           Positioned.fill(
-            child: MyNetworkImage(
-              imageUri: imageUri,
-              height: 98,
-              width: 98,
-              color: const Color(0xffd9d9d9),
-              shape: BoxShape.circle,
-              border: Border.all(width: 1, color: const Color(0xff888888)),
-            ),
+            child: imageData != null
+                ? ExtendedImage.memory(
+                    imageData,
+                    fit: BoxFit.cover,
+                    width: 98,
+                    height: 98,
+                    shape: BoxShape.circle,
+                    border: Border.all(width: 1, color: const Color(0xff888888)),
+                  )
+                : MyNetworkImage(
+                    imageUri: imageUri,
+                    height: 98,
+                    width: 98,
+                    color: const Color(0xffd9d9d9),
+                    shape: BoxShape.circle,
+                    border: Border.all(width: 1, color: const Color(0xff888888)),
+                  ),
           ),
           Positioned(
             right: 0,
             bottom: 0,
-            child: Container(
-              height: 28.17,
-              width: 28.17,
-              decoration: BoxDecoration(
-                color: const Color(0xffd9d9d9),
-                shape: BoxShape.circle,
-                border: Border.all(width: 1, color: const Color(0xff888888)),
+            child: GestureDetector(
+              onTap: () {
+                _showAlbumModal();
+              },
+              child: Container(
+                height: 28.17,
+                width: 28.17,
+                decoration: BoxDecoration(
+                  color: const Color(0xffd9d9d9),
+                  shape: BoxShape.circle,
+                  border: Border.all(width: 1, color: const Color(0xff888888)),
+                ),
+                child: const Icon(Icons.camera_alt_rounded, color: ColorStyles.black, size: 19),
               ),
-              child: const Icon(Icons.camera_alt_rounded, color: ColorStyles.black, size: 19),
             ),
           ),
         ],
@@ -437,5 +458,43 @@ class _EditProfileViewState extends State<EditProfileView> {
     if (result != null && context.mounted) {
       context.read<EditProfilePresenter>().onChangeSelectedCoffeeLife(result);
     }
+  }
+
+  _showAlbumModal() {
+    showCupertinoModalPopup(
+      barrierColor: ColorStyles.white,
+      barrierDismissible: false,
+      context: context,
+      builder: (context) {
+        return GridPhotoViewWithPreview.build(
+          permissionStatus: PermissionRepository.instance.photos,
+          previewShape: BoxShape.circle,
+          canMultiSelect: false,
+          onCancel: (context) {
+            context.pop();
+          },
+          onDone: (context, images) {
+            final imageData = images.firstOrNull;
+            if (imageData != null) {
+              _onChangeImageData(imageData);
+            }
+            context.pop();
+          },
+          onCancelCamera: (context) {
+            context.pop();
+          },
+          onDoneCamera: (context, imageData) {
+            if (imageData != null) {
+              _onChangeImageData(imageData);
+            }
+            context.pop();
+          },
+        );
+      },
+    );
+  }
+
+  _onChangeImageData(Uint8List imageData) {
+    context.read<EditProfilePresenter>().onChangeImageData(imageData);
   }
 }

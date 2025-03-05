@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:brew_buds/core/image_compress.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/model/photo.dart';
@@ -93,34 +94,52 @@ final class PostWritePresenter extends ChangeNotifier {
     _tastingRecords = List.from(tastingRecords);
   }
 
-  Future<bool> write() async {
+  Future<Result<String>> write() async {
     final Map<String, dynamic> data = {};
     data['title'] = _title;
     data['content'] = _content;
     final subjectKey = _subject?.toJsonValue();
     if (subjectKey != null) {
       data['subject'] = subjectKey;
+    } else {
+      return Result.error('게시물 주제를 선택해주세요.');
     }
     data['tag'] = _tag;
-    // if (_images.isNotEmpty) {
-    //   await _uploadImages();
-    // }
+
+    if (_images.isNotEmpty && _tastingRecords.isNotEmpty) {
+      return Result.error('사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
+    }
+
+    if (_images.isNotEmpty) {
+      final List<int> imageCreatedResult = await _uploadImages();
+      if (imageCreatedResult.isNotEmpty) {
+        data['photos'] = imageCreatedResult;
+      } else {
+        return Result.error('사진 등록 실패.');
+      }
+    }
+
     if (_tastingRecords.isNotEmpty) {
       data['tasted_records'] = _tastingRecords.map((tastingRecord) => tastingRecord.id).toList();
     }
 
-    return postApi.createPosts(data: data).then((_) => true).onError(
-          (error, stackTrace) {
-            return false;
-          });
+    return postApi
+        .createPosts(data: data)
+        .then((_) => Result.success('게시글이 작성되었습니다.'))
+        .onError((error, stackTrace) => Result.error('게시글 작성에 실패했습니다.'));
   }
 
-  Future<void> _uploadImages() async {
-    final Map<String, dynamic> data = {};
-    data['photo_url'] = images.whereType<PhotoWithData>().map((photo) => photo.data).toList();
-    await photoApi.createPhotos(data: data).then((jsonString) {
-      print(jsonString);
-      final json = jsonDecode(jsonString) as Map<String, dynamic>;
-    });
+  Future<List<int>> _uploadImages() async {
+    final imageDataList = images.whereType<PhotoWithData>().map((photo) => photo.data).toList();
+    final List<Uint8List> compressedImageDataList = [];
+    for (final imageData in imageDataList) {
+      compressedImageDataList.add(await compressList(imageData));
+    }
+    return photoApi.createPhotos(imageDataList: compressedImageDataList).then(
+      (jsonString) {
+        final jsonList = jsonDecode(jsonString) as List<dynamic>;
+        return jsonList.map((json) => json['id'] as int).toList();
+      },
+    ).onError((error, stackTrace) => []);
   }
 }
