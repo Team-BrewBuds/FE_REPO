@@ -1,22 +1,20 @@
-import 'package:brew_buds/coffee_note/post_write_presenter.dart';
-import 'package:brew_buds/coffee_note/view/photo_grid_presenter.dart';
-import 'package:brew_buds/coffee_note/view/photo_grid_view.dart';
-import 'package:brew_buds/coffee_note/view/tasting_record_grid_presenter.dart';
-import 'package:brew_buds/coffee_note/view/tasting_record_grid_view.dart';
+import 'package:brew_buds/coffee_note_post/post_write_presenter.dart';
+import 'package:brew_buds/photo/view/photo_grid_view.dart';
+import 'package:brew_buds/coffee_note_post/view/tasting_record_grid_presenter.dart';
+import 'package:brew_buds/coffee_note_post/view/tasting_record_grid_view.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post_subject.dart';
-import 'package:brew_buds/photo/view/grid_photo_view.dart';
 import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -33,26 +31,6 @@ showPostWriteScreen({required BuildContext context}) {
           ChangeNotifierProvider(create: (context) => PostWritePresenter()),
           ChangeNotifierProvider(create: (context) => TastingRecordGridPresenter()),
         ],
-        child: MaterialApp(
-          title: 'Brew Buds',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: 'Pretendard',
-            scaffoldBackgroundColor: Colors.white,
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            splashFactory: NoSplash.splashFactory,
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
-              scrolledUnderElevation: 0,
-            ),
-            useMaterial3: true,
-          ),
-          home: const PostWriteScreen(),
-        ),
-      );
-      return ChangeNotifierProvider(
-        create: (context) => PostWritePresenter(),
         child: MaterialApp(
           title: 'Brew Buds',
           debugShowCheckedModeBanner: false,
@@ -288,10 +266,13 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                       onTap: () async {
                         if (state.isValid) {
                           final result = await context.read<PostWritePresenter>().write();
-                          if (result && context.mounted) {
-                            context.pop();
-                          } else {
-                            _showErrorSnackBar(errorMessage: '게시물 작성에 실패했습니다.');
+                          if (context.mounted) {
+                            switch (result) {
+                              case Success<String>():
+                                context.pop(result.data);
+                              case Error<String>():
+                                _showErrorSnackBar(errorMessage: result.e);
+                            }
                           }
                         } else {
                           _showErrorSnackBar(errorMessage: state.errorMessage);
@@ -549,22 +530,22 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
   _fetchImagesAtAlbum() async {
     Navigator.of(context).push<Uint8List>(
       MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider<PhotoGridPresenter>(
-          create: (context) => PhotoGridPresenter(permissionStatus: PermissionRepository.instance.photos),
-          child: PhotoGridView(
-            permissionStatus: PermissionRepository.instance.photos,
-            onCancel: (context) => Navigator.of(context).pop(),
-            onDone: (context, selectedImages) {
-              _addImages(selectedImages);
-              Navigator.of(context).pop();
-            },
-            onDoneCamera: (context, imageData) {
-              if (imageData != null) {
-                _addImageData(imageData);
-              }
-              Navigator.of(context).pop();
-            },
-          ),
+        builder: (context) => PhotoGridView.build(
+          permissionStatus: PermissionRepository.instance.photos,
+          onCancel: (context) => Navigator.of(context).pop(),
+          onDone: (context, selectedImages) {
+            _addImages(selectedImages);
+            Navigator.of(context).pop();
+          },
+          onCancelCamera: (context) {
+            Navigator.of(context).pop();
+          },
+          onDoneCamera: (context, imageData) {
+            if (imageData != null) {
+              _addImageData(imageData);
+            }
+            Navigator.of(context).pop();
+          },
         ),
       ),
     );

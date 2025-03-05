@@ -17,7 +17,7 @@ import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/main/main_view.dart';
-import 'package:brew_buds/photo/view/grid_photo_view.dart';
+import 'package:brew_buds/photo/view/photo_grid_view.dart';
 import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/view/edit_profile_view.dart';
@@ -232,10 +232,6 @@ final router = GoRouter(
           ],
         ),
       ],
-    ),
-    GoRoute(
-      path: '/photo_grid',
-      builder: (context, state) => GridPhotoView(permissionStatus: PermissionRepository.instance.photos),
     ),
   ],
 );

@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:brew_buds/camera/camera_screen.dart';
-import 'package:brew_buds/coffee_note/view/photo_grid_presenter.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/permission/permission_denied_view.dart';
+import 'package:brew_buds/photo/presenter/photo_presenter.dart';
 import 'package:brew_buds/photo/view/album_list_view.dart';
 import 'package:brew_buds/photo/widget/management_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -14,50 +14,40 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:provider/provider.dart';
 
-class PhotoGridView extends StatefulWidget {
-  final PermissionStatus _permissionStatus;
-  final Function(BuildContext context)? onCancel;
-  final Function(BuildContext context, List<AssetEntity> selectedImages)? onDone;
-  final Function(BuildContext context, Uint8List? imageData)? onDoneCamera;
+mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter> on State<T> {
+  PermissionStatus get permissionStatus;
 
-  const PhotoGridView({
-    super.key,
-    required PermissionStatus permissionStatus,
-    this.onCancel,
-    this.onDone,
-    this.onDoneCamera,
-  }) : _permissionStatus = permissionStatus;
+  BoxShape get previewShape;
 
-  @override
-  State<PhotoGridView> createState() => _PhotoGridViewState();
-}
+  Function(BuildContext context) get onCancel;
 
-class _PhotoGridViewState extends State<PhotoGridView> {
+  Function(BuildContext context, List<AssetEntity> selectedImages) get onDone;
+
+  Function(BuildContext context) get onCancelCamera;
+
+  Function(BuildContext context, Uint8List? imageData) get onDoneCamera;
+
+  Color get backgroundColor;
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<PhotoGridPresenter>().initState();
+      context.read<Presenter>().initState();
     });
     super.initState();
   }
 
+  Widget buildBody(BuildContext context);
+
   @override
   Widget build(BuildContext context) {
-    switch (widget._permissionStatus) {
+    switch (permissionStatus) {
       case PermissionStatus.granted || PermissionStatus.limited:
         return Scaffold(
-          backgroundColor: ColorStyles.white,
-          appBar: _buildAppBar(context),
+          backgroundColor: backgroundColor,
+          appBar: buildAppBar(context),
           body: SafeArea(
-            child: Column(
-              children: [
-                if (widget._permissionStatus == PermissionStatus.limited) ...[
-                  _buildManagementButton(context),
-                  const SizedBox(height: 1),
-                ],
-                Expanded(child: _buildImages(context)),
-              ],
-            ),
+            child: buildBody(context),
           ),
         );
       default:
@@ -65,13 +55,13 @@ class _PhotoGridViewState extends State<PhotoGridView> {
     }
   }
 
-  AppBar _buildAppBar(BuildContext context) {
+  AppBar buildAppBar(BuildContext context) {
     return AppBar(
       leading: const SizedBox.shrink(),
       leadingWidth: 0,
       titleSpacing: 0,
       centerTitle: false,
-      backgroundColor: ColorStyles.white,
+      backgroundColor: backgroundColor,
       toolbarHeight: 52,
       title: Container(
         height: 52,
@@ -84,17 +74,20 @@ class _PhotoGridViewState extends State<PhotoGridView> {
               left: 0,
               child: GestureDetector(
                 onTap: () {
-                  widget.onCancel?.call(context);
+                  onCancel(context);
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',
                   height: 24,
                   width: 24,
-                  colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                    backgroundColor == ColorStyles.white ? ColorStyles.black : ColorStyles.white,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ),
-            Selector<PhotoGridPresenter, AlbumTitleState>(
+            Selector<Presenter, AlbumTitleState>(
               selector: (context, presenter) => presenter.albumTitleState,
               builder: (context, albumTitleState, child) {
                 final currentAlbum = albumTitleState.currentAlbum;
@@ -108,7 +101,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
                             ),
                           );
                           if (result != null && context.mounted) {
-                            context.read<PhotoGridPresenter>().onChangeAlbum(result);
+                            context.read<Presenter>().onChangeAlbum(result);
                           }
                         },
                         child: Row(
@@ -127,7 +120,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
             ),
             Positioned(
               right: 0,
-              child: Selector<PhotoGridPresenter, List<AssetEntity>>(
+              child: Selector<Presenter, List<AssetEntity>>(
                 selector: (context, presenter) => presenter.selectedImages,
                 builder: (context, selectedImages, child) {
                   final hasSelectedItem = selectedImages.isNotEmpty;
@@ -135,7 +128,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
                     absorbing: !hasSelectedItem,
                     child: GestureDetector(
                       onTap: () {
-                        widget.onDone?.call(context, selectedImages);
+                        onDone(context, selectedImages);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -161,101 +154,14 @@ class _PhotoGridViewState extends State<PhotoGridView> {
     );
   }
 
-  Widget _buildManagementButton(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      color: ColorStyles.gray60,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '선택한 일부 사진과 동영상에만 엑세스할 수 있는 권한을 Brewbuds 앱에 부여했습니다.',
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-          const SizedBox(width: 64),
-          GestureDetector(
-            onTap: () {
-              showManagementBottomSheet(context);
-            },
-            child: Text(
-              '관리',
-              style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImages(BuildContext context) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (ScrollNotification scroll) {
-        if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-          context.read<PhotoGridPresenter>().fetchPhotos();
-        }
-        return false;
-      },
-      child: Selector<PhotoGridPresenter, ImageViewState>(
-        selector: (context, presenter) => presenter.imageViewState,
-        builder: (context, imageViewState, child) {
-          return GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 1,
-              mainAxisSpacing: 1,
-            ),
-            itemCount: imageViewState.images.length + 1,
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return _buildCameraButton();
-              } else {
-                return _buildImage(
-                  image: imageViewState.images[index - 1],
-                  selectedImages: imageViewState.selectedImages,
-                );
-              }
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCameraButton() {
-    return GestureDetector(
-      onTap: () async {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => CameraScreen(
-              onCancel: (context) => Navigator.of(context).pop(),
-              onDone: widget.onDoneCamera,
-            ),
-          ),
-        );
-      },
-      child: Container(
-        color: ColorStyles.gray50,
-        child: Center(
-          child: SvgPicture.asset(
-            'assets/icons/camera.svg',
-            height: 32,
-            width: 32,
-            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImage({
+  Widget buildImage({
     required AssetEntity image,
     required List<AssetEntity> selectedImages,
   }) {
     final isSelected = selectedImages.contains(image);
     return GestureDetector(
       onTap: () {
-        context.read<PhotoGridPresenter>().onSelectedImage(image);
+        context.read<Presenter>().onSelectedImage(image);
       },
       child: Stack(
         children: [
@@ -306,6 +212,60 @@ class _PhotoGridViewState extends State<PhotoGridView> {
     );
   }
 
+  Widget buildCameraButton() {
+    return GestureDetector(
+      onTap: () async {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CameraScreen(
+              previewShape: previewShape,
+              onCancel: onCancelCamera,
+              onDone: onDoneCamera,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        color: ColorStyles.gray50,
+        child: Center(
+          child: SvgPicture.asset(
+            'assets/icons/camera.svg',
+            height: 32,
+            width: 32,
+            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildManagementButton(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      color: ColorStyles.gray60,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              '선택한 일부 사진과 동영상에만 엑세스할 수 있는 권한을 Brewbuds 앱에 부여했습니다.',
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+          const SizedBox(width: 64),
+          GestureDetector(
+            onTap: () {
+              showManagementBottomSheet(context);
+            },
+            child: Text(
+              '관리',
+              style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   showManagementBottomSheet(BuildContext context) async {
     final result = await showGeneralDialog<ManagementBottomSheetResult>(
       barrierLabel: "Barrier",
@@ -321,14 +281,17 @@ class _PhotoGridViewState extends State<PhotoGridView> {
         );
       },
     );
-    switch (result) {
-      case ManagementBottomSheetResult.management:
-        context.read<PhotoGridPresenter>().reselectedImage();
-      case ManagementBottomSheetResult.openSetting:
-        openAppSettings();
-        break;
-      case null:
-        return;
+
+    if (context.mounted) {
+      switch (result) {
+        case ManagementBottomSheetResult.management:
+          context.read<Presenter>().reselectedImage();
+        case ManagementBottomSheetResult.openSetting:
+          openAppSettings();
+          break;
+        case null:
+          return;
+      }
     }
   }
 }

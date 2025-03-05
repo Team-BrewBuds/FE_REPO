@@ -1,4 +1,4 @@
-import 'package:brew_buds/coffee_note/view/tasting_record_grid_presenter.dart';
+import 'package:brew_buds/coffee_note_post//view/tasting_record_grid_presenter.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:extended_image/extended_image.dart';

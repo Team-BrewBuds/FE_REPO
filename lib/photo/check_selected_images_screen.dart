@@ -7,7 +7,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class CheckSelectedImagesScreen extends StatefulWidget {
@@ -54,10 +53,10 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                context.pop();
+                Navigator.of(context).pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/x.svg',
+                'assets/icons/back.svg',
                 height: 24,
                 width: 24,
                 colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
@@ -65,7 +64,9 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
             ),
             const Spacer(),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).pop(widget._images);
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 decoration: BoxDecoration(
@@ -90,7 +91,14 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
       itemBuilder: (context, _, index) {
         return AspectRatio(
           aspectRatio: 1,
-          child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover),
+          child: widget._shape == BoxShape.rectangle
+              ? ExtendedImage.memory(widget._images[index], fit: BoxFit.cover)
+              : Stack(
+                  children: [
+                    Positioned.fill(child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover)),
+                    Positioned.fill(child: CustomPaint(painter: _CircleCropOverlayPainter())),
+                  ],
+                ),
         );
       },
       options: CarouselOptions(
@@ -153,6 +161,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
               final data = await Navigator.of(context).push<Uint8List>(
                 MaterialPageRoute(
                   builder: (context) => PhotoEditScreen(
+                    shape: widget._shape,
                     imageData: imageData,
                     originData: widget._imagesOrigin[_currentIndex],
                   ),
@@ -184,7 +193,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
 class _CircleCropOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.7);
+    final paint = Paint()..color = Colors.black;
     final path = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // 원형 크롭 영역 만들기
