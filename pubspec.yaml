@@ -48,9 +48,18 @@ dependencies:
   image_editor: ^1.6.0
   flutter_image_compress: ^2.3.0
   flutter_localization: ^0.2.1
+  flutter_launcher_icons: ^0.14.3
 
 flutter_native_splash:
-  color: "#42a5f5"
+  color: "#FFFFFF"
+  fullscreen: true
+  ios_content_mode: center
+  image: assets/images/brewbuds_primary_logo_white.png
+
+flutter_launcher_icons:
+  ios: "AppIcon"
+  image_path_ios: "assets/images/brewbuds_primary_logo_red.png"
+  remove_alpha_ios: true
 
 dev_dependencies:
   flutter_test:
