@@ -1,107 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<dict>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>Brew Buds</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>brew_buds</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>$(NAVER_CLIENT_ID)</string>
-				<string>com.coffee.brewBuds</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
-			</array>
-		</dict>
-	</array>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>KAKAO_APP_KEY</key>
-	<string>$(KAKAO_NATIVE_APP_KEY)</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>kakaokompassauth</string>
-		<string>kakaoplus</string>
-		<string>kakaolink</string>
-		<string>kakaotalk</string>
-	</array>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>NAVER_KEY</key>
-	<string>$(NAVER_CLIENT_SECRET)</string>
-	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
+		<key>CADisableMinimumFrameDurationOnPhone</key>
 		<true/>
+		<key>CFBundleDevelopmentRegion</key>
+		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<key>CFBundleDisplayName</key>
+		<string>Brew Buds</string>
+		<key>CFBundleExecutable</key>
+		<string>$(EXECUTABLE_NAME)</string>
+		<key>CFBundleIdentifier</key>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<key>CFBundleInfoDictionaryVersion</key>
+		<string>6.0</string>
+		<key>CFBundleName</key>
+		<string>brew_buds</string>
+		<key>CFBundlePackageType</key>
+		<string>APPL</string>
+		<key>CFBundleShortVersionString</key>
+		<string>$(FLUTTER_BUILD_NAME)</string>
+		<key>CFBundleSignature</key>
+		<string>????</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>$(NAVER_CLIENT_ID)</string>
+					<string>com.coffee.brewBuds</string>
+				</array>
+			</dict>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
+				</array>
+			</dict>
+		</array>
+		<key>CFBundleVersion</key>
+		<string>$(FLUTTER_BUILD_NUMBER)</string>
+		<key>KAKAO_APP_KEY</key>
+		<string>$(KAKAO_NATIVE_APP_KEY)</string>
+		<key>LSApplicationQueriesSchemes</key>
+		<array>
+			<string>kakaokompassauth</string>
+			<string>kakaoplus</string>
+			<string>kakaolink</string>
+			<string>kakaotalk</string>
+		</array>
+		<key>LSRequiresIPhoneOS</key>
+		<true/>
+		<key>NAVER_KEY</key>
+		<string>$(NAVER_CLIENT_SECRET)</string>
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+		</dict>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>앱을 사용 중일 때 위치 정보가 필요합니다.</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>앱을 실행 중일 때 항상 위치 정보가 필요합니다.</string>
+		<key>NSCameraUsageDescription</key>
+		<string>카메라를 사용하여 사진을 촬영합니다.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Brewbuds가 회원님의 커피노트를 작성을 위해 사진 촬영 및 첨부를 지원합니다.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Brewbuds가 회원님의 사진을 저장하기 위해 사진 라이브러리에 접근합니다.</string>
+		<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+		<true/>
+		<key>NSLocationWhenInUseUsageDescription</key>
+		<string>To enable GPS location access for Exif data</string>
+		<key>UIApplicationSupportsIndirectInputEvents</key>
+		<true/>
+		<key>UILaunchStoryboardName</key>
+		<string>LaunchScreen</string>
+		<key>UIMainStoryboardFile</key>
+		<string>Main</string>
+		<key>UIStatusBarHidden</key>
+		<true/>
+		<key>UISupportedInterfaceOrientations</key>
+		<array>
+			<string>UIInterfaceOrientationPortrait</string>
+		</array>
+		<key>UISupportedInterfaceOrientations~ipad</key>
+		<array>
+			<string>UIInterfaceOrientationLandscapeLeft</string>
+			<string>UIInterfaceOrientationLandscapeRight</string>
+			<string>UIInterfaceOrientationPortrait</string>
+			<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		</array>
+		<key>naverConsumerKey</key>
+		<string>$(NAVER_CLIENT_ID)</string>
+		<key>naverConsumerSecret</key>
+		<string>$(NAVER_CLIENT_SECRET)</string>
+		<key>naverServiceAppName</key>
+		<string>Brewbuds</string>
+		<key>naverServiceAppUrlScheme</key>
+		<string>com.coffee.brewBuds</string>
+		<key>UIViewControllerBasedStatusBarAppearance</key>
+		<false/>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>앱을 사용 중일 때 위치 정보가 필요합니다.</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>앱을 실행 중일 때 항상 위치 정보가 필요합니다.</string>
-	<key>NSCameraUsageDescription</key>
-    <string>카메라를 사용하여 사진을 촬영합니다.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Brewbuds가 회원님의 커피노트를 작성을 위해 사진 촬영 및 첨부를 지원합니다.</string>
-    <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Brewbuds가 회원님의 사진을 저장하기 위해 사진 라이브러리에 접근합니다.</string>
-    <key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
-    <true/>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>To enable GPS location access for Exif data</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UIStatusBarHidden</key>
-	<false/>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-	</array>
-	<key>naverConsumerKey</key>
-	<string>$(NAVER_CLIENT_ID)</string>
-	<key>naverConsumerSecret</key>
-	<string>$(NAVER_CLIENT_SECRET)</string>
-	<key>naverServiceAppName</key>
-	<string>Brewbuds</string>
-	<key>naverServiceAppUrlScheme</key>
-	<string>com.coffee.brewBuds</string>
-</dict>
 </plist>
