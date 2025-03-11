@@ -49,6 +49,7 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
   @override
   Future<void> initState() async {
     fetchMoreData();
+    super.initState();
   }
 
   @override
@@ -57,6 +58,7 @@ final class HomePostPresenter extends HomeViewPresenter<PostInFeed> {
     _currentPage = 0;
     notifyListeners();
     fetchMoreData();
+    super.onRefresh();
   }
 
   onChangeSubject(int index) {

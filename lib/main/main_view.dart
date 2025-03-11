@@ -1,4 +1,5 @@
 import 'package:brew_buds/coffee_note_post/post_write_screen.dart';
+import 'package:brew_buds/coffee_note_tasting_record/core/tasting_write_builder.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
@@ -166,41 +167,47 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 48,
-                              width: 48,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(12)),
-                                color: ColorStyles.gray10,
-                              ),
-                              child: Center(
-                                child: SvgPicture.asset(
-                                  'assets/icons/coffee_note_fill.svg',
-                                  height: 28,
-                                  width: 28,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                      GestureDetector(
+                        onTap: () {
+                          context.pop();
+                          showTastingWriteScreen(context);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 48,
+                                width: 48,
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                                  color: ColorStyles.gray10,
+                                ),
+                                child: Center(
+                                  child: SvgPicture.asset(
+                                    'assets/icons/coffee_note_fill.svg',
+                                    height: 28,
+                                    width: 28,
+                                    colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  const Text('시음기록', style: TextStyles.title01SemiBold),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '어떤 커피를 드셨나요?',
-                                    style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
-                                  ),
-                                ],
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const Text('시음기록', style: TextStyles.title01SemiBold),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '어떤 커피를 드셨나요?',
+                                      style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                       Padding(

@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:brew_buds/camera/camera_screen.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/permission/permission_denied_view.dart';
@@ -9,6 +8,7 @@ import 'package:brew_buds/photo/view/album_list_view.dart';
 import 'package:brew_buds/photo/widget/management_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
@@ -19,13 +19,9 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
 
   BoxShape get previewShape;
 
-  Function(BuildContext context) get onCancel;
+  Function(BuildContext context, List<Uint8List> selectedImages) get onDone;
 
-  Function(BuildContext context, List<AssetEntity> selectedImages) get onDone;
-
-  Function(BuildContext context) get onCancelCamera;
-
-  Function(BuildContext context, Uint8List? imageData) get onDoneCamera;
+  Function(BuildContext context) get onTapCameraButton;
 
   Color get backgroundColor;
 
@@ -74,7 +70,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
               left: 0,
               child: GestureDetector(
                 onTap: () {
-                  onCancel(context);
+                  context.pop();
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',
@@ -120,8 +116,8 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
             ),
             Positioned(
               right: 0,
-              child: Selector<Presenter, List<AssetEntity>>(
-                selector: (context, presenter) => presenter.selectedImages,
+              child: Selector<Presenter, List<Uint8List>>(
+                selector: (context, presenter) => presenter.selectedImagesData,
                 builder: (context, selectedImages, child) {
                   final hasSelectedItem = selectedImages.isNotEmpty;
                   return AbsorbPointer(
@@ -215,15 +211,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
   Widget buildCameraButton() {
     return GestureDetector(
       onTap: () async {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => CameraScreen(
-              previewShape: previewShape,
-              onCancel: onCancelCamera,
-              onDone: onDoneCamera,
-            ),
-          ),
-        );
+        onTapCameraButton(context);
       },
       child: Container(
         color: ColorStyles.gray50,

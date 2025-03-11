@@ -50,6 +50,7 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeed> {
     final width = MediaQuery.of(context).size.width;
     final isOverFlow = _calcOverFlow(context);
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TastingRecordCard(
           image: MyNetworkImage(

@@ -3,7 +3,7 @@ import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/filter/model/bean_type.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/filter/filter_presenter.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:flutter/material.dart';
@@ -250,7 +250,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             children: [
               InkWell(
                 onTap: () {
-                  presenter.onChangeBeanType(BeanType.singleOrigin);
+                  presenter.onChangeBeanType(CoffeeBeanType.singleOrigin);
                 },
                 child: SvgPicture.asset(
                   presenter.isSelectedSingleOrigin ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
@@ -263,7 +263,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
               const SizedBox(width: 80),
               InkWell(
                 onTap: () {
-                  presenter.onChangeBeanType(BeanType.blend);
+                  presenter.onChangeBeanType(CoffeeBeanType.blend);
                 },
                 child: SvgPicture.asset(
                   presenter.isSelectedBlend ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',

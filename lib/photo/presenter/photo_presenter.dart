@@ -13,6 +13,7 @@ class PhotoPresenter extends ChangeNotifier {
   List<Album> _albumList = [];
   List<AssetEntity> _currentAlbumImages = [];
   List<AssetEntity> _selectedImages = [];
+  List<Uint8List> _selectedImagesData = [];
   int _currentPage = 0;
   int _currentAlbumIndex = 0;
   final bool canMultiSelect;
@@ -30,6 +31,8 @@ class PhotoPresenter extends ChangeNotifier {
       );
 
   List<AssetEntity> get selectedImages => _selectedImages;
+
+  List<Uint8List> get selectedImagesData => _selectedImagesData;
 
   ImageViewState get imageViewState => (
         images: _currentAlbumImages,
@@ -104,25 +107,36 @@ class PhotoPresenter extends ChangeNotifier {
   }
 
   Future<Result<String>> onSelectedImage(AssetEntity image) async {
-    if (!canMultiSelect) {
-      if (_selectedImages.contains(image)) {
-        _selectedImages = List.empty();
-      } else {
-        _selectedImages = List.from([image]);
-      }
-      notifyListeners();
-    } else {
-      if (_selectedImages.contains(image)) {
-        _selectedImages = List.from(_selectedImages)..remove(image);
-      } else {
-        if (_selectedImages.length < 10) {
-          _selectedImages = List.from(_selectedImages)..add(image);
+    final data = await image.originBytes;
+    if (data != null) {
+      if (!canMultiSelect) {
+        if (_selectedImages.contains(image)) {
+          _selectedImages = List.empty();
+          _selectedImagesData = List.empty();
         } else {
-          return Result.error('사진은 10개이상 선택할 수 없습니다.');
+          _selectedImages = List.from([image]);
+          _selectedImagesData = List.from([data]);
         }
+        notifyListeners();
+      } else {
+        final index = _selectedImages.indexOf(image);
+        if (index != -1) {
+          _selectedImages = List.from(_selectedImages)..removeAt(index);
+          _selectedImagesData = List.from(_selectedImagesData)..removeAt(index);
+        } else {
+          if (_selectedImages.length < 10) {
+            _selectedImages = List.from(_selectedImages)..add(image);
+            _selectedImagesData = List.from(_selectedImagesData)..add(data);
+          } else {
+            return Result.error('사진은 10개이상 선택할 수 없습니다.');
+          }
+        }
+        notifyListeners();
       }
-      notifyListeners();
+    } else {
+      return Result.error('Image 불러오기 실패');
     }
+
     return Result.success('사진 선택 완료.');
   }
 

@@ -58,6 +58,7 @@ class _PostFeedState extends FeedWidgetState<PostFeed> {
     final child = widget.child;
     if (child != null) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           child,
           _buildTextBody(bodyMaxLines: 2),

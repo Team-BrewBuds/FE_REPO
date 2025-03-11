@@ -1,12 +1,12 @@
-import 'package:brew_buds/filter/model/bean_type.dart';
-import 'package:brew_buds/filter/model/country.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:brew_buds/model/coffee_bean/country.dart';
 import 'package:brew_buds/filter/model/coffee_bean_filter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 final class FilterPresenter extends ChangeNotifier {
   final List<CoffeeBeanFilter> _filter;
-  BeanType? _selectedTypes;
+  CoffeeBeanType? _selectedTypes;
   final Set<Country> _selectedOrigins;
   SfRangeValues _ratingValues;
   bool _isDecaf;
@@ -29,9 +29,9 @@ final class FilterPresenter extends ChangeNotifier {
 
   List<CoffeeBeanFilter> get filter => _filter;
 
-  bool get isSelectedSingleOrigin => _selectedTypes == BeanType.singleOrigin;
+  bool get isSelectedSingleOrigin => _selectedTypes == CoffeeBeanType.singleOrigin;
 
-  bool get isSelectedBlend => _selectedTypes == BeanType.blend;
+  bool get isSelectedBlend => _selectedTypes == CoffeeBeanType.blend;
 
   List<String> get selectedOrigins => _selectedOrigins.map((e) => e.toString()).toList();
 
@@ -70,7 +70,7 @@ final class FilterPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeBeanType(BeanType beanType) {
+  onChangeBeanType(CoffeeBeanType beanType) {
     _filter.removeWhere((element) => element is BeanTypeFilter);
     if (_selectedTypes == beanType) {
       _selectedTypes = null;

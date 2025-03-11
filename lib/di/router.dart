@@ -1,5 +1,4 @@
 import 'package:brew_buds/data/repository/home_repository.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
@@ -17,7 +16,6 @@ import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
 import 'package:brew_buds/home/post/home_post_presenter.dart';
 import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/main/main_view.dart';
-import 'package:brew_buds/photo/view/photo_grid_view.dart';
 import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/profile/view/edit_profile_view.dart';
