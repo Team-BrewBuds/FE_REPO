@@ -8,10 +8,10 @@ import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post_subject.dart';
 import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
 import 'package:flutter/foundation.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 typedef AppBarState = ({bool isValid, String? errorMessage});
-typedef BottomButtonState = ({bool hasImages, bool hasTastingRecords});
+typedef ImageListViewState = ({List<Photo> images, List<TastingRecordInProfile> tastingRecords});
+typedef BottomButtonState = ({bool hasImages, List<TastingRecordInProfile> tastingRecords});
 
 final class PostWritePresenter extends ChangeNotifier {
   final PostApi postApi = PostApi();
@@ -24,6 +24,10 @@ final class PostWritePresenter extends ChangeNotifier {
   List<TastingRecordInProfile> _tastingRecords = [];
 
   List<Photo> get images => _images;
+
+  ImageListViewState get imageListViewState => (images: _images, tastingRecords: _tastingRecords);
+
+  BottomButtonState get bottomsButtonState => (hasImages: _images.isNotEmpty, tastingRecords: _tastingRecords);
 
   PostSubject? get subject => _subject;
 
@@ -63,13 +67,11 @@ final class PostWritePresenter extends ChangeNotifier {
     _tag = newTag.replaceAll('#', ',');
   }
 
-  Future<bool> addImages(List<AssetEntity> images) async {
+  Future<bool> addImages(List<Uint8List> images) async {
     if (_images.length + images.length > 10) {
       return false;
     } else {
-      final imageDataList = await Stream.fromIterable(images).asyncMap((image) async => image.originBytes).toList();
-      final safeImageDataList = imageDataList.whereType<Uint8List>();
-      _images = List.from(_images)..addAll(safeImageDataList.map((data) => Photo.withData(data: data)));
+      _images = List.from(_images)..addAll(images.map((data) => Photo.withData(data: data)));
       notifyListeners();
       return true;
     }
@@ -90,8 +92,14 @@ final class PostWritePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onSyncTastingRecords(List<TastingRecordInProfile> tastingRecords) {
+  onChangeTastingRecords(List<TastingRecordInProfile> tastingRecords) {
     _tastingRecords = List.from(tastingRecords);
+    notifyListeners();
+  }
+
+  onDeleteTastingRecordAt(int index) {
+    _tastingRecords = List.from(_tastingRecords)..removeAt(index);
+    notifyListeners();
   }
 
   Future<Result<String>> write() async {

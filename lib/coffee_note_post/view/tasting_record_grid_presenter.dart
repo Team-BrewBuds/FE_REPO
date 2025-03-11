@@ -13,8 +13,7 @@ typedef GridViewState = ({
 
 final class TastingRecordGridPresenter extends ChangeNotifier {
   final TastedRecordApi _api = TastedRecordApi();
-  List<TastingRecordInProfile> _previousTastingRecords = [];
-  List<TastingRecordInProfile> _selectedTastingRecords = [];
+  List<TastingRecordInProfile> _selectedTastingRecords;
   DefaultPage<TastingRecordInProfile> _tastingRecordsPage = DefaultPage.empty();
   int _currentPage = 1;
 
@@ -28,7 +27,6 @@ final class TastingRecordGridPresenter extends ChangeNotifier {
       );
 
   initState() {
-    _previousTastingRecords = List.from(_selectedTastingRecords);
     fetchMoreData();
   }
 
@@ -36,11 +34,6 @@ final class TastingRecordGridPresenter extends ChangeNotifier {
     _tastingRecordsPage = DefaultPage.empty();
     _currentPage = 1;
     fetchMoreData();
-  }
-
-  cancel() {
-    _selectedTastingRecords = List.from(_previousTastingRecords);
-    notifyListeners();
   }
 
   fetchMoreData() {
@@ -81,4 +74,8 @@ final class TastingRecordGridPresenter extends ChangeNotifier {
     _selectedTastingRecords = List.from(_selectedTastingRecords)..removeAt(index);
     notifyListeners();
   }
+
+  TastingRecordGridPresenter({
+    required List<TastingRecordInProfile> selectedTastingRecords,
+  }) : _selectedTastingRecords = selectedTastingRecords;
 }

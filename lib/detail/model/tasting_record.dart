@@ -1,4 +1,4 @@
-import 'package:brew_buds/detail/model/coffee_bean.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/detail/model/tasting_review.dart';
 import 'package:brew_buds/model/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

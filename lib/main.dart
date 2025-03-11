@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'features/signup/provider/sign_up_presenter.dart';
 
 void main() async {
@@ -65,6 +66,14 @@ class MyApp extends StatelessWidget {
       routerConfig: router,
       title: 'Brew Buds',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', ''),
+      ],
       theme: ThemeData(
         fontFamily: 'Pretendard',
         scaffoldBackgroundColor: Colors.white,

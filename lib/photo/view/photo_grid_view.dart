@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/photo/core/photo_grid_mixin.dart';
 import 'package:brew_buds/photo/presenter/photo_presenter.dart';
@@ -9,18 +10,14 @@ import 'package:provider/provider.dart';
 
 class PhotoGridView extends StatefulWidget {
   final PermissionStatus _permissionStatus;
-  final Function(BuildContext context) onCancel;
-  final Function(BuildContext context, List<AssetEntity> selectedImages) onDone;
-  final Function(BuildContext context) onCancelCamera;
-  final Function(BuildContext context, Uint8List? imageData) onDoneCamera;
+  final Function(BuildContext context, List<Uint8List> selectedImages) onDone;
+  final Function(BuildContext context) onTapCamera;
 
   const PhotoGridView({
     super.key,
     required PermissionStatus permissionStatus,
-    required this.onCancel,
     required this.onDone,
-    required this.onCancelCamera,
-    required this.onDoneCamera,
+    required this.onTapCamera,
   }) : _permissionStatus = permissionStatus;
 
   @override
@@ -28,19 +25,15 @@ class PhotoGridView extends StatefulWidget {
 
   static Widget build({
     required PermissionStatus permissionStatus,
-    required Function(BuildContext context) onCancel,
-    required Function(BuildContext context, List<AssetEntity> selectedImages) onDone,
-    required Function(BuildContext context) onCancelCamera,
-    required Function(BuildContext context, Uint8List? imageData) onDoneCamera,
+    required Function(BuildContext context, List<Uint8List> selectedImages) onDone,
+    required Function(BuildContext context) onTapCamera,
   }) {
     return ChangeNotifierProvider<PhotoPresenter>(
       create: (context) => PhotoPresenter(permissionStatus: permissionStatus),
       child: PhotoGridView(
         permissionStatus: permissionStatus,
-        onCancel: onCancel,
         onDone: onDone,
-        onCancelCamera: onCancelCamera,
-        onDoneCamera: onDoneCamera,
+        onTapCamera: onTapCamera,
       ),
     );
   }
@@ -57,16 +50,10 @@ class _PhotoGridViewState extends State<PhotoGridView> with PhotoGridMixin<Photo
   BoxShape get previewShape => BoxShape.rectangle;
 
   @override
-  Function(BuildContext context) get onCancel => widget.onCancel;
+  Function(BuildContext context, List<Uint8List> selectedImages) get onDone => widget.onDone;
 
   @override
-  Function(BuildContext context) get onCancelCamera => widget.onCancelCamera;
-
-  @override
-  Function(BuildContext context, List<AssetEntity> selectedImages) get onDone => widget.onDone;
-
-  @override
-  Function(BuildContext context, Uint8List? imageData) get onDoneCamera => widget.onDoneCamera;
+  Function(BuildContext context) get onTapCameraButton => widget.onTapCamera;
 
   @override
   Widget buildBody(BuildContext context) {

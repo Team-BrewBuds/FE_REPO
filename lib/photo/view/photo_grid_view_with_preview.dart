@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-import 'package:brew_buds/photo/check_selected_images_screen.dart';
 import 'package:brew_buds/photo/core/photo_grid_mixin.dart';
 import 'package:brew_buds/photo/model/album.dart';
 import 'package:brew_buds/photo/presenter/photo_presenter.dart';
@@ -16,10 +15,8 @@ import 'package:provider/provider.dart';
 class GridPhotoViewWithPreview extends StatefulWidget {
   final PermissionStatus _permissionStatus;
   final BoxShape _previewShape;
-  final Function(BuildContext context) onCancel;
   final Function(BuildContext context, List<Uint8List> images) onDone;
-  final Function(BuildContext context) onCancelCamera;
-  final Function(BuildContext context, Uint8List? imageData) onDoneCamera;
+  final Function(BuildContext context) onTapCamera;
 
   @override
   State<GridPhotoViewWithPreview> createState() => _GridPhotoViewWithPreviewState();
@@ -28,19 +25,15 @@ class GridPhotoViewWithPreview extends StatefulWidget {
     super.key,
     required PermissionStatus permissionStatus,
     BoxShape previewShape = BoxShape.rectangle,
-    required this.onCancel,
     required this.onDone,
-    required this.onCancelCamera,
-    required this.onDoneCamera,
+    required this.onTapCamera,
   })  : _permissionStatus = permissionStatus,
         _previewShape = previewShape;
 
   static Widget build({
     required PermissionStatus permissionStatus,
-    required Function(BuildContext context) onCancel,
     required Function(BuildContext context, List<Uint8List> images) onDone,
-    required Function(BuildContext context) onCancelCamera,
-    required Function(BuildContext context, Uint8List? imageData) onDoneCamera,
+    required Function(BuildContext context) onTapCamera,
     BoxShape previewShape = BoxShape.rectangle,
     bool canMultiSelect = true,
   }) {
@@ -49,10 +42,8 @@ class GridPhotoViewWithPreview extends StatefulWidget {
       child: GridPhotoViewWithPreview(
         permissionStatus: permissionStatus,
         previewShape: previewShape,
-        onCancel: onCancel,
         onDone: onDone,
-        onCancelCamera: onCancelCamera,
-        onDoneCamera: onDoneCamera,
+        onTapCamera: onTapCamera,
       ),
     );
   }
@@ -70,40 +61,10 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview>
   BoxShape get previewShape => widget._previewShape;
 
   @override
-  Function(BuildContext context) get onCancel => widget.onCancel;
+  Function(BuildContext context, List<Uint8List> selectedImages) get onDone => widget.onDone;
 
   @override
-  Function(BuildContext context, List<AssetEntity> selectedImages) get onDone =>
-          (context, selectedImages) async {
-        final List<Uint8List> imageDataList = [];
-        for (final selectedImage in selectedImages) {
-          final imageData = await selectedImage.originBytes;
-          if (imageData != null) {
-            imageDataList.add(imageData);
-          }
-        }
-
-        if (context.mounted) {
-          final result = await Navigator.of(context).push<List<Uint8List>>(
-            MaterialPageRoute(
-              builder: (context) =>
-                  CheckSelectedImagesScreen(
-                    shape: widget._previewShape,
-                    image: imageDataList,
-                  ),
-            ),
-          );
-          if (context.mounted && result != null) {
-            widget.onDone.call(context, result);
-          }
-        }
-      };
-
-  @override
-  Function(BuildContext context) get onCancelCamera => widget.onCancelCamera;
-
-  @override
-  Function(BuildContext context, Uint8List? imageData) get onDoneCamera => widget.onDoneCamera;
+  Function(BuildContext context) get onTapCameraButton => widget.onTapCamera;
 
   @override
   Widget buildBody(BuildContext context) {

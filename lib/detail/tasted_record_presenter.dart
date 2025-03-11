@@ -63,7 +63,7 @@ final class TastedRecordPresenter extends ChangeNotifier {
   BeanInfo get beanInfo => (
         beanType: _tastingRecord?.bean.type.toString(),
         isDecaf: _tastingRecord?.bean.isDecaf,
-        country: _tastingRecord?.bean.country.map((country) => country.toString()).toList() ?? [],
+        country: _tastingRecord?.bean.country?.map((country) => country.toString()).toList() ?? [],
         region: _tastingRecord?.bean.region,
         process: _tastingRecord?.bean.process,
         roastingPoint: roastingPointToString(_tastingRecord?.bean.roastPoint),
@@ -187,16 +187,16 @@ final class TastedRecordPresenter extends ChangeNotifier {
   //댓글 기능 구현 필요
   createReComment(String text, Comment targetComment) {}
 
-  String? roastingPointToString(double? roastingPoint) {
-    if (roastingPoint == 1.0) {
+  String? roastingPointToString(int? roastingPoint) {
+    if (roastingPoint == 1) {
       return '라이트';
-    } else if (roastingPoint == 2.0) {
+    } else if (roastingPoint == 2) {
       return '라이트 미디엄';
-    } else if (roastingPoint == 3.0) {
+    } else if (roastingPoint == 3) {
       return '미디';
-    } else if (roastingPoint == 4.0) {
+    } else if (roastingPoint == 4) {
       return '미디엄 다크';
-    } else if (roastingPoint == 5.0) {
+    } else if (roastingPoint == 5) {
       return '다크';
     } else {
       return null;

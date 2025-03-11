@@ -10,17 +10,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class CheckSelectedImagesScreen extends StatefulWidget {
-  final BoxShape _shape;
   final List<Uint8List> _images;
   final List<Uint8List> _imagesOrigin;
+  final Function(BuildContext context, List<Uint8List> images) onNext;
 
   CheckSelectedImagesScreen({
     super.key,
     required List<Uint8List> image,
-    BoxShape shape = BoxShape.rectangle,
+    required this.onNext,
   })  : _images = image,
-        _imagesOrigin = List.from(image),
-        _shape = shape;
+        _imagesOrigin = List.from(image);
 
   @override
   State<CheckSelectedImagesScreen> createState() => _CheckSelectedImagesScreenState();
@@ -53,7 +52,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pop();
+                Navigator.pop(context);
               },
               child: SvgPicture.asset(
                 'assets/icons/back.svg',
@@ -65,7 +64,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
             const Spacer(),
             GestureDetector(
               onTap: () {
-                Navigator.of(context).pop(widget._images);
+                widget.onNext(context, widget._images);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -91,14 +90,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
       itemBuilder: (context, _, index) {
         return AspectRatio(
           aspectRatio: 1,
-          child: widget._shape == BoxShape.rectangle
-              ? ExtendedImage.memory(widget._images[index], fit: BoxFit.cover)
-              : Stack(
-                  children: [
-                    Positioned.fill(child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover)),
-                    Positioned.fill(child: CustomPaint(painter: _CircleCropOverlayPainter())),
-                  ],
-                ),
+          child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover),
         );
       },
       options: CarouselOptions(
@@ -161,7 +153,6 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
               final data = await Navigator.of(context).push<Uint8List>(
                 MaterialPageRoute(
                   builder: (context) => PhotoEditScreen(
-                    shape: widget._shape,
                     imageData: imageData,
                     originData: widget._imagesOrigin[_currentIndex],
                   ),

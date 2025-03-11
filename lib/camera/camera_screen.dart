@@ -9,17 +9,16 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 class CameraScreen extends StatefulWidget {
   final BoxShape _previewShape;
-  final Function(BuildContext context)? onCancel;
-  final Function(BuildContext context, Uint8List? imageData)? onDone;
+  final Function(BuildContext context, Uint8List imageData)? onDone;
 
   const CameraScreen({
     super.key,
-    this.onCancel,
     this.onDone,
     BoxShape previewShape = BoxShape.rectangle,
   }) : _previewShape = previewShape;
@@ -121,7 +120,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          widget.onCancel?.call(context);
+                          context.pop();
                         },
                         child: SvgPicture.asset(
                           'assets/icons/x.svg',
@@ -242,7 +241,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      widget.onCancel?.call(context);
+                      context.pop();
                     },
                     child: SvgPicture.asset(
                       'assets/icons/x.svg',
@@ -326,7 +325,7 @@ class _CameraScreenState extends State<CameraScreen> {
               Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    widget.onDone?.call(context, imageData.value);
+                    widget.onDone?.call(context, data);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),

@@ -1,3 +1,4 @@
+import 'package:brew_buds/camera/camera_screen.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -5,6 +6,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/features/signup/models/coffee_life.dart';
+import 'package:brew_buds/photo/check_selected_images_screen.dart';
 import 'package:brew_buds/photo/view/photo_grid_view_with_preview.dart';
 import 'package:brew_buds/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
@@ -460,8 +462,8 @@ class _EditProfileViewState extends State<EditProfileView> {
     }
   }
 
-  _showAlbumModal() {
-    showCupertinoModalPopup(
+  _showAlbumModal() async {
+    final result = await showCupertinoModalPopup<Uint8List>(
       barrierColor: ColorStyles.white,
       barrierDismissible: false,
       context: context,
@@ -470,28 +472,40 @@ class _EditProfileViewState extends State<EditProfileView> {
           permissionStatus: PermissionRepository.instance.photos,
           previewShape: BoxShape.circle,
           canMultiSelect: false,
-          onCancel: (context) {
-            context.pop();
-          },
-          onDone: (context, images) {
-            final imageData = images.firstOrNull;
-            if (imageData != null) {
-              _onChangeImageData(imageData);
+          onDone: (context, images) async {
+            final result = await Navigator.of(context).push<Uint8List>(
+              MaterialPageRoute(
+                builder: (context) => CheckSelectedImagesScreen(
+                  image: images,
+                  onNext: (context, imageDataList) {
+                    context.pop(imageDataList.firstOrNull);
+                  },
+                ),
+              ),
+            );
+            if (result != null && context.mounted) {
+              context.pop(result);
             }
-            context.pop();
           },
-          onCancelCamera: (context) {
-            context.pop();
-          },
-          onDoneCamera: (context, imageData) {
-            if (imageData != null) {
-              _onChangeImageData(imageData);
-            }
-            context.pop();
+          onTapCamera: (context) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => CameraScreen(
+                  previewShape: BoxShape.circle,
+                  onDone: (context, imageData) {
+                    context.pop(imageData);
+                  },
+                ),
+              ),
+            );
           },
         );
       },
     );
+
+    if (result != null) {
+      _onChangeImageData(result);
+    }
   }
 
   _onChangeImageData(Uint8List imageData) {

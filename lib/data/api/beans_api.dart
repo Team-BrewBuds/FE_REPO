@@ -22,7 +22,7 @@ abstract class BeansApi {
   });
 
   @GET('/beans/search/')
-  Future<void> searchBeans({
+  Future<String> searchBeans({
     @Query('name') String? name,
     @Query('page') required int pageNo,
   });

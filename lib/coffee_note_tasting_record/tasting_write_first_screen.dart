@@ -1,0 +1,951 @@
+import 'package:brew_buds/coffee_note_tasting_record/core/tasting_write_mixin.dart';
+import 'package:brew_buds/coffee_note_tasting_record/tasting_write_presenter.dart';
+import 'package:brew_buds/coffee_note_tasting_record/tasting_write_secod_screen.dart';
+import 'package:brew_buds/coffee_note_tasting_record/view/coffee_bean_search.dart';
+import 'package:brew_buds/coffee_note_tasting_record/view/country_bottom_sheet.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_extraction.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_processing.dart';
+import 'package:brew_buds/coffee_note_tasting_record/model/bean_write_option.dart';
+import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
+import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
+
+class TastingWriteFirstScreen extends StatefulWidget {
+  const TastingWriteFirstScreen({super.key});
+
+  @override
+  State<TastingWriteFirstScreen> createState() => _TastingWriteFirstScreenState();
+}
+
+class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
+    with TastingWriteMixin<TastingWriteFirstScreen> {
+  final TextEditingController _areaController = TextEditingController();
+  final FocusNode _areaFocusNode = FocusNode();
+  final TextEditingController _varietyController = TextEditingController();
+  final FocusNode _varietyFocusNode = FocusNode();
+  final TextEditingController _roasteryController = TextEditingController();
+  final FocusNode _roasteryFocusNode = FocusNode();
+  final ValueNotifier<CoffeeBeanProcessing?> _processingNotifier = ValueNotifier(null);
+  final TextEditingController _processingController = TextEditingController();
+  final FocusNode _processingFocusNode = FocusNode();
+  final ValueNotifier<CoffeeBeanExtraction?> _extractionNotifier = ValueNotifier(null);
+  final TextEditingController _extractionController = TextEditingController();
+  final FocusNode _extractionFocusNode = FocusNode();
+  final List<String> roastingPointText = ['라이트', '라이트 미디엄', '미디엄', '미디엄 다크', '다크'];
+
+  @override
+  int get currentStep => 1;
+
+  List<BeanWriteOption> getOptions(CoffeeBeanType? type) => switch (type) {
+        null => BeanWriteOption.values,
+        CoffeeBeanType.singleOrigin => [
+            BeanWriteOption.roastery,
+            BeanWriteOption.extraction,
+            BeanWriteOption.beverageType
+          ],
+        CoffeeBeanType.blend => BeanWriteOption.values,
+      };
+
+  bool isExpanded(BeanWriteOption option) => expandedSections.contains(option);
+
+  Set<BeanWriteOption> expandedSections = {};
+
+  void toggleSection(BeanWriteOption option) {
+    setState(() {
+      if (expandedSections.contains(option)) {
+        expandedSections.remove(option);
+      } else {
+        expandedSections.add(option);
+      }
+    });
+  }
+
+  bool isFormComplete = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _areaController.dispose();
+    _varietyController.dispose();
+    _processingController.dispose();
+    _roasteryController.dispose();
+    _areaFocusNode.dispose();
+    _varietyFocusNode.dispose();
+    _roasteryFocusNode.dispose();
+    _processingNotifier.dispose();
+    _processingFocusNode.dispose();
+    _extractionFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget buildBody() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 32),
+          buildTitle(),
+          const SizedBox(height: 20),
+          Selector<TastingWritePresenter, String>(
+            selector: (context, presenter) => presenter.name,
+            builder: (context, name, child) => _buildBeanName(name),
+          ),
+          const SizedBox(height: 36),
+          Selector<TastingWritePresenter, bool>(
+            selector: (context, presenter) => presenter.isOfficial,
+            builder: (context, isOfficial, child) => AbsorbPointer(
+              absorbing: isOfficial,
+              child: Column(
+                children: [
+                  Selector<TastingWritePresenter, CoffeeBeanType?>(
+                    selector: (context, presenter) => presenter.coffeeBeanType,
+                    builder: (context, type, child) => _buildCoffeeTypeSelector(
+                      currentType: type,
+                      isOfficial: isOfficial,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Selector<TastingWritePresenter, bool>(
+                    selector: (context, presenter) => presenter.isDecaf ?? false,
+                    builder: (context, isDecaf, child) => _buildDecafCheckbox(
+                      isDecaf: isDecaf,
+                      isOfficial: isOfficial,
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+                  Selector<TastingWritePresenter, List<String>>(
+                    selector: (context, presenter) => presenter.originCountry,
+                    builder: (context, originCountry, child) => _buildCountry(
+                      originCountry,
+                      isOfficial: isOfficial,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Selector<TastingWritePresenter, CoffeeBeanType?>(
+            selector: (context, presenter) => presenter.coffeeBeanType,
+            builder: (context, type, child) {
+              final options = getOptions(type);
+              return Column(
+                children: List<Widget>.generate(
+                  options.length,
+                  (index) => _buildExpandableItem(options[index]),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget buildBottomButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 46),
+      child: Selector<TastingWritePresenter, bool>(
+        selector: (context, presenter) => presenter.isValidFirstPage,
+        builder: (context, isValidFirstPage, child) {
+          return AbsorbPointer(
+            absorbing: !isValidFirstPage,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => TastingWriteSecondScreen()));
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  color: isValidFirstPage ? ColorStyles.black : ColorStyles.gray20,
+                ),
+                child: Text(
+                  '다음',
+                  style: TextStyles.labelMediumMedium.copyWith(
+                    color: isValidFirstPage ? ColorStyles.white : ColorStyles.gray40,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCoffeeTypeSelector({CoffeeBeanType? currentType, bool isOfficial = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text("원두 유형", style: TextStyles.title01SemiBold),
+        const SizedBox(height: 8),
+        Opacity(
+          opacity: isOfficial ? 0.4 : 1,
+          child: Row(
+            children: CoffeeBeanType.values
+                .map(
+                  (type) => Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        context.read<TastingWritePresenter>().onChangeType(currentType == type ? null : type);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: currentType == type ? ColorStyles.background : ColorStyles.white,
+                          border: Border.all(color: currentType == type ? ColorStyles.red : ColorStyles.gray50),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Text(
+                            type.toString(),
+                            style: TextStyles.labelMediumMedium.copyWith(
+                              color: currentType == type ? ColorStyles.red : ColorStyles.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                .separator(separatorWidget: const SizedBox(width: 8))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDecafCheckbox({required bool isDecaf, bool isOfficial = false}) {
+    return Opacity(
+      opacity: isOfficial ? 0.4 : 1,
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              context.read<TastingWritePresenter>().onChangeIsDecaf(!isDecaf);
+            },
+            child: SvgPicture.asset('assets/icons/${isDecaf ? 'checked' : 'unChecked'}.svg', width: 18, height: 18),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: Text('디카페인', style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBeanName(String beanName) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('원두 이름', style: TextStyles.title01SemiBold),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: () {
+            _showCoffeeBeanSearchBottomSheet(beanName);
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(border: Border.all(color: ColorStyles.gray40)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (beanName.isEmpty) ...[
+                  SvgPicture.asset(
+                    'assets/icons/search.svg',
+                    width: 20,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                  ),
+                  const SizedBox(width: 2),
+                  Expanded(
+                    child: Text(
+                      '원두 이름을 검색해보세요',
+                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                    ),
+                  ),
+                ] else ...[
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                      decoration: const BoxDecoration(
+                          color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(20))),
+                      child: Text(
+                        beanName,
+                        style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      context.read<TastingWritePresenter>().onDeleteBeanName();
+                    },
+                    child: SvgPicture.asset(
+                      'assets/icons/x_round.svg',
+                      width: 24,
+                      height: 24,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCountry(List<String> countryList, {bool isOfficial = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('원산지', style: TextStyles.title01SemiBold),
+        const SizedBox(height: 8),
+        Opacity(
+          opacity: isOfficial ? 0.4 : 1,
+          child: GestureDetector(
+            onTap: () {
+              _showCountryBottomSheet(country: countryList);
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(border: Border.all(color: ColorStyles.gray40)),
+              child: Row(
+                children: [
+                  if (countryList.isEmpty) ...[
+                    SvgPicture.asset(
+                      'assets/icons/search.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                    ),
+                    const SizedBox(width: 2),
+                    Expanded(
+                      child: Text(
+                        '원산지를 선택해주세요',
+                        style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                      ),
+                    ),
+                  ] else ...[
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: List<Widget>.generate(
+                            countryList.length,
+                            (index) => Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                              decoration: const BoxDecoration(
+                                  color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(20))),
+                              child: Text(
+                                countryList[index],
+                                style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ).separator(separatorWidget: const SizedBox(width: 4)).toList(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () {
+                        context.read<TastingWritePresenter>().onChangeCountry(null);
+                      },
+                      child: SvgPicture.asset(
+                        'assets/icons/x_round.svg',
+                        width: 24,
+                        height: 24,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandableItem(BeanWriteOption option) {
+    final expanded = isExpanded(option);
+    return Container(
+      padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
+      color: ColorStyles.gray10,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () => toggleSection(option),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    expanded ? '${option.toString()} (선택)' : '(선택) ${option.toString()}',
+                    style: TextStyles.labelSmallMedium,
+                  ),
+                ),
+                SvgPicture.asset(
+                  expanded ? 'assets/icons/minus_round.svg' : 'assets/icons/plus_round.svg',
+                  height: 24,
+                  width: 24,
+                  colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+                ),
+              ],
+            ),
+          ),
+          if (expanded)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: _buildExpandedOptions(option),
+            ),
+          SizedBox(height: expanded ? 24 : 12),
+          Container(height: 1, color: ColorStyles.gray30),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExpandedOptions(BeanWriteOption option) {
+    switch (option) {
+      case BeanWriteOption.area:
+        return _buildArea();
+      case BeanWriteOption.variety:
+        return _buildVariety();
+      case BeanWriteOption.processing:
+        return ValueListenableBuilder(
+          valueListenable: _processingNotifier,
+          builder: (context, processing, child) {
+            return _buildProcessing(currentProcessing: processing);
+          },
+        );
+      case BeanWriteOption.roastingPoint:
+        return Selector<TastingWritePresenter, int?>(
+            selector: (context, presenter) => presenter.roastingPoint,
+            builder: (context, roastingPoint, child) {
+              return _buildRoastingPoint(currentRoastingPoint: roastingPoint);
+            });
+      case BeanWriteOption.roastery:
+        return _buildRoastery();
+      case BeanWriteOption.extraction:
+        return ValueListenableBuilder(
+          valueListenable: _extractionNotifier,
+          builder: (context, extraction, child) {
+            return _buildExtraction(currentExtraction: extraction);
+          },
+        );
+      case BeanWriteOption.beverageType:
+        return Selector<TastingWritePresenter, bool?>(
+          selector: (context, presenter) => presenter.isIce,
+          builder: (context, isIce, child) {
+            return _buildBeverageType(isIce: isIce);
+          },
+        );
+    }
+  }
+
+  Widget _buildArea() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        focusNode: _areaFocusNode,
+        controller: _areaController,
+        keyboardType: TextInputType.text,
+        inputFormatters: [
+          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9, ]'), allow: true),
+        ],
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: '원두 생산 지역을 입력하세요',
+          hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          filled: true,
+          fillColor: ColorStyles.white,
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+          ),
+        ),
+        style: TextStyles.labelSmallMedium,
+        maxLines: null,
+        cursorColor: ColorStyles.black,
+        cursorErrorColor: ColorStyles.black,
+        cursorHeight: 16,
+        cursorWidth: 1,
+        onChanged: (area) {
+          context.read<TastingWritePresenter>().onChangeRegion(area);
+        },
+      ),
+    );
+  }
+
+  Widget _buildVariety() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        focusNode: _varietyFocusNode,
+        controller: _varietyController,
+        keyboardType: TextInputType.text,
+        inputFormatters: [
+          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9, ]'), allow: true),
+        ],
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: '원두 품종을 입력해 주세요.',
+          hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          filled: true,
+          fillColor: ColorStyles.white,
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+          ),
+        ),
+        style: TextStyles.labelSmallMedium,
+        maxLines: null,
+        cursorColor: ColorStyles.black,
+        cursorErrorColor: ColorStyles.black,
+        cursorHeight: 16,
+        cursorWidth: 1,
+        onChanged: (variety) {
+          context.read<TastingWritePresenter>().onChangeVariety(variety);
+        },
+      ),
+    );
+  }
+
+  Widget _buildProcessing({CoffeeBeanProcessing? currentProcessing}) {
+    const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            runSpacing: 8,
+            spacing: 8,
+            children: CoffeeBeanProcessing.values.map(
+              (processing) {
+                return GestureDetector(
+                  onTap: () {
+                    if (currentProcessing == processing) {
+                      context.read<TastingWritePresenter>().onChangeProcess(null);
+                    } else if (processing == CoffeeBeanProcessing.writtenByUser) {
+                      _processingController.value = const TextEditingValue();
+                      context.read<TastingWritePresenter>().onChangeProcess(null);
+                    } else {
+                      context.read<TastingWritePresenter>().onChangeProcess(processing.toString());
+                    }
+
+                    _processingNotifier.value = currentProcessing == processing ? null : processing;
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: currentProcessing == processing ? ColorStyles.background : Colors.transparent,
+                      border: Border.all(color: currentProcessing == processing ? ColorStyles.red : ColorStyles.gray50),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Text(
+                      processing.toString(),
+                      style: textStyle.copyWith(
+                        color: currentProcessing == processing ? ColorStyles.red : ColorStyles.black,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ).toList(),
+          ),
+          if (currentProcessing == CoffeeBeanProcessing.writtenByUser) ...[
+            const SizedBox(height: 24),
+            TextFormField(
+              focusNode: _processingFocusNode,
+              controller: _processingController,
+              keyboardType: TextInputType.text,
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣 ]'), allow: true),
+              ],
+              decoration: InputDecoration(
+                isDense: true,
+                hintText: '원두 가공방식을 입력해주세요.',
+                hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                filled: true,
+                fillColor: ColorStyles.white,
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: ColorStyles.gray40),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: ColorStyles.gray40),
+                ),
+              ),
+              style: TextStyles.labelSmallMedium,
+              maxLines: null,
+              cursorColor: ColorStyles.black,
+              cursorErrorColor: ColorStyles.black,
+              cursorHeight: 16,
+              cursorWidth: 1,
+              onChanged: (processing) {
+                context.read<TastingWritePresenter>().onChangeProcess(processing);
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoastingPoint({int? currentRoastingPoint}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: SizedBox(
+        height: 52,
+        child: Stack(
+          children: [
+            Positioned(
+              top: 14,
+              left: 10,
+              right: 10,
+              child: Container(
+                height: 1,
+                color: const Color(0xFFCFCFCF),
+              ),
+            ),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: List<Widget>.generate(
+                  5,
+                  (index) => Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          context
+                              .read<TastingWritePresenter>()
+                              .onChangeRoastingPoint(currentRoastingPoint == index ? null : index);
+                        },
+                        child: Container(
+                          height: 28,
+                          width: 28,
+                          decoration: BoxDecoration(
+                            color: currentRoastingPoint == index ? ColorStyles.white : Colors.transparent,
+                            shape: BoxShape.circle,
+                            border: currentRoastingPoint == index ? Border.all(color: ColorStyles.red) : null,
+                          ),
+                          child: Center(
+                            child: Container(
+                              height: 14,
+                              width: 14,
+                              decoration: BoxDecoration(
+                                color: currentRoastingPoint == index ? ColorStyles.red : ColorStyles.gray50,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        roastingPointText[index],
+                        style: TextStyles.captionMediumMedium.copyWith(
+                          color: currentRoastingPoint != null && currentRoastingPoint == index
+                              ? ColorStyles.red
+                              : currentRoastingPoint == null
+                                  ? ColorStyles.gray50
+                                  : Colors.transparent,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoastery() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        focusNode: _roasteryFocusNode,
+        controller: _roasteryController,
+        keyboardType: TextInputType.text,
+        inputFormatters: [
+          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9, ]'), allow: true),
+        ],
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: '로스터리 이름을 입력해 주세요.',
+          hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          filled: true,
+          fillColor: ColorStyles.white,
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+          ),
+        ),
+        style: TextStyles.labelSmallMedium,
+        maxLines: null,
+        cursorColor: ColorStyles.black,
+        cursorErrorColor: ColorStyles.black,
+        cursorHeight: 16,
+        cursorWidth: 1,
+        onChanged: (roastery) {
+          context.read<TastingWritePresenter>().onChangeRoastery(roastery);
+        },
+      ),
+    );
+  }
+
+  Widget _buildExtraction({CoffeeBeanExtraction? currentExtraction}) {
+    const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            runSpacing: 8,
+            spacing: 8,
+            children: CoffeeBeanExtraction.values
+                .map(
+                  (extraction) => GestureDetector(
+                    onTap: () {
+                      if (currentExtraction == extraction) {
+                        context.read<TastingWritePresenter>().onChangeExtraction(null);
+                      } else if (extraction == CoffeeBeanExtraction.writtenByUser) {
+                        _extractionController.value = const TextEditingValue();
+                        context.read<TastingWritePresenter>().onChangeExtraction(null);
+                      } else {
+                        context.read<TastingWritePresenter>().onChangeExtraction(extraction.toString());
+                      }
+
+                      _extractionNotifier.value = currentExtraction == extraction ? null : extraction;
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: currentExtraction == extraction ? ColorStyles.background : Colors.transparent,
+                        border:
+                            Border.all(color: currentExtraction == extraction ? ColorStyles.red : ColorStyles.gray50),
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      ),
+                      child: Text(
+                        extraction.toString(),
+                        style: textStyle.copyWith(
+                            color: currentExtraction == extraction ? ColorStyles.red : ColorStyles.black),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+          if (currentExtraction == CoffeeBeanExtraction.writtenByUser) ...[
+            const SizedBox(height: 24),
+            TextFormField(
+              focusNode: _extractionFocusNode,
+              controller: _extractionController,
+              keyboardType: TextInputType.text,
+              inputFormatters: [
+                FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣 ]'), allow: true),
+              ],
+              decoration: InputDecoration(
+                isDense: true,
+                hintText: '원두 추출방식을 입력해주세요.',
+                hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                filled: true,
+                fillColor: ColorStyles.white,
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: ColorStyles.gray40),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide(color: ColorStyles.gray40),
+                ),
+              ),
+              style: TextStyles.labelSmallMedium,
+              maxLines: null,
+              cursorColor: ColorStyles.black,
+              cursorErrorColor: ColorStyles.black,
+              cursorHeight: 16,
+              cursorWidth: 1,
+              onChanged: (extraction) {
+                context.read<TastingWritePresenter>().onChangeExtraction(extraction);
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBeverageType({bool? isIce}) {
+    const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Row(
+        children: BeverageType.values
+            .map(
+              (type) {
+                final BeverageType? currentType = isIce == null
+                    ? null
+                    : isIce
+                        ? BeverageType.ice
+                        : BeverageType.hot;
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      context.read<TastingWritePresenter>().onChangeBeverageType(
+                            currentType == type
+                                ? null
+                                : type == BeverageType.ice
+                                    ? true
+                                    : false,
+                          );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: currentType == type ? ColorStyles.background : Colors.transparent,
+                        border: Border.all(color: currentType == type ? ColorStyles.red : ColorStyles.gray50),
+                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                      ),
+                      child: Text(
+                        type.toString(),
+                        style: textStyle.copyWith(color: currentType == type ? ColorStyles.red : ColorStyles.black),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            )
+            .separator(separatorWidget: const SizedBox(width: 8))
+            .toList(),
+      ),
+    );
+  }
+
+  _showCoffeeBeanSearchBottomSheet(String name) async {
+    final result = await showBarrierDialog<CoffeeBeanSearchBottomSheetResult>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return CoffeeBeanSearchBottomSheet.build(
+          initialText: name,
+          maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+        );
+      },
+    );
+
+    if (result != null && context.mounted) {
+      switch (result) {
+        case ResultsOfSearched():
+          final coffeeBean = result.coffeeBean;
+          _onSelectCoffeeBean(coffeeBean);
+          _setCoffeeBeanValue(coffeeBean);
+          break;
+        case ResultsOfWritten():
+          _onCreateCoffeeBean(result.name);
+          break;
+      }
+    }
+  }
+
+  _onSelectCoffeeBean(CoffeeBean coffeeBean) {
+    context.read<TastingWritePresenter>().onSelectedCoffeeBean(coffeeBean);
+  }
+
+  _onCreateCoffeeBean(String beanName) {
+    context.read<TastingWritePresenter>().onSelectedCoffeeBeanName(beanName);
+  }
+
+  _showCountryBottomSheet({required List<String> country}) async {
+    final result = await showBarrierDialog<List<String>>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return CountryBottomSheet(initialCountry: List.from(country),);
+      }
+    );
+
+    if (result != null) {
+      _onChangeCountry(result);
+    }
+  }
+
+  _onChangeCountry(List<String> country) {
+    context.read<TastingWritePresenter>().onChangeCountry(country);
+  }
+
+  _setCoffeeBeanValue(CoffeeBean coffeeBean) {
+    if (coffeeBean.type == CoffeeBeanType.singleOrigin) {
+      final roastery = coffeeBean.roastery;
+      if (roastery != null && roastery.isNotEmpty) {
+        _roasteryController.text = roastery;
+        toggleSection(BeanWriteOption.roastery);
+      }
+    } else {
+      final region = coffeeBean.region;
+      final variety = coffeeBean.variety;
+      final process = coffeeBean.process;
+      final roastPoint = coffeeBean.roastPoint;
+      final roastery = coffeeBean.roastery;
+
+      if (region != null && region.isNotEmpty) {
+        _areaController.text = region;
+        toggleSection(BeanWriteOption.area);
+      }
+      if (variety != null && variety.isNotEmpty) {
+        _varietyController.text = variety;
+        toggleSection(BeanWriteOption.variety);
+      }
+      if (process != null && process.isNotEmpty) {
+        toggleSection(BeanWriteOption.processing);
+      }
+      if (roastPoint != null) {
+        toggleSection(BeanWriteOption.roastingPoint);
+      }
+      if (roastery != null && roastery.isNotEmpty) {
+        _roasteryController.text = roastery;
+        toggleSection(BeanWriteOption.roastery);
+      }
+    }
+  }
+}

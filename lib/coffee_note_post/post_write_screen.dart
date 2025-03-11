@@ -1,3 +1,4 @@
+import 'package:brew_buds/camera/camera_screen.dart';
 import 'package:brew_buds/coffee_note_post/post_write_presenter.dart';
 import 'package:brew_buds/photo/view/photo_grid_view.dart';
 import 'package:brew_buds/coffee_note_post/view/tasting_record_grid_presenter.dart';
@@ -17,7 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:provider/provider.dart';
 
 showPostWriteScreen({required BuildContext context}) {
@@ -26,28 +26,9 @@ showPostWriteScreen({required BuildContext context}) {
     barrierDismissible: false,
     context: context,
     builder: (context) {
-      return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => PostWritePresenter()),
-          ChangeNotifierProvider(create: (context) => TastingRecordGridPresenter()),
-        ],
-        child: MaterialApp(
-          title: 'Brew Buds',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: 'Pretendard',
-            scaffoldBackgroundColor: Colors.white,
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            splashFactory: NoSplash.splashFactory,
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
-              scrolledUnderElevation: 0,
-            ),
-            useMaterial3: true,
-          ),
-          home: const PostWriteScreen(),
-        ),
+      return ChangeNotifierProvider(
+        create: (context) => PostWritePresenter(),
+        child: const PostWriteScreen(),
       );
     },
   );
@@ -84,12 +65,12 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     if (_tagFocusNode.hasFocus) {
       // **1️⃣ Focus 되면 자동으로 `#` 추가**
       if (_tagController.text.isEmpty) {
-        _tagController.value = TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
+        _tagController.value = const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
       }
     } else {
       // **2️⃣ Focus 해제 시 `#`만 남아있다면 모두 삭제**
       if (_tagController.text == '#') {
-        _tagController.value = TextEditingValue(text: '');
+        _tagController.value = const TextEditingValue(text: '');
       }
     }
   }
@@ -141,18 +122,14 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: _buildTagTextField(),
                 ),
-                Selector2<PostWritePresenter, TastingRecordGridPresenter, SelectedItemsState>(
-                  selector: (context, postWritePresenter, tastingRecordGridPresenter) => (
-                    photos: postWritePresenter.images,
-                    tastingRecords: tastingRecordGridPresenter.selectedTastingRecords,
-                  ),
-                  builder: (context, selectedItemsState, _) {
-                    context.read<PostWritePresenter>().onSyncTastingRecords(selectedItemsState.tastingRecords);
-                    if (selectedItemsState.photos.isNotEmpty) {
+                Selector<PostWritePresenter, ImageListViewState>(
+                  selector: (context, presenter) => presenter.imageListViewState,
+                  builder: (context, imageListViewState, _) {
+                    if (imageListViewState.images.isNotEmpty) {
                       return _buildAttachedContent(
-                        itemLength: selectedItemsState.photos.length,
+                        itemLength: imageListViewState.images.length,
                         itemBuilder: (index) {
-                          final photo = selectedItemsState.photos[index];
+                          final photo = imageListViewState.images[index];
                           return _buildGridItem(
                             imageWidget: switch (photo) {
                               PhotoWithUrl() => ExtendedImage.network(
@@ -175,11 +152,11 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                           );
                         },
                       );
-                    } else if (selectedItemsState.tastingRecords.isNotEmpty) {
+                    } else if (imageListViewState.tastingRecords.isNotEmpty) {
                       return _buildAttachedContent(
-                        itemLength: selectedItemsState.tastingRecords.length,
+                        itemLength: imageListViewState.tastingRecords.length,
                         itemBuilder: (index) {
-                          final tastingRecord = selectedItemsState.tastingRecords[index];
+                          final tastingRecord = imageListViewState.tastingRecords[index];
                           return _buildGridItem(
                             imageWidget: ExtendedImage.network(
                               tastingRecord.imageUri,
@@ -189,7 +166,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                             ),
                             isRepresentative: index == 0,
                             onDeleteTap: () {
-                              context.read<TastingRecordGridPresenter>().onDeletedAt(index);
+                              context.read<PostWritePresenter>().onDeleteTastingRecordAt(index);
                             },
                           );
                         },
@@ -204,15 +181,12 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
           ),
           bottomNavigationBar: Padding(
             padding: MediaQuery.of(context).viewInsets,
-            child: Selector2<PostWritePresenter, TastingRecordGridPresenter, SelectedItemsState>(
-              selector: (context, postWritePresenter, tastingRecordGridPresenter) => (
-                photos: postWritePresenter.images,
-                tastingRecords: tastingRecordGridPresenter.selectedTastingRecords,
-              ),
-              builder: (context, selectedItemsState, _) {
+            child: Selector<PostWritePresenter, BottomButtonState>(
+              selector: (context, presenter) => presenter.bottomsButtonState,
+              builder: (context, bottomsButtonState, _) {
                 return _buildBottomButtons(
-                  hasImages: selectedItemsState.photos.isNotEmpty,
-                  hasTastingRecords: selectedItemsState.tastingRecords.isNotEmpty,
+                  hasImages: bottomsButtonState.hasImages,
+                  tastingRecords: bottomsButtonState.tastingRecords,
                 );
               },
             ),
@@ -474,7 +448,8 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     );
   }
 
-  Widget _buildBottomButtons({required bool hasImages, required bool hasTastingRecords}) {
+  Widget _buildBottomButtons({required bool hasImages, required List<TastingRecordInProfile> tastingRecords}) {
+    final hasTastingRecords = tastingRecords.isNotEmpty;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20, width: 1))),
@@ -504,7 +479,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
           GestureDetector(
             onTap: () {
               if (!hasImages) {
-                _fetchTastingRecords();
+                _fetchTastingRecords(tastingRecords: tastingRecords);
               } else {
                 _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
               }
@@ -532,30 +507,44 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
       MaterialPageRoute(
         builder: (context) => PhotoGridView.build(
           permissionStatus: PermissionRepository.instance.photos,
-          onCancel: (context) => Navigator.of(context).pop(),
           onDone: (context, selectedImages) {
             _addImages(selectedImages);
             Navigator.of(context).pop();
           },
-          onCancelCamera: (context) {
-            Navigator.of(context).pop();
-          },
-          onDoneCamera: (context, imageData) {
-            if (imageData != null) {
-              _addImageData(imageData);
-            }
-            Navigator.of(context).pop();
+          onTapCamera: (context) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => CameraScreen(
+                  onDone: (context, imageData) {
+                    _addImageData(imageData);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ),
+            );
           },
         ),
       ),
     );
   }
 
-  _fetchTastingRecords() {
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const TastingRecordGridView()));
+  _fetchTastingRecords({required List<TastingRecordInProfile> tastingRecords}) async {
+    final result = await Navigator.of(context).push<List<TastingRecordInProfile>>(
+      MaterialPageRoute(
+        builder: (context) => TastingRecordGridView.build(tastingRecords: tastingRecords),
+      ),
+    );
+
+    if (result != null) {
+      _onChangeTastingRecords(result);
+    }
   }
 
-  _addImages(List<AssetEntity> images) async {
+  _onChangeTastingRecords(List<TastingRecordInProfile> tastingRecords) {
+    context.read<PostWritePresenter>().onChangeTastingRecords(tastingRecords);
+  }
+
+  _addImages(List<Uint8List> images) async {
     if (!await context.read<PostWritePresenter>().addImages(images)) {
       _showErrorSnackBar(errorMessage: '이미지는 최대 10개까지 등록 가능합니다.');
     }

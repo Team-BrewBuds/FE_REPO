@@ -1,6 +1,7 @@
 import 'package:brew_buds/coffee_note_post//view/tasting_record_grid_presenter.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,6 +12,13 @@ class TastingRecordGridView extends StatefulWidget {
 
   @override
   State<TastingRecordGridView> createState() => _TastingRecordGridViewState();
+
+  static Widget build({required List<TastingRecordInProfile> tastingRecords}) {
+    return ChangeNotifierProvider(
+      create: (context) => TastingRecordGridPresenter(selectedTastingRecords: List.from(tastingRecords)), // ✅ 새로운 `Provider` 생성
+      child: const TastingRecordGridView(),
+    );
+  }
 }
 
 class _TastingRecordGridViewState extends State<TastingRecordGridView> {
@@ -34,7 +42,7 @@ class _TastingRecordGridViewState extends State<TastingRecordGridView> {
               ? NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scroll) {
                     if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                      // context.read<TastingRecordGridPresenter>().fetchMoreData();
+                      context.read<TastingRecordGridPresenter>().fetchMoreData();
                     }
                     return false;
                   },
@@ -87,7 +95,6 @@ class _TastingRecordGridViewState extends State<TastingRecordGridView> {
               left: 0,
               child: GestureDetector(
                 onTap: () {
-                  context.read<TastingRecordGridPresenter>().cancel();
                   Navigator.of(context).pop();
                 },
                 child: SvgPicture.asset(
@@ -101,14 +108,15 @@ class _TastingRecordGridViewState extends State<TastingRecordGridView> {
             const Center(child: Text('시음기록', style: TextStyles.title01SemiBold)),
             Positioned(
               right: 0,
-              child: Selector<TastingRecordGridPresenter, bool>(
-                selector: (context, presenter) => presenter.hasSelectedItem,
-                builder: (context, hasSelectedItem, child) {
+              child: Selector<TastingRecordGridPresenter, List<TastingRecordInProfile>>(
+                selector: (context, presenter) => presenter.selectedTastingRecords,
+                builder: (context, selectedTastingRecords, child) {
+                  final hasSelectedItem = selectedTastingRecords.isNotEmpty;
                   return AbsorbPointer(
                     absorbing: !hasSelectedItem,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(selectedTastingRecords);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

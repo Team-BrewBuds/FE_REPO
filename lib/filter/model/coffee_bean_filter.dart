@@ -1,10 +1,10 @@
-import 'package:brew_buds/filter/model/bean_type.dart';
-import 'package:brew_buds/filter/model/country.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:brew_buds/model/coffee_bean/country.dart';
 
 sealed class CoffeeBeanFilter {
   String get text;
 
-  factory CoffeeBeanFilter.beanType(BeanType beanType) = BeanTypeFilter;
+  factory CoffeeBeanFilter.beanType(CoffeeBeanType beanType) = BeanTypeFilter;
 
   factory CoffeeBeanFilter.country(Country country) = CountryFilter;
 
@@ -16,7 +16,7 @@ sealed class CoffeeBeanFilter {
 }
 
 final class BeanTypeFilter implements CoffeeBeanFilter {
-  final BeanType type;
+  final CoffeeBeanType type;
 
   BeanTypeFilter(this.type);
 

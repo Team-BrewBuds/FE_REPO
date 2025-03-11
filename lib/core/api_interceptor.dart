@@ -32,7 +32,6 @@ final class ApiInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode != 401) {
-      print(err.response?.statusMessage);
       return handler.reject(err);
     }
 
@@ -64,6 +63,7 @@ final class ApiInterceptor extends Interceptor {
 
       return handler.resolve(response);
     } catch (e) {
+      print('refresh Error');
       return handler.reject(err);
     }
   }

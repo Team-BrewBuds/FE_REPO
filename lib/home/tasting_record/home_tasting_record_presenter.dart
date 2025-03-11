@@ -34,6 +34,7 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
   @override
   Future<void> initState() async {
     fetchMoreData();
+    super.initState();
   }
 
   @override
@@ -42,6 +43,7 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastingRecordIn
     _currentPage = 0;
     notifyListeners();
     fetchMoreData();
+    super.onRefresh();
   }
 
   @override

@@ -4,23 +4,20 @@ enum Country {
   mexico,
   bolivia,
   brazil,
-  ecuador,
   elSalvador,
   honduras,
-  jamaica,
   costaRica,
   colombia,
   panama,
   peru,
   rwanda,
   ethiopia,
+  cameroon,
   kenya,
-  sumatra,
-  yemen,
+  korea,
+  vietnam,
   india,
-  indonesia,
-  papuaNewGuinea,
-  hawaii;
+  indonesia;
 
   @override
   String toString() => switch (this) {
@@ -29,10 +26,8 @@ enum Country {
         Country.mexico => '멕시코',
         Country.bolivia => '볼리비아',
         Country.brazil => '브라질',
-        Country.ecuador => '에콰도르',
         Country.elSalvador => '엘살바도르',
         Country.honduras => '온두라스',
-        Country.jamaica => '자메이카',
         Country.costaRica => '코스타리카',
         Country.colombia => '콜롬비아',
         Country.panama => '파나마',
@@ -40,12 +35,11 @@ enum Country {
         Country.rwanda => '르완다',
         Country.ethiopia => '에티오피아',
         Country.kenya => '케냐',
-        Country.sumatra => '수마트라',
-        Country.yemen => '예멘',
         Country.india => '인도',
         Country.indonesia => '인도네시아',
-        Country.papuaNewGuinea => '파푸아뉴기니',
-        Country.hawaii => '하와이',
+        Country.cameroon => '카메룬',
+        Country.korea => '대한민국',
+        Country.vietnam => '베트남',
       };
 }
 
@@ -61,10 +55,8 @@ enum Continent {
             Country.mexico,
             Country.bolivia,
             Country.brazil,
-            Country.ecuador,
             Country.elSalvador,
             Country.honduras,
-            Country.jamaica,
             Country.costaRica,
             Country.colombia,
             Country.panama,
@@ -73,15 +65,14 @@ enum Continent {
         Continent.africa => [
             Country.rwanda,
             Country.ethiopia,
+            Country.cameroon,
             Country.kenya,
           ],
         Continent.etc => [
-            Country.sumatra,
-            Country.yemen,
+            Country.korea,
+            Country.vietnam,
             Country.india,
             Country.indonesia,
-            Country.papuaNewGuinea,
-            Country.hawaii,
           ],
       };
 
@@ -92,5 +83,3 @@ enum Continent {
         Continent.etc => '기타',
       };
 }
-
-
