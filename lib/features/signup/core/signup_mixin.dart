@@ -15,75 +15,76 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
 
   bool get isSkippablePage;
 
-  bool get isSatisfyRequirements;
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<SignUpPresenter>(builder: (context, presenter, _) {
-      return GestureDetector(
-        onTap: () {
-          onTappedOutSide();
-        },
-        child: Scaffold(
-          appBar: buildAppbar(context, presenter),
-          body: SafeArea(
-            child: AbsorbPointer(
-              absorbing: presenter.isLoading,
-              child: Stack(
-                children: [
-                  Center(
-                    child:
-                        presenter.isLoading ? const CircularProgressIndicator(color: ColorStyles.gray60) : Container(),
-                  ),
-                  Positioned.fill(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final width = (constraints.maxWidth - 6) / 4;
-                              return Row(
-                                children: List<Widget>.generate(
-                                  4,
-                                  (index) => Container(
-                                    height: 2,
-                                    width: width,
-                                    color: index <= currentPageIndex ? ColorStyles.red : ColorStyles.gray40,
-                                  ),
-                                ).separator(separatorWidget: const SizedBox(width: 2)).toList(),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 28),
-                          Expanded(child: buildBody(context, presenter)),
-                        ],
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: ColorStyles.white,
+        appBar: buildAppbar(),
+        body: SafeArea(
+          child: Selector<SignUpPresenter, bool>(
+              selector: (context, presenter) => presenter.isLoading,
+              builder: (context, isLoading, child) {
+                return AbsorbPointer(
+                  absorbing: isLoading,
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: isLoading
+                            ? const CircularProgressIndicator(color: ColorStyles.gray60)
+                            : const SizedBox.shrink(),
                       ),
-                    ),
+                      Positioned.fill(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final width = (constraints.maxWidth - 6) / 4;
+                                  return Row(
+                                    children: List<Widget>.generate(
+                                      4,
+                                      (index) => Container(
+                                        height: 2,
+                                        width: width,
+                                        color: index <= currentPageIndex ? ColorStyles.red : ColorStyles.gray40,
+                                      ),
+                                    ).separator(separatorWidget: const SizedBox(width: 2)).toList(),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 28),
+                              Expanded(child: buildBody()),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          bottomNavigationBar: buildBottom(context, presenter),
+                );
+              }),
         ),
-      );
-    });
+        bottomNavigationBar: buildBottom(),
+      ),
+    );
   }
 
-  onTappedOutSide();
+  Widget buildBody();
 
-  Widget buildBody(BuildContext context, SignUpPresenter presenter);
+  Widget buildBottom();
 
-  AppBar buildAppbar(BuildContext context, SignUpPresenter presenter) {
+  AppBar buildAppbar() {
     return AppBar(
       elevation: 0,
       titleSpacing: 0,
       backgroundColor: Colors.white,
-      leading: Container(),
+      leading: const SizedBox.shrink(),
       leadingWidth: 0,
-      toolbarHeight: 64,
       toolbarOpacity: 0,
       title: Container(
         padding: const EdgeInsets.only(top: 28, bottom: 12, left: 16, right: 16),
@@ -133,7 +134,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  Widget buildBottom(BuildContext context, SignUpPresenter presenter) {
+  Widget buildBottomButton({required bool isSatisfyRequirements, String title = '다음'}) {
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
       child: AbsorbPointer(
@@ -149,7 +150,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
             ),
             child: Center(
               child: Text(
-                '다음',
+                title,
                 style: TextStyles.labelMediumMedium.copyWith(
                   color: isSatisfyRequirements ? ColorStyles.white : ColorStyles.gray40,
                 ),

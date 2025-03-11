@@ -77,7 +77,6 @@ flutter:
   assets:
     - .env
     - assets/images/
-    - assets/images/coffee.jpeg
     - assets/images/login/
     - assets/icons/
 

@@ -20,8 +20,8 @@ class SocialLoginDTO {
   final String accessToken;
   @JsonKey(name: 'refresh')
   final String refreshToken;
-  @JsonKey(name: 'user', defaultValue: null)
-  final _User? user;
+  @JsonKey(name: 'user')
+  final _User user;
 
   SocialLoginDTO(
     this.accessToken,

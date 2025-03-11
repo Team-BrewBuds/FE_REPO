@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:brew_buds/features/signup/core/signup_mixin.dart';
+import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,9 +17,6 @@ class SignUpThirdPage extends StatefulWidget {
 class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<SignUpThirdPage> {
   @override
   int get currentPageIndex => 2;
-
-  @override
-  bool get isSatisfyRequirements => context.read<SignUpPresenter>().isCertificated != null;
 
   @override
   bool get isSkippablePage => true;
@@ -43,7 +41,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
   }
 
   @override
-  Widget buildBody(BuildContext context, SignUpPresenter presenter) {
+  Widget buildBody() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -60,61 +58,69 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
           ),
         ),
         const SizedBox(height: 22),
-        Row(
-          children: [
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  presenter.onChangeCertificate(true);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: presenter.isCertificated ?? false ? ColorStyles.background : ColorStyles.white,
-                    border: Border.all(color: presenter.isCertificated ?? false ? ColorStyles.red : ColorStyles.gray50),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '있어요',
-                      style: TextStyles.labelMediumMedium.copyWith(
-                        color: presenter.isCertificated ?? false ? ColorStyles.red : ColorStyles.black,
+        Selector<SignUpPresenter, bool?>(
+          selector: (context, presenter) => presenter.isCertificated,
+          builder: (context, isCertificated, child) => Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    context.read<SignUpPresenter>().onChangeCertificate(true);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: isCertificated ?? false ? ColorStyles.background : ColorStyles.white,
+                      border: Border.all(color: isCertificated ?? false ? ColorStyles.red : ColorStyles.gray50),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '있어요',
+                        style: TextStyles.labelMediumMedium.copyWith(
+                          color: isCertificated ?? false ? ColorStyles.red : ColorStyles.black,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  presenter.onChangeCertificate(false);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: presenter.isCertificated ?? true ? ColorStyles.white : ColorStyles.background,
-                    border: Border.all(color: presenter.isCertificated ?? true ? ColorStyles.gray50 : ColorStyles.red),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '없어요',
-                      style: TextStyles.labelMediumMedium.copyWith(
-                        color: presenter.isCertificated ?? true ? ColorStyles.black : ColorStyles.red,
+              const SizedBox(width: 8),
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    context.read<SignUpPresenter>().onChangeCertificate(false);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: isCertificated ?? true ? ColorStyles.white : ColorStyles.background,
+                      border: Border.all(color: isCertificated ?? true ? ColorStyles.gray50 : ColorStyles.red),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '없어요',
+                        style: TextStyles.labelMediumMedium.copyWith(
+                          color: isCertificated ?? true ? ColorStyles.black : ColorStyles.red,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
   }
 
   @override
-  onTappedOutSide() {}
+  Widget buildBottom() {
+    return Selector<SignUpPresenter, bool>(
+      selector: (context, presenter) => presenter.isValidThirdPage,
+      builder: (context, isValidThirdPage, child) => buildBottomButton(isSatisfyRequirements: isValidThirdPage),
+    );
+  }
 }
