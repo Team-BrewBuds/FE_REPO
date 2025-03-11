@@ -1,5 +1,8 @@
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
@@ -18,7 +21,7 @@ import 'features/signup/provider/sign_up_presenter.dart';
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await initializeDateFormatting('ko');
@@ -34,33 +37,29 @@ void main() async {
 
   await PermissionRepository.instance.initPermission();
 
+  await AccountRepository.instance.init();
+
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (context) => AccountRepository.instance),
       ChangeNotifierProvider(
         create: (context) => LoginPresenter(
           accountRepository: AccountRepository.instance,
           loginRepository: LoginRepository.instance,
         ),
       ),
-      ChangeNotifierProvider(
-        create: (context) => SignUpPresenter(
-          accountRepository: AccountRepository.instance,
-          loginRepository: LoginRepository.instance,
-        ),
-      ),
+      ChangeNotifierProvider(create: (context) => SignUpPresenter()),
     ],
-    child: const MyApp(),
+    child: MyApp(router: createRouter(AccountRepository.instance.accessToken.isNotEmpty),),
   ));
-
-  FlutterNativeSplash.remove();
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GoRouter router;
+  const MyApp({super.key, required this.router});
 
   @override
   Widget build(BuildContext context) {
+    FlutterNativeSplash.remove();
     return MaterialApp.router(
       routerConfig: router,
       title: 'Brew Buds',
@@ -80,8 +79,13 @@ class MyApp extends StatelessWidget {
         splashColor: Colors.transparent,
         splashFactory: NoSplash.splashFactory,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
+          backgroundColor: ColorStyles.white,
           scrolledUnderElevation: 0,
+          // systemOverlayStyle: SystemUiOverlayStyle(
+          //   // statusBarColor: ColorStyles.black,
+          //   statusBarIconBrightness: Brightness.light,
+          //   statusBarBrightness: Brightness.light,
+          // ),
         ),
         useMaterial3: true,
       ),

@@ -81,6 +81,7 @@ List<CoffeeLife> _coffeeLifeFromJson(Map<String, dynamic> json) {
 
 PreferredBeanTaste _preferredBeanTasteFromJson(dynamic jsonString) {
   try {
+    print(jsonString);
     final valueList = (jsonString as String).split(',').map((e) => int.parse(e.substring(e.length - 1))).toList();
     return PreferredBeanTaste(
       body: valueList[0],

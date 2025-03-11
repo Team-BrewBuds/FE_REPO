@@ -1,16 +1,17 @@
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/result/result.dart';
 import 'package:brew_buds/features/login/models/social_login.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
-typedef SocialLoginResultData = ({String accessToken, String refreshToken, bool hasAccount});
+typedef SocialLoginResultData = ({String accessToken, String refreshToken, int id});
 
 class LoginPresenter extends ChangeNotifier {
   bool _isLoading = false;
+  SocialLoginResultData _socialLoginResultData = (accessToken: '', refreshToken: '', id: 0);
   final AccountRepository _accountRepository;
   final LoginRepository _loginRepository;
 
@@ -22,12 +23,14 @@ class LoginPresenter extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
+  SocialLoginResultData get loginResultData => _socialLoginResultData;
+
   init() {
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<bool?> login(SocialLogin socialLogin) async {
+  Future<Result<bool>> login(SocialLogin socialLogin) async {
     _isLoading = true;
     notifyListeners();
 
@@ -35,17 +38,20 @@ class LoginPresenter extends ChangeNotifier {
 
     if (socialToken != null) {
       final result = await _registerToken(socialToken, socialLogin.name);
-      if (result) {
-        final hasAccount = await _checkUser();
+      if (result != null) {
+        final hasAccount = await _checkUser(accessToken: result.accessToken);
         if (hasAccount != null) {
-          return hasAccount;
+          _socialLoginResultData = result;
+          _isLoading = false;
+          notifyListeners();
+          return Result.success(hasAccount);
         }
       }
     }
 
     _isLoading = false;
     notifyListeners();
-    return null;
+    return Result.error('소셜 로그인에 실패했습니다.');
   }
 
   Future<String?> loginWithSNS(SocialLogin socialLogin) async {
@@ -99,33 +105,36 @@ class LoginPresenter extends ChangeNotifier {
     }
   }
 
-  Future<bool> _registerToken(String token, String platform) {
-    return _loginRepository.registerToken(token, platform).then(
-          (value) => true,
-          onError: (_) => false,
-        );
-  }
-
-  Future<bool?> _checkUser() async {
-    final loginResult = await _loginRepository.login();
-    switch (loginResult) {
-      case Success<bool>():
-        return loginResult.data;
-      case Error<bool>():
-        return null;
+  Future<SocialLoginResultData?> _registerToken(String token, String platform) async {
+    try {
+      final result = await _loginRepository.registerToken(token, platform);
+      return (accessToken: result.accessToken, refreshToken: result.refreshToken, id: result.id);
+    } catch (_) {
+      return null;
     }
   }
 
-  saveLoginResults() async {
-    if (_loginRepository.id != null) {
-      _accountRepository.saveId(id: _loginRepository.id!);
+  Future<bool?> _checkUser({required String accessToken}) async {
+    try {
+      final loginResult = await _loginRepository.login(accessToken: accessToken);
+      return loginResult;
+    } catch (_) {
+      return null;
     }
+  }
 
-    if (_loginRepository.accessToken.isNotEmpty && _loginRepository.refreshToken.isNotEmpty) {
+  Future<Result<String>> saveLoginResults() async {
+    if (_socialLoginResultData.accessToken.isNotEmpty &&
+        _socialLoginResultData.refreshToken.isNotEmpty &&
+        _socialLoginResultData.id != 0) {
       await _accountRepository.saveToken(
-        accessToken: _loginRepository.accessToken,
-        refreshToken: _loginRepository.refreshToken,
+        accessToken: _socialLoginResultData.accessToken,
+        refreshToken: _socialLoginResultData.refreshToken,
       );
+      _accountRepository.saveId(id: _socialLoginResultData.id);
+      return Result.success('로그인 성공');
+    } else {
+      return Result.error('다시 로그인을 시도해 주세요.');
     }
   }
 }

@@ -24,30 +24,23 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
   int get currentPageIndex => 3;
 
   @override
-  bool get isSatisfyRequirements {
-    final presenter = context.read<SignUpPresenter>();
-    return presenter.body != null &&
-        presenter.acidity != null &&
-        presenter.bitterness != null &&
-        presenter.sweetness != null;
-  }
+  bool get isSkippablePage => false;
 
   @override
-  bool get isSkippablePage => true;
+  void Function() get onNext => () async {
+    final context = this.context;
+    final result = await context.read<SignUpPresenter>().register();
+    if (result && context.mounted) {
+      final nickname = context.read<SignUpPresenter>().nickName;
+      context.push('/signup/finish', extra: nickname);
+    }
+  };
 
   @override
-  void Function() get onNext => () {
-        context.push('/signup/finish');
-      };
-
-  @override
-  void Function() get onSkip => () {
-        context.push('/signup/finish');
-      };
+  void Function() get onSkip => () {};
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SignUpPresenter>().resetPreferredBeanTaste();
@@ -55,7 +48,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
   }
 
   @override
-  Widget buildBody(BuildContext context, SignUpPresenter presenter) {
+  Widget buildBody() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -63,18 +56,30 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
         const SizedBox(height: 4),
         Text('버디님의 커피 취향에 꼭 맞는 원두를 만나보세요.', style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50)),
         const SizedBox(height: 27),
-        _buildBodyFeeling(presenter),
+        Selector<SignUpPresenter, int>(
+          selector: (context, presenter) => presenter.body,
+          builder: (context, value, child) => _buildBodyFeeling(value),
+        ),
         const SizedBox(height: 32),
-        _buildAcidity(presenter),
+        Selector<SignUpPresenter, int>(
+          selector: (context, presenter) => presenter.acidity,
+          builder: (context, value, child) => _buildAcidity(value),
+        ),
         const SizedBox(height: 32),
-        _buildBitterness(presenter),
+        Selector<SignUpPresenter, int>(
+          selector: (context, presenter) => presenter.bitterness,
+          builder: (context, value, child) => _buildBitterness(value),
+        ),
         const SizedBox(height: 32),
-        _buildSweet(presenter),
+        Selector<SignUpPresenter, int>(
+          selector: (context, presenter) => presenter.sweetness,
+          builder: (context, value, child) => _buildSweet(value),
+        ),
       ],
     );
   }
 
-  Widget _buildBodyFeeling(SignUpPresenter presenter) {
+  Widget _buildBodyFeeling(int bodyValue) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -101,47 +106,50 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) => Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            presenter.onChangeBodyValue(index);
-                          },
-                          child: Container(
-                            height: 28,
-                            width: 28,
-                            decoration: BoxDecoration(
-                              color: presenter.body == index ? ColorStyles.white : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: presenter.body == index ? Border.all(color: ColorStyles.red) : null,
-                            ),
-                            child: Center(
-                              child: Container(
-                                height: 14,
-                                width: 14,
-                                decoration: BoxDecoration(
-                                  color: presenter.body == index ? ColorStyles.red : ColorStyles.gray50,
-                                  shape: BoxShape.circle,
+                    (index) {
+                      final value = index + 1;
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              context.read<SignUpPresenter>().onChangeBodyValue(value);
+                            },
+                            child: Container(
+                              height: 28,
+                              width: 28,
+                              decoration: BoxDecoration(
+                                color: bodyValue == value ? ColorStyles.white : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: bodyValue == value ? Border.all(color: ColorStyles.red) : null,
+                              ),
+                              child: Center(
+                                child: Container(
+                                  height: 14,
+                                  width: 14,
+                                  decoration: BoxDecoration(
+                                    color: bodyValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _body[index],
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.body != null && presenter.body == index
-                                ? ColorStyles.red
-                                : presenter.body == null
-                                ? ColorStyles.gray50
-                                : Colors.transparent,
+                          const SizedBox(height: 6),
+                          Text(
+                            _body[index],
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: bodyValue != 0 && bodyValue == value
+                                  ? ColorStyles.red
+                                  : bodyValue == 0
+                                      ? ColorStyles.gray50
+                                      : Colors.transparent,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -152,7 +160,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
     );
   }
 
-  Widget _buildAcidity(SignUpPresenter presenter) {
+  Widget _buildAcidity(int acidityValue) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -179,47 +187,50 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) => Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            presenter.onChangeAcidityValue(index);
-                          },
-                          child: Container(
-                            height: 28,
-                            width: 28,
-                            decoration: BoxDecoration(
-                              color: presenter.acidity == index ? ColorStyles.white : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: presenter.acidity == index ? Border.all(color: ColorStyles.red) : null,
-                            ),
-                            child: Center(
-                              child: Container(
-                                height: 14,
-                                width: 14,
-                                decoration: BoxDecoration(
-                                  color: presenter.acidity == index ? ColorStyles.red : ColorStyles.gray50,
-                                  shape: BoxShape.circle,
+                    (index) {
+                      final value = index + 1;
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              context.read<SignUpPresenter>().onChangeAcidityValue(value);
+                            },
+                            child: Container(
+                              height: 28,
+                              width: 28,
+                              decoration: BoxDecoration(
+                                color: acidityValue == value ? ColorStyles.white : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: acidityValue == value ? Border.all(color: ColorStyles.red) : null,
+                              ),
+                              child: Center(
+                                child: Container(
+                                  height: 14,
+                                  width: 14,
+                                  decoration: BoxDecoration(
+                                    color: acidityValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _acidity[index],
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.acidity != null && presenter.acidity == index
-                                ? ColorStyles.red
-                                : presenter.acidity == null
-                                ? ColorStyles.gray50
-                                : Colors.transparent,
+                          const SizedBox(height: 6),
+                          Text(
+                            _acidity[index],
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: acidityValue != 0 && acidityValue == value
+                                  ? ColorStyles.red
+                                  : acidityValue == 0
+                                      ? ColorStyles.gray50
+                                      : Colors.transparent,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -230,7 +241,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
     );
   }
 
-  Widget _buildBitterness(SignUpPresenter presenter) {
+  Widget _buildBitterness(int bitternessValue) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -257,47 +268,50 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                 child: Row(
                   children: List<Widget>.generate(
                     5,
-                    (index) => Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            presenter.onChangeBitternessValue(index);
-                          },
-                          child: Container(
-                            height: 28,
-                            width: 28,
-                            decoration: BoxDecoration(
-                              color: presenter.bitterness == index ? ColorStyles.white : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: presenter.bitterness == index ? Border.all(color: ColorStyles.red) : null,
-                            ),
-                            child: Center(
-                              child: Container(
-                                height: 14,
-                                width: 14,
-                                decoration: BoxDecoration(
-                                  color: presenter.bitterness == index ? ColorStyles.red : ColorStyles.gray50,
-                                  shape: BoxShape.circle,
+                    (index) {
+                      final value = index + 1;
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              context.read<SignUpPresenter>().onChangeBitternessValue(value);
+                            },
+                            child: Container(
+                              height: 28,
+                              width: 28,
+                              decoration: BoxDecoration(
+                                color: bitternessValue == value ? ColorStyles.white : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: bitternessValue == value ? Border.all(color: ColorStyles.red) : null,
+                              ),
+                              child: Center(
+                                child: Container(
+                                  height: 14,
+                                  width: 14,
+                                  decoration: BoxDecoration(
+                                    color: bitternessValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _bitterness[index],
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.bitterness != null && presenter.bitterness == index
-                                ? ColorStyles.red
-                                : presenter.bitterness == null
-                                    ? ColorStyles.gray50
-                                    : Colors.transparent,
+                          const SizedBox(height: 6),
+                          Text(
+                            _bitterness[index],
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: bitternessValue != 0 && bitternessValue == value
+                                  ? ColorStyles.red
+                                  : bitternessValue == 0
+                                      ? ColorStyles.gray50
+                                      : Colors.transparent,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ).separator(separatorWidget: const Spacer()).toList(),
                 ),
               ),
@@ -308,7 +322,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
     );
   }
 
-  Widget _buildSweet(SignUpPresenter presenter) {
+  Widget _buildSweet(int sweetValue) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -335,45 +349,48 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) => Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            presenter.onChangeSweetnessValue(index);
-                          },
-                          child: Container(
-                            height: 28,
-                            width: 28,
-                            decoration: BoxDecoration(
-                              color: presenter.sweetness == index ? ColorStyles.white : Colors.transparent,
-                              shape: BoxShape.circle,
-                              border: presenter.sweetness == index ? Border.all(color: ColorStyles.red) : null,
-                            ),
-                            child: Center(
-                              child: Container(
-                                height: 14,
-                                width: 14,
-                                decoration: BoxDecoration(
-                                  color: presenter.sweetness == index ? ColorStyles.red : ColorStyles.gray50,
-                                  shape: BoxShape.circle,
+                    (index) {
+                      final value = index + 1;
+                      return Column(
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              context.read<SignUpPresenter>().onChangeSweetnessValue(value);
+                            },
+                            child: Container(
+                              height: 28,
+                              width: 28,
+                              decoration: BoxDecoration(
+                                color: sweetValue == value ? ColorStyles.white : Colors.transparent,
+                                shape: BoxShape.circle,
+                                border: sweetValue == value ? Border.all(color: ColorStyles.red) : null,
+                              ),
+                              child: Center(
+                                child: Container(
+                                  height: 14,
+                                  width: 14,
+                                  decoration: BoxDecoration(
+                                    color: sweetValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    shape: BoxShape.circle,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          _sweet[index],
-                          style: TextStyles.captionMediumMedium.copyWith(
-                            color: presenter.sweetness != null && presenter.sweetness == index
-                                ? ColorStyles.red
-                                : presenter.sweetness == null
-                                ? ColorStyles.gray50
-                                : Colors.transparent,
+                          const SizedBox(height: 6),
+                          Text(
+                            _sweet[index],
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: sweetValue != 0 && sweetValue == value
+                                  ? ColorStyles.red
+                                  : sweetValue == 0
+                                      ? ColorStyles.gray50
+                                      : Colors.transparent,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -385,5 +402,10 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
   }
 
   @override
-  onTappedOutSide() {}
+  Widget buildBottom() {
+    return buildBottomButton(
+      isSatisfyRequirements: true,
+      title: '가입하기',
+    );
+  }
 }

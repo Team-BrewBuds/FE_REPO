@@ -2,9 +2,11 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignupFinishPage extends StatefulWidget {
+
   const SignupFinishPage({super.key});
 
   @override
@@ -51,7 +53,7 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                 padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
                 child: InkWell(
                   onTap: () {
-                    context.read<SignUpPresenter>().register();
+                    context.go('/home');
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

@@ -3,19 +3,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AccountRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  int? _id;
-  String _accessToken = '';
   String _refreshToken = '';
+  String _accessToken = '';
+  int? _id;
+  String get accessToken => _accessToken;
+  String get refreshToken => _refreshToken;
 
   int? get id => _id;
 
-  String get accessToken => _accessToken;
-
-  String get refreshToken => _refreshToken;
-
-  AccountRepository._() {
-    _init();
-  }
+  AccountRepository._();
 
   static final AccountRepository _instance = AccountRepository._();
 
@@ -23,10 +19,10 @@ class AccountRepository extends ChangeNotifier {
 
   factory AccountRepository() => instance;
 
-  _init() async {
+  init() async {
     _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
-    _id = await _storage.read(key: 'id').then((value) => int.tryParse(value ?? ''), onError: (_) => null);
+    _id = int.tryParse(await _storage.read(key: 'id') ?? '');
     notifyListeners();
   }
 
