@@ -1,5 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
-import 'package:brew_buds/profile/model/profile.dart';
+import 'package:brew_buds/domain/profile/model/profile.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';

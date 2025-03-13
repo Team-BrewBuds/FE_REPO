@@ -1,39 +1,34 @@
-import 'package:brew_buds/data/repository/home_repository.dart';
-import 'package:brew_buds/data/repository/login_repository.dart';
-import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/features/login/presenter/login_presenter.dart';
-import 'package:brew_buds/features/login/views/login_page_first.dart';
-import 'package:brew_buds/features/login/views/login_page_sns.dart';
-import 'package:brew_buds/features/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/features/signup/views/signup_third_page.dart';
-import 'package:brew_buds/features/signup/views/signup_first_page.dart';
-import 'package:brew_buds/features/signup/views/signup_second_page.dart';
-import 'package:brew_buds/features/signup/views/signup_finish_page.dart';
-import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
-import 'package:brew_buds/home/all/home_all_presenter.dart';
-import 'package:brew_buds/home/home_screen.dart';
-import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
-import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
-import 'package:brew_buds/home/post/home_post_presenter.dart';
-import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
-import 'package:brew_buds/main/main_view.dart';
-import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
-import 'package:brew_buds/profile/presenter/profile_presenter.dart';
-import 'package:brew_buds/profile/view/edit_profile_view.dart';
-import 'package:brew_buds/profile/view/my_profile_view.dart';
-import 'package:brew_buds/search/search_home_presenter.dart';
-import 'package:brew_buds/search/search_home_view.dart';
-import 'package:brew_buds/search/search_result_presenter.dart';
-import 'package:brew_buds/search/search_result_view.dart';
-import 'package:brew_buds/setting/presenter/account_detail_presenter.dart';
-import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.dart';
-import 'package:brew_buds/setting/view/account_detail_view.dart';
-import 'package:brew_buds/setting/view/account_info_view.dart';
-import 'package:brew_buds/setting/setting_screen.dart';
-import 'package:brew_buds/setting/view/blocking_user_management_view.dart';
-import 'package:brew_buds/setting/view/notification_setting_view.dart';
+import 'package:brew_buds/domain/home/all/home_all_presenter.dart';
+import 'package:brew_buds/domain/home/home_screen.dart';
+import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
+import 'package:brew_buds/domain/home/popular_posts/popular_posts_view.dart';
+import 'package:brew_buds/domain/home/post/home_post_presenter.dart';
+import 'package:brew_buds/domain/home/tasting_record/home_tasting_record_presenter.dart';
+import 'package:brew_buds/domain/login/views/login_page_first.dart';
+import 'package:brew_buds/domain/login/views/login_page_sns.dart';
+import 'package:brew_buds/domain/main/main_view.dart';
+import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
+import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/domain/profile/view/edit_profile_view.dart';
+import 'package:brew_buds/domain/profile/view/my_profile_view.dart';
+import 'package:brew_buds/domain/search/search_home_presenter.dart';
+import 'package:brew_buds/domain/search/search_home_view.dart';
+import 'package:brew_buds/domain/search/search_result_presenter.dart';
+import 'package:brew_buds/domain/search/search_result_view.dart';
+import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
+import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
+import 'package:brew_buds/domain/setting/setting_screen.dart';
+import 'package:brew_buds/domain/setting/view/account_detail_view.dart';
+import 'package:brew_buds/domain/setting/view/account_info_view.dart';
+import 'package:brew_buds/domain/setting/view/blocking_user_management_view.dart';
+import 'package:brew_buds/domain/setting/view/notification_setting_view.dart';
+import 'package:brew_buds/domain/signup/views/signup_finish_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_first_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_fourth_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_second_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_third_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -109,13 +104,13 @@ GoRouter createRouter(bool hasToken) {
                 builder: (context, state) => MultiProvider(
                   providers: [
                     ChangeNotifierProvider(
-                      create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
+                      create: (_) => HomeAllPresenter(),
                     ),
                     ChangeNotifierProvider(
-                      create: (_) => HomePostPresenter(repository: HomeRepository.instance),
+                      create: (_) => HomePostPresenter(),
                     ),
                     ChangeNotifierProvider(
-                      create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
+                      create: (_) => HomeTastingRecordPresenter(),
                     ),
                   ],
                   child: HomeView(nestedScrollViewState: homeTabBarScrollState),
@@ -124,7 +119,7 @@ GoRouter createRouter(bool hasToken) {
                   GoRoute(
                     path: '/popular_post',
                     builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
-                      create: (_) => PopularPostsPresenter(repository: PopularPostsRepository.instance),
+                      create: (_) => PopularPostsPresenter(),
                       child: const PopularPostsView(),
                     ),
                   ),
@@ -182,7 +177,7 @@ GoRouter createRouter(bool hasToken) {
                       return ChangeNotifierProvider<EditProfilePresenter>(
                         create: (_) => EditProfilePresenter(
                           selectedCoffeeLifeList: data.coffeeLife,
-                          imageUri: data.imageUri,
+                          imageUri: data.imageUrl,
                           nickname: data.nickname,
                           introduction: data.introduction,
                           link: data.link,

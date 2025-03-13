@@ -4,9 +4,9 @@ import 'package:brew_buds/data/dto/search/search_bean_dto.dart';
 import 'package:brew_buds/data/dto/search/search_post_dto.dart';
 import 'package:brew_buds/data/dto/search/search_tasting_record_dto.dart';
 import 'package:brew_buds/data/dto/search/search_user_dto.dart';
-import 'package:brew_buds/data/mapper/search_mapper.dart';
-import 'package:brew_buds/search/models/search_result_model.dart';
-import 'package:brew_buds/search/models/search_subject.dart';
+import 'package:brew_buds/data/mapper/search/search_mapper.dart';
+import 'package:brew_buds/domain/search/models/search_result_model.dart';
+import 'package:brew_buds/domain/search/models/search_subject.dart';
 
 final class SearchRepository {
   final SearchApi _searchApi = SearchApi();

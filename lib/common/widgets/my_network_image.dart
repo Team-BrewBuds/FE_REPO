@@ -2,7 +2,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
 class MyNetworkImage extends StatelessWidget {
-  final String imageUri;
+  final String imageUrl;
   final double height;
   final double width;
   final Color? color;
@@ -11,7 +11,7 @@ class MyNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return imageUri.isEmpty
+    return imageUrl.isEmpty
         ? Container(
             height: height,
             width: width,
@@ -22,7 +22,7 @@ class MyNetworkImage extends StatelessWidget {
             ),
           )
         : ExtendedImage.network(
-            imageUri,
+            imageUrl,
             height: height,
             width: width,
             shape: shape,
@@ -34,7 +34,7 @@ class MyNetworkImage extends StatelessWidget {
 
   const MyNetworkImage({
     super.key,
-    required this.imageUri,
+    required this.imageUrl,
     required this.height,
     required this.width,
     this.color,
