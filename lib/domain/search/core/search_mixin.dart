@@ -22,11 +22,13 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
     },
   );
 
+  int get initialIndex;
+
   String get initialText;
 
   @override
   void initState() {
-    tabController = TabController(length: 4, vsync: this);
+    tabController = TabController(length: 4, vsync: this, initialIndex: initialIndex);
     textEditingController = TextEditingController(text: initialText);
     textFieldFocusNode = FocusNode();
     showSuggestPage = ValueNotifier(false);
@@ -77,7 +79,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
 
   onTappedCancelButton();
 
-  onComplete();
+  onComplete(String searchWord);
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +139,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
             return hasWord
                 ? Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 10, right: 12, left: 4),
-                    child: InkWell(
+                    child: GestureDetector(
                       onTap: () {
                         clearTextField();
                       },
@@ -152,8 +154,8 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
           },
         ),
       ),
-      onEditingComplete: () {
-        onComplete();
+      onSubmitted: (searchWord) {
+        onComplete(searchWord);
       },
     );
   }
@@ -163,13 +165,13 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         buildTabBar(),
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         Expanded(
           child: Selector<Presenter, SuggestState>(
             selector: (context, presenter) => presenter.suggestState,
             builder: (context, suggestState, child) =>
                 suggestState.searchWord.isEmpty && suggestState.suggestSearchWords.isEmpty
-                    ? SizedBox.shrink()
+                    ? const SizedBox.shrink()
                     : suggestState.suggestSearchWords.isNotEmpty
                         ? _buildSuggestSearchWords(
                             suggestSearchWords: suggestState.suggestSearchWords,
@@ -233,7 +235,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
       itemCount: suggestSearchWords.length,
       itemBuilder: (context, index) {
         final word = suggestSearchWords[index];
-        return InkWell(
+        return GestureDetector(
           onTap: () {
             onSelectedWord(word);
           },
@@ -288,7 +290,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
 
   onSelectedWord(String word) {
     textEditingController.value = TextEditingValue(text: word);
-    onComplete();
+    onComplete(word);
   }
 
   clearTextField() {

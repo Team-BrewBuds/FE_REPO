@@ -78,44 +78,49 @@ final class SearchResultPresenter extends SearchPresenter {
       case SearchSubject.coffeeBean:
         _resultList = List.from(await searchRepository.searchBean(
           searchWord: searchWord,
-          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type,
           country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           minRating: _filters.whereType<RatingFilter>().firstOrNull?.start,
           maxRating: _filters.whereType<RatingFilter>().firstOrNull?.end,
-          sortBy: _sortByJson(),
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
         ));
         break;
       case SearchSubject.buddy:
-        _resultList = List.from(await searchRepository.searchUser(searchWord: searchWord, sortBy: _sortByJson()));
+        _resultList = List.from(await searchRepository.searchUser(
+          searchWord: searchWord,
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        ));
         break;
       case SearchSubject.tastedRecord:
         _resultList = List.from(await searchRepository.searchTastingRecord(
           searchWord: searchWord,
-          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type,
           country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           minRating: _filters.whereType<RatingFilter>().firstOrNull?.start,
           maxRating: _filters.whereType<RatingFilter>().firstOrNull?.end,
-          sortBy: _sortByJson(),
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
         ));
         break;
       case SearchSubject.post:
         _resultList = List.from(await searchRepository.searchPost(
           searchWord: searchWord,
-          subject: currentPostSubject,
-          sortBy: _sortByJson(),
+          subject: PostSubject.values[_currentPostSubjectIndex],
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
         ));
         break;
     }
+    super.fetchData();
     notifyListeners();
   }
 
   @override
-  onComplete() {
+  onComplete(String searchWord) {
     _previousSearchWord = searchWord;
     _previousTabIndex = currentTabIndex;
     fetchData();
+    super.onComplete(searchWord);
   }
 
   @override
@@ -142,45 +147,5 @@ final class SearchResultPresenter extends SearchPresenter {
     _currentPostSubjectIndex = index;
     fetchData();
     notifyListeners();
-  }
-
-  String? _sortByJson() {
-    final currentSortCriteria = sortCriteriaList[_currentSortCriteriaIndex];
-    switch (currentSortCriteria) {
-      case SortCriteria.rating:
-        if (currentTabIndex == 0) {
-          return 'avg_star';
-        } else if (currentTabIndex == 2) {
-          return 'star_rank';
-        } else {
-          return null;
-        }
-      case SortCriteria.upToDate:
-        if (currentTabIndex == 2 || currentTabIndex == 3) {
-          return 'latest';
-        } else {
-          return null;
-        }
-      case SortCriteria.like:
-        if (currentTabIndex == 2 || currentTabIndex == 3) {
-          return 'like_rank';
-        } else {
-          return null;
-        }
-      case SortCriteria.follower:
-        if (currentTabIndex == 1) {
-          return 'follower_cnt';
-        } else {
-          return null;
-        }
-      case SortCriteria.tastingRecords:
-        if (currentTabIndex == 0) {
-          return 'record_count';
-        } else if (currentTabIndex == 1) {
-          return 'record_cnt';
-        } else {
-          return null;
-        }
-    }
   }
 }

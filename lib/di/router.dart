@@ -146,7 +146,7 @@ GoRouter createRouter(bool hasToken) {
                           currentTabIndex: data?.tabIndex ?? 0,
                           searchWord: data?.searchWord ?? '',
                         ),
-                        child: SearchResultView(initialText: data?.searchWord ?? ''),
+                        child: SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
                       );
                     },
                   ),

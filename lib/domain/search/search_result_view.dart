@@ -22,9 +22,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SearchResultView extends StatefulWidget {
+  final int currentTabIndex;
   final String initialText;
 
   const SearchResultView({
+    required this.currentTabIndex,
     required this.initialText,
     super.key,
   });
@@ -37,6 +39,9 @@ class _SearchResultViewState extends State<SearchResultView>
     with SingleTickerProviderStateMixin, SearchMixin<SearchResultView, SearchResultPresenter> {
   @override
   String get initialText => widget.initialText;
+
+  @override
+  int get initialIndex => widget.currentTabIndex;
 
   @override
   AppBar buildAppBar({required bool showSuggestPage}) {
@@ -54,7 +59,7 @@ class _SearchResultViewState extends State<SearchResultView>
               visible: !showSuggestPage,
               child: Container(
                 margin: const EdgeInsets.only(right: 8),
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.pop();
                   },
@@ -130,7 +135,7 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildBeanResultItem(CoffeeBeanSearchResultModel model) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {},
       child: CoffeeBeanResultsItem(
         beanName: model.name,
@@ -142,7 +147,7 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildUserResultItem(BuddySearchResultModel model) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         pushToProfile(context: context, id: model.id);
       },
@@ -226,10 +231,10 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   @override
-  onComplete() {
+  onComplete(String searchWord) {
     showSuggestPage.value = false;
     textFieldFocusNode.unfocus();
-    context.read<SearchResultPresenter>().onComplete();
+    context.read<SearchResultPresenter>().onComplete(searchWord);
   }
 
   @override
@@ -279,8 +284,8 @@ class _SearchResultViewState extends State<SearchResultView>
     final bool hasBeanTypeFilter = filters.whereType<BeanTypeFilter>().isNotEmpty;
     final bool hasCountryFilter = filters.whereType<CountryFilter>().isNotEmpty;
     final bool hasRatingFilter = filters.whereType<RatingFilter>().isNotEmpty;
-    final bool hasRoastingPointFilter = filters.whereType<DecafFilter>().isNotEmpty;
-    final bool hasDecafFilter = filters.whereType<RoastingPointFilter>().isNotEmpty;
+    final bool hasRoastingPointFilter = filters.whereType<RoastingPointFilter>().isNotEmpty;
+    final bool hasDecafFilter = filters.whereType<DecafFilter>().isNotEmpty;
     return [
       _buildIcon(
         onTap: () {
@@ -455,7 +460,7 @@ class _SearchResultViewState extends State<SearchResultView>
                             Positioned(
                               top: 21,
                               right: 16,
-                              child: InkWell(
+                              child: GestureDetector(
                                 onTap: () {
                                   context.pop();
                                 },
@@ -475,7 +480,7 @@ class _SearchResultViewState extends State<SearchResultView>
                         PostSubject.values.length,
                         (index) {
                           final subject = PostSubject.values[index];
-                          return InkWell(
+                          return GestureDetector(
                             onTap: () {
                               context.read<SearchResultPresenter>().onChangePostSubjectFilter(index);
                               context.pop();
@@ -541,8 +546,10 @@ class _SearchResultViewState extends State<SearchResultView>
         color: isActive ? ColorStyles.red : ColorStyles.black,
       ),
     );
-    return InkWell(
-      onTap: onTap,
+    return GestureDetector(
+      onTap: () {
+        onTap.call();
+      },
       child: Container(
         padding: EdgeInsets.only(
           top: 4,

@@ -5,13 +5,13 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-typedef RecommendedCoffeeBeansItem = (
-  String imgaeUri,
+typedef RecommendedCoffeeBeansItem = ({
+  String imgaeUrl,
   String name,
   double rating,
-  int commentsCount,
+  int recordCount,
   void Function() onTapped,
-);
+});
 
 class RecommendedCoffeeBeansList extends StatelessWidget {
   final int _itemLength;
@@ -42,19 +42,22 @@ class RecommendedCoffeeBeansList extends StatelessWidget {
               _itemLength,
               (index) {
                 final item = _itemBuilder(index);
-                return InkWell(
+                return GestureDetector(
                   onTap: () {
-                    item.$5();
+                    item.onTapped.call();
                   },
                   child: SizedBox(
                     width: 109,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (item.$1.isNotEmpty)
-                          MyNetworkImage(imageUrl: item.$1, height: 109, width: 109, color: const Color(0xffd9d9d9)),
+                        if (item.imgaeUrl.isNotEmpty)
+                          MyNetworkImage(imageUrl: item.imgaeUrl, height: 109, width: 109)
+                        else
+                          Container(height: 109, width: 109, color: const Color(0xffd9d9d9)),
                         const SizedBox(height: 4),
                         Text(
-                          item.$2,
+                          item.name,
                           style: TextStyles.captionMediumSemiBold,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -70,7 +73,7 @@ class RecommendedCoffeeBeansList extends StatelessWidget {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              '${item.$3} (${item.$4})',
+                              '${item.rating} (${item.recordCount})',
                               style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
                             ),
                           ],

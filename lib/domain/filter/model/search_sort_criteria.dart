@@ -34,4 +34,12 @@ enum SortCriteria {
         SortCriteria.upToDate,
         SortCriteria.like,
       ];
+
+  String toJson() => switch(this) {
+    SortCriteria.rating => 'avg_star',
+    SortCriteria.upToDate => 'latest',
+    SortCriteria.like => 'like_rank',
+    SortCriteria.follower => 'follower_cnt',
+    SortCriteria.tastingRecords => 'record_count',
+  };
 }
