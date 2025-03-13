@@ -1,18 +1,20 @@
 import 'package:brew_buds/data/repository/search_repository.dart';
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 typedef SuggestState = ({List<String> suggestSearchWords, String searchWord});
 
 abstract class SearchPresenter extends ChangeNotifier {
-  final storage = const FlutterSecureStorage();
+  final SharedPreferencesRepository sharedPreferencesRepository = SharedPreferencesRepository.instance;
   final SearchRepository searchRepository = SearchRepository.instance;
   final List<SearchSubject> _searchSubjectList = SearchSubject.values;
   bool _isSuggestMode = false;
   int _currentTabIndex;
   String _searchWord;
   List<String> _suggestSearchWords = [];
+
+  List<String> recentSearchWords = [];
 
   String get searchWord => _searchWord;
 
@@ -74,9 +76,33 @@ abstract class SearchPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  fetchData();
+  fetchRecentSearchWords() {
+    recentSearchWords = List.from(sharedPreferencesRepository.getRecentSearchWords());
+    notifyListeners();
+  }
 
-  onComplete();
+  fetchData() {
+    fetchRecentSearchWords();
+  }
+
+  removeAtRecentSearchWord(int index) async {
+    recentSearchWords = List.from(recentSearchWords)..removeAt(index);
+    await sharedPreferencesRepository.setRecentSearchWords(recentSearchWords);
+    notifyListeners();
+  }
+
+  removeAllRecentSearchWord() async {
+    recentSearchWords = List.empty();
+    await sharedPreferencesRepository.removeAllSearchWords();
+    notifyListeners();
+  }
+
+  onComplete(String searchWord) async {
+    if (recentSearchWords.contains(searchWord)) {
+      recentSearchWords.remove(searchWord);
+    }
+    await sharedPreferencesRepository.setRecentSearchWords([searchWord] + recentSearchWords);
+  }
 
   SearchPresenter({
     required int currentTabIndex,

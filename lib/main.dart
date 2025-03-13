@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -37,6 +38,7 @@ void main() async {
   await PermissionRepository.instance.initPermission();
 
   await AccountRepository.instance.init();
+  await SharedPreferencesRepository.instance.init();
 
   runApp(MultiProvider(
     providers: [

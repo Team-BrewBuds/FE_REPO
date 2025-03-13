@@ -1,15 +1,23 @@
 import 'dart:convert';
+import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/search_api.dart';
 import 'package:brew_buds/data/dto/search/search_bean_dto.dart';
 import 'package:brew_buds/data/dto/search/search_post_dto.dart';
 import 'package:brew_buds/data/dto/search/search_tasting_record_dto.dart';
 import 'package:brew_buds/data/dto/search/search_user_dto.dart';
+import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_type_mapper.dart';
+import 'package:brew_buds/data/mapper/recommended/recommended_coffee_bean_mapper.dart';
 import 'package:brew_buds/data/mapper/search/search_mapper.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/search/models/search_result_model.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:brew_buds/model/post/post_subject.dart';
+import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 
 final class SearchRepository {
   final SearchApi _searchApi = SearchApi();
+  final RecommendationApi _recommendedApi = RecommendationApi();
 
   SearchRepository._();
 
@@ -18,6 +26,17 @@ final class SearchRepository {
   static SearchRepository get instance => _instance;
 
   factory SearchRepository() => instance;
+
+  Future<List<RecommendedCoffeeBean>> fetchRecommendedCoffeeBean() async {
+    final id = AccountRepository.instance.id;
+    if (id != null) {
+      return _recommendedApi
+          .fetchRecommendedCoffeeBeanList(id: id)
+          .then((value) => value.map((e) => e.toDomain()).toList());
+    } else {
+      return Future.error(Error());
+    }
+  }
 
   Future<List<String>> fetchSuggestSearchWord({required String searchWord, required SearchSubject subject}) async {
     final String result;
@@ -41,7 +60,7 @@ final class SearchRepository {
 
   Future<List<CoffeeBeanSearchResultModel>> searchBean({
     required String searchWord,
-    String? beanType,
+    CoffeeBeanType? beanType,
     String? country,
     bool? isDecaf,
     double? minRating,
@@ -51,7 +70,7 @@ final class SearchRepository {
     final result = await _searchApi
         .searchBean(
           searchWord: searchWord,
-          beanType: beanType,
+          beanType: beanType?.toJson(),
           country: country,
           isDecaf: isDecaf,
           minRating: minRating,
@@ -79,7 +98,7 @@ final class SearchRepository {
 
   Future<List<TastedRecordSearchResultModel>> searchTastingRecord({
     required String searchWord,
-    String? beanType,
+    CoffeeBeanType? beanType,
     String? country,
     bool? isDecaf,
     double? minRating,
@@ -89,7 +108,7 @@ final class SearchRepository {
     final result = await _searchApi
         .searchTastingRecord(
           searchWord: searchWord,
-          beanType: beanType,
+          beanType: beanType?.toJson(),
           country: country,
           isDecaf: isDecaf,
           minRating: minRating,
@@ -102,11 +121,11 @@ final class SearchRepository {
     return json.map((e) => SearchTastingRecordDTO.fromJson(e as Map<String, dynamic>).toDomain()).toList();
   }
 
-  Future<List<PostSearchResultModel>> searchPost({required String searchWord, String? subject, String? sortBy}) async {
+  Future<List<PostSearchResultModel>> searchPost({required String searchWord, PostSubject? subject, String? sortBy}) async {
     final result = await _searchApi
         .searchPost(
           searchWord: searchWord,
-          subject: subject,
+          subject: subject?.toJsonValue(),
           sortBy: sortBy,
         )
         .onError((error, stackTrace) => '');

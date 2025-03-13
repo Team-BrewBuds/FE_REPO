@@ -5,6 +5,7 @@ import 'package:brew_buds/domain/search/search_home_presenter.dart';
 import 'package:brew_buds/domain/search/widgets/coffee_beans_ranking_list.dart';
 import 'package:brew_buds/domain/search/widgets/recent_search_words_list.dart';
 import 'package:brew_buds/domain/search/widgets/recommended_coffee_beans_list.dart';
+import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,9 @@ class _SearchHomeViewState extends State<SearchHomeView>
     with SingleTickerProviderStateMixin, SearchMixin<SearchHomeView, SearchHomePresenter> {
   @override
   String get initialText => '';
+
+  @override
+  int get initialIndex => 0;
 
   @override
   AppBar buildAppBar({required bool showSuggestPage}) {
@@ -73,14 +77,17 @@ class _SearchHomeViewState extends State<SearchHomeView>
                       itemLength: recentSearchWords.length,
                       itemBuilder: (index) {
                         return (
-                          recentSearchWords[index],
-                          () {
-                            context.read<SearchHomePresenter>().removeAtSearchRecord(index);
+                          word: recentSearchWords[index],
+                          onTap: () {
+                            onComplete(recentSearchWords[index]);
+                          },
+                          onDelete: () {
+                            context.read<SearchHomePresenter>().removeAtRecentSearchWord(index);
                           },
                         );
                       },
                       onAllDelete: () {
-                        context.read<SearchHomePresenter>().removeAllSearchRecord();
+                        context.read<SearchHomePresenter>().removeAllRecentSearchWord();
                       },
                     ),
                     const SizedBox(height: 28),
@@ -88,7 +95,7 @@ class _SearchHomeViewState extends State<SearchHomeView>
                 )
               : const SizedBox.shrink(),
         ),
-        Selector<SearchHomePresenter, List<RecommendedBeanState>>(
+        Selector<SearchHomePresenter, List<RecommendedCoffeeBean>>(
           selector: (context, presenter) => presenter.recommendedBeanList,
           builder: (context, recommendedBeanList, child) => recommendedBeanList.isNotEmpty
               ? Column(
@@ -96,14 +103,13 @@ class _SearchHomeViewState extends State<SearchHomeView>
                     RecommendedCoffeeBeansList(
                       itemLength: recommendedBeanList.length,
                       itemBuilder: (index) {
+                        final recommendedBean = recommendedBeanList[index];
                         return (
-                          recommendedBeanList[index].imageUrl,
-                          recommendedBeanList[index].title,
-                          recommendedBeanList[index].rating,
-                          recommendedBeanList[index].commentsCount,
-                          () {
-                            //push Detail
-                          },
+                          imgaeUrl: recommendedBean.imageUrl,
+                          name: recommendedBean.name,
+                          rating: recommendedBean.rating,
+                          recordCount: recommendedBean.recordCount,
+                          onTapped: () {},
                         );
                       },
                     ),
@@ -134,10 +140,16 @@ class _SearchHomeViewState extends State<SearchHomeView>
   }
 
   @override
-  onComplete() {
-    final SearchResultInitState state = (searchWord: textEditingController.text, tabIndex: tabController.index);
+  onComplete(String searchWord) {
+    final SearchResultInitState state = (searchWord: searchWord, tabIndex: tabController.index);
+    context.read<SearchHomePresenter>().onComplete(searchWord);
     context.push('/search/result', extra: state).then((_) {
       onTappedCancelButton();
+      onRefresh();
     });
+  }
+
+  onRefresh() {
+    context.read<SearchHomePresenter>().onRefresh();
   }
 }
