@@ -3,15 +3,16 @@ import 'dart:convert';
 import 'package:brew_buds/data/api/feed_api.dart';
 import 'package:brew_buds/data/api/follow_api.dart';
 import 'package:brew_buds/data/api/like_api.dart';
-import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/save_api.dart';
-import 'package:brew_buds/data/api/tasted_record_api.dart';
-import 'package:brew_buds/model/default_page.dart';
-import 'package:brew_buds/model/feeds/feed.dart';
-import 'package:brew_buds/model/feeds/post_in_feed.dart';
-import 'package:brew_buds/model/feeds/tasting_record_in_feed.dart';
-import 'package:brew_buds/model/pages/recommended_users.dart';
+import 'package:brew_buds/data/dto/post/post_dto.dart';
+import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_feed_dto.dart';
+import 'package:brew_buds/data/mapper/post/post_mapper.dart';
+import 'package:brew_buds/data/mapper/recommended/recommended_page_mapper.dart';
+import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_feed_mapper.dart';
+import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/feed/feed.dart';
+import 'package:brew_buds/model/recommended/recommended_page.dart';
 
 enum FeedType {
   following,
@@ -28,8 +29,6 @@ enum FeedType {
 
 final class HomeRepository {
   final FeedApi _feedApi = FeedApi();
-  final PostApi _postApi = PostApi();
-  final TastedRecordApi _tastedRecordApi = TastedRecordApi();
   final RecommendationApi _recommendationApi = RecommendationApi();
   final LikeApi _likeApi = LikeApi();
   final SaveApi _saveApi = SaveApi();
@@ -47,53 +46,43 @@ final class HomeRepository {
       _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).then(
         (jsonString) {
           final json = jsonDecode(jsonString);
-          return DefaultPage.fromJson(json, (jsonT) {
+          return DefaultPage<Feed>.fromJson(json, (jsonT) {
             final jsonMap = jsonT as Map<String, dynamic>;
             if (jsonMap.containsKey('tasted_records')) {
-              return PostInFeed.fromJson(jsonMap);
+              return Feed.post(data: PostDTO.fromJson(jsonMap).toDomain());
             } else {
-              return TastingRecordInFeed.fromJson(jsonMap);
+              return Feed.tastedRecord(data: TastedRecordInFeedDTO.fromJson(jsonMap).toDomain());
             }
           });
         },
       );
 
-  Future<DefaultPage<PostInFeed>> fetchPostFeedPage({required String? subjectFilter, required int pageNo}) =>
-      _postApi.fetchPostFeedPage(subject: subjectFilter, pageNo: pageNo).then(
-        (jsonString) {
-          final json = jsonDecode(jsonString);
-          return DefaultPage.fromJson(json, (jsonT) {
-            return PostInFeed.fromJson(jsonT as Map<String, dynamic>);
-          });
-        },
-      );
-
-  Future<DefaultPage<TastingRecordInFeed>> fetchTastingRecordFeedPage({required int pageNo}) =>
-      _tastedRecordApi.fetchTastingRecordFeedPage(pageNo: pageNo).then(
-        (jsonString) {
-          final json = jsonDecode(jsonString);
-          return DefaultPage.fromJson(json, (jsonT) {
-            return TastingRecordInFeed.fromJson(jsonT as Map<String, dynamic>);
-          });
-        },
-      );
-
-  Future<DefaultPage<RecommendedUsers>> fetchRecommendedUserPage() =>
+  Future<RecommendedPage> fetchRecommendedUserPage() =>
       _recommendationApi.fetchRecommendedBuddyPage().then(
-        (result) {
-          return DefaultPage([result], true);
-        },
+        (result) => result.toDomain(),
       );
 
-  Future<void> like({required String type, required int id}) => _likeApi.like(type: type, id: id);
+  Future<void> like({required String type, required int id, required bool isLiked}) {
+    if (isLiked) {
+      return _likeApi.unlike(type: type, id: id);
+    } else {
+      return _likeApi.like(type: type, id: id);
+    }
+  }
 
-  Future<void> unlike({required String type, required int id}) => _likeApi.unlike(type: type, id: id);
+  Future<void> save({required String type, required int id, required bool isSaved}) {
+    if (isSaved) {
+      return _saveApi.unSave(type: type, id: id);
+    } else {
+      return _saveApi.save(type: type, id: id);
+    }
+  }
 
-  Future<void> save({required String type, required int id}) => _saveApi.save(type: type, id: id);
-
-  Future<void> delete({required String type, required int id}) => _saveApi.unSave(type: type, id: id);
-
-  Future<void> follow({required int id}) => _followApi.follow(id: id);
-
-  Future<void> unFollow({required int id}) => _followApi.unFollow(id: id);
+  Future<void> follow({required int id, required bool isFollow}) {
+    if (isFollow) {
+      return _followApi.unFollow(id: id);
+    } else {
+      return _followApi.follow(id: id);
+    }
+  }
 }

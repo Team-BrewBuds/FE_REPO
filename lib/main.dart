@@ -1,14 +1,14 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/di/router.dart';
-import 'package:brew_buds/features/login/presenter/login_presenter.dart';
+import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +16,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'features/signup/provider/sign_up_presenter.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -81,11 +80,6 @@ class MyApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: ColorStyles.white,
           scrolledUnderElevation: 0,
-          // systemOverlayStyle: SystemUiOverlayStyle(
-          //   // statusBarColor: ColorStyles.black,
-          //   statusBarIconBrightness: Brightness.light,
-          //   statusBarBrightness: Brightness.light,
-          // ),
         ),
         useMaterial3: true,
       ),

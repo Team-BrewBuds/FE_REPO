@@ -4,17 +4,17 @@ import 'package:brew_buds/data/api/beans_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/api/tasted_record_api.dart';
-import 'package:brew_buds/model/default_page.dart';
-import 'package:brew_buds/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/profile/model/in_profile/tasting_record_in_profile.dart';
-import 'package:brew_buds/profile/model/profile.dart';
-import 'package:brew_buds/profile/model/saved_note/saved_note.dart';
-import 'package:brew_buds/profile/model/saved_note/saved_post.dart';
-import 'package:brew_buds/profile/model/saved_note/saved_tasting_record.dart';
+import 'package:brew_buds/domain/profile/model/in_profile/bean_in_profile.dart';
+import 'package:brew_buds/domain/profile/model/in_profile/post_in_profile.dart';
+import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:brew_buds/domain/profile/model/profile.dart';
+import 'package:brew_buds/domain/profile/model/saved_note/saved_note.dart';
+import 'package:brew_buds/domain/profile/model/saved_note/saved_post.dart';
+import 'package:brew_buds/domain/profile/model/saved_note/saved_tasting_record.dart';
+import 'package:brew_buds/model/common/default_page.dart';
 
 class ProfileRepository {
-  final ProfileApi _api = ProfileApi();
+  final ProfileApi _profileApi = ProfileApi();
   final PostApi _postApi = PostApi();
   final TastedRecordApi _tastedRecordApi = TastedRecordApi();
   final BeansApi _beanApi = BeansApi();
@@ -27,11 +27,11 @@ class ProfileRepository {
 
   factory ProfileRepository() => instance;
 
-  Future<Profile> fetchMyProfile() => _api.fetchMyProfile();
+  Future<Profile> fetchMyProfile() => _profileApi.fetchMyProfile();
 
-  Future<Profile> fetchProfile({required int id}) => _api.fetchProfile(id: id);
+  Future<Profile> fetchProfile({required int id}) => _profileApi.fetchProfile(id: id);
 
-  Future<void> fetchUpdateProfile(Map<String, dynamic> data) => _api.updateMyProfile(body: data);
+  Future<void> fetchUpdateProfile(Map<String, dynamic> data) => _profileApi.updateMyProfile(body: data);
 
   Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId}) {
     return _postApi.fetchPostPage(userId: userId).then((jsonString) {
@@ -119,7 +119,7 @@ class ProfileRepository {
   }
 
   Future<DefaultPage<SavedNote>> fetchNotePage({required int userId, required int pageNo}) {
-    return _api.fetchSavedNotes(id: userId, pageNo: pageNo).then((jsonString) {
+    return _profileApi.fetchSavedNotes(id: userId, pageNo: pageNo).then((jsonString) {
       final json = jsonDecode(jsonString);
       return DefaultPage.fromJson(json, (jsonT) {
         final jsonMap = jsonT as Map<String, dynamic>;
