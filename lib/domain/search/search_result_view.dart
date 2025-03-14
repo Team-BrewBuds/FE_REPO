@@ -136,7 +136,9 @@ class _SearchResultViewState extends State<SearchResultView>
 
   Widget _buildBeanResultItem(CoffeeBeanSearchResultModel model) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        showCoffeeBeanDetail(context: context, id: model.id);
+      },
       child: CoffeeBeanResultsItem(
         beanName: model.name,
         rating: model.rating,

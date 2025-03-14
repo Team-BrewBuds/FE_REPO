@@ -3,8 +3,8 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
-import 'package:brew_buds/domain/detail/post_detail_presenter.dart';
-import 'package:brew_buds/domain/detail/post_detail_view.dart';
+import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
+import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_post.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
 import 'package:brew_buds/model/common/default_page.dart';
@@ -126,9 +126,8 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                                       imageUrl: popularPost.imagesUrl.first,
                                       height: 80,
                                       width: 80,
-                                      color: const Color(0xffD9D9D9),
                                     )
-                                  : Container()
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                         ),

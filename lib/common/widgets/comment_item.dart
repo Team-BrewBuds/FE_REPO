@@ -51,7 +51,6 @@ class CommentItem extends StatelessWidget {
                   imageUrl: profileImageUrl,
                   height: 36,
                   width: 36,
-                  color: const Color(0xffD9D9D9),
                   shape: BoxShape.circle,
                 ),
               ),

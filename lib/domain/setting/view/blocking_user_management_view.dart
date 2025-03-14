@@ -165,7 +165,6 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                   imageUrl: user.profileImageUri,
                   height: 48,
                   width: 48,
-                  color: const Color(0xffd9d9d9),
                   shape: BoxShape.circle,
                 ),
                 const SizedBox(width: 12),

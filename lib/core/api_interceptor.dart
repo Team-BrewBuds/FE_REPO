@@ -55,6 +55,9 @@ final class ApiInterceptor extends Interceptor {
 
       final options = err.requestOptions;
 
+      if (options.headers['Authorization'] != null) {
+        options.headers.remove('Authorization');
+      }
       options.headers.addAll({'Authorization': 'Bearer $accessToken'});
 
       AccountRepository.instance.saveToken(accessToken: accessToken, refreshToken: resp.data['refresh']);
@@ -63,7 +66,6 @@ final class ApiInterceptor extends Interceptor {
 
       return handler.resolve(response);
     } catch (e) {
-      print('refresh Error');
       return handler.reject(err);
     }
   }

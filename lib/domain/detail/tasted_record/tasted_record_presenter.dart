@@ -1,6 +1,3 @@
-import 'package:brew_buds/data/api/comment_api.dart';
-import 'package:brew_buds/data/api/like_api.dart';
-import 'package:brew_buds/data/api/tasted_record_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';

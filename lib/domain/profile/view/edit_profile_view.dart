@@ -173,7 +173,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                     imageUrl: imageUri,
                     height: 98,
                     width: 98,
-                    color: const Color(0xffd9d9d9),
                     shape: BoxShape.circle,
                     border: Border.all(width: 1, color: const Color(0xff888888)),
                   ),

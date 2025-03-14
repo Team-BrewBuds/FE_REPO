@@ -79,7 +79,6 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
               imageUrl: widget.writerThumbnailUrl,
               height: 36,
               width: 36,
-              color: const Color(0xffD9D9D9),
               shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),

@@ -185,7 +185,6 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
             imageUrl: imageUrl,
             height: 80,
             width: 80,
-            color: const Color(0xffD9D9D9),
             shape: BoxShape.circle,
           ),
           const SizedBox(height: 12),

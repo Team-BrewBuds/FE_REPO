@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'default_page.g.dart';
@@ -39,26 +38,3 @@ class DefaultPage<T> {
 bool _hasNextFromJson(Object? json) {
   return json != null;
 }
-//
-// @immutable
-// final class Test<T> {
-//   final int count;
-//   final List<T> results;
-//   final bool hasNext;
-//
-//   Test({
-//     required this.count,
-//     required List<T> results,
-//     required this.hasNext,
-//   }) : results = List<T>.unmodifiable(results);
-//
-//   factory Test.fromJson(Map<String, dynamic> json, T Function(Map<String,dynamic> jsonT) fromJsonT) {
-//     return Test(
-//       count: (json['count'] as num?)?.toInt() ?? 0,
-//       results: (json['results'] as List<dynamic>?)?.map<T>((e) => fromJsonT(e as Map<String,dynamic>)).toList() ?? [],
-//       hasNext: json['next'] != null,
-//     );
-//   }
-//
-//   factory Test.initState() => Test(count: 0, results: List<T>.empty(), hasNext: false);
-// }

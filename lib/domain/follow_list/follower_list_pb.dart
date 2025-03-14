@@ -91,7 +91,6 @@ class _FollowerListPBState extends State<FollowerListPB> {
                                 imageUrl: user.profileImageUrl,
                                 height: 48,
                                 width: 48,
-                                color: const Color(0xffD9D9D9),
                                 shape: BoxShape.circle,
                               ),
                               const SizedBox(width: 12),
