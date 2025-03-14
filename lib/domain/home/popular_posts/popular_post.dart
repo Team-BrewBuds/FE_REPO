@@ -122,7 +122,6 @@ class PopularPostWidget extends StatelessWidget {
             imageUrl: imageUrl!,
             height: 80,
             width: 80,
-            color: const Color(0xffD9D9D9),
           ),
         ]
       ],

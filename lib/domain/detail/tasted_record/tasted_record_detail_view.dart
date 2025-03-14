@@ -10,7 +10,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/domain/detail/tasted_record_presenter.dart';
+import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:flutter/material.dart';
@@ -127,10 +127,10 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                           selector: (context, presenter) => presenter.tastingReview,
                           builder: (context, tastingReview, child) => tastingReview != null
                               ? _buildTastingGraph(
-                                  bodyValue: tastingReview.body.toDouble(),
-                                  acidityValue: tastingReview.acidity.toDouble(),
-                                  acerbityValue: tastingReview.bitterness.toDouble(),
-                                  sweetnessValue: tastingReview.sweetness.toDouble(),
+                                  bodyValue: tastingReview.body,
+                                  acidityValue: tastingReview.acidity,
+                                  acerbityValue: tastingReview.bitterness,
+                                  sweetnessValue: tastingReview.sweetness,
                                 )
                               : const SizedBox.shrink(),
                         ),
@@ -263,7 +263,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
         imageUrl: imageUrlList[index],
         height: width,
         width: width,
-        color: const Color(0xffD9D9D9),
       ),
     );
   }
@@ -385,7 +384,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
               imageUrl: profileImageUrl,
               height: 36,
               width: 36,
-              color: const Color(0xffD9D9D9),
               shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),
@@ -429,7 +427,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                       'assets/icons/star_fill.svg',
                       height: 16,
                       width: 16,
-                      colorFilter: ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
                     );
                   } else if (i - rating < 1) {
                     return SvgPicture.asset(
@@ -442,7 +440,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                       'assets/icons/star_fill.svg',
                       height: 16,
                       width: 16,
-                      colorFilter: ColorFilter.mode(ColorStyles.gray40, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(ColorStyles.gray40, BlendMode.srcIn),
                     );
                   }
                 },
@@ -510,86 +508,111 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
   }
 
   Widget _buildTastingGraph({
-    required double bodyValue,
-    required double acidityValue,
-    required double acerbityValue,
-    required double sweetnessValue,
+    required int bodyValue,
+    required int acidityValue,
+    required int acerbityValue,
+    required int sweetnessValue,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('테이스팅', style: TextStyles.title02SemiBold),
-        const SizedBox(height: 5),
-        _buildTastingSlider(minText: '가벼운', maxText: '무거운', value: bodyValue),
-        const SizedBox(height: 0),
-        _buildTastingSlider(minText: '산미약한', maxText: '산미강한', value: acidityValue),
-        const SizedBox(height: 0),
-        _buildTastingSlider(minText: '쓴맛약한', maxText: '쓴맛강한', value: acerbityValue),
-        const SizedBox(height: 0),
-        _buildTastingSlider(minText: '단맛약한', maxText: '단맛강한', value: sweetnessValue),
+        const SizedBox(height: 24),
+        _buildTasteSlider(minText: '트로피칼', maxText: '무거운', value: bodyValue),
+        const SizedBox(height: 20),
+        _buildTasteSlider(minText: '산미약한', maxText: '산미강한', value: acidityValue),
+        const SizedBox(height: 20),
+        _buildTasteSlider(minText: '쓴맛약한', maxText: '쓴맛강한', value: acerbityValue),
+        const SizedBox(height: 20),
+        _buildTasteSlider(minText: '단맛약한', maxText: '단맛강한', value: sweetnessValue),
       ],
     );
   }
 
-  Widget _buildTastingSlider({required String minText, required String maxText, required double value}) {
-    const minValue = 1;
-    const maxValue = 5;
-    final midValue = ((minValue + maxValue) / 2).ceil();
+  Widget _buildTasteSlider({required String minText, required String maxText, required int value}) {
     final activeStyle = TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red);
     final inactiveStyle = TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60);
-
-    return Row(
-      children: [
-        Expanded(
-          flex: 2,
-          child: Text(
-            minText,
-            textAlign: TextAlign.center,
-            style: value < midValue ? activeStyle : inactiveStyle,
+    return SizedBox(
+      height: 16,
+      width: double.infinity,
+      child: Row(
+        children: [
+          SizedBox(
+            width: 46,
+            child: Text(
+              minText,
+              textAlign: TextAlign.center,
+              style: value < 3 ? activeStyle : inactiveStyle,
+            ),
           ),
-        ),
-        Expanded(
-          flex: 9,
-          child: AbsorbPointer(
-            child: SfSliderTheme(
-              data: const SfSliderThemeData(
-                trackCornerRadius: 0,
-                activeTrackHeight: 2,
-                inactiveTrackHeight: 2,
-                tickOffset: Offset(0, -2),
-                minorTickSize: Size.zero,
-                tickSize: Size(4, 2),
-                inactiveTickColor: ColorStyles.gray10,
-                activeTickColor: ColorStyles.gray10,
-                activeTrackColor: Color(0xffd9d9d9),
-                inactiveTrackColor: Color(0xffd9d9d9),
-                thumbColor: ColorStyles.red,
-                thumbRadius: 7,
-              ),
-              child: SfSlider(
-                interval: 1,
-                showTicks: true,
-                value: value < minValue
-                    ? minValue
-                    : value > maxValue
-                        ? maxValue
-                        : value,
-                min: minValue,
-                max: maxValue,
-                onChanged: (_) {},
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final barWidth = (constraints.maxWidth - 12) / 4;
+                  return Stack(
+                    alignment: Alignment.center,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          children: [
+                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
+                            const SizedBox(width: 4),
+                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
+                            const SizedBox(width: 4),
+                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
+                            const SizedBox(width: 4),
+                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
+                          ],
+                        ),
+                      ),
+                      if (value == 1)
+                        Positioned(
+                          left: 0 - 7,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                          ),
+                        )
+                      else if (value == 5)
+                        Positioned(
+                          right: 0 - 7,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                          ),
+                        )
+                      else if (value > 1 && value < 5)
+                          Positioned(
+                            left: (barWidth * (value - 1)) + ((value - 2) * 4) - 5,
+                            child: Container(
+                              width: 14,
+                              height: 14,
+                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                            ),
+                          ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Text(
-            maxText,
-            textAlign: TextAlign.center,
-            style: value > midValue ? activeStyle : inactiveStyle,
+          SizedBox(
+            width: 46,
+            child: Text(
+              maxText,
+              textAlign: TextAlign.center,
+              style: value > 3 ? activeStyle : inactiveStyle,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -9,7 +9,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/domain/detail/post_detail_presenter.dart';
+import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_card.dart';
@@ -183,12 +183,10 @@ class _PostDetailViewState extends State<PostDetailView> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            //프로필 사진
             MyNetworkImage(
               imageUrl: imageUrl,
               height: 36,
               width: 36,
-              color: const Color(0xffD9D9D9),
               shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),
@@ -240,7 +238,6 @@ class _PostDetailViewState extends State<PostDetailView> {
               imageUrl: imageUrlList[index],
               height: width,
               width: width,
-              color: const Color(0xffD9D9D9),
             ),
           ),
         if (tastingRecords.isNotEmpty)
@@ -251,7 +248,6 @@ class _PostDetailViewState extends State<PostDetailView> {
                 imageUrl: tastingRecords[index].thumbnailUrl,
                 height: width,
                 width: width,
-                color: const Color(0xffD9D9D9),
               ),
               rating: '${tastingRecords[index].rating}',
               type: tastingRecords[index].beanType,

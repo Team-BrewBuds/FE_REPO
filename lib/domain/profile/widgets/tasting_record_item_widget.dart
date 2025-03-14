@@ -17,7 +17,6 @@ class TastingRecordItemWidget extends StatelessWidget {
             imageUrl: imageUri,
             height: double.infinity,
             width: double.infinity,
-            color: const Color(0xffD9D9D9),
           ),
         ),
         Positioned(

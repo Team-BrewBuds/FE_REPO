@@ -56,7 +56,6 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget> {
             imageUrl: widget.thumbnailUri,
             height: width,
             width: width,
-            color: const Color(0xffD9D9D9),
           ),
           rating: widget.rating,
           type: widget.type,

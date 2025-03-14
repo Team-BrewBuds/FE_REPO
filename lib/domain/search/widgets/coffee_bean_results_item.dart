@@ -58,7 +58,7 @@ class CoffeeBeanResultsItem extends StatelessWidget {
           ),
           if (_imageUri.isNotEmpty) ...[
             const SizedBox(width: 8),
-            MyNetworkImage(imageUrl: _imageUri, height: 64, width: 64, color: Colors.transparent),
+            MyNetworkImage(imageUrl: _imageUri, height: 64, width: 64),
           ],
         ],
       ),

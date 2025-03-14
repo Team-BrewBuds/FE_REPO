@@ -87,7 +87,6 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
           imageUrl: post.imagesUrl[index],
           height: width,
           width: width,
-          color: const Color(0xffD9D9D9),
         ),
       );
     } else if (post.tastingRecords.isNotEmpty) {
@@ -98,7 +97,6 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
             imageUrl: post.tastingRecords[index].thumbnailUrl,
             height: width,
             width: width,
-            color: const Color(0xffD9D9D9),
           ),
           rating: '${post.tastingRecords[index].rating}',
           type: post.tastingRecords[index].beanType,

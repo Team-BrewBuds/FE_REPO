@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_detail_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
@@ -25,6 +26,16 @@ abstract class BeansApi {
   Future<String> searchBeans({
     @Query('name') String? name,
     @Query('page') required int pageNo,
+  });
+
+  @GET('/beans/{id}/')
+  Future<CoffeeBeanDetailDTO> fetchBeanDetail({
+    @Path('id') required int id,
+  });
+
+  @GET('beans/{id}/tasted_records/')
+  Future<String> fetchTastedRecordsForCoffeeBean({
+    @Path('id') required int id,
   });
 
   factory BeansApi() {

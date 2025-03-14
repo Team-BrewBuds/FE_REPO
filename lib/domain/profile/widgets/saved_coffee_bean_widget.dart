@@ -50,7 +50,6 @@ class SavedCoffeeBeanWidget extends StatelessWidget {
             imageUrl: imageUri,
             height: 64,
             width: 64,
-            color: const Color(0xffD9D9D9),
           ),
         ],
       ),

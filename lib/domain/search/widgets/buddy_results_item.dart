@@ -32,7 +32,6 @@ class BuddyResultsItem extends StatelessWidget {
               imageUrl: _imageUri,
               height: 40,
               width: 40,
-              color: const Color(0xffd9d9d9),
               shape: BoxShape.circle,
             ),
           ],
