@@ -1,4 +1,5 @@
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
 
@@ -15,7 +16,7 @@ class CoffeeBeanDetail with _$CoffeeBeanDetail {
     required bool isDecaf,
     required double rating,
     required int recordCount,
-    required List<String> topFlavors,
+    required List<TopFlavor> topFlavors,
     required List<String> flavors,
     required int body,
     required int acidity,

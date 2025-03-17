@@ -11,6 +11,8 @@ import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
+import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
+import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +20,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 class TastedRecordDetailView extends StatefulWidget {
   const TastedRecordDetailView({super.key});
@@ -89,6 +89,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                       authorId: profileInfo.authorId,
                       profileImageUrl: profileInfo.profileImageUrl,
                       isFollow: profileInfo.isFollow,
+                      isMine: profileInfo.isMine,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -114,22 +115,24 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                       children: [
                         Selector<TastedRecordPresenter, BeanInfo>(
                           selector: (context, presenter) => presenter.beanInfo,
-                          builder: (context, beanInfo, child) => _buildBeanDetail(
-                            beanType: beanInfo.beanType,
-                            isDecaf: beanInfo.isDecaf,
+                          builder: (context, beanInfo, child) => BeanDetail(
+                            beanType: beanInfo.beanType.toString(),
                             country: beanInfo.country,
                             region: beanInfo.region,
+                            variety: beanInfo.variety,
                             process: beanInfo.process,
-                            roastingPoint: beanInfo.roastingPoint,
+                            roastery: beanInfo.roastery,
+                            extraction: beanInfo.extraction,
+                            roastPoint: beanInfo.roastingPoint,
                           ),
                         ),
                         Selector<TastedRecordPresenter, TasteReview?>(
                           selector: (context, presenter) => presenter.tastingReview,
                           builder: (context, tastingReview, child) => tastingReview != null
-                              ? _buildTastingGraph(
+                              ? TasteGraph(
                                   bodyValue: tastingReview.body,
                                   acidityValue: tastingReview.acidity,
-                                  acerbityValue: tastingReview.bitterness,
+                                  bitternessValue: tastingReview.bitterness,
                                   sweetnessValue: tastingReview.sweetness,
                                 )
                               : const SizedBox.shrink(),
@@ -143,6 +146,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                     builder: (context, commentsInfo, child) => buildComments(
                       authorId: commentsInfo.authorId,
                       comments: commentsInfo.page.results,
+                      count: commentsInfo.page.count,
                     ),
                   ),
                 ],
@@ -151,7 +155,15 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
           }),
           bottomNavigationBar: Padding(
             padding: MediaQuery.of(context).viewInsets,
-            child: _buildBottomTextField(),
+            child: Selector<TastedRecordPresenter, CommentTextFieldState>(
+              selector: (context, presenter) => presenter.commentTextFieldState,
+              builder: (context, state, child) {
+                return _buildBottomTextField(
+                  prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                  authorNickname: state.authorNickname,
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -210,45 +222,96 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
     );
   }
 
-  Widget _buildBottomTextField() {
+  Widget _buildBottomTextField({String? prentCommentAuthorNickname, required String authorNickname}) {
+    final bool hasParent = prentCommentAuthorNickname != null;
     return SafeArea(
       child: Container(
         padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 24),
-        decoration:
-            const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20)), color: ColorStyles.white),
-        child: TextField(
-          controller: _textEditingController,
-          maxLines: null,
-          decoration: InputDecoration(
-            hintText: '~ 님에게 댓글 추가..',
-            hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: ColorStyles.gray40),
-              borderRadius: BorderRadius.all(Radius.circular(24)),
-              gapPadding: 8,
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: ColorStyles.gray40),
-              borderRadius: BorderRadius.all(Radius.circular(24)),
-              gapPadding: 8,
-            ),
-            contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
-            suffixIcon: Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-              child: ButtonFactory.buildOvalButton(
-                onTapped: () {
-                  if (_textEditingController.text.isNotEmpty) {}
-                },
-                text: '전송',
-                style: OvalButtonStyle.fill(
-                  color: ColorStyles.black,
-                  textColor: ColorStyles.white,
-                  size: OvalButtonSize.large,
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: ColorStyles.gray20)),
+          color: ColorStyles.white,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: ColorStyles.gray40),
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            color: ColorStyles.white,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Visibility(
+                visible: hasParent,
+                child: Container(
+                  padding: const EdgeInsets.only(left: 14, top: 16, bottom: 16, right: 14),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    color: ColorStyles.gray10,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        '$prentCommentAuthorNickname님에게 답글 남기는 중',
+                        style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                      ),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          context.read<TastedRecordPresenter>().cancelReply();
+                        },
+                        child: SvgPicture.asset(
+                          'assets/icons/x_round.svg',
+                          height: 24,
+                          width: 24,
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
-            suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
-            constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+              TextField(
+                controller: _textEditingController,
+                maxLines: null,
+                decoration: InputDecoration(
+                  hintText: hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
+                  hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.zero,
+                    gapPadding: 8,
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.zero,
+                    gapPadding: 8,
+                  ),
+                  contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
+                    child: ButtonFactory.buildOvalButton(
+                      onTapped: () {
+                        if (_textEditingController.text.isNotEmpty) {
+                          context
+                              .read<TastedRecordPresenter>()
+                              .createComment(_textEditingController.text)
+                              .then((_) => _textEditingController.value = TextEditingValue.empty);
+                        }
+                      },
+                      text: '전송',
+                      style: OvalButtonStyle.fill(
+                        color: ColorStyles.black,
+                        textColor: ColorStyles.white,
+                        size: OvalButtonSize.large,
+                      ),
+                    ),
+                  ),
+                  suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
+                  constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -366,6 +429,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
     int? authorId,
     required String profileImageUrl,
     required bool isFollow,
+    required bool isMine,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -396,8 +460,14 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                 style: TextStyles.title02SemiBold,
               ),
             ),
-            //isFollow Api
-            FollowButton(onTap: () {}, isFollowed: isFollow),
+            if (!isMine) ...[
+              FollowButton(
+                onTap: () {
+                  context.read<TastedRecordPresenter>().onTappedFollowButton();
+                },
+                isFollowed: isFollow,
+              ),
+            ],
           ],
         ),
       ),
@@ -507,182 +577,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
     );
   }
 
-  Widget _buildTastingGraph({
-    required int bodyValue,
-    required int acidityValue,
-    required int acerbityValue,
-    required int sweetnessValue,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('테이스팅', style: TextStyles.title02SemiBold),
-        const SizedBox(height: 24),
-        _buildTasteSlider(minText: '트로피칼', maxText: '무거운', value: bodyValue),
-        const SizedBox(height: 20),
-        _buildTasteSlider(minText: '산미약한', maxText: '산미강한', value: acidityValue),
-        const SizedBox(height: 20),
-        _buildTasteSlider(minText: '쓴맛약한', maxText: '쓴맛강한', value: acerbityValue),
-        const SizedBox(height: 20),
-        _buildTasteSlider(minText: '단맛약한', maxText: '단맛강한', value: sweetnessValue),
-      ],
-    );
-  }
-
-  Widget _buildTasteSlider({required String minText, required String maxText, required int value}) {
-    final activeStyle = TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red);
-    final inactiveStyle = TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60);
-    return SizedBox(
-      height: 16,
-      width: double.infinity,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 46,
-            child: Text(
-              minText,
-              textAlign: TextAlign.center,
-              style: value < 3 ? activeStyle : inactiveStyle,
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final barWidth = (constraints.maxWidth - 12) / 4;
-                  return Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          children: [
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                            const SizedBox(width: 4),
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                            const SizedBox(width: 4),
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                            const SizedBox(width: 4),
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                          ],
-                        ),
-                      ),
-                      if (value == 1)
-                        Positioned(
-                          left: 0 - 7,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                          ),
-                        )
-                      else if (value == 5)
-                        Positioned(
-                          right: 0 - 7,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                          ),
-                        )
-                      else if (value > 1 && value < 5)
-                          Positioned(
-                            left: (barWidth * (value - 1)) + ((value - 2) * 4) - 5,
-                            child: Container(
-                              width: 14,
-                              height: 14,
-                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            ),
-                          ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 46,
-            child: Text(
-              maxText,
-              textAlign: TextAlign.center,
-              style: value > 3 ? activeStyle : inactiveStyle,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBeanDetail({
-    required String? beanType,
-    required bool? isDecaf,
-    required List<String> country,
-    required String? region,
-    required String? process,
-    required String? roastingPoint,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('원두 상세정보', style: TextStyles.title02SemiBold),
-        const SizedBox(height: 20),
-        ...[
-          if (beanType != null)
-            Row(
-              children: [
-                const Text('원두 유형', style: TextStyles.labelSmallSemiBold),
-                const Spacer(),
-                Text(beanType + ((isDecaf ?? false) ? '(디카페인)' : ''), style: TextStyles.labelSmallMedium),
-              ],
-            ),
-          if (country.isNotEmpty)
-            Row(
-              children: [
-                const Text('원산지', style: TextStyles.labelSmallSemiBold),
-                const Spacer(),
-                if (country.length > 1) ...[
-                  Text('${country.first} 외 ${country.length - 1}', style: TextStyles.labelSmallMedium),
-                ] else if (country.length == 1) ...[
-                  Text(country.first, style: TextStyles.labelSmallMedium),
-                ],
-              ],
-            ),
-          if (region != null)
-            Row(
-              children: [
-                const Text('생산 지역', style: TextStyles.labelSmallSemiBold),
-                const Spacer(),
-                Text(
-                  region,
-                  style: TextStyles.labelSmallMedium,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          if (process != null)
-            Row(
-              children: [
-                const Text('가공 방식', style: TextStyles.labelSmallSemiBold),
-                const Spacer(),
-                Text(process, style: TextStyles.labelSmallMedium),
-              ],
-            ),
-          if (roastingPoint != null)
-            Row(
-              children: [
-                const Text('로스팅 포인트', style: TextStyles.labelSmallSemiBold),
-                const Spacer(),
-                Text(roastingPoint, style: TextStyles.labelSmallMedium),
-              ],
-            ),
-        ].separator(separatorWidget: const SizedBox(height: 13)),
-      ],
-    );
-  }
-
   Widget _buildCommentTitle({required int commentsCount}) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16),
@@ -709,14 +603,20 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
     );
   }
 
-  Widget buildComments({required int? authorId, required List<Comment> comments}) {
+  Widget buildComments({required int? authorId, required List<Comment> comments, required int count}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildCommentTitle(commentsCount: comments.length),
-        if (comments.isEmpty) ...[buildEmptyComments()] else
-          ...comments.map(
-            (comment) {
+        _buildCommentTitle(commentsCount: count),
+        if (comments.isEmpty)
+          buildEmptyComments()
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: comments.length,
+            itemBuilder: (context, index) {
+              final comment = comments[index];
               return Column(
                 children: [
                   _buildSlidableComment(
@@ -736,11 +636,14 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                         context.pop();
                         pushToProfile(context: context, id: comment.author.id);
                       },
-                      onTappedReply: () {},
+                      onTappedReply: () {
+                        context.read<TastedRecordPresenter>().onTappedReply(comment);
+                      },
                       onTappedLikeButton: () {
                         context.read<TastedRecordPresenter>().onTappedCommentLikeButton(comment);
                       },
                     ),
+                    isMine: context.read<TastedRecordPresenter>().isMineComment(comment),
                     canDelete: context.read<TastedRecordPresenter>().canDeleteComment(authorId: comment.author.id),
                     onDelete: () {
                       context.read<TastedRecordPresenter>().onTappedDeleteCommentButton(comment);
@@ -772,6 +675,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                                   );
                             },
                           ),
+                          isMine: context.read<TastedRecordPresenter>().isMineComment(reComment),
                           canDelete:
                               context.read<TastedRecordPresenter>().canDeleteComment(authorId: comment.author.id),
                           onDelete: () {
@@ -789,10 +693,15 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
     );
   }
 
-  Widget _buildSlidableComment(CommentItem commentItem, {required bool canDelete, Function()? onDelete}) {
+  Widget _buildSlidableComment(
+    CommentItem commentItem, {
+    required bool canDelete,
+    Function()? onDelete,
+    required bool isMine,
+  }) {
     return Slidable(
       endActionPane: ActionPane(
-        extentRatio: canDelete ? 0.4 : 0.2,
+        extentRatio: !isMine && canDelete ? 0.4 : 0.2,
         motion: const DrawerMotion(),
         children: [
           if (canDelete)
@@ -822,6 +731,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                 ),
               ),
             ),
+          if (!isMine)
           Expanded(
             child: GestureDetector(
               child: Container(
@@ -904,7 +814,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
-              '샥제햐기',
+              '샥제하기',
               style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),

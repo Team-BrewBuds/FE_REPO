@@ -7,6 +7,8 @@ import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:flutter/foundation.dart';
 
+typedef BottomTextFieldState = ({String? reCommentAuthorNickname, String authorNickname});
+
 enum _FeedType {
   post,
   tastingRecord;
@@ -19,12 +21,9 @@ final class CommentsPresenter extends ChangeNotifier {
   final _FeedType _type;
   final int _id;
   final User author;
-  final AccountRepository _accountRepository;
-  final CommentsRepository _repository;
-  final StreamController<bool> _loadingController = StreamController.broadcast();
+  final CommentsRepository _repository = CommentsRepository.instance;
   int _currentPage = 0;
   Comment? _replyComment;
-  bool _isLoading = false;
   bool _disposed = false;
   DefaultPage<Comment> _page = DefaultPage.initState();
 
@@ -35,23 +34,14 @@ final class CommentsPresenter extends ChangeNotifier {
     required AccountRepository accountRepository,
     required CommentsRepository repository,
   })  : _type = isPost ? _FeedType.post : _FeedType.tastingRecord,
-        _id = id,
-        _accountRepository = accountRepository,
-        _repository = repository {
-    isLoadingStream.listen((isLoading) {
-      _isLoading = isLoading;
-    });
-  }
+        _id = id;
 
-  List<Comment> get comments => _page.results;
+  DefaultPage<Comment> get page => _page;
 
-  Stream<bool> get isLoadingStream => _loadingController.stream;
-
-  bool get hasNext => _page.hasNext;
-
-  Comment? get replyComment => _replyComment;
-
-  bool get isReply => _replyComment != null;
+  BottomTextFieldState get bottomTextFieldState => (
+        reCommentAuthorNickname: _replyComment?.author.nickname,
+        authorNickname: author.nickname,
+      );
 
   refresh() {
     _currentPage = 0;
@@ -65,22 +55,38 @@ final class CommentsPresenter extends ChangeNotifier {
   }
 
   fetchMoreData() async {
-    if (hasNext && !_isLoading) {
-      _loadingController.add(true);
-
-      final newPage = await _repository.fetchCommentsPage(feedType: _type.toString(), id: _id, pageNo: _currentPage + 1);
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
+    if (_page.hasNext) {
+      final newPage = await _repository.fetchCommentsPage(
+        feedType: _type.toString(),
+        id: _id,
+        pageNo: _currentPage + 1,
+      );
+      _page = _page.copyWith(
+        results: _page.results + newPage.results.where((element) => !_page.results.contains(element)).toList(),
+        hasNext: newPage.hasNext,
+      );
       _currentPage += 1;
       notifyListeners();
-
-      _loadingController.add(false);
     }
   }
 
   Future<void> createNewComment({required String content}) {
+    final parentId = _replyComment?.id;
     return _repository
-        .createNewComment(feedType: _type.toString(), id: _id, content: content, parentId: _replyComment?.id)
-        .then((_) => refresh());
+        .createNewComment(feedType: _type.toString(), id: _id, content: content, parentId: parentId)
+        .then((newComment) {
+      if (parentId != null) {
+        _repository.fetchComment(id: parentId).then((newParentComment) {
+          _page = _page.copyWith(
+            results: List<Comment>.from(_page.results).map((e) => e.id == parentId ? newParentComment : e).toList(),
+          );
+          _replyComment = null;
+          notifyListeners();
+        });
+      } else {
+        refresh();
+      }
+    });
   }
 
   deleteComment({required Comment comment}) {
@@ -110,7 +116,6 @@ final class CommentsPresenter extends ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
-    _loadingController.close();
     super.dispose();
   }
 
@@ -126,19 +131,41 @@ final class CommentsPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool isMine(Comment comment) {
+    return comment.author.id == AccountRepository.instance.id;
+  }
+
   cancelReply() {
     _replyComment = null;
     notifyListeners();
   }
 
   bool canDelete(int id) {
-    return _accountRepository.id == author.id || _accountRepository.id == id;
+    return AccountRepository.instance.id == author.id || AccountRepository.instance.id == id;
   }
 
   _updateComments({required Comment newComment}) {
-    _page = _page.copyWith(
-      results: _page.results.map((comment) => comment.id == newComment.id ? newComment : comment).toList(),
-    );
-    notifyListeners();
+    final parentId = newComment.parentId;
+    if (parentId != null) {
+      _page = _page.copyWith(
+        results: List<Comment>.from(_page.results).map((comment) {
+          if (comment.id == parentId) {
+            return comment.copyWith(
+              reComments: List<Comment>.from(comment.reComments)
+                  .map((reComment) => reComment.id == newComment.id ? newComment : reComment)
+                  .toList(),
+            );
+          } else {
+            return comment;
+          }
+        }).toList(),
+      );
+      notifyListeners();
+    } else {
+      _page = _page.copyWith(
+        results: List<Comment>.from(_page.results).map((comment) => comment.id == newComment.id ? newComment : comment).toList(),
+      );
+      notifyListeners();
+    }
   }
 }

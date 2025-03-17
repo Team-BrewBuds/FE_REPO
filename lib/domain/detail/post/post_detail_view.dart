@@ -70,6 +70,8 @@ class _PostDetailViewState extends State<PostDetailView> {
                     imageUrl: profileInfo.profileImageUrl,
                     createdAt: profileInfo.createdAt,
                     viewCount: profileInfo.viewCount,
+                    isFollow: profileInfo.isFollow,
+                    isMine: profileInfo.isMine,
                   ),
                 ),
                 Selector<PostDetailPresenter, BodyInfo>(
@@ -97,6 +99,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                   builder: (context, commentsInfo, child) => buildComments(
                     authorId: commentsInfo.authorId,
                     comments: commentsInfo.page.results,
+                    count: commentsInfo.page.count,
                   ),
                 ),
               ],
@@ -104,7 +107,15 @@ class _PostDetailViewState extends State<PostDetailView> {
           ),
           bottomNavigationBar: Padding(
             padding: MediaQuery.of(context).viewInsets,
-            child: _buildBottomTextField(),
+            child: Selector<PostDetailPresenter, CommentTextFieldState>(
+              selector: (context, presenter) => presenter.commentTextFieldState,
+              builder: (context, state, child) {
+                return _buildBottomTextField(
+                  prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                  authorNickname: state.authorNickname,
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -169,6 +180,8 @@ class _PostDetailViewState extends State<PostDetailView> {
     required String imageUrl,
     required String createdAt,
     required String viewCount,
+    required bool isFollow,
+    required bool isMine,
   }) {
     return GestureDetector(
       onTap: () {
@@ -211,9 +224,16 @@ class _PostDetailViewState extends State<PostDetailView> {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            //Api 수정.
-            FollowButton(onTap: () {}, isFollowed: false),
+            if (!isMine) ...[
+              const SizedBox(width: 8),
+              //Api 수정.
+              FollowButton(
+                onTap: () {
+                  context.read<PostDetailPresenter>().onTappedFollowButton();
+                },
+                isFollowed: isFollow,
+              ),
+            ],
           ],
         ),
       ),
@@ -366,24 +386,6 @@ class _PostDetailViewState extends State<PostDetailView> {
     );
   }
 
-  Widget buildCommentButton({required int commentCount}) {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        'assets/icons/message.svg',
-        height: 24,
-        width: 24,
-        colorFilter: const ColorFilter.mode(
-          ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
-      ),
-      text: '댓글 $commentCount',
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: () {},
-      iconAlign: ButtonIconAlign.left,
-    );
-  }
-
   Widget buildSaveButton({required bool isSaved}) {
     return IconButtonFactory.buildHorizontalButtonWithIconWidget(
       iconWidget: SvgPicture.asset(
@@ -398,7 +400,9 @@ class _PostDetailViewState extends State<PostDetailView> {
       text: '저장',
       textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
       iconAlign: ButtonIconAlign.left,
-      onTapped: () {},
+      onTapped: () {
+        context.read<PostDetailPresenter>().onTappedSaveButton();
+      },
     );
   }
 
@@ -429,89 +433,106 @@ class _PostDetailViewState extends State<PostDetailView> {
     );
   }
 
-  Widget buildComments({required int? authorId, required List<Comment> comments}) {
+  Widget buildComments({required int? authorId, required List<Comment> comments, required int count}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildCommentTitle(commentsCount: comments.length),
-        if (comments.isEmpty) ...[buildEmptyComments()] else
-          ...comments.map((comment) {
-            final canDelete = context.read<PostDetailPresenter>().canDeleteComment(authorId: comment.author.id);
-            return Column(
-              children: [
-                _buildSlidableComment(
-                  CommentItem(
-                    padding: comment.reComments.isEmpty
-                        ? const EdgeInsets.all(16)
-                        : const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
-                    profileImageUrl: comment.author.profileImageUrl,
-                    nickName: comment.author.nickname,
-                    createdAt: comment.createdAt,
-                    isWriter: authorId == comment.author.id,
-                    contents: comment.content,
-                    isLiked: comment.isLiked,
-                    likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
-                    canReply: true,
-                    onTappedProfile: () {
-                      context.pop();
-                      pushToProfile(context: context, id: comment.author.id);
-                    },
-                    onTappedReply: () {},
-                    onTappedLikeButton: () {
-                      context.read<PostDetailPresenter>().onTappedCommentLikeButton(comment);
+        _buildCommentTitle(commentsCount: count),
+        if (comments.isEmpty)
+          buildEmptyComments()
+        else
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: comments.length,
+            itemBuilder: (context, index) {
+              final comment = comments[index];
+              final canDelete = context.read<PostDetailPresenter>().canDeleteComment(authorId: comment.author.id);
+              return Column(
+                children: [
+                  _buildSlidableComment(
+                    CommentItem(
+                      padding: comment.reComments.isEmpty
+                          ? const EdgeInsets.all(16)
+                          : const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 8),
+                      profileImageUrl: comment.author.profileImageUrl,
+                      nickName: comment.author.nickname,
+                      createdAt: comment.createdAt,
+                      isWriter: authorId == comment.author.id,
+                      contents: comment.content,
+                      isLiked: comment.isLiked,
+                      likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                      canReply: true,
+                      onTappedProfile: () {
+                        context.pop();
+                        pushToProfile(context: context, id: comment.author.id);
+                      },
+                      onTappedReply: () {
+                        context.read<PostDetailPresenter>().onTappedReply(comment);
+                      },
+                      onTappedLikeButton: () {
+                        context.read<PostDetailPresenter>().onTappedCommentLikeButton(comment);
+                      },
+                    ),
+                    isMine: context.read<PostDetailPresenter>().isMineComment(comment),
+                    canDelete: canDelete,
+                    onDelete: () {
+                      context.read<PostDetailPresenter>().onTappedDeleteCommentButton(comment);
                     },
                   ),
-                  canDelete: canDelete,
-                  onDelete: () {
-                    context.read<PostDetailPresenter>().onTappedDeleteCommentButton(comment);
-                  },
-                ),
-                if (comment.reComments.isNotEmpty) ...[
-                  ReCommentsList(
-                    reCommentsLength: comment.reComments.length,
-                    reCommentsBuilder: (index) {
-                      final reComment = comment.reComments[index];
-                      final canDelete =
-                          context.read<PostDetailPresenter>().canDeleteComment(authorId: reComment.author.id);
-                      return _buildSlidableComment(
-                        CommentItem(
-                          padding: const EdgeInsets.only(left: 60, right: 16, top: 12, bottom: 12),
-                          profileImageUrl: reComment.author.profileImageUrl,
-                          nickName: reComment.author.nickname,
-                          createdAt: reComment.createdAt,
-                          isWriter: authorId == comment.author.id,
-                          contents: reComment.content,
-                          isLiked: reComment.isLiked,
-                          likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
-                          onTappedProfile: () {
-                            context.pop();
-                            pushToProfile(context: context, id: reComment.author.id);
+                  if (comment.reComments.isNotEmpty) ...[
+                    ReCommentsList(
+                      reCommentsLength: comment.reComments.length,
+                      reCommentsBuilder: (index) {
+                        final reComment = comment.reComments[index];
+                        final canDelete =
+                            context.read<PostDetailPresenter>().canDeleteComment(authorId: reComment.author.id);
+                        return _buildSlidableComment(
+                          CommentItem(
+                            padding: const EdgeInsets.only(left: 60, right: 16, top: 12, bottom: 12),
+                            profileImageUrl: reComment.author.profileImageUrl,
+                            nickName: reComment.author.nickname,
+                            createdAt: reComment.createdAt,
+                            isWriter: authorId == comment.author.id,
+                            contents: reComment.content,
+                            isLiked: reComment.isLiked,
+                            likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
+                            onTappedProfile: () {
+                              context.pop();
+                              pushToProfile(context: context, id: reComment.author.id);
+                            },
+                            onTappedLikeButton: () {
+                              context
+                                  .read<PostDetailPresenter>()
+                                  .onTappedCommentLikeButton(reComment, parentComment: comment);
+                            },
+                          ),
+                          isMine: context.read<PostDetailPresenter>().isMineComment(reComment),
+                          canDelete: canDelete,
+                          onDelete: () {
+                            context.read<PostDetailPresenter>().onTappedDeleteCommentButton(reComment);
                           },
-                          onTappedLikeButton: () {
-                            context
-                                .read<PostDetailPresenter>()
-                                .onTappedCommentLikeButton(reComment, parentComment: comment);
-                          },
-                        ),
-                        canDelete: canDelete,
-                        onDelete: () {
-                          context.read<PostDetailPresenter>().onTappedDeleteCommentButton(reComment);
-                        },
-                      );
-                    },
-                  )
-                ]
-              ],
-            );
-          }),
+                        );
+                      },
+                    )
+                  ]
+                ],
+              );
+            },
+          ),
       ],
     );
   }
 
-  Widget _buildSlidableComment(CommentItem commentItem, {required bool canDelete, Function()? onDelete}) {
+  Widget _buildSlidableComment(
+    CommentItem commentItem, {
+    required bool canDelete,
+    Function()? onDelete,
+    required bool isMine,
+  }) {
     return Slidable(
       endActionPane: ActionPane(
-        extentRatio: canDelete ? 0.4 : 0.2,
+        extentRatio: !isMine && canDelete ? 0.4 : 0.2,
         motion: const DrawerMotion(),
         children: [
           if (canDelete)
@@ -541,6 +562,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                 ),
               ),
             ),
+          if (!isMine)
           Expanded(
             child: GestureDetector(
               child: Container(
@@ -570,44 +592,95 @@ class _PostDetailViewState extends State<PostDetailView> {
     );
   }
 
-  Widget _buildBottomTextField() {
+  Widget _buildBottomTextField({String? prentCommentAuthorNickname, required String authorNickname}) {
+    final bool hasParent = prentCommentAuthorNickname != null;
     return Container(
       padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 12),
-      decoration:
-          const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20)), color: ColorStyles.white),
-      child: TextField(
-        controller: _textEditingController,
-        maxLines: null,
-        decoration: InputDecoration(
-          hintText: '~ 님에게 댓글 추가..',
-          hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: ColorStyles.gray40),
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-            gapPadding: 8,
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: ColorStyles.gray40),
-            borderRadius: BorderRadius.all(Radius.circular(24)),
-            gapPadding: 8,
-          ),
-          contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-            child: ButtonFactory.buildOvalButton(
-              onTapped: () {
-                if (_textEditingController.text.isNotEmpty) {}
-              },
-              text: '전송',
-              style: OvalButtonStyle.fill(
-                color: ColorStyles.black,
-                textColor: ColorStyles.white,
-                size: OvalButtonSize.large,
+      decoration: const BoxDecoration(
+        border: Border(top: BorderSide(color: ColorStyles.gray20)),
+        color: ColorStyles.white,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: ColorStyles.gray40),
+          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          color: ColorStyles.white,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Visibility(
+              visible: hasParent,
+              child: Container(
+                padding: const EdgeInsets.only(left: 14, top: 16, bottom: 16, right: 14),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  color: ColorStyles.gray10,
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      '$prentCommentAuthorNickname님에게 답글 남기는 중',
+                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                    ),
+                    const Spacer(),
+                    InkWell(
+                      onTap: () {
+                        context.read<PostDetailPresenter>().cancelReply();
+                      },
+                      child: SvgPicture.asset(
+                        'assets/icons/x_round.svg',
+                        height: 24,
+                        width: 24,
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-          suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
-          constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+            TextField(
+              controller: _textEditingController,
+              maxLines: null,
+              decoration: InputDecoration(
+                hintText: hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
+                hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                enabledBorder: const OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.zero,
+                  gapPadding: 8,
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.zero,
+                  gapPadding: 8,
+                ),
+                contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
+                  child: ButtonFactory.buildOvalButton(
+                    onTapped: () {
+                      if (_textEditingController.text.isNotEmpty) {
+                        context
+                            .read<PostDetailPresenter>()
+                            .createComment(_textEditingController.text)
+                            .then((_) => _textEditingController.value = TextEditingValue.empty);
+                      }
+                    },
+                    text: '전송',
+                    style: OvalButtonStyle.fill(
+                      color: ColorStyles.black,
+                      textColor: ColorStyles.white,
+                      size: OvalButtonSize.large,
+                    ),
+                  ),
+                ),
+                suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
+                constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+              ),
+            ),
+          ],
         ),
       ),
     );
