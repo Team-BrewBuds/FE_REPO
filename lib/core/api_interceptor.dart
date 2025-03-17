@@ -52,6 +52,9 @@ final class ApiInterceptor extends Interceptor {
 
       // 재발급 받은 AccessToken 등록
       final accessToken = resp.data['access'];
+      final newRefreshToken = resp.data['refresh'];
+
+      await AccountRepository.instance.saveToken(accessToken: accessToken, refreshToken: newRefreshToken);
 
       final options = err.requestOptions;
 
@@ -59,8 +62,6 @@ final class ApiInterceptor extends Interceptor {
         options.headers.remove('Authorization');
       }
       options.headers.addAll({'Authorization': 'Bearer $accessToken'});
-
-      AccountRepository.instance.saveToken(accessToken: accessToken, refreshToken: resp.data['refresh']);
 
       final response = await dio.fetch(options);
 

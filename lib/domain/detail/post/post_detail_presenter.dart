@@ -8,7 +8,15 @@ import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
 import 'package:flutter/foundation.dart';
 
-typedef ProfileInfo = ({int? authorId, String nickName, String profileImageUrl, String createdAt, String viewCount});
+typedef ProfileInfo = ({
+  int? authorId,
+  String nickName,
+  String profileImageUrl,
+  String createdAt,
+  String viewCount,
+  bool isFollow,
+  bool isMine,
+});
 typedef BodyInfo = ({
   List<String> imageUrlList,
   List<TastedRecordInPost> tastingRecords,
@@ -19,6 +27,7 @@ typedef BodyInfo = ({
 });
 typedef BottomButtonInfo = ({int likeCount, bool isLiked, int commentCount, bool isSaved});
 typedef CommentsInfo = ({int? authorId, DefaultPage<Comment> page});
+typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String authorNickname});
 
 final class PostDetailPresenter extends ChangeNotifier {
   final PostRepository _postRepository = PostRepository.instance;
@@ -28,6 +37,7 @@ final class PostDetailPresenter extends ChangeNotifier {
   DefaultPage<Comment> _page = DefaultPage.initState();
   int _pageNo = 1;
   Post? _post;
+  Comment? _parentComment;
 
   int? get authorId => _post?.author.id;
 
@@ -37,6 +47,8 @@ final class PostDetailPresenter extends ChangeNotifier {
         profileImageUrl: _post?.author.profileImageUrl ?? '',
         createdAt: _post?.createdAt ?? '',
         viewCount: '${_post?.viewCount ?? 0}',
+        isFollow: _post?.isAuthorFollowing ?? false,
+        isMine: isMine,
       );
 
   BodyInfo get bodyInfo => (
@@ -62,6 +74,11 @@ final class PostDetailPresenter extends ChangeNotifier {
 
   bool get isMine => AccountRepository.instance.id == _post?.author.id;
 
+  CommentTextFieldState get commentTextFieldState => (
+        prentCommentAuthorNickname: _parentComment?.author.nickname,
+        authorNickname: _post?.author.nickname ?? '',
+      );
+
   PostDetailPresenter({
     required this.id,
   });
@@ -71,7 +88,7 @@ final class PostDetailPresenter extends ChangeNotifier {
     _page = DefaultPage.initState();
     notifyListeners();
     await _fetchPost();
-    await _fetchPost();
+    await fetchMorComments();
   }
 
   _fetchPost() async {
@@ -82,9 +99,18 @@ final class PostDetailPresenter extends ChangeNotifier {
   fetchMorComments() async {
     if (!_page.hasNext) return;
     final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'post', id: id, pageNo: _pageNo);
-    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
+    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
     _pageNo += 1;
     notifyListeners();
+  }
+
+  onTappedFollowButton() {
+    final currentPost = _post;
+    if (currentPost != null) {
+      _postRepository.follow(post: currentPost).then((value) {
+        _fetchPost();
+      });
+    }
   }
 
   onTappedLikeButton() {
@@ -118,7 +144,7 @@ final class PostDetailPresenter extends ChangeNotifier {
 
   reloadComments() async {
     final List<Comment> newComments = [];
-    for (int pageNo = 1; pageNo <= _pageNo; pageNo++) {
+    for (int pageNo = 1; pageNo < _pageNo; pageNo++) {
       final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'post', id: id, pageNo: pageNo);
       newComments.addAll(newPage.results);
     }
@@ -126,7 +152,6 @@ final class PostDetailPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  //isSave 구현 후 구현
   onTappedSaveButton() {
     final currentPost = _post;
     if (currentPost != null) {
@@ -136,9 +161,33 @@ final class PostDetailPresenter extends ChangeNotifier {
     }
   }
 
-  //댓글 기능 구현 필요
-  createComment(String text) {}
+  Future<void> createComment(String text) {
+    final parentComment = _parentComment;
+    if (parentComment != null) {
+      return _commentsRepository
+          .createNewComment(feedType: 'post', id: id, content: text, parentId: parentComment.id)
+          .then((_) {
+        _parentComment = null;
+        reloadComments();
+      });
+    } else {
+      return _commentsRepository.createNewComment(feedType: 'post', id: id, content: text).then((_) {
+        reloadComments();
+      });
+    }
+  }
 
-  //댓글 기능 구현 필요
-  createReComment(String text, Comment targetComment) {}
+  bool isMineComment(Comment comment) {
+    return comment.author.id == AccountRepository.instance.id;
+  }
+
+  onTappedReply(Comment comment) {
+    _parentComment = comment;
+    notifyListeners();
+  }
+
+  cancelReply() {
+    _parentComment = null;
+    notifyListeners();
+  }
 }

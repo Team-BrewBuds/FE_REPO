@@ -16,10 +16,10 @@ typedef BeanInfoState = ({
   List<String> flavors
 });
 typedef BeanDetailState = ({
-  String? country,
+  List<String>? country,
   String? region,
   String? variety,
-  String? process,
+  List<String>? process,
   String? roastPoint,
   String? roastery,
   String? extraction,
@@ -35,6 +35,8 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
 
   String get name => _coffeeBeanDetail?.name ?? '';
 
+  bool get isSaved => _coffeeBeanDetail?.isUserNoted ?? false;
+
   BeanInfoState get beanInfoState => (
         name: _coffeeBeanDetail?.name ?? '',
         type: (_coffeeBeanDetail?.type ?? CoffeeBeanType.singleOrigin).toString(),
@@ -45,10 +47,10 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
       );
 
   BeanDetailState get beanDetailState => (
-        country: _coffeeBeanDetail?.country.join(','),
+        country: _coffeeBeanDetail?.country,
         region: _coffeeBeanDetail?.region,
         variety: _coffeeBeanDetail?.variety,
-        process: _coffeeBeanDetail?.process,
+        process: _coffeeBeanDetail?.process?.split(',').where((element) => element.isNotEmpty).toList(),
         roastPoint: _roastingPointToString(_coffeeBeanDetail?.roastPoint),
         roastery: _coffeeBeanDetail?.roastery,
         extraction: _coffeeBeanDetail?.extraction,
@@ -61,11 +63,7 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
         sweetness: _coffeeBeanDetail?.sweetness ?? 0,
       );
 
-  List<TopFlavor> get topFlavors => [
-        TopFlavor(flavor: '꽃', percent: 55),
-        TopFlavor(flavor: '초콜릿', percent: 23),
-        TopFlavor(flavor: '트로피칼', percent: 90),
-      ]..sort((a, b) => b.percent.compareTo(a.percent));
+  List<TopFlavor> get topFlavors => _coffeeBeanDetail?.topFlavors ?? [];
 
   DefaultPage<TastedRecordInCoffeeBean> get page => _page;
 
@@ -95,7 +93,7 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
   fetchTastedRecords() async {
     if (_page.hasNext) {
       final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
+      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
       notifyListeners();
     }
   }
@@ -103,6 +101,13 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
   fetchRecommendedCoffeeBeans() async {
     _recommendedCoffeeBeanList = List.from(await _coffeeBeanRepository.fetchRecommendedCoffeeBean());
     notifyListeners();
+  }
+
+  onTapSave() {
+    _coffeeBeanRepository.save(id: id, isSaved: isSaved).then((_) {
+      _coffeeBeanDetail = _coffeeBeanDetail?.copyWith(isUserNoted: !isSaved);
+      notifyListeners();
+    });
   }
 
   String? _roastingPointToString(int? roastingPoint) {

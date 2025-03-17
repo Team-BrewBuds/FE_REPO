@@ -57,4 +57,6 @@ class CommentsRepository {
   Future<void> likeComment({required int id}) => _likeApi.like(type: 'comment', id: id);
 
   Future<void> unLikeComment({required int id}) => _likeApi.unlike(type: 'comment', id: id);
+
+  Future<Comment> fetchComment({required int id}) => _api.fetchComment(id: id).then((value) => value.toDomain());
 }

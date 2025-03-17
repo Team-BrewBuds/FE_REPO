@@ -5,9 +5,10 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
-import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_screen.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
+import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
+import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
@@ -61,7 +62,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
                   children: [
                     Selector<CoffeeBeanDetailPresenter, BeanDetailState>(
                       selector: (context, presenter) => presenter.beanDetailState,
-                      builder: (context, state, child) => _buildBeanDetail(
+                      builder: (context, state, child) => BeanDetail(
                         country: state.country,
                         region: state.region,
                         variety: state.variety,
@@ -74,10 +75,10 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
                     const SizedBox(height: 32),
                     Selector<CoffeeBeanDetailPresenter, BeanTasteState>(
                       selector: (context, presenter) => presenter.beanTasteState,
-                      builder: (context, state, child) => _buildTastingGraph(
+                      builder: (context, state, child) => TasteGraph(
                         bodyValue: state.body,
                         acidityValue: state.acidity,
-                        acerbityValue: state.bitterness,
+                        bitternessValue: state.bitterness,
                         sweetnessValue: state.sweetness,
                       ),
                     ),
@@ -106,6 +107,10 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: Selector<CoffeeBeanDetailPresenter, bool>(
+        selector: (context, presenter) => presenter.isSaved,
+        builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
       ),
     );
   }
@@ -151,6 +156,57 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
           width: double.infinity,
           height: 1,
           color: ColorStyles.gray20,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomButtons({required bool isSaved}) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                context.read<CoffeeBeanDetailPresenter>().onTapSave();
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                decoration: const BoxDecoration(
+                  color: ColorStyles.gray30,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/icons/save.svg',
+                      colorFilter: ColorFilter.mode(isSaved ? ColorStyles.red : ColorStyles.black, BlendMode.srcIn),
+                    ),
+                    const Text('저장', style: TextStyles.labelMediumMedium),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.black,
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                  child: Text(
+                    '시음기록 작성하기',
+                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -254,156 +310,6 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
     );
   }
 
-  Widget _buildBeanDetail({
-    String? country,
-    String? region,
-    String? variety,
-    String? process,
-    String? roastPoint,
-    String? roastery,
-    String? extraction,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text(
-          '원두 상세정보',
-          style: TextStyles.title02SemiBold,
-        ),
-        const SizedBox(height: 20),
-        ...[
-          _buildDetailItem(title: '생산 국가', content: country),
-          _buildDetailItem(title: '원산지', content: region),
-          _buildDetailItem(title: '품종', content: variety),
-          _buildDetailItem(title: '가공방식', content: process),
-          _buildDetailItem(title: '로스팅 포인트', content: roastPoint),
-          _buildDetailItem(title: '로스터리', content: roastery),
-          _buildDetailItem(title: '추출방식', content: extraction),
-        ].separator(separatorWidget: const SizedBox(height: 13))
-      ],
-    );
-  }
-
-  Widget _buildDetailItem({required String title, String? content}) {
-    return content != null
-        ? Row(
-            children: [
-              Text(title, style: TextStyles.labelMediumMedium),
-              Expanded(child: Text(content, style: TextStyles.labelMediumMedium, textAlign: TextAlign.right)),
-            ],
-          )
-        : const SizedBox.shrink();
-  }
-
-  Widget _buildTastingGraph({
-    required int bodyValue,
-    required int acidityValue,
-    required int acerbityValue,
-    required int sweetnessValue,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('테이스팅', style: TextStyles.title02SemiBold),
-        const SizedBox(height: 24),
-        _buildTasteSlider(minText: '트로피칼', maxText: '무거운', value: bodyValue),
-        const SizedBox(height: 20),
-        _buildTasteSlider(minText: '산미약한', maxText: '산미강한', value: acidityValue),
-        const SizedBox(height: 20),
-        _buildTasteSlider(minText: '쓴맛약한', maxText: '쓴맛강한', value: acerbityValue),
-        const SizedBox(height: 20),
-        _buildTasteSlider(minText: '단맛약한', maxText: '단맛강한', value: sweetnessValue),
-      ],
-    );
-  }
-
-  Widget _buildTasteSlider({required String minText, required String maxText, required int value}) {
-    final activeStyle = TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red);
-    final inactiveStyle = TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60);
-    return SizedBox(
-      height: 16,
-      width: double.infinity,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 46,
-            child: Text(
-              minText,
-              textAlign: TextAlign.center,
-              style: value < 3 ? activeStyle : inactiveStyle,
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final barWidth = (constraints.maxWidth - 12) / 4;
-                  return Stack(
-                    alignment: Alignment.center,
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        child: Row(
-                          children: [
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                            const SizedBox(width: 4),
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                            const SizedBox(width: 4),
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                            const SizedBox(width: 4),
-                            Expanded(child: Container(height: 2, color: const Color(0xFFD9D9D9))),
-                          ],
-                        ),
-                      ),
-                      if (value == 1)
-                        Positioned(
-                          left: 0 - 7,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                          ),
-                        )
-                      else if (value == 5)
-                        Positioned(
-                          right: 0 - 7,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                          ),
-                        )
-                      else if (value > 1 && value < 5)
-                        Positioned(
-                          left: (barWidth * (value - 1)) + ((value - 2) * 4) - 5,
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                          ),
-                        ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 46,
-            child: Text(
-              maxText,
-              textAlign: TextAlign.center,
-              style: value > 3 ? activeStyle : inactiveStyle,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTopFlavors({required List<TopFlavor> topFlavors}) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 48),
@@ -429,18 +335,24 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
     return Row(
       children: [
         SizedBox(
-          width: 80,
+          width: 83,
           child: Row(
             children: [
-              Text('$rank',
-                  style: TextStyles.title05Bold.copyWith(color: rank == 1 ? ColorStyles.red : ColorStyles.gray50)),
+              SizedBox(
+                width: 20,
+                child: Text(
+                  '$rank',
+                  style: TextStyles.title05Bold.copyWith(color: rank == 1 ? ColorStyles.red : ColorStyles.gray50),
+                ),
+              ),
               const SizedBox(width: 2),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Text(
                   flavor,
-                  style:
-                      TextStyles.labelSmallSemiBold.copyWith(color: rank == 1 ? ColorStyles.red : ColorStyles.gray50),
+                  style: TextStyles.labelSmallSemiBold.copyWith(
+                    color: rank == 1 ? ColorStyles.red : ColorStyles.gray50,
+                  ),
                 ),
               ),
             ],
@@ -549,9 +461,9 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: const Text('추천 원두', style: TextStyles.title02SemiBold),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('추천 원두', style: TextStyles.title02SemiBold),
           ),
           const SizedBox(height: 16),
           SingleChildScrollView(

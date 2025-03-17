@@ -1,24 +1,27 @@
 import 'package:brew_buds/data/dto/post/post_dto.dart';
 import 'package:brew_buds/data/mapper/post/post_subject_mapper.dart';
+import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_post_mapper.dart';
 import 'package:brew_buds/data/mapper/user/user_mapper.dart';
 import 'package:brew_buds/model/post/post.dart';
 
 extension PostDTOMapper on PostDTO {
   Post toDomain() => Post(
-      id: id,
-      author: author.toDomain(),
-      isAuthorFollowing: interaction.isFollowing,
-      createdAt: createdAt,
-      viewCount: viewCount,
-      likeCount: likeCount,
-      commentsCount: commentsCount,
-      subject: subject.toDomain(),
-      title: title,
-      contents: contents,
-      tag: tag,
-      isSaved: interaction.isSaved,
-      isLiked: interaction.isLiked,
-    );
+        id: id,
+        author: author.toDomain(),
+        isAuthorFollowing: interaction.isFollowing,
+        createdAt: createdAt,
+        viewCount: viewCount,
+        likeCount: likeCount,
+        commentsCount: commentsCount,
+        subject: subject.toDomain(),
+        title: title,
+        contents: contents,
+        tag: tag,
+        isSaved: interaction.isSaved,
+        isLiked: interaction.isLiked,
+        imagesUrl: imagesUrl,
+        tastingRecords: tastingRecords.map((e) => e.toDomain()).toList(),
+      );
 }
 
 extension PostToJson on Post {
@@ -29,6 +32,7 @@ extension PostToJson on Post {
         json[key] = value;
       }
     }
+
     json['title'] = title;
     json['content'] = contents;
     writeNotNull('subject', subject.toJson());
@@ -43,6 +47,7 @@ extension PostToJson on Post {
         json[key] = value;
       }
     }
+
     json['title'] = title;
     json['content'] = contents;
     writeNotNull('subject', subject.toJson());
@@ -58,6 +63,7 @@ extension PostToJson on Post {
         json[key] = value;
       }
     }
+
     json['title'] = title;
     json['content'] = contents;
     writeNotNull('subject', subject.toJson());

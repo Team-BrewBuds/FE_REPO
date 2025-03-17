@@ -50,6 +50,7 @@ dependencies:
   flutter_localization: ^0.2.1
   flutter_launcher_icons: ^0.14.3
   shared_preferences: ^2.2.3
+  super_tooltip: ^2.0.9
 
 flutter_native_splash:
   color: "#FFFFFF"

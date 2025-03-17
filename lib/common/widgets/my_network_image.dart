@@ -10,7 +10,8 @@ class MyNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExtendedImage.network(
+
+    return imageUrl.isNotEmpty ? ExtendedImage.network(
       imageUrl,
       height: height,
       width: width,
@@ -36,6 +37,14 @@ class MyNetworkImage extends StatelessWidget {
             );
         }
       },
+    ) : Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        color: const Color(0xffd9d9d9),
+        shape: shape ?? BoxShape.rectangle,
+        border: border,
+      ),
     );
   }
 

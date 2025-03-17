@@ -8,23 +8,27 @@ import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:flutter/foundation.dart';
 
 typedef BottomButtonInfo = ({int likeCount, bool isLiked, int commentCount, bool isSaved});
-typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow});
+typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow, bool isMine});
 typedef ContentsInfo = ({double rating, List<String> flavors, String tastedAt, String contents, String location});
 typedef BeanInfo = ({
   String? beanType,
-  bool? isDecaf,
-  List<String> country,
+  List<String>? country,
   String? region,
-  String? process,
+  List<String>? process,
+  String? variety,
+  String? extraction,
+  String? roastery,
   String? roastingPoint,
 });
 typedef CommentsInfo = ({int? authorId, DefaultPage<Comment> page});
+typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String authorNickname});
 
 final class TastedRecordPresenter extends ChangeNotifier {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   final int id;
 
+  Comment? _parentComment;
   TastedRecord? _tastedRecord;
   DefaultPage<Comment> _page = DefaultPage.initState();
   int _pageNo = 1;
@@ -46,7 +50,8 @@ final class TastedRecordPresenter extends ChangeNotifier {
         nickName: _tastedRecord?.author.nickname ?? '',
         authorId: _tastedRecord?.author.id,
         profileImageUrl: _tastedRecord?.author.profileImageUrl ?? '',
-        isFollow: false,
+        isFollow: _tastedRecord?.isAuthorFollowing ?? false,
+        isMine: isMine,
       );
 
   ContentsInfo get contentsInfo => (
@@ -59,16 +64,35 @@ final class TastedRecordPresenter extends ChangeNotifier {
 
   TasteReview? get tastingReview => _tastedRecord?.tastingReview;
 
+  String? get beanType {
+    final type = _tastedRecord?.bean.type.toString();
+    final isDecaf = _tastedRecord?.bean.isDecaf;
+    if (type != null && isDecaf != null) {
+      return '$type${isDecaf ? '(디카페인)' : ''}';
+    } else if (type != null && isDecaf == null) {
+      return type;
+    } else {
+      return null;
+    }
+  }
+
   BeanInfo get beanInfo => (
-        beanType: _tastedRecord?.bean.type.toString(),
-        isDecaf: _tastedRecord?.bean.isDecaf,
-        country: _tastedRecord?.bean.country?.map((country) => country.toString()).toList() ?? [],
+        beanType: beanType,
+        country: _tastedRecord?.bean.country?.map((country) => country.toString()).toList(),
         region: _tastedRecord?.bean.region,
-        process: _tastedRecord?.bean.process,
+        process: _tastedRecord?.bean.process?.split(',').where((element) => element.isNotEmpty).toList(),
+        variety: _tastedRecord?.bean.variety,
+        extraction: _tastedRecord?.bean.extraction,
+        roastery: _tastedRecord?.bean.roastery,
         roastingPoint: roastingPointToString(_tastedRecord?.bean.roastPoint),
       );
 
   CommentsInfo get commentsInfo => (authorId: _tastedRecord?.author.id, page: _page);
+
+  CommentTextFieldState get commentTextFieldState => (
+        prentCommentAuthorNickname: _parentComment?.author.nickname,
+        authorNickname: _tastedRecord?.author.nickname ?? '',
+      );
 
   TastedRecordPresenter({
     required this.id,
@@ -84,15 +108,23 @@ final class TastedRecordPresenter extends ChangeNotifier {
 
   _fetchTastedRecord() async {
     _tastedRecord = await _tastedRecordRepository.fetchTastedRecord(id: id);
-    print(_tastedRecord?.tastingReview.body);
     notifyListeners();
   }
 
   fetchMoreComments() async {
     final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'tasted_record', id: id, pageNo: _pageNo);
-    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
+    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
     _pageNo += 1;
     notifyListeners();
+  }
+
+  onTappedFollowButton() {
+    final currentTastingRecord = _tastedRecord;
+    if (currentTastingRecord != null) {
+      _tastedRecordRepository
+          .follow(id: currentTastingRecord.id, isFollow: currentTastingRecord.isAuthorFollowing)
+          .then((value) => _fetchTastedRecord());
+    }
   }
 
   onTappedLikeButton() {
@@ -126,15 +158,14 @@ final class TastedRecordPresenter extends ChangeNotifier {
 
   reloadComments() async {
     final List<Comment> newComments = [];
-    for (int pageNo = 1; pageNo <= _pageNo; pageNo++) {
-      final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'post', id: id, pageNo: pageNo);
+    for (int pageNo = 1; pageNo < _pageNo; pageNo++) {
+      final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'tasted_record', id: id, pageNo: pageNo);
       newComments.addAll(newPage.results);
     }
     _page = _page.copyWith(results: newComments);
     notifyListeners();
   }
 
-  //isSave 구현 후 구현
   onTappedSaveButton() {
     final currentTastingRecord = _tastedRecord;
     if (currentTastingRecord != null) {
@@ -144,11 +175,35 @@ final class TastedRecordPresenter extends ChangeNotifier {
     }
   }
 
-  //댓글 기능 구현 필요
-  createComment(String text) {}
+  Future<void> createComment(String text) {
+    final parentComment = _parentComment;
+    if (parentComment != null) {
+      return _commentsRepository
+          .createNewComment(feedType: 'tasted_record', id: id, content: text, parentId: parentComment.id)
+          .then((_) {
+        _parentComment = null;
+        reloadComments();
+      });
+    } else {
+      return _commentsRepository.createNewComment(feedType: 'tasted_record', id: id, content: text).then((_) {
+        reloadComments();
+      });
+    }
+  }
 
-  //댓글 기능 구현 필요
-  createReComment(String text, Comment targetComment) {}
+  bool isMineComment(Comment comment) {
+    return comment.author.id == AccountRepository.instance.id;
+  }
+
+  onTappedReply(Comment comment) {
+    _parentComment = comment;
+    notifyListeners();
+  }
+
+  cancelReply() {
+    _parentComment = null;
+    notifyListeners();
+  }
 
   String? roastingPointToString(int? roastingPoint) {
     if (roastingPoint == 1) {
