@@ -18,6 +18,5 @@ Future<Uint8List> compressList(Uint8List list) async {
     minHeight = (minHeight * 0.9).round();
     minWidth = (minWidth * 0.9).round();
   }
-  print(result.length);
   return result;
 }

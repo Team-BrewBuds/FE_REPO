@@ -3,7 +3,6 @@ import 'package:brew_buds/common/extension/date_time_ext.dart';
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
-import 'package:brew_buds/data/api/tasted_record_api.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
@@ -84,7 +83,7 @@ final class TastingWritePresenter extends ChangeNotifier {
   lastPageInitState() {
     _contents = '';
     _hashTag = '';
-    _tasteReview = _tasteReview.copyWith(star: 0, place: '미구현', tastedAt: DateTime.now().toDefaultString());
+    _tasteReview = _tasteReview.copyWith(star: 0, place: '', tastedAt: DateTime.now().toDefaultString());
     _isPrivate = false;
     notifyListeners();
   }
@@ -121,6 +120,7 @@ final class TastingWritePresenter extends ChangeNotifier {
           tag: _hashTag,
           coffeeBean: _coffeeBean,
           tasteReview: _tasteReview,
+          photos: imageCreatedResult,
         )
         .then((value) => Result.success('시음기록 작성 성공'))
         .onError((error, stackTrace) => Result.error('시음기록 작성에 실패했습니다.'));
