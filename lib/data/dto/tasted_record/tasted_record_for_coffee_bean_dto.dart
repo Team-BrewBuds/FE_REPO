@@ -7,7 +7,7 @@ part 'tasted_record_for_coffee_bean_dto.g.dart';
 class TastedRecordInCoffeeBeanDTO {
   @JsonKey(defaultValue: 0)
   final int id;
-  @JsonKey(name: 'author_nickname', defaultValue: '')
+  @JsonKey(name: 'author', defaultValue: '')
   final String nickname;
   @JsonKey(name: 'content', defaultValue: '')
   final String contents;

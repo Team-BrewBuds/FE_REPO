@@ -1,20 +1,21 @@
+import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/model/taste_report/activity_item.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
-import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/noted/noted_object.dart';
-import 'package:brew_buds/model/post/post_in_profile.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:brew_buds/model/common/top_flavor.dart';
+import 'package:brew_buds/model/taste_report/rating_distribution.dart';
+import 'package:brew_buds/model/taste_report/top_country.dart';
 import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/activity_calendar_builder.dart';
 import 'package:brew_buds/domain/profile/widgets/profile_post_item_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_coffee_bean_widget.dart';
-import 'package:brew_buds/domain/profile/widgets/saved_post_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_tasting_record_widget.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,8 +31,16 @@ class TasteReportView extends StatefulWidget {
 }
 
 class _TasteReportViewState extends State<TasteReportView> with SingleTickerProviderStateMixin {
+  final Map<int, Color> colorMap = {
+    1: ColorStyles.red,
+    2: ColorStyles.gray40,
+    3: ColorStyles.gray30,
+    4: ColorStyles.gray20,
+    5: ColorStyles.gray10,
+  };
   final GlobalKey _scrollViewKey = GlobalKey();
   final List<GlobalKey> _keyList = [GlobalKey(), GlobalKey(), GlobalKey(), GlobalKey()];
+  bool _isExpanded = false;
   late final TabController _tabController;
   late final ScrollController _scrollController;
 
@@ -40,6 +49,9 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     _tabController = TabController(length: 4, vsync: this);
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<TasteReportPresenter>().initState();
+    });
     super.initState();
   }
 
@@ -110,11 +122,20 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
           _buildActivityList(),
           SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-          _buildRatingGraph(),
+          Selector<TasteReportPresenter, RatingDistribution?>(
+            selector: (context, presenter) => presenter.ratingDistribution,
+            builder: (context, ratingDistribution, child) => _buildRatingGraph(ratingDistribution: ratingDistribution),
+          ),
           SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-          _buildFlavor(),
+          Selector<TasteReportPresenter, List<TopFlavor>>(
+            selector: (context, presenter) => presenter.topFlavor,
+            builder: (context, topFlavors, child) => _buildFlavor(topFlavors: topFlavors),
+          ),
           SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-          _buildCountry(),
+          Selector<TasteReportPresenter, List<TopCountry>>(
+            selector: (context, presenter) => presenter.topCountry,
+            builder: (context, topCountry, child) => _buildCountry(topCountryList: topCountry),
+          ),
         ],
       ),
     );
@@ -163,17 +184,13 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     required int savedNoteCount,
     required int savedBeanCount,
   }) {
-    String countToString(int count) {
-      if (count == 0) {
-        return '000';
-      } else if (count >= 1000 && count < 1000000) {
-        return '${count / 1000}.${count / 100}K';
-      } else if (count >= 1000000 && count < 1000000000) {
-        return '${count / 1000000}.${count / 100000}M';
-      } else if (count >= 1000000000) {
-        return '${count / 1000000000}.${count / 10000000}G';
+    String countToString(int num) {
+      if (num >= 1000000) {
+        return '${(num / 1000000).toStringAsFixed(1)}M';
+      } else if (num >= 1000) {
+        return '${(num / 1000).toStringAsFixed(1)}K';
       } else {
-        return '$count';
+        return num.toString();
       }
     }
 
@@ -352,9 +369,9 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
       height: 16.8 / 14,
       letterSpacing: -0.01,
     );
-    return Selector<TasteReportPresenter, DateTime>(
-      selector: (context, presenter) => presenter.focusedDay,
-      builder: (context, focusedDay, child) => Column(
+    return Selector<TasteReportPresenter, ActivityCalendarState>(
+      selector: (context, presenter) => presenter.activityCalendarState,
+      builder: (context, state, child) => Column(
         children: [
           Container(
             height: 42,
@@ -368,11 +385,21 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 ),
                 Row(
                   children: [
-                    SvgPicture.asset('assets/icons/back.svg', height: 24, width: 24),
+                    GestureDetector(
+                      onTap: () {
+                        context.read<TasteReportPresenter>().movePreviousMonth();
+                      },
+                      child: SvgPicture.asset('assets/icons/back.svg', height: 24, width: 24),
+                    ),
                     const SizedBox(width: 20),
-                    Text('${focusedDay.year}년 ${focusedDay.month}월', style: TextStyles.title01SemiBold),
+                    Text('${state.focusedDay.year}년 ${state.focusedDay.month}월', style: TextStyles.title01SemiBold),
                     const SizedBox(width: 20),
-                    SvgPicture.asset('assets/icons/arrow.svg', height: 24, width: 24),
+                    GestureDetector(
+                      onTap: () {
+                        context.read<TasteReportPresenter>().moveNextMonth();
+                      },
+                      child: SvgPicture.asset('assets/icons/arrow.svg', height: 24, width: 24),
+                    ),
                   ],
                 ),
                 GestureDetector(
@@ -390,8 +417,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           const SizedBox(height: 13),
           TableCalendar(
             locale: 'ko_KR',
-            focusedDay: focusedDay,
-            selectedDayPredicate: (day) => false,
+            focusedDay: state.focusedDay,
+            selectedDayPredicate: (day) => isSameDay(state.selectedDay, day),
             calendarFormat: CalendarFormat.month,
             firstDay: DateTime(1970, 1, 1),
             lastDay: DateTime(2099, 12, 31),
@@ -404,7 +431,12 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               weekdayStyle: daysOfWeekTextStyle,
             ),
             calendarStyle: const CalendarStyle(isTodayHighlighted: false, outsideDaysVisible: false),
-            calendarBuilders: ActivityCalendarBuilder(fetchActivityCount: (DateTime day) => 1),
+            calendarBuilders: ActivityCalendarBuilder(fetchActivityCount: (DateTime day) {
+              return state.activityCount[day.toDefaultString()] ?? 0;
+            }),
+            onDaySelected: (day, _) {
+              context.read<TasteReportPresenter>().onSelectedDay(day);
+            },
             onPageChanged: (day) {
               context.read<TasteReportPresenter>().onPageChange(day);
             },
@@ -417,96 +449,84 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
   Widget _buildActivityList() {
     return SliverToBoxAdapter(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: ColorStyles.gray20)),
         ),
         child: Selector<TasteReportPresenter, ActivityListState>(
           selector: (context, presenter) => presenter.activityListState,
           builder: (context, activityListState, child) {
-            return ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              title: Text(
-                '${activityListState.currentActivityType} | ${activityListState.page.results.length}',
-                style: TextStyles.labelMediumMedium,
-              ),
-              iconColor: ColorStyles.black,
-              initiallyExpanded: true,
-              shape: const Border(),
-              collapsedShape: const Border(),
-              children: List<Widget>.generate(
-                activityListState.page.results.length,
-                (index) {
-                  final activity = activityListState.page.results[index];
-                  if (activity is TastedRecordInProfile) {
-                    return GestureDetector(
-                      onTap: () {
-                        showTastingRecordDetail(context: context, id: activity.id);
-                      },
-                      child: SavedTastingRecordWidget(
-                        beanName: activity.beanName,
-                        rating: '4.5',
-                        likeCount: '22',
-                        flavor: [],
-                        imageUri: activity.imageUrl,
-                      ),
-                    );
-                  } else if (activity is PostInProfile) {
-                    return GestureDetector(
-                      onTap: () {
-                        showTastingRecordDetail(context: context, id: activity.id);
-                      },
-                      child: ProfilePostItemWidget(
-                        title: activity.title,
-                        author: activity.author,
-                        createdAt: activity.createdAt,
-                        subject: activity.subject,
-                      ),
-                    );
-                  } else if (activity is BeanInProfile) {
-                    return SavedCoffeeBeanWidget(
-                      name: activity.name,
-                      rating: activity.rating,
-                      tastedRecordsCount: activity.tastedRecordsCount,
-                      imageUri: '',
-                    );
-                  } else if (activity is NotedPost) {
-                    return GestureDetector(
-                      onTap: () {
-                        showTastingRecordDetail(context: context, id: activity.id);
-                      },
-                      child: SavedPostWidget(
-                        title: activity.title,
-                        subject: activity.subject.toString(),
-                        createdAt: activity.createdAt,
-                        author: activity.author,
-                        imageUri: activity.imageUrl,
-                      ),
-                    );
-                  } else if (activity is NotedTastedRecord) {
-                    return GestureDetector(
-                      onTap: () {
-                        showTastingRecordDetail(context: context, id: activity.id);
-                      },
-                      child: SavedTastingRecordWidget(
-                        beanName: activity.beanName,
-                        rating: '4.5',
-                        likeCount: '22',
-                        flavor: activity.flavor,
-                        imageUri: activity.imageUrl,
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              )
-                  .separator(
-                      separatorWidget: Container(
-                    height: 1,
-                    color: ColorStyles.gray30,
-                  ))
-                  .toList(),
+            return Column(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    _toggleExpanded();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Text(
+                          '${activityListState.currentActivityType} (${activityListState.items.length})',
+                          style: TextStyles.title02Bold,
+                        ),
+                        const Spacer(),
+                        if (_isExpanded)
+                          SvgPicture.asset('assets/icons/up.svg', width: 24, height: 24)
+                        else
+                          SvgPicture.asset('assets/icons/down.svg', width: 24, height: 24)
+                      ],
+                    ),
+                  ),
+                ),
+                if (_isExpanded)
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: activityListState.items.length,
+                    itemBuilder: (context, index) {
+                      final activity = activityListState.items[index];
+                      switch (activity) {
+                        case PostActivityItem():
+                          return GestureDetector(
+                            onTap: () {
+                              showTastingRecordDetail(context: context, id: activity.id);
+                            },
+                            child: ProfilePostItemWidget(
+                              title: activity.title,
+                              author: activity.author,
+                              createdAt: activity.createdAt,
+                              subject: activity.subject,
+                            ),
+                          );
+                        case TastedRecordActivityItem():
+                          return GestureDetector(
+                            onTap: () {
+                              showTastingRecordDetail(context: context, id: activity.id);
+                            },
+                            child: SavedTastingRecordWidget(
+                              beanName: activity.beanName,
+                              rating: '4.5',
+                              likeCount: '22',
+                              flavor: [],
+                              imageUri: activity.thumbnail,
+                            ),
+                          );
+                        case SavedBeanActivityItem():
+                          return SavedCoffeeBeanWidget(
+                            name: activity.name,
+                            rating: '${activity.rating}',
+                            tastedRecordsCount: 0,
+                            imageUri: '',
+                          );
+                      }
+                    },
+                    separatorBuilder: (context, index) => Container(
+                      height: 1,
+                      color: ColorStyles.gray30,
+                    ),
+                  )
+              ],
             );
           },
         ),
@@ -514,8 +534,15 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     );
   }
 
-  Widget _buildRatingGraph() {
-    List<String> _test = ['', '0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', ''];
+  _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
+
+  Widget _buildRatingGraph({required RatingDistribution? ratingDistribution}) {
+    List<String> ratingKey = ['0.0', '0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5'];
+
     return SliverToBoxAdapter(
       child: Column(
         key: _keyList[1],
@@ -526,220 +553,116 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
             child: Text('별점 분포', style: TextStyles.title02Bold),
           ),
           const SizedBox(height: 24),
-          Container(
-            height: 100,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: BarChart(
-              BarChartData(
-                barGroups: [
-                  BarChartGroupData(
-                    x: 0,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.00,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
+          if (ratingDistribution != null) ...[
+            Container(
+              height: 100,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BarChart(
+                BarChartData(
+                  barGroups: List<BarChartGroupData>.generate(ratingKey.length, (index) {
+                    final rating = ratingKey[index];
+                    final topIndex = ratingKey.indexOf('${ratingDistribution.mostRating}');
+                    final count = ratingDistribution.ratingDistribution[rating] ?? 0;
+                    return BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(
+                          toY: index == 0 || index == 11 ? 0.0 : (count / ratingDistribution.ratingCount) + 0.01,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                          color: topIndex == index ? ColorStyles.red : ColorStyles.gray20,
+                          width: 24,
+                        ),
+                      ],
+                      showingTooltipIndicators: (index == 1 || index == 10) || topIndex == index ? [0] : null,
+                    );
+                  }),
+                  groupsSpace: 3,
+                  titlesData: const FlTitlesData(show: false),
+                  barTouchData: BarTouchData(
+                    enabled: false,
+                    touchTooltipData: BarTouchTooltipData(
+                      getTooltipColor: (_) => Colors.transparent,
+                      tooltipPadding: EdgeInsets.zero,
+                      tooltipMargin: 2,
+                      getTooltipItem: (
+                        BarChartGroupData group,
+                        int groupIndex,
+                        BarChartRodData rod,
+                        int rodIndex,
+                      ) {
+                        return BarTooltipItem(
+                          ratingKey[groupIndex],
+                          TextStyles.labelSmallSemiBold.copyWith(
+                            color: '${ratingDistribution.mostRating}' == ratingKey[groupIndex]
+                                ? ColorStyles.red
+                                : ColorStyles.gray50,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  borderData:
+                      FlBorderData(border: const Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
+                  gridData: const FlGridData(show: false),
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: 1,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              height: 73,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        ratingDistribution.avgRating.toStringAsFixed(1),
+                        style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
                       ),
+                      const SizedBox(height: 6),
+                      const Text('별점 평균', style: TextStyles.captionMediumMedium),
                     ],
                   ),
-                  BarChartGroupData(
-                    x: 1,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.15,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${ratingDistribution.ratingCount}',
+                        style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
                       ),
-                    ],
-                    showingTooltipIndicators: [0],
-                  ),
-                  BarChartGroupData(
-                    x: 2,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.01,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
+                      const SizedBox(height: 6),
+                      const Text('별점 개수', style: TextStyles.captionMediumMedium),
                     ],
                   ),
-                  BarChartGroupData(
-                    x: 3,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.01,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        ratingDistribution.mostRating.toStringAsFixed(1),
+                        style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
                       ),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 4,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.40,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 5,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.50,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.red,
-                        width: 24,
-                      ),
-                    ],
-                    showingTooltipIndicators: [0],
-                  ),
-                  BarChartGroupData(
-                    x: 6,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.10,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 7,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.20,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 8,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.30,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 9,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.05,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
-                    ],
-                  ),
-                  BarChartGroupData(
-                    x: 10,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.01,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
-                    ],
-                    showingTooltipIndicators: [0],
-                  ),
-                  BarChartGroupData(
-                    x: 11,
-                    barRods: [
-                      BarChartRodData(
-                        toY: 0.00,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                        color: ColorStyles.gray20,
-                        width: 24,
-                      ),
+                      const SizedBox(height: 6),
+                      const Text('주요 별점', style: TextStyles.captionMediumMedium),
                     ],
                   ),
                 ],
-                groupsSpace: 3,
-                titlesData: const FlTitlesData(show: false),
-                barTouchData: BarTouchData(
-                  enabled: false,
-                  touchTooltipData: BarTouchTooltipData(
-                    getTooltipColor: (_) => Colors.transparent,
-                    tooltipPadding: EdgeInsets.zero,
-                    tooltipMargin: 2,
-                    getTooltipItem: (
-                      BarChartGroupData group,
-                      int groupIndex,
-                      BarChartRodData rod,
-                      int rodIndex,
-                    ) {
-                      return BarTooltipItem(
-                        _test[groupIndex],
-                        TextStyles.labelSmallSemiBold.copyWith(
-                          color: groupIndex == 5 ? ColorStyles.red : ColorStyles.gray50,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                borderData: FlBorderData(border: const Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
-                gridData: const FlGridData(show: false),
-                alignment: BarChartAlignment.spaceAround,
-                maxY: 1,
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            height: 73,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('5.0', style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red)),
-                    const SizedBox(height: 6),
-                    const Text('별점 평균', style: TextStyles.captionMediumMedium),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('32', style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red)),
-                    const SizedBox(height: 6),
-                    const Text('별점 개수', style: TextStyles.captionMediumMedium),
-                  ],
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('4.0', style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red)),
-                    const SizedBox(height: 6),
-                    const Text('주요 별점', style: TextStyles.captionMediumMedium),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          ] else ...[
+            _buildEmpty(),
+          ],
           const SizedBox(height: 48),
         ],
       ),
     );
   }
 
-  Widget _buildFlavor() {
+  Widget _buildFlavor({required List<TopFlavor> topFlavors}) {
     return SliverToBoxAdapter(
       child: Padding(
         key: _keyList[2],
@@ -751,256 +674,74 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               padding: EdgeInsets.only(top: 24, bottom: 16),
               child: Text('선호하는 맛', style: TextStyles.title02Bold),
             ),
-            Container(
-              margin: const EdgeInsets.only(top: 16, right: 36, left: 36, bottom: 16),
-              height: 200,
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: PieChart(
-                      PieChartData(
-                        borderData: FlBorderData(show: false),
-                        startDegreeOffset: -90,
-                        sections: [
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 46.90,
-                            color: ColorStyles.red,
-                            showTitle: false,
+            if (topFlavors.isEmpty)
+              _buildEmpty()
+            else
+              Container(
+                margin: const EdgeInsets.only(top: 16, right: 36, left: 36, bottom: 16),
+                height: 200,
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: PieChart(
+                        PieChartData(
+                          borderData: FlBorderData(show: false),
+                          startDegreeOffset: -90,
+                          sections: List<PieChartSectionData>.generate(
+                            topFlavors.length,
+                            (index) {
+                              final topFlavor = topFlavors[index];
+                              return _buildSectionData(percent: topFlavor.percent, rank: index + 1);
+                            },
                           ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 22.10,
-                            color: ColorStyles.gray40,
-                            showTitle: false,
-                          ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 16.20,
-                            color: ColorStyles.gray30,
-                            showTitle: false,
-                          ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 9.60,
-                            color: ColorStyles.gray20,
-                            showTitle: false,
-                          ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 5.20,
-                            color: ColorStyles.gray10,
-                            showTitle: false,
-                          ),
-                        ],
-                        sectionsSpace: 0,
-                        centerSpaceRadius: 70,
+                          sectionsSpace: 0,
+                          centerSpaceRadius: 70,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '1',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 32,
-                                height: 38.4 / 32,
-                                letterSpacing: -0.01,
-                                color: ColorStyles.red,
+                    Positioned.fill(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '1',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 32,
+                                  height: 38.4 / 32,
+                                  letterSpacing: -0.01,
+                                  color: ColorStyles.red,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text('위', style: TextStyles.title02Bold.copyWith(color: ColorStyles.red)),
-                          ],
-                        ),
-                        const Text('트로피칼', style: TextStyles.title02Bold),
-                      ],
+                              const SizedBox(width: 4),
+                              Text('위', style: TextStyles.title02Bold.copyWith(color: ColorStyles.red)),
+                            ],
+                          ),
+                          Text(topFlavors.first.flavor, style: TextStyles.title02Bold),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.red,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.red),
-                          borderRadius: BorderRadius.circular(20),
-                          color: ColorStyles.background,
-                        ),
-                        child: Text(
-                          '트로피칼',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.red),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '46.90%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.red),
-                        ),
-                      )
-                    ],
+                children: List.generate(
+                  topFlavors.length,
+                  (index) => _buildRankRow(
+                    rank: index + 1,
+                    title: topFlavors[index].flavor,
+                    percent: topFlavors[index].percent,
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray40,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '꽃',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '22.10%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray30,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '초콜릿',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '16.20%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray20,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '부드러움',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '9.60%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray10,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '상큼',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '5.20%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                ].separator(separatorWidget: const SizedBox(height: 16)).toList(),
+                ).separator(separatorWidget: const SizedBox(height: 16)).toList(),
               ),
             ),
             Padding(
@@ -1026,7 +767,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     );
   }
 
-  Widget _buildCountry() {
+  Widget _buildCountry({required List<TopCountry> topCountryList}) {
     return SliverToBoxAdapter(
       child: Padding(
         key: _keyList[3],
@@ -1038,256 +779,74 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               padding: EdgeInsets.only(top: 24, bottom: 16),
               child: Text('선호하는 원산지', style: TextStyles.title02Bold),
             ),
-            Container(
-              margin: const EdgeInsets.only(top: 16, right: 36, left: 36, bottom: 16),
-              height: 200,
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                children: [
-                  AspectRatio(
-                    aspectRatio: 1,
-                    child: PieChart(
-                      PieChartData(
-                        borderData: FlBorderData(show: false),
-                        startDegreeOffset: -90,
-                        sections: [
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 46.90,
-                            color: ColorStyles.red,
-                            showTitle: false,
+            if (topCountryList.isEmpty)
+              _buildEmpty()
+            else
+              Container(
+                margin: const EdgeInsets.only(top: 16, right: 36, left: 36, bottom: 16),
+                height: 200,
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    AspectRatio(
+                      aspectRatio: 1,
+                      child: PieChart(
+                        PieChartData(
+                          borderData: FlBorderData(show: false),
+                          startDegreeOffset: -90,
+                          sections: List<PieChartSectionData>.generate(
+                            topCountryList.length,
+                            (index) {
+                              final topCountry = topCountryList[index];
+                              return _buildSectionData(percent: topCountry.percent, rank: index + 1);
+                            },
                           ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 22.10,
-                            color: ColorStyles.gray40,
-                            showTitle: false,
-                          ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 16.20,
-                            color: ColorStyles.gray30,
-                            showTitle: false,
-                          ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 9.60,
-                            color: ColorStyles.gray20,
-                            showTitle: false,
-                          ),
-                          PieChartSectionData(
-                            radius: 30,
-                            value: 5.20,
-                            color: ColorStyles.gray10,
-                            showTitle: false,
-                          ),
-                        ],
-                        sectionsSpace: 0,
-                        centerSpaceRadius: 70,
+                          sectionsSpace: 0,
+                          centerSpaceRadius: 70,
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned.fill(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '1',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 32,
-                                height: 38.4 / 32,
-                                letterSpacing: -0.01,
-                                color: ColorStyles.red,
+                    Positioned.fill(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '1',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 32,
+                                  height: 38.4 / 32,
+                                  letterSpacing: -0.01,
+                                  color: ColorStyles.red,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 4),
-                            Text('위', style: TextStyles.title02Bold.copyWith(color: ColorStyles.red)),
-                          ],
-                        ),
-                        const Text('에티오피아', style: TextStyles.title02Bold),
-                      ],
+                              const SizedBox(width: 4),
+                              Text('위', style: TextStyles.title02Bold.copyWith(color: ColorStyles.red)),
+                            ],
+                          ),
+                          Text(topCountryList.first.country, style: TextStyles.title02Bold),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.red,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.red),
-                          borderRadius: BorderRadius.circular(20),
-                          color: ColorStyles.background,
-                        ),
-                        child: Text(
-                          '에티오피아',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.red),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '46.90%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.red),
-                        ),
-                      )
-                    ],
+                children: List.generate(
+                  topCountryList.length,
+                  (index) => _buildRankRow(
+                    rank: index + 1,
+                    title: topCountryList[index].country,
+                    percent: topCountryList[index].percent,
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray40,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '케냐',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '22.10%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray30,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '콜롬비아',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '16.20%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray20,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '코스타리카',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '9.60%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Container(
-                        height: 22,
-                        width: 22,
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: ColorStyles.gray10,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorStyles.gray60),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          '온두라스',
-                          style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 3),
-                        child: Text(
-                          '5.20%',
-                          style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                      )
-                    ],
-                  ),
-                ].separator(separatorWidget: const SizedBox(height: 16)).toList(),
+                ).separator(separatorWidget: const SizedBox(height: 16)).toList(),
               ),
             ),
             Padding(
@@ -1310,6 +869,76 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           ],
         ),
       ),
+    );
+  }
+
+  PieChartSectionData _buildSectionData({required double percent, required int rank}) {
+    return PieChartSectionData(
+      radius: 30,
+      value: percent,
+      color: colorMap[rank] ?? ColorStyles.black,
+      showTitle: false,
+    );
+  }
+
+  Widget _buildRankRow({required int rank, required String title, required double percent}) {
+    return Row(
+      children: [
+        Container(
+          height: 22,
+          width: 22,
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: colorMap[rank] ?? ColorStyles.black,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          decoration: BoxDecoration(
+            border: Border.all(color: rank == 1 ? ColorStyles.red : ColorStyles.gray60),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            title,
+            style: TextStyles.captionMediumMedium.copyWith(color: rank == 1 ? ColorStyles.red : ColorStyles.gray60),
+          ),
+        ),
+        const Spacer(),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3),
+          child: Text(
+            '${percent.toStringAsFixed(2)}%',
+            style: TextStyles.title01SemiBold.copyWith(color: rank == 1 ? ColorStyles.red : ColorStyles.gray60),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildEmpty() {
+    return Column(
+      children: [
+        const Text('아직 작성한 시음기록이 없어요.', style: TextStyles.title02SemiBold),
+        const SizedBox(height: 8),
+        Text(
+          '시음 기록 1개 작성하고 내 커피 취향을 알아보는 건 어때요?',
+          style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
+        ),
+        const SizedBox(height: 24),
+        Container(height: 160, width: 160, color: const Color(0xffd9d9d9)),
+        const SizedBox(height: 24),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+          decoration: const BoxDecoration(color: ColorStyles.red, borderRadius: BorderRadius.all(Radius.circular(8))),
+          child: Text(
+            '시음기록 작성하기',
+            style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.white),
+            textAlign: TextAlign.center,
+          ),
+        )
+      ],
     );
   }
 

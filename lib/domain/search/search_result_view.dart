@@ -112,24 +112,32 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildSearchResult({required List<SearchResultModel> searchResultList}) {
-    return ListView.separated(
-      itemCount: searchResultList.length,
-      itemBuilder: (context, index) {
-        final result = searchResultList[index];
-        switch (result) {
-          case CoffeeBeanSearchResultModel():
-            return _buildBeanResultItem(result);
-          case BuddySearchResultModel():
-            return _buildUserResultItem(result);
-          case TastedRecordSearchResultModel():
-            return _buildTastingRecordResultItem(result);
-          case PostSearchResultModel():
-            return _buildPostResultItem(result);
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification scroll) {
+        if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+          context.read<SearchResultPresenter>().fetchMoreData();
         }
+        return false;
       },
-      separatorBuilder: (context, index) => Container(
-        height: 1,
-        color: ColorStyles.gray20,
+      child: ListView.separated(
+        itemCount: searchResultList.length,
+        itemBuilder: (context, index) {
+          final result = searchResultList[index];
+          switch (result) {
+            case CoffeeBeanSearchResultModel():
+              return _buildBeanResultItem(result);
+            case BuddySearchResultModel():
+              return _buildUserResultItem(result);
+            case TastedRecordSearchResultModel():
+              return _buildTastingRecordResultItem(result);
+            case PostSearchResultModel():
+              return _buildPostResultItem(result);
+          }
+        },
+        separatorBuilder: (context, index) => Container(
+          height: 1,
+          color: ColorStyles.gray20,
+        ),
       ),
     );
   }

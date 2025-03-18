@@ -1,5 +1,6 @@
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
+import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/domain/search/core/search_presenter.dart';
 import 'package:brew_buds/domain/search/models/search_result_model.dart';
@@ -23,7 +24,8 @@ final class SearchResultPresenter extends SearchPresenter {
   int _previousTabIndex;
   int _currentSortCriteriaIndex = 0;
   int _currentPostSubjectIndex = 0;
-  List<SearchResultModel> _resultList = [];
+  DefaultPage<SearchResultModel> _page = DefaultPage.initState();
+  int _pageNo = 1;
   List<CoffeeBeanFilter> _filters = [];
 
   String get previousSearchWord => _previousSearchWord;
@@ -33,7 +35,7 @@ final class SearchResultPresenter extends SearchPresenter {
   @override
   bool get hasWord => isSuggestMode && searchWord.isNotEmpty;
 
-  List<SearchResultModel> get resultList => _resultList;
+  List<SearchResultModel> get resultList => _page.results;
 
   bool get hasFilter => _filters.isNotEmpty;
 
@@ -72,46 +74,101 @@ final class SearchResultPresenter extends SearchPresenter {
   })  : _previousSearchWord = searchWord,
         _previousTabIndex = currentTabIndex;
 
-  @override
-  fetchData() async {
+  fetchMoreData() async {
     switch (currentSubject) {
       case SearchSubject.coffeeBean:
-        _resultList = List.from(await searchRepository.searchBean(
+        final newPage = await searchRepository.searchBean(
           searchWord: searchWord,
+          pageNo: _pageNo,
           beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type,
           country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           minRating: _filters.whereType<RatingFilter>().firstOrNull?.start,
           maxRating: _filters.whereType<RatingFilter>().firstOrNull?.end,
           sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-        ));
+        );
+        _page = newPage.copyWith(results: _page.results + newPage.results);
         break;
       case SearchSubject.buddy:
-        _resultList = List.from(await searchRepository.searchUser(
+        final newPage = await searchRepository.searchUser(
           searchWord: searchWord,
+          pageNo: _pageNo,
           sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-        ));
+        );
+        _page = newPage.copyWith(results: _page.results + newPage.results);
         break;
       case SearchSubject.tastedRecord:
-        _resultList = List.from(await searchRepository.searchTastingRecord(
+        final newPage = await searchRepository.searchTastingRecord(
           searchWord: searchWord,
+          pageNo: _pageNo,
           beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type,
           country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           minRating: _filters.whereType<RatingFilter>().firstOrNull?.start,
           maxRating: _filters.whereType<RatingFilter>().firstOrNull?.end,
           sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-        ));
+        );
+        _page = newPage.copyWith(results: _page.results + newPage.results);
         break;
       case SearchSubject.post:
-        _resultList = List.from(await searchRepository.searchPost(
+        final newPage = await searchRepository.searchPost(
           searchWord: searchWord,
+          pageNo: _pageNo,
           subject: PostSubject.values[_currentPostSubjectIndex],
           sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-        ));
+        );
+        _page = newPage.copyWith(results: _page.results + newPage.results);
         break;
     }
-    super.fetchData();
+    _pageNo++;
+    notifyListeners();
+  }
+
+  @override
+  fetchData() async {
+    _pageNo = 1;
+    switch (currentSubject) {
+      case SearchSubject.coffeeBean:
+        _page = await searchRepository.searchBean(
+          searchWord: searchWord,
+          pageNo: _pageNo,
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type,
+          country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
+          isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
+          minRating: _filters.whereType<RatingFilter>().firstOrNull?.start,
+          maxRating: _filters.whereType<RatingFilter>().firstOrNull?.end,
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        );
+        break;
+      case SearchSubject.buddy:
+        _page = await searchRepository.searchUser(
+          searchWord: searchWord,
+          pageNo: _pageNo,
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        );
+        break;
+      case SearchSubject.tastedRecord:
+        _page = await searchRepository.searchTastingRecord(
+          searchWord: searchWord,
+          pageNo: _pageNo,
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type,
+          country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
+          isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
+          minRating: _filters.whereType<RatingFilter>().firstOrNull?.start,
+          maxRating: _filters.whereType<RatingFilter>().firstOrNull?.end,
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        );
+        break;
+      case SearchSubject.post:
+        _page = await searchRepository.searchPost(
+          searchWord: searchWord,
+          pageNo: _pageNo,
+          subject: PostSubject.values[_currentPostSubjectIndex],
+          sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        );
+        break;
+    }
+    _pageNo++;
     notifyListeners();
   }
 

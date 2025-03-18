@@ -323,7 +323,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
             (index) => _buildTopFlavorItem(
               rank: index + 1,
               flavor: topFlavors[index].flavor,
-              percent: topFlavors[index].percent,
+              percent: topFlavors[index].percent.toInt(),
             ),
           ),
         ],

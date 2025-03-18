@@ -16,9 +16,9 @@ class SearchPostDTO {
   final String subject;
   @JsonKey(name: 'created_at', defaultValue: '')
   final String createdAt;
-  @JsonKey(name: 'photos', defaultValue: '')
+  @JsonKey(name: 'photo_url', defaultValue: '')
   final String imageUrl;
-  @JsonKey(name: 'like_cnt', defaultValue: 0)
+  @JsonKey(name: 'likes', defaultValue: 0)
   final int likeCount;
   @JsonKey(name: 'comment_count', defaultValue: 0)
   final int commentCount;

@@ -59,12 +59,12 @@ Future<T?> pushToFollowListPB<T>({
   );
 }
 
-Future<T?> pushToTasteReport<T>({required BuildContext context}) {
+Future<T?> pushToTasteReport<T>({required BuildContext context, required String nickname, required int id}) {
   return Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) => ChangeNotifierProvider<TasteReportPresenter>(
-        create: (_) => TasteReportPresenter(id: 1, nickname: '닉네임'),
-        child: TasteReportView(),
+        create: (_) => TasteReportPresenter(id: id, nickname: nickname),
+        child: const TasteReportView(),
       ),
     ),
   );
