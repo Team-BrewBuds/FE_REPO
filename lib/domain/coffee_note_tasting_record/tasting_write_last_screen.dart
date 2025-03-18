@@ -7,6 +7,7 @@ import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/date_picker_bottom_sheet.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -95,7 +96,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray40))),
                   child: Selector<TastingWritePresenter, String>(
                     selector: (context, presenter) => presenter.place,
-                    builder: (context, place, child) => _buildPlace(place: ''),
+                    builder: (context, place, child) => _buildPlace(place: place),
                   ),
                 ),
                 Padding(
@@ -329,23 +330,37 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
       children: [
         const Text('시음 장소', style: TextStyles.title01SemiBold),
         const Spacer(),
-        if (place.isEmpty) ...[
-          SvgPicture.asset(
-            'assets/icons/plus_round.svg',
-            width: 16,
-            height: 16,
-            colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-          )
-        ] else ...[
-          Text(place, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray80)),
-          const SizedBox(width: 12),
-          SvgPicture.asset(
-            'assets/icons/x_round.svg',
-            width: 16,
-            height: 16,
-            colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-          )
-        ],
+        GestureDetector(
+          onTap: () {
+            _showLocalBeanSearchBottomSheet();
+          },
+          child: Row(
+            children: [
+              if (place.isEmpty) ...[
+                SvgPicture.asset(
+                  'assets/icons/plus_round.svg',
+                  width: 16,
+                  height: 16,
+                  colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                )
+              ] else ...[
+                Text(place, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray80)),
+                const SizedBox(width: 12),
+                GestureDetector(
+                  onTap: () {
+                    _onChangePlace('');
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/x_round.svg',
+                    width: 16,
+                    height: 16,
+                    colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                  ),
+                )
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -379,6 +394,25 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     if (result != null) {
       _onChangeTastedTime(result);
     }
+  }
+
+  _showLocalBeanSearchBottomSheet() async {
+    final result = await showBarrierDialog<String>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return LocalSearchView.build(
+          maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
+        );
+      },
+    );
+
+    if (result != null) {
+      _onChangePlace(result);
+    }
+  }
+
+  _onChangePlace(String place) {
+    context.read<TastingWritePresenter>().onChangePlace(place);
   }
 
   _onChangeTastedTime(DateTime dateTime) {

@@ -26,8 +26,10 @@ extension TastedReviewToJson on TasteReview {
       'sweetness': sweetness,
       'star': star,
       'tasted_at': tastedAt,
-      'place': place,
     };
+    if (place.isNotEmpty) {
+      json['place'] = place;
+    }
     return json;
   }
 }
