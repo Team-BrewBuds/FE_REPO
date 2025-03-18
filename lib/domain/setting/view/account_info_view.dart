@@ -1,8 +1,10 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/domain/setting/presenter/account_info_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class AccountInfoView extends StatefulWidget {
   const AccountInfoView({super.key});
@@ -12,7 +14,16 @@ class AccountInfoView extends StatefulWidget {
 }
 
 class _AccountInfoViewState extends State<AccountInfoView> {
-  final String tooltipMessage = '수집된 개인 정보(성별, 태어난 연도)는 제 3자로부터 제공받은 정보가 아닌, 회원가입 과정에서 회원님의 개인정보 수집 동의를 받고 수집한 정보입니다. 자세한 내용은 개인정보 처리방침에서 확인해 주세요.';
+  final String tooltipMessage =
+      '수집된 개인 정보(성별, 태어난 연도)는 제 3자로부터 제공받은 정보가 아닌, 회원가입 과정에서 회원님의 개인정보 수집 동의를 받고 수집한 정보입니다. 자세한 내용은 개인정보 처리방침에서 확인해 주세요.';
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<AccountInfoPresenter>().initState();
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,24 +32,36 @@ class _AccountInfoViewState extends State<AccountInfoView> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-            child: createdAtWidget(createdAt: '2024년 10월 20일 (000일째)'),
+          Selector<AccountInfoPresenter, String>(
+            selector: (context, presenter) => presenter.signUpInfo,
+            builder: (context, signUpInfo, child) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+              child: createdAtWidget(createdAt: signUpInfo),
+            ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-            child: loginKindWidget(kind: '카카오'),
+          Selector<AccountInfoPresenter, String>(
+            selector: (context, presenter) => presenter.loginKind,
+            builder: (context, loginKind, child) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+              child: loginKindWidget(kind: loginKind),
+            ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-            child: genderWidget(gender: '남성'),
+          Selector<AccountInfoPresenter, String>(
+            selector: (context, presenter) => presenter.gender,
+            builder: (context, gender, child) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+              child: genderWidget(gender: gender),
+            ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: yearOfBirthWidget(yearOfBirth: '1998'),
+          Selector<AccountInfoPresenter, String>(
+            selector: (context, presenter) => '${presenter.yearOfBirth}',
+            builder: (context, yearOfBirth, child) => Padding(
+              padding: const EdgeInsets.all(16),
+              child: yearOfBirthWidget(yearOfBirth: yearOfBirth),
+            ),
           ),
         ],
       ),

@@ -18,6 +18,7 @@ import 'package:brew_buds/domain/search/search_home_view.dart';
 import 'package:brew_buds/domain/search/search_result_presenter.dart';
 import 'package:brew_buds/domain/search/search_result_view.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
+import 'package:brew_buds/domain/setting/presenter/account_info_presenter.dart';
 import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
 import 'package:brew_buds/domain/setting/setting_screen.dart';
 import 'package:brew_buds/domain/setting/view/account_detail_view.dart';
@@ -146,7 +147,8 @@ GoRouter createRouter(bool hasToken) {
                           currentTabIndex: data?.tabIndex ?? 0,
                           searchWord: data?.searchWord ?? '',
                         ),
-                        child: SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
+                        child:
+                            SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
                       );
                     },
                   ),
@@ -177,7 +179,7 @@ GoRouter createRouter(bool hasToken) {
                       return ChangeNotifierProvider<EditProfilePresenter>(
                         create: (_) => EditProfilePresenter(
                           selectedCoffeeLifeList: data.coffeeLife,
-                          imageUri: data.imageUrl,
+                          imageUrl: data.imageUrl,
                           nickname: data.nickname,
                           introduction: data.introduction,
                           link: data.link,
@@ -202,7 +204,13 @@ GoRouter createRouter(bool hasToken) {
                           child: const BlockingUserManagementView(),
                         ),
                       ),
-                      GoRoute(path: 'account_info', builder: (context, state) => const AccountInfoView()),
+                      GoRoute(
+                        path: 'account_info',
+                        builder: (context, state) => ChangeNotifierProvider<AccountInfoPresenter>(
+                          create: (_) => AccountInfoPresenter(),
+                          child: const AccountInfoView(),
+                        ),
+                      ),
                       GoRoute(
                         path: 'account_detail',
                         builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(

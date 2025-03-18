@@ -1,11 +1,12 @@
-import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/mapper/common/coffee_life_mapper.dart';
+import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:brew_buds/domain/profile/model/profile.dart';
+import 'package:brew_buds/model/common/preferred_bean_taste.dart';
+import 'package:brew_buds/model/profile/profile.dart';
 import 'package:flutter/foundation.dart';
 
 final class AccountDetailPresenter extends ChangeNotifier {
-  final ProfileApi _api = ProfileApi();
+  final ProfileRepository _repository = ProfileRepository.instance;
   Profile? _profile;
 
   List<CoffeeLife>? get selectedCoffeeLife => _profile?.coffeeLife;
@@ -29,7 +30,7 @@ final class AccountDetailPresenter extends ChangeNotifier {
   }
 
   fetchProfileDetail() {
-    _api.fetchMyProfile().then((newProfile) {
+    _repository.fetchMyProfile().then((newProfile) {
       _profile = newProfile;
       notifyListeners();
     });
@@ -95,7 +96,8 @@ final class AccountDetailPresenter extends ChangeNotifier {
       if (profile.preferredBeanTaste.bitterness == bitternessValue) {
         _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(bitterness: 0));
       } else {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(bitterness: bitternessValue));
+        _profile =
+            profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(bitterness: bitternessValue));
       }
       notifyListeners();
     }
@@ -118,33 +120,16 @@ final class AccountDetailPresenter extends ChangeNotifier {
     final profile = _profile;
 
     if (profile != null) {
-      final Map<String, dynamic> jsonMap = {};
-
-      writeNotNull(String key, dynamic value) {
-        if (value != null) {
-          jsonMap[key] = value;
-        }
-      }
-
-      writeNotNull('coffee_life', _coffeeLifeToJson(selectedCoffeeLife ?? []));
-      writeNotNull('preferred_bean_taste', _preferredBeanTasteToJson());
-      writeNotNull('is_certificated', isCertificated);
-
-      if (jsonMap.isNotEmpty) {
-        return _api.updateMyProfile(body: {'user_detail': jsonMap});
-      }
+      return _repository.updateProfile(
+          coffeeLife: selectedCoffeeLife ?? [],
+          preferredBeanTaste: PreferredBeanTaste(
+            body: bodyValue ?? 0,
+            acidity: acidityValue ?? 0,
+            sweetness: sweetnessValue ?? 0,
+            bitterness: bitternessValue ?? 0,
+          ),
+          isCertificated: isCertificated
+      );
     }
-  }
-
-  String? _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {
-    if (coffeeLife.isEmpty) {
-      return null;
-    } else {
-      return coffeeLife.map((e) => e.toJson).join(', ');
-    }
-  }
-
-  String? _preferredBeanTasteToJson() {
-    return 'body: ${bodyValue ?? 0}, acidity: ${acidityValue ?? 0}, sweetness: ${sweetnessValue ?? 0}, bitterness: ${bitternessValue ?? 0}';
   }
 }

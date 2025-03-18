@@ -135,7 +135,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               child: Center(
                 child: InkWell(
                   onTap: () {
-                    context.read<EditProfilePresenter>().onSave();
+                    context.read<EditProfilePresenter>().onSave().then((value) => print(value));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8, right: 8),

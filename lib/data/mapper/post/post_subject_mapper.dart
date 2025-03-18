@@ -1,4 +1,5 @@
 import 'package:brew_buds/data/dto/post/post_subject_dto.dart';
+import 'package:brew_buds/data/dto/post/post_subject_en_dto.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 
 extension PostSubjectMapper on PostSubjectDTO {
@@ -17,6 +18,27 @@ extension PostSubjectMapper on PostSubjectDTO {
       case PostSubjectDTO.question:
         return PostSubject.question;
       case PostSubjectDTO.worry:
+        return PostSubject.worry;
+    }
+  }
+}
+
+extension PostSubjectEnMapper on PostSubjectEnDTO {
+  PostSubject toDomain() {
+    switch (this) {
+      case PostSubjectEnDTO.normal:
+        return PostSubject.normal;
+      case PostSubjectEnDTO.cafe:
+        return PostSubject.caffe;
+      case PostSubjectEnDTO.bean:
+        return PostSubject.beans;
+      case PostSubjectEnDTO.info:
+        return PostSubject.information;
+      case PostSubjectEnDTO.gear:
+        return PostSubject.gear;
+      case PostSubjectEnDTO.question:
+        return PostSubject.question;
+      case PostSubjectEnDTO.worry:
         return PostSubject.worry;
     }
   }

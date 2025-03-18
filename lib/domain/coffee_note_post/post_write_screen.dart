@@ -7,9 +7,9 @@ import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/domain/camera/camera_screen.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
-import 'package:brew_buds/domain/coffee_note_post/view/tasting_record_grid_view.dart';
+import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_view.dart';
 import 'package:brew_buds/domain/photo/view/photo_grid_view.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:extended_image/extended_image.dart';
@@ -34,7 +34,7 @@ showPostWriteScreen({required BuildContext context}) {
   );
 }
 
-typedef SelectedItemsState = ({List<Photo> photos, List<TastingRecordInProfile> tastingRecords});
+typedef SelectedItemsState = ({List<Photo> photos, List<TastedRecordInProfile> tastedRecords});
 
 class PostWriteScreen extends StatefulWidget {
   const PostWriteScreen({
@@ -152,21 +152,21 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                           );
                         },
                       );
-                    } else if (imageListViewState.tastingRecords.isNotEmpty) {
+                    } else if (imageListViewState.tastedRecords.isNotEmpty) {
                       return _buildAttachedContent(
-                        itemLength: imageListViewState.tastingRecords.length,
+                        itemLength: imageListViewState.tastedRecords.length,
                         itemBuilder: (index) {
-                          final tastingRecord = imageListViewState.tastingRecords[index];
+                          final tastedRecord = imageListViewState.tastedRecords[index];
                           return _buildGridItem(
                             imageWidget: ExtendedImage.network(
-                              tastingRecord.imageUri,
+                              tastedRecord.imageUrl,
                               fit: BoxFit.cover,
                               border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
                               borderRadius: const BorderRadius.all(Radius.circular(8)),
                             ),
                             isRepresentative: index == 0,
                             onDeleteTap: () {
-                              context.read<PostWritePresenter>().onDeleteTastingRecordAt(index);
+                              context.read<PostWritePresenter>().onDeleteTastedRecordAt(index);
                             },
                           );
                         },
@@ -186,7 +186,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
               builder: (context, bottomsButtonState, _) {
                 return _buildBottomButtons(
                   hasImages: bottomsButtonState.hasImages,
-                  tastingRecords: bottomsButtonState.tastingRecords,
+                  tastedRecords: bottomsButtonState.tastedRecords,
                 );
               },
             ),
@@ -448,8 +448,8 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     );
   }
 
-  Widget _buildBottomButtons({required bool hasImages, required List<TastingRecordInProfile> tastingRecords}) {
-    final hasTastingRecords = tastingRecords.isNotEmpty;
+  Widget _buildBottomButtons({required bool hasImages, required List<TastedRecordInProfile> tastedRecords}) {
+    final hasTastedRecords = tastedRecords.isNotEmpty;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20, width: 1))),
@@ -457,7 +457,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              if (!hasTastingRecords) {
+              if (!hasTastedRecords) {
                 _fetchImagesAtAlbum();
               } else {
                 _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
@@ -479,7 +479,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
           GestureDetector(
             onTap: () {
               if (!hasImages) {
-                _fetchTastingRecords(tastingRecords: tastingRecords);
+                _fetchTastedRecords(tastedRecords: tastedRecords);
               } else {
                 _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
               }
@@ -528,20 +528,20 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     );
   }
 
-  _fetchTastingRecords({required List<TastingRecordInProfile> tastingRecords}) async {
-    final result = await Navigator.of(context).push<List<TastingRecordInProfile>>(
+  _fetchTastedRecords({required List<TastedRecordInProfile> tastedRecords}) async {
+    final result = await Navigator.of(context).push<List<TastedRecordInProfile>>(
       MaterialPageRoute(
-        builder: (context) => TastingRecordGridView.build(tastingRecords: tastingRecords),
+        builder: (context) => TastedRecordGridView.build(tastedRecords: tastedRecords),
       ),
     );
 
     if (result != null) {
-      _onChangeTastingRecords(result);
+      _onChangeTastedRecords(result);
     }
   }
 
-  _onChangeTastingRecords(List<TastingRecordInProfile> tastingRecords) {
-    context.read<PostWritePresenter>().onChangeTastingRecords(tastingRecords);
+  _onChangeTastedRecords(List<TastedRecordInProfile> tastedRecords) {
+    context.read<PostWritePresenter>().onChangeTastedRecords(tastedRecords);
   }
 
   _addImages(List<Uint8List> images) async {

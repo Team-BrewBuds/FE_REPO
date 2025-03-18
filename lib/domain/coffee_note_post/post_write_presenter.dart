@@ -4,14 +4,14 @@ import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:flutter/foundation.dart';
 
 typedef AppBarState = ({bool isValid, String? errorMessage});
-typedef ImageListViewState = ({List<Photo> images, List<TastingRecordInProfile> tastingRecords});
-typedef BottomButtonState = ({bool hasImages, List<TastingRecordInProfile> tastingRecords});
+typedef ImageListViewState = ({List<Photo> images, List<TastedRecordInProfile> tastedRecords});
+typedef BottomButtonState = ({bool hasImages, List<TastedRecordInProfile> tastedRecords});
 
 final class PostWritePresenter extends ChangeNotifier {
   final PostApi postApi = PostApi();
@@ -21,13 +21,13 @@ final class PostWritePresenter extends ChangeNotifier {
   String _content = '';
   String _tag = '';
   List<Photo> _images = [];
-  List<TastingRecordInProfile> _tastingRecords = [];
+  List<TastedRecordInProfile> _tastedRecords = [];
 
   List<Photo> get images => _images;
 
-  ImageListViewState get imageListViewState => (images: _images, tastingRecords: _tastingRecords);
+  ImageListViewState get imageListViewState => (images: _images, tastedRecords: _tastedRecords);
 
-  BottomButtonState get bottomsButtonState => (hasImages: _images.isNotEmpty, tastingRecords: _tastingRecords);
+  BottomButtonState get bottomsButtonState => (hasImages: _images.isNotEmpty, tastedRecords: _tastedRecords);
 
   PostSubject? get subject => _subject;
 
@@ -92,13 +92,13 @@ final class PostWritePresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onChangeTastingRecords(List<TastingRecordInProfile> tastingRecords) {
-    _tastingRecords = List.from(tastingRecords);
+  onChangeTastedRecords(List<TastedRecordInProfile> tastedRecords) {
+    _tastedRecords = List.from(tastedRecords);
     notifyListeners();
   }
 
-  onDeleteTastingRecordAt(int index) {
-    _tastingRecords = List.from(_tastingRecords)..removeAt(index);
+  onDeleteTastedRecordAt(int index) {
+    _tastedRecords = List.from(_tastedRecords)..removeAt(index);
     notifyListeners();
   }
 
@@ -114,7 +114,7 @@ final class PostWritePresenter extends ChangeNotifier {
     }
     data['tag'] = _tag;
 
-    if (_images.isNotEmpty && _tastingRecords.isNotEmpty) {
+    if (_images.isNotEmpty && _tastedRecords.isNotEmpty) {
       return Result.error('사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
     }
 
@@ -127,8 +127,8 @@ final class PostWritePresenter extends ChangeNotifier {
       }
     }
 
-    if (_tastingRecords.isNotEmpty) {
-      data['tasted_records'] = _tastingRecords.map((tastingRecord) => tastingRecord.id).toList();
+    if (_tastedRecords.isNotEmpty) {
+      data['tasted_records'] = _tastedRecords.map((tastedRecord) => tastedRecord.id).toList();
     }
 
     return postApi
