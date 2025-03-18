@@ -19,9 +19,9 @@ final class ApiInterceptor extends Interceptor {
       options.headers.remove('Authorization');
     }
 
-    final token = await _storage.read(key: 'access');
+    final token = AccountRepository.instance.accessToken;
 
-    if (token != null) {
+    if (token.isNotEmpty) {
       options.headers.addAll({'Authorization': 'Bearer $token'});
     }
 
@@ -35,9 +35,9 @@ final class ApiInterceptor extends Interceptor {
       return handler.reject(err);
     }
 
-    final refreshToken = await _storage.read(key: 'refresh');
+    final refreshToken = AccountRepository.instance.refreshToken;
 
-    if (refreshToken == null) {
+    if (refreshToken.isEmpty) {
       return handler.reject(err);
     }
 
