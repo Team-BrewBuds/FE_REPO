@@ -45,11 +45,11 @@ class AccountRepository extends ChangeNotifier {
     _id = id;
   }
 
-  logout() {
+  logout() async {
     _id = null;
     _accessToken = '';
     _refreshToken = '';
-    _storage.deleteAll();
+    await _storage.deleteAll();
     notifyListeners();
   }
 }
