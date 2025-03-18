@@ -38,7 +38,9 @@ class _OtherProfileViewState extends State<OtherProfileView>
         children: [
           ButtonFactory.buildRoundedButton(
             onTapped: () {
-              pushToTasteReport(context: context);
+              final id = context.read<OtherProfilePresenter>().id;
+              final nickname = context.read<OtherProfilePresenter>().nickName;
+              pushToTasteReport(context: context, id: id, nickname: nickname);
             },
             text: '취향 리포트 보기',
             style: RoundedButtonStyle.fill(

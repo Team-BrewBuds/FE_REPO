@@ -47,7 +47,7 @@ class TasteGraph extends StatelessWidget {
             child: Text(
               minText,
               textAlign: TextAlign.center,
-              style: value < 3 ? activeStyle : inactiveStyle,
+              style: value != 0 && value < 3 ? activeStyle : inactiveStyle,
             ),
           ),
           Expanded(

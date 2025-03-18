@@ -1,6 +1,6 @@
 import 'package:brew_buds/data/dto/coffee_bean/bean_taste_dto.dart';
 import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_type_dto.dart';
-import 'package:brew_buds/data/dto/common/top_flavor_dto.dart';
+import 'package:brew_buds/data/dto/common/top_flavor_int_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'coffee_bean_detail_dto.g.dart';
@@ -27,8 +27,8 @@ class CoffeeBeanDetailDTO {
   final String rating;
   @JsonKey(name: 'record_count', defaultValue: 0)
   final int recordCount;
-  @JsonKey(name: 'top_flavors', defaultValue: <TopFlavorDTO>[])
-  final List<TopFlavorDTO> topFlavors;
+  @JsonKey(name: 'top_flavors', defaultValue: <TopFlavorIntDTO>[])
+  final List<TopFlavorIntDTO> topFlavors;
   @JsonKey(name: 'bean_taste', defaultValue: BeanTasteDTO.defaultBeanTaste)
   final BeanTasteDTO beanTaste;
   @JsonKey(includeIfNull: false, name: 'region')

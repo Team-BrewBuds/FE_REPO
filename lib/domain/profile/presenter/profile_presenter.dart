@@ -38,6 +38,8 @@ class ProfilePresenter extends ChangeNotifier {
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
+  int get id => profile?.id ?? 0;
+
   String get nickName => profile?.nickname ?? '';
 
   ProfileState get profileState => (

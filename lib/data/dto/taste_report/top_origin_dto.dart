@@ -1,18 +1,18 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'top_flavor_dto.g.dart';
+part 'top_origin_dto.g.dart';
 
 @JsonSerializable(createToJson: false)
-class TopFlavorDTO {
+class TopOriginDTO {
   @JsonKey(defaultValue: '')
-  final String flavor;
+  final String origin;
   @JsonKey(name: 'percentage', defaultValue: '')
   final String percent;
 
-  factory TopFlavorDTO.fromJson(Map<String, dynamic> json) => _$TopFlavorDTOFromJson(json);
+  factory TopOriginDTO.fromJson(Map<String, dynamic> json) => _$TopOriginDTOFromJson(json);
 
-  const TopFlavorDTO({
-    required this.flavor,
+  const TopOriginDTO({
+    required this.origin,
     required this.percent,
   });
 }

@@ -7,6 +7,6 @@ part 'top_flavor.freezed.dart';
 class TopFlavor with _$TopFlavor {
   const factory TopFlavor({
     required String flavor,
-    required int percent,
+    required double percent,
   }) = _TopFlavor;
 }
