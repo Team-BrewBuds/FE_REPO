@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 extension DateTimeExt on DateTime {
   String get differenceTheNow {
     final difference = DateTime.now().difference(this);
@@ -10,5 +12,9 @@ extension DateTimeExt on DateTime {
     } else {
       return '${difference.inDays}일전';
     }
+  }
+
+  String toDefaultString() {
+    return DateFormat('yyyy-MM-dd').format(this);
   }
 }

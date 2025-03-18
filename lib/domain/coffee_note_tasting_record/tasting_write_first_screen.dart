@@ -6,8 +6,8 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_secod_
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/country_bottom_sheet.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
-import 'package:brew_buds/model/coffee_bean/coffee_bean_extraction.dart';
-import 'package:brew_buds/model/coffee_bean/coffee_bean_processing.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
 import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
@@ -33,10 +33,8 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   final FocusNode _varietyFocusNode = FocusNode();
   final TextEditingController _roasteryController = TextEditingController();
   final FocusNode _roasteryFocusNode = FocusNode();
-  final ValueNotifier<CoffeeBeanProcessing?> _processingNotifier = ValueNotifier(null);
   final TextEditingController _processingController = TextEditingController();
   final FocusNode _processingFocusNode = FocusNode();
-  final ValueNotifier<CoffeeBeanExtraction?> _extractionNotifier = ValueNotifier(null);
   final TextEditingController _extractionController = TextEditingController();
   final FocusNode _extractionFocusNode = FocusNode();
   final List<String> roastingPointText = ['라이트', '라이트 미디엄', '미디엄', '미디엄 다크', '다크'];
@@ -46,12 +44,8 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
 
   List<BeanWriteOption> getOptions(CoffeeBeanType? type) => switch (type) {
         null => BeanWriteOption.values,
-        CoffeeBeanType.singleOrigin => [
-            BeanWriteOption.roastery,
-            BeanWriteOption.extraction,
-            BeanWriteOption.beverageType
-          ],
-        CoffeeBeanType.blend => BeanWriteOption.values,
+        CoffeeBeanType.singleOrigin => BeanWriteOption.values,
+        CoffeeBeanType.blend => [BeanWriteOption.roastery, BeanWriteOption.extraction, BeanWriteOption.beverageType],
       };
 
   bool isExpanded(BeanWriteOption option) => expandedSections.contains(option);
@@ -84,7 +78,6 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     _areaFocusNode.dispose();
     _varietyFocusNode.dispose();
     _roasteryFocusNode.dispose();
-    _processingNotifier.dispose();
     _processingFocusNode.dispose();
     _extractionFocusNode.dispose();
     super.dispose();
@@ -203,6 +196,9 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                   (type) => Expanded(
                     child: GestureDetector(
                       onTap: () {
+                        if (type == CoffeeBeanType.blend) {
+                          _processingController.value = TextEditingValue.empty;
+                        }
                         context.read<TastingWritePresenter>().onChangeType(currentType == type ? null : type);
                       },
                       child: Container(
@@ -298,6 +294,11 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                   const SizedBox(width: 8),
                   GestureDetector(
                     onTap: () {
+                      _processingController.value = TextEditingValue.empty;
+                      _extractionController.value = TextEditingValue.empty;
+                      _varietyController.value = TextEditingValue.empty;
+                      _areaController.value = TextEditingValue.empty;
+                      _roasteryController.value = TextEditingValue.empty;
                       context.read<TastingWritePresenter>().onDeleteBeanName();
                     },
                     child: SvgPicture.asset(
@@ -434,23 +435,24 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
       case BeanWriteOption.variety:
         return _buildVariety();
       case BeanWriteOption.processing:
-        return ValueListenableBuilder(
-          valueListenable: _processingNotifier,
+        return Selector<TastingWritePresenter, List<CoffeeBeanProcessing>>(
+          selector: (context, presenter) => presenter.currentProcess,
           builder: (context, processing, child) {
             return _buildProcessing(currentProcessing: processing);
           },
         );
       case BeanWriteOption.roastingPoint:
         return Selector<TastingWritePresenter, int?>(
-            selector: (context, presenter) => presenter.roastingPoint,
-            builder: (context, roastingPoint, child) {
-              return _buildRoastingPoint(currentRoastingPoint: roastingPoint);
-            });
+          selector: (context, presenter) => presenter.roastingPoint,
+          builder: (context, roastingPoint, child) {
+            return _buildRoastingPoint(currentRoastingPoint: roastingPoint);
+          },
+        );
       case BeanWriteOption.roastery:
         return _buildRoastery();
       case BeanWriteOption.extraction:
-        return ValueListenableBuilder(
-          valueListenable: _extractionNotifier,
+        return Selector<TastingWritePresenter, CoffeeBeanExtraction?>(
+          selector: (context, presenter) => presenter.extraction,
           builder: (context, extraction, child) {
             return _buildExtraction(currentExtraction: extraction);
           },
@@ -539,7 +541,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     );
   }
 
-  Widget _buildProcessing({CoffeeBeanProcessing? currentProcessing}) {
+  Widget _buildProcessing({required List<CoffeeBeanProcessing> currentProcessing}) {
     const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
     return Padding(
       padding: const EdgeInsets.only(top: 24),
@@ -551,30 +553,25 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             spacing: 8,
             children: CoffeeBeanProcessing.values.map(
               (processing) {
+                final isSelected = currentProcessing.contains(processing);
                 return GestureDetector(
                   onTap: () {
-                    if (currentProcessing == processing) {
-                      context.read<TastingWritePresenter>().onChangeProcess(null);
-                    } else if (processing == CoffeeBeanProcessing.writtenByUser) {
-                      _processingController.value = const TextEditingValue();
-                      context.read<TastingWritePresenter>().onChangeProcess(null);
-                    } else {
-                      context.read<TastingWritePresenter>().onChangeProcess(processing.toString());
+                    if (currentProcessing.contains(CoffeeBeanProcessing.writtenByUser)) {
+                      _processingController.value = TextEditingValue.empty;
                     }
-
-                    _processingNotifier.value = currentProcessing == processing ? null : processing;
+                    context.read<TastingWritePresenter>().onSelectProcess(processing);
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: currentProcessing == processing ? ColorStyles.background : Colors.transparent,
-                      border: Border.all(color: currentProcessing == processing ? ColorStyles.red : ColorStyles.gray50),
+                      color: isSelected ? ColorStyles.background : Colors.transparent,
+                      border: Border.all(color: isSelected ? ColorStyles.red : ColorStyles.gray50),
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
                     ),
                     child: Text(
                       processing.toString(),
                       style: textStyle.copyWith(
-                        color: currentProcessing == processing ? ColorStyles.red : ColorStyles.black,
+                        color: isSelected ? ColorStyles.red : ColorStyles.black,
                       ),
                     ),
                   ),
@@ -582,7 +579,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
               },
             ).toList(),
           ),
-          if (currentProcessing == CoffeeBeanProcessing.writtenByUser) ...[
+          if (currentProcessing.contains(CoffeeBeanProcessing.writtenByUser)) ...[
             const SizedBox(height: 24),
             TextFormField(
               focusNode: _processingFocusNode,
@@ -612,7 +609,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
               cursorHeight: 16,
               cursorWidth: 1,
               onChanged: (processing) {
-                context.read<TastingWritePresenter>().onChangeProcess(processing);
+                context.read<TastingWritePresenter>().onChangeProcessText(processing);
               },
             ),
           ],
@@ -744,39 +741,32 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           Wrap(
             runSpacing: 8,
             spacing: 8,
-            children: CoffeeBeanExtraction.values
-                .map(
-                  (extraction) => GestureDetector(
-                    onTap: () {
-                      if (currentExtraction == extraction) {
-                        context.read<TastingWritePresenter>().onChangeExtraction(null);
-                      } else if (extraction == CoffeeBeanExtraction.writtenByUser) {
-                        _extractionController.value = const TextEditingValue();
-                        context.read<TastingWritePresenter>().onChangeExtraction(null);
-                      } else {
-                        context.read<TastingWritePresenter>().onChangeExtraction(extraction.toString());
-                      }
-
-                      _extractionNotifier.value = currentExtraction == extraction ? null : extraction;
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: currentExtraction == extraction ? ColorStyles.background : Colors.transparent,
-                        border:
-                            Border.all(color: currentExtraction == extraction ? ColorStyles.red : ColorStyles.gray50),
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
-                      ),
-                      child: Text(
-                        extraction.toString(),
-                        style: textStyle.copyWith(
-                            color: currentExtraction == extraction ? ColorStyles.red : ColorStyles.black),
-                        textAlign: TextAlign.center,
-                      ),
+            children: CoffeeBeanExtraction.values.map(
+              (extraction) {
+                final isSelected = currentExtraction == extraction;
+                return GestureDetector(
+                  onTap: () {
+                    if (currentExtraction == CoffeeBeanExtraction.writtenByUser) {
+                      _extractionController.value = TextEditingValue.empty;
+                    }
+                    context.read<TastingWritePresenter>().onChangeExtraction(extraction);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isSelected ? ColorStyles.background : Colors.transparent,
+                      border: Border.all(color: isSelected ? ColorStyles.red : ColorStyles.gray50),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Text(
+                      extraction.toString(),
+                      style: textStyle.copyWith(color: isSelected ? ColorStyles.red : ColorStyles.black),
+                      textAlign: TextAlign.center,
                     ),
                   ),
-                )
-                .toList(),
+                );
+              },
+            ).toList(),
           ),
           if (currentExtraction == CoffeeBeanExtraction.writtenByUser) ...[
             const SizedBox(height: 24),
@@ -808,7 +798,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
               cursorHeight: 16,
               cursorWidth: 1,
               onChanged: (extraction) {
-                context.read<TastingWritePresenter>().onChangeExtraction(extraction);
+                context.read<TastingWritePresenter>().onChangeExtractionText(extraction);
               },
             ),
           ],
@@ -916,11 +906,17 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   }
 
   _setCoffeeBeanValue(CoffeeBean coffeeBean) {
-    if (coffeeBean.type == CoffeeBeanType.singleOrigin) {
+    if (coffeeBean.type == CoffeeBeanType.blend) {
       final roastery = coffeeBean.roastery;
       if (roastery != null && roastery.isNotEmpty) {
         _roasteryController.text = roastery;
-        toggleSection(BeanWriteOption.roastery);
+        setState(() {
+          expandedSections.add(BeanWriteOption.roastery);
+        });
+      } else {
+        setState(() {
+          expandedSections.remove(BeanWriteOption.roastery);
+        });
       }
     } else {
       final region = coffeeBean.region;
@@ -931,21 +927,51 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
 
       if (region != null && region.isNotEmpty) {
         _areaController.text = region;
-        toggleSection(BeanWriteOption.area);
+        setState(() {
+          expandedSections.add(BeanWriteOption.area);
+        });
+      } else {
+        setState(() {
+          expandedSections.remove(BeanWriteOption.area);
+        });
       }
       if (variety != null && variety.isNotEmpty) {
         _varietyController.text = variety;
-        toggleSection(BeanWriteOption.variety);
+        setState(() {
+          expandedSections.add(BeanWriteOption.variety);
+        });
+      } else {
+        setState(() {
+          expandedSections.remove(BeanWriteOption.variety);
+        });
       }
       if (process != null && process.isNotEmpty) {
-        toggleSection(BeanWriteOption.processing);
+        setState(() {
+          expandedSections.add(BeanWriteOption.processing);
+        });
+      } else {
+        setState(() {
+          expandedSections.remove(BeanWriteOption.processing);
+        });
       }
       if (roastPoint != null) {
-        toggleSection(BeanWriteOption.roastingPoint);
+        setState(() {
+          expandedSections.add(BeanWriteOption.roastingPoint);
+        });
+      } else {
+        setState(() {
+          expandedSections.remove(BeanWriteOption.roastingPoint);
+        });
       }
       if (roastery != null && roastery.isNotEmpty) {
         _roasteryController.text = roastery;
-        toggleSection(BeanWriteOption.roastery);
+        setState(() {
+          expandedSections.add(BeanWriteOption.roastery);
+        });
+      } else {
+        setState(() {
+          expandedSections.remove(BeanWriteOption.roastery);
+        });
       }
     }
   }

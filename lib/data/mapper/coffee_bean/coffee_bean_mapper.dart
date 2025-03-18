@@ -49,7 +49,7 @@ extension CoffeeBeanToJson on CoffeeBean {
     writeNotNull('is_decaf', isDecaf);
     writeNotNull('extraction', nullableString(extraction));
     writeNotNull('roast_point', roastPoint);
-    writeNotNull('process', nullableString(process));
+    writeNotNull('process', nullableString(process?.join(',')));
     writeNotNull('bev_type', beverageType);
     writeNotNull('roastery', nullableString(roastery));
     writeNotNull('variety', nullableString(variety));

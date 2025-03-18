@@ -29,4 +29,24 @@ enum CoffeeBeanProcessing {
         return '직적 입력';
     }
   }
+
+  static CoffeeBeanProcessing? fromString(String string) {
+    if (string == '내추럴') {
+      return CoffeeBeanProcessing.natural;
+    } else if (string == '워시드') {
+      return CoffeeBeanProcessing.washed;
+    } else if (string == '워시드 퍼먼티드') {
+      return CoffeeBeanProcessing.washedFermented;
+    } else if (string == '허니') {
+      return CoffeeBeanProcessing.honey;
+    } else if (string == '슈가케인') {
+      return CoffeeBeanProcessing.sugarCane;
+    } else if (string == '무산소 발효') {
+      return CoffeeBeanProcessing.anaerobicFermentation;
+    } else if (string == '마운틴 워터') {
+      return CoffeeBeanProcessing.mountainWater;
+    } else {
+      return null;
+    }
+  }
 }
