@@ -86,7 +86,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray40))),
                   child: Selector<TastingWritePresenter, DateTime>(
-                    selector: (context, presenter) => presenter.tastedAt,
+                    selector: (context, presenter) => DateTime.parse(presenter.tastedAt),
                     builder: (context, tastedAt, child) => _buildDate(tastedAt: tastedAt),
                   ),
                 ),

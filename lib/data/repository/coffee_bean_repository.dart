@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'package:brew_buds/data/api/beans_api.dart';
 import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/save_api.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_for_coffee_bean_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_detail_mapper.dart';
+import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_mapper.dart';
 import 'package:brew_buds/data/mapper/recommended/recommended_coffee_bean_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_coffee_bean_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_detail.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
@@ -49,6 +52,13 @@ class CoffeeBeanRepository {
         jsonT as Map<String, dynamic>? ?? {},
       ).toDomain(),
     );
+  }
+
+  Future<DefaultPage<CoffeeBean>> fetchCoffeeBeans({required String word, required int pageNo}) async {
+    return _beansApi.searchBeans(name: word, pageNo: pageNo).then((jsonString) {
+      final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
+      return DefaultPage.fromJson(jsonData, (json) => CoffeeBeanDTO.fromJson(json as Map<String ,dynamic>).toDomain());
+    });
   }
 
   Future<void> save({required int id, required bool isSaved}) {

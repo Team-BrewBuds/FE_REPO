@@ -58,6 +58,7 @@ class CoffeeBeanSearchBottomSheet extends StatefulWidget {
 
 class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomSheet> {
   late final Debouncer<String> searchDebouncer;
+  late final Throttle paginationThrottle;
   late final ValueNotifier<String> searchWord;
   late double height;
   late final maxHeight;
@@ -80,6 +81,15 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
         _onChangeNewWordDebounce(newWord);
       },
     );
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
+
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -97,6 +107,10 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
     searchWord.dispose();
     focusNode.dispose();
     super.dispose();
+  }
+
+  _fetchMoreData() {
+    context.read<CoffeeBeanSearchPresenter>().fetchMoreData();
   }
 
   _onChangeNewWord(String newWord) {
@@ -293,39 +307,47 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
 
   Widget _buildSearchResults(String searchWord, List<CoffeeBean> coffeeBeans) {
     return coffeeBeans.isNotEmpty
-        ? ListView.builder(
-            padding: EdgeInsets.zero,
-            itemCount: coffeeBeans.length,
-            itemBuilder: (context, index) {
-              final name = coffeeBeans[index].name ?? '';
-              return name.isNotEmpty
-                  ? GestureDetector(
-                      onTap: () {
-                        context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: RichText(
-                          text: TextSpan(
-                            style: TextStyles.title01SemiBold.copyWith(
-                              color: ColorStyles.black,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            children: _getSpans(
-                              name,
-                              searchWord,
-                              TextStyles.title01SemiBold.copyWith(
-                                color: ColorStyles.red,
+        ? NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scroll) {
+              if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                paginationThrottle.setValue(null);
+              }
+              return false;
+            },
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: coffeeBeans.length,
+              itemBuilder: (context, index) {
+                final name = coffeeBeans[index].name ?? '';
+                return name.isNotEmpty
+                    ? GestureDetector(
+                        onTap: () {
+                          context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: RichText(
+                            text: TextSpan(
+                              style: TextStyles.title01SemiBold.copyWith(
+                                color: ColorStyles.black,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              children: _getSpans(
+                                name,
+                                searchWord,
+                                TextStyles.title01SemiBold.copyWith(
+                                  color: ColorStyles.red,
+                                ),
                               ),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    )
-                  : const SizedBox.shrink();
-            },
+                      )
+                    : const SizedBox.shrink();
+              },
+            ),
           )
         : Column(
             children: [

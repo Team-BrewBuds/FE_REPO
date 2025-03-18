@@ -78,9 +78,9 @@ final class TastedRecordPresenter extends ChangeNotifier {
 
   BeanInfo get beanInfo => (
         beanType: beanType,
-        country: _tastedRecord?.bean.country?.map((country) => country.toString()).toList(),
+        country: _tastedRecord?.bean.country,
         region: _tastedRecord?.bean.region,
-        process: _tastedRecord?.bean.process?.split(',').where((element) => element.isNotEmpty).toList(),
+        process: _tastedRecord?.bean.process,
         variety: _tastedRecord?.bean.variety,
         extraction: _tastedRecord?.bean.extraction,
         roastery: _tastedRecord?.bean.roastery,

@@ -15,25 +15,25 @@ class CoffeeBeanDTO {
   final CoffeeBeanTypeDTO type;
   @JsonKey(defaultValue: '')
   final String name;
-  @JsonKey(name: 'origin_country', fromJson: _countryFromJson, defaultValue: [])
+  @JsonKey(name: 'origin_country', fromJson: _stringFromJson, defaultValue: [])
   final List<String> country;
   @JsonKey(name: 'image_url', defaultValue: '')
   final String imageUri;
   @JsonKey(name: 'is_decaf', defaultValue: false)
   final bool isDecaf;
-  @JsonKey(includeIfNull: false, name: 'region')
+  @JsonKey(name: 'region', includeIfNull: false)
   String? region;
-  @JsonKey(includeIfNull: false, name: 'extraction')
+  @JsonKey(name: 'extraction', includeIfNull: false)
   String? extraction;
-  @JsonKey(includeIfNull: false, name: 'roast_point')
+  @JsonKey(name: 'roast_point', includeIfNull: false)
   int? roastPoint;
-  @JsonKey(includeIfNull: false, name: 'process')
-  String? process;
-  @JsonKey(includeIfNull: false, name: 'bev_type')
+  @JsonKey(name: 'process', fromJson: _stringFromJson, includeIfNull: false)
+  List<String>? process;
+  @JsonKey(name: 'bev_type', includeFromJson: false, includeIfNull: false,)
   bool? beverageType;
-  @JsonKey(includeIfNull: false, name: 'roastery')
+  @JsonKey(name: 'roastery', includeIfNull: false,)
   String? roastery;
-  @JsonKey(includeIfNull: false, name: 'variety')
+  @JsonKey(name: 'variety', includeIfNull: false,)
   String? variety;
   @JsonKey(name: 'is_user_created', defaultValue: false)
   final bool isUserCreated;
@@ -72,6 +72,6 @@ class CoffeeBeanDTO {
   });
 }
 
-List<String> _countryFromJson(String? json) {
-  return json?.split(',').toList() ?? [];
+List<String> _stringFromJson(String? json) {
+  return json?.split(',').map((e) => e.trim()).where((element) => element.isNotEmpty).toList() ?? [];
 }
