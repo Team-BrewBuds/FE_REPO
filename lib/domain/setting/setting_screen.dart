@@ -167,8 +167,9 @@ class _SettingScreenState extends State<SettingScreen> {
                   child: Column(
                     children: [
                       InkWell(
-                        onTap: () {
-                          AccountRepository.instance.logout();
+                        onTap: () async {
+                          await AccountRepository.instance.logout();
+                          context.go('/login');
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 24),
