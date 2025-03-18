@@ -5,14 +5,17 @@ import 'package:brew_buds/data/api/like_api.dart';
 import 'package:brew_buds/data/api/save_api.dart';
 import 'package:brew_buds/data/api/tasted_record_api.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_feed_dto.dart';
+import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_profile_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/taste_review_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_feed_mapper.dart';
+import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_profile_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/tasted_record_mapper.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 
 class TastedRecordRepository {
@@ -44,6 +47,44 @@ class TastedRecordRepository {
 
   Future<TastedRecord> fetchTastedRecord({required int id}) =>
       _tastedRecordApi.fetchTastedRecord(id: id).then((value) => value.toDomain());
+
+  Future<DefaultPage<TastedRecordInProfile>> fetchTastedRecordPage({
+    required int userId,
+    required int pageNo,
+    String? orderBy,
+    String? beanType,
+    bool? isDecaf,
+    String? country,
+    double? roastingPointMin,
+    double? roastingPointMax,
+    double? ratingMin,
+    double? ratingMax,
+  }) {
+    return _tastedRecordApi
+        .fetchTastedRecordPage(
+      userId: userId,
+      pageNo: pageNo,
+      orderBy: orderBy,
+      beanType: beanType,
+      isDecaf: isDecaf,
+      country: country,
+      roastingPointMin: roastingPointMin,
+      roastingPointMax: roastingPointMax,
+      ratingMin: ratingMin,
+      ratingMax: ratingMax,
+    )
+        .then(
+          (jsonString) {
+        final json = jsonDecode(jsonString);
+        return DefaultPage.fromJson(
+          json,
+              (jsonT) {
+            return TastedRecordInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
+          },
+        );
+      },
+    );
+  }
 
   Future<void> like({required int id, required bool isLiked}) {
     if (isLiked) {

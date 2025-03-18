@@ -1,33 +1,33 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/domain/coffee_note_post/view/tasting_record_grid_presenter.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
+import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_presenter.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class TastingRecordGridView extends StatefulWidget {
-  const TastingRecordGridView({super.key});
+class TastedRecordGridView extends StatefulWidget {
+  const TastedRecordGridView({super.key});
 
   @override
-  State<TastingRecordGridView> createState() => _TastingRecordGridViewState();
+  State<TastedRecordGridView> createState() => _TastedRecordGridViewState();
 
-  static Widget build({required List<TastingRecordInProfile> tastingRecords}) {
+  static Widget build({required List<TastedRecordInProfile> tastedRecords}) {
     return ChangeNotifierProvider(
-      create: (context) => TastingRecordGridPresenter(selectedTastingRecords: List.from(tastingRecords)),
+      create: (context) => TastedRecordGridPresenter(selectedTastedRecords: List.from(tastedRecords)),
       // ✅ 새로운 `Provider` 생성
-      child: const TastingRecordGridView(),
+      child: const TastedRecordGridView(),
     );
   }
 }
 
-class _TastingRecordGridViewState extends State<TastingRecordGridView> {
+class _TastedRecordGridViewState extends State<TastedRecordGridView> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<TastingRecordGridPresenter>().initState();
+      context.read<TastedRecordGridPresenter>().initState();
     });
   }
 
@@ -37,13 +37,13 @@ class _TastingRecordGridViewState extends State<TastingRecordGridView> {
       backgroundColor: ColorStyles.white,
       appBar: _buildAppBar(),
       body: SafeArea(
-        child: Selector<TastingRecordGridPresenter, GridViewState>(
+        child: Selector<TastedRecordGridPresenter, GridViewState>(
           selector: (context, presenter) => presenter.gridViewState,
-          builder: (context, gridViewState, child) => gridViewState.tastingRecords.isNotEmpty
+          builder: (context, gridViewState, child) => gridViewState.tastedRecords.isNotEmpty
               ? NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scroll) {
                     if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                      context.read<TastingRecordGridPresenter>().fetchMoreData();
+                      context.read<TastedRecordGridPresenter>().fetchMoreData();
                     }
                     return false;
                   },
@@ -51,20 +51,24 @@ class _TastingRecordGridViewState extends State<TastingRecordGridView> {
                     padding: const EdgeInsets.all(1),
                     child: GridView.builder(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3, mainAxisSpacing: 2, crossAxisSpacing: 2, childAspectRatio: 0.75),
-                      itemCount: gridViewState.tastingRecords.length,
+                        crossAxisCount: 3,
+                        mainAxisSpacing: 2,
+                        crossAxisSpacing: 2,
+                        childAspectRatio: 0.75,
+                      ),
+                      itemCount: gridViewState.tastedRecords.length,
                       itemBuilder: (context, index) {
-                        final tastingRecord = gridViewState.tastingRecords[index];
+                        final tastedRecord = gridViewState.tastedRecords[index];
                         return GestureDetector(
                           onTap: () {
-                            context.read<TastingRecordGridPresenter>().onSelected(tastingRecord);
+                            context.read<TastedRecordGridPresenter>().onSelected(tastedRecord);
                           },
                           child: _buildGridItem(
-                            imageUrl: tastingRecord.imageUri,
-                            rating: tastingRecord.rating,
-                            beanName: tastingRecord.beanName,
-                            selectedItemLength: gridViewState.selectedTastingRecords.length,
-                            selectedIndex: gridViewState.selectedTastingRecords.indexOf(tastingRecord),
+                            imageUrl: tastedRecord.imageUrl,
+                            rating: tastedRecord.rating,
+                            beanName: tastedRecord.beanName,
+                            selectedItemLength: gridViewState.selectedTastedRecords.length,
+                            selectedIndex: gridViewState.selectedTastedRecords.indexOf(tastedRecord),
                           ),
                         );
                       },
@@ -109,15 +113,15 @@ class _TastingRecordGridViewState extends State<TastingRecordGridView> {
             const Center(child: Text('시음기록', style: TextStyles.title01SemiBold)),
             Positioned(
               right: 0,
-              child: Selector<TastingRecordGridPresenter, List<TastingRecordInProfile>>(
-                selector: (context, presenter) => presenter.selectedTastingRecords,
-                builder: (context, selectedTastingRecords, child) {
-                  final hasSelectedItem = selectedTastingRecords.isNotEmpty;
+              child: Selector<TastedRecordGridPresenter, List<TastedRecordInProfile>>(
+                selector: (context, presenter) => presenter.selectedTastedRecords,
+                builder: (context, selectedTastedRecords, child) {
+                  final hasSelectedItem = selectedTastedRecords.isNotEmpty;
                   return AbsorbPointer(
                     absorbing: !hasSelectedItem,
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.of(context).pop(selectedTastingRecords);
+                        Navigator.of(context).pop(selectedTastedRecords);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),

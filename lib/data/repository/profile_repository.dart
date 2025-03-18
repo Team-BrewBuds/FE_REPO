@@ -4,14 +4,28 @@ import 'package:brew_buds/data/api/beans_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/api/tasted_record_api.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/profile.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_note.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_post.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_tasting_record.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_in_profile_dto.dart';
+import 'package:brew_buds/data/dto/post/noted_post_dto.dart';
+import 'package:brew_buds/data/dto/post/post_in_profile_dto.dart';
+import 'package:brew_buds/data/dto/tasted_record/noted_tasted_record_dto.dart';
+import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_profile_dto.dart';
+import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_in_profile_mapper.dart';
+import 'package:brew_buds/data/mapper/common/preferred_bean_taste_mapper.dart';
+import 'package:brew_buds/data/mapper/post/noted_post_mapper.dart';
+import 'package:brew_buds/data/mapper/post/post_in_profile_mapper.dart';
+import 'package:brew_buds/data/mapper/profile/account_info_mapper.dart';
+import 'package:brew_buds/data/mapper/profile/profile_mapper.dart';
+import 'package:brew_buds/data/mapper/tasted_record/noted_tasted_record_mapper.dart';
+import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_profile_mapper.dart';
+import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
+import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:brew_buds/model/common/preferred_bean_taste.dart';
+import 'package:brew_buds/model/noted/noted_object.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/profile/account_info.dart';
+import 'package:brew_buds/model/profile/profile.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 
 class ProfileRepository {
   final ProfileApi _profileApi = ProfileApi();
@@ -27,22 +41,66 @@ class ProfileRepository {
 
   factory ProfileRepository() => instance;
 
-  Future<Profile> fetchMyProfile() => _profileApi.fetchMyProfile();
+  Future<Profile> fetchMyProfile() => _profileApi.fetchMyProfile().then((value) => value.toDomain());
 
-  Future<Profile> fetchProfile({required int id}) => _profileApi.fetchProfile(id: id);
+  Future<Profile> fetchProfile({required int id}) => _profileApi.fetchProfile(id: id).then((value) => value.toDomain());
 
-  Future<void> fetchUpdateProfile(Map<String, dynamic> data) => _profileApi.updateMyProfile(body: data);
+  Future<bool> isValidNickname({required String nickname}) async {
+    final result = await _profileApi.checkNickname(nickname: nickname).onError((error, stackTrace) => '');
+    final jsonResult = jsonDecode(result) as Map<String, dynamic>;
+    return (jsonResult['is_available'] as bool?) ?? false;
+  }
+
+  Future<void> updateProfile({
+    String? nickname,
+    String? introduction,
+    String? profileLink,
+    List<CoffeeLife> coffeeLife = const [],
+    PreferredBeanTaste? preferredBeanTaste,
+    bool? isCertificated,
+  }) {
+    final Map<String, dynamic> data = {};
+    final Map<String, dynamic> userDetail = {};
+    writeNotNull(String key, dynamic value) {
+      if (value != null) {
+        userDetail[key] = value;
+      }
+    }
+    writeNotNull('introduction', introduction);
+    writeNotNull('profile_link', profileLink);
+    writeNotNull('coffee_life', _coffeeLifeToJson(coffeeLife));
+    writeNotNull('preferred_bean_taste', preferredBeanTaste?.toJson());
+    writeNotNull('is_certificated', isCertificated);
+    data['user_detail'] = userDetail;
+
+    return _profileApi.updateMyProfile(body: data);
+  }
+
+  Map<String, dynamic> _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {
+    return {
+      'cafe_alba': coffeeLife.contains(CoffeeLife.cafeAlba),
+      'cafe_tour': coffeeLife.contains(CoffeeLife.cafeTour),
+      'cafe_work': coffeeLife.contains(CoffeeLife.cafeWork),
+      'coffee_study': coffeeLife.contains(CoffeeLife.coffeeStudy),
+      'cafe_operation': coffeeLife.contains(CoffeeLife.cafeOperation),
+      'coffee_extraction': coffeeLife.contains(CoffeeLife.coffeeExtraction),
+    };
+  }
 
   Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId}) {
     return _postApi.fetchPostPage(userId: userId).then((jsonString) {
       final json = jsonDecode(jsonString);
       return DefaultPage.fromJson(json, (jsonT) {
-        return PostInProfile.fromJson(jsonT as Map<String, dynamic>);
+        return PostInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
       });
     });
   }
 
-  Future<DefaultPage<TastingRecordInProfile>> fetchTastingRecordPage({
+  Future<AccountInfo> fetchInfo({required int id}) {
+    return _profileApi.fetchUserInfo(id: id).then((value) => value.toDomain());
+  }
+
+  Future<DefaultPage<TastedRecordInProfile>> fetchTastedRecordPage({
     required int userId,
     required int pageNo,
     String? orderBy,
@@ -73,7 +131,7 @@ class ProfileRepository {
         return DefaultPage.fromJson(
           json,
           (jsonT) {
-            return TastingRecordInProfile.fromJson(jsonT as Map<String, dynamic>);
+            return TastedRecordInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
           },
         );
       },
@@ -111,22 +169,22 @@ class ProfileRepository {
         return DefaultPage.fromJson(
           json,
           (jsonT) {
-            return BeanInProfile.fromJson(jsonT as Map<String, dynamic>);
+            return CoffeeBeanInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
           },
         );
       },
     );
   }
 
-  Future<DefaultPage<SavedNote>> fetchNotePage({required int userId, required int pageNo}) {
+  Future<DefaultPage<NotedObject>> fetchNotePage({required int userId, required int pageNo}) {
     return _profileApi.fetchSavedNotes(id: userId, pageNo: pageNo).then((jsonString) {
       final json = jsonDecode(jsonString);
       return DefaultPage.fromJson(json, (jsonT) {
         final jsonMap = jsonT as Map<String, dynamic>;
         if (jsonMap.containsKey('post_id')) {
-          return SavedPost.fromJson(jsonMap);
+          return NotedPostDTO.fromJson(jsonMap).toDomain();
         } else {
-          return SavedTastingRecord.fromJson(jsonMap);
+          return NotedTastedRecordDTO.fromJson(jsonMap).toDomain();
         }
       });
     });

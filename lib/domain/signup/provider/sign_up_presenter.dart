@@ -1,8 +1,8 @@
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:brew_buds/domain/signup/models/gender.dart';
-import 'package:brew_buds/domain/signup/models/preferred_bean_taste.dart';
+import 'package:brew_buds/model/common/gender.dart';
+import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
 import 'package:flutter/foundation.dart';
 

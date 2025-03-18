@@ -1,6 +1,6 @@
 import 'package:brew_buds/data/mapper/common/coffee_life_mapper.dart';
 import 'package:brew_buds/data/mapper/sign_up/preferred_bean_taste_mapper.dart';
-import 'package:brew_buds/domain/signup/models/gender.dart';
+import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
 
 extension SignUpStateToJson on SignUpState {

@@ -11,12 +11,10 @@ import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/sort_criteria_bottom_sheet.dart';
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_note.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_post.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_tasting_record.dart';
+import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/profile_post_item_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_coffee_bean_widget.dart';
@@ -513,13 +511,13 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         final currentPage = page;
         if (currentPage != null) {
           final result = currentPage.results;
-          if (result is List<TastingRecordInProfile>) {
+          if (result is List<TastedRecordInProfile>) {
             return _buildTastedRecordsList(tastingRecords: result);
           } else if (result is List<PostInProfile>) {
             return _buildPostsList(posts: result);
           } else if (result is List<BeanInProfile>) {
             return _buildSavedCoffeeBeansList(beans: result);
-          } else if (result is List<SavedNote>) {
+          } else if (result is List<NotedObject>) {
             return _buildSavedPostsList(savedNotes: result);
           }
         }
@@ -528,7 +526,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     );
   }
 
-  Widget _buildTastedRecordsList({required List<TastingRecordInProfile> tastingRecords}) {
+  Widget _buildTastedRecordsList({required List<TastedRecordInProfile> tastingRecords}) {
     return tastingRecords.isEmpty
         ? SliverFillRemaining(
             child: Center(
@@ -551,7 +549,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     showTastingRecordDetail(context: context, id: tastingRecords[index].id);
                   },
                   child: TastingRecordItemWidget(
-                    imageUri: tastingRecord.imageUri,
+                    imageUri: tastingRecord.imageUrl,
                     rating: tastingRecord.rating,
                   ),
                 );
@@ -613,7 +611,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           );
   }
 
-  _buildSavedPostsList({required List<SavedNote> savedNotes}) {
+  _buildSavedPostsList({required List<NotedObject> savedNotes}) {
     return savedNotes.isEmpty
         ? SliverFillRemaining(
             child: Center(
@@ -624,34 +622,33 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             itemCount: savedNotes.length,
             itemBuilder: (context, index) {
               final note = savedNotes[index];
-              if (note is SavedPost) {
-                return GestureDetector(
-                  onTap: () {
-                    showTastingRecordDetail(context: context, id: note.id);
-                  },
-                  child: SavedPostWidget(
-                    title: note.title,
-                    subject: note.subject.toString(),
-                    createdAt: note.createdAt,
-                    author: note.author,
-                    imageUri: note.imageUri,
-                  ),
-                );
-              } else if (note is SavedTastingRecord) {
-                return GestureDetector(
-                  onTap: () {
-                    showTastingRecordDetail(context: context, id: note.id);
-                  },
-                  child: SavedTastingRecordWidget(
-                    beanName: note.beanName,
-                    rating: '4.5',
-                    likeCount: '22',
-                    flavor: note.flavor,
-                    imageUri: note.imageUri,
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
+              switch (note) {
+                case NotedPost():
+                  return GestureDetector(
+                    onTap: () {
+                      showTastingRecordDetail(context: context, id: note.id);
+                    },
+                    child: SavedPostWidget(
+                      title: note.title,
+                      subject: note.subject.toString(),
+                      createdAt: note.createdAt,
+                      author: note.author,
+                      imageUri: note.imageUrl,
+                    ),
+                  );
+                case NotedTastedRecord():
+                  return GestureDetector(
+                    onTap: () {
+                      showTastingRecordDetail(context: context, id: note.id);
+                    },
+                    child: SavedTastingRecordWidget(
+                      beanName: note.beanName,
+                      rating: '4.5',
+                      likeCount: '22',
+                      flavor: note.flavor,
+                      imageUri: note.imageUrl,
+                    ),
+                  );
               }
             },
             separatorBuilder: (context, index) {

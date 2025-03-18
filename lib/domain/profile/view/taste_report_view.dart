@@ -3,11 +3,10 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_post.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_tasting_record.dart';
+import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
+import 'package:brew_buds/model/noted/noted_object.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/activity_calendar_builder.dart';
 import 'package:brew_buds/domain/profile/widgets/profile_post_item_widget.dart';
@@ -439,7 +438,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 activityListState.page.results.length,
                 (index) {
                   final activity = activityListState.page.results[index];
-                  if (activity is TastingRecordInProfile) {
+                  if (activity is TastedRecordInProfile) {
                     return GestureDetector(
                       onTap: () {
                         showTastingRecordDetail(context: context, id: activity.id);
@@ -449,7 +448,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         rating: '4.5',
                         likeCount: '22',
                         flavor: [],
-                        imageUri: activity.imageUri,
+                        imageUri: activity.imageUrl,
                       ),
                     );
                   } else if (activity is PostInProfile) {
@@ -471,7 +470,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                       tastedRecordsCount: activity.tastedRecordsCount,
                       imageUri: '',
                     );
-                  } else if (activity is SavedPost) {
+                  } else if (activity is NotedPost) {
                     return GestureDetector(
                       onTap: () {
                         showTastingRecordDetail(context: context, id: activity.id);
@@ -481,10 +480,10 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         subject: activity.subject.toString(),
                         createdAt: activity.createdAt,
                         author: activity.author,
-                        imageUri: activity.imageUri,
+                        imageUri: activity.imageUrl,
                       ),
                     );
-                  } else if (activity is SavedTastingRecord) {
+                  } else if (activity is NotedTastedRecord) {
                     return GestureDetector(
                       onTap: () {
                         showTastingRecordDetail(context: context, id: activity.id);
@@ -494,7 +493,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         rating: '4.5',
                         likeCount: '22',
                         flavor: activity.flavor,
-                        imageUri: activity.imageUri,
+                        imageUri: activity.imageUrl,
                       ),
                     );
                   } else {

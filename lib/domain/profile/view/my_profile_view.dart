@@ -91,7 +91,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
               final nickname = context.read<ProfilePresenter>().nickName;
               final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';
               final profileLink = context.read<ProfilePresenter>().profile?.profileLink ?? '';
-              final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageURI ?? '';
+              final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageUrl ?? '';
               final coffeeLife = context.read<ProfilePresenter>().profile?.coffeeLife ?? [];
               final EditProfileData data = (
                 nickname: nickname,

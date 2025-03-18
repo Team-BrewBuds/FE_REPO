@@ -1,8 +1,8 @@
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_note.dart';
+import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:flutter/foundation.dart';
 
 typedef ActivityInformationState = ({int tastingReportCount, int postCount, int savedNoteCount, int savedBeanCount});
@@ -31,10 +31,10 @@ enum ActivityType {
 final class TasteReportPresenter extends ChangeNotifier {
   final String nickname;
   final int _id;
-  DefaultPage<TastingRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
+  DefaultPage<TastedRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
   DefaultPage<PostInProfile> _postsPage = DefaultPage.initState();
   DefaultPage<BeanInProfile> _beansPage = DefaultPage.initState();
-  DefaultPage<SavedNote> _savedNotesPage = DefaultPage.initState();
+  DefaultPage<NotedObject> _savedNotesPage = DefaultPage.initState();
   int _activityTypeIndex = 0;
   DateTime _focusedDay = DateTime.now();
 

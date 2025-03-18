@@ -2,11 +2,11 @@ import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/bean_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/post_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/in_profile/tasting_record_in_profile.dart';
-import 'package:brew_buds/domain/profile/model/profile.dart';
-import 'package:brew_buds/domain/profile/model/saved_note/saved_note.dart';
+import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:brew_buds/model/profile/profile.dart';
+import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:flutter/foundation.dart';
 
 typedef ProfileState = ({String imageUrl, int tastingRecordCount, int followerCount, int followingCount});
@@ -27,10 +27,10 @@ class ProfilePresenter extends ChangeNotifier {
 
   final ProfileRepository repository;
   Profile? profile;
-  DefaultPage<TastingRecordInProfile>? _tastingRecordsPage;
-  DefaultPage<PostInProfile>? _postsPage;
-  DefaultPage<BeanInProfile>? _beansPage;
-  DefaultPage<SavedNote>? _savedNotesPage;
+  DefaultPage<TastedRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
+  DefaultPage<PostInProfile> _postsPage = DefaultPage.initState();
+  DefaultPage<BeanInProfile> _beansPage = DefaultPage.initState();
+  DefaultPage<NotedObject> _savedNotesPage = DefaultPage.initState();
   int _currentSortCriteriaIndex = 0;
   final List<CoffeeBeanFilter> _filters = [];
   int _tabIndex = 0;
@@ -41,7 +41,7 @@ class ProfilePresenter extends ChangeNotifier {
   String get nickName => profile?.nickname ?? '';
 
   ProfileState get profileState => (
-        imageUrl: profile?.profileImageURI ?? '',
+        imageUrl: profile?.profileImageUrl ?? '',
         tastingRecordCount: profile?.postCount ?? 0,
         followerCount: profile?.followerCount ?? 0,
         followingCount: profile?.followingCount ?? 0,
@@ -116,7 +116,7 @@ class ProfilePresenter extends ChangeNotifier {
     if (id != null) {
       if (_tabIndex == 0) {
         repository
-            .fetchTastingRecordPage(
+            .fetchTastedRecordPage(
           userId: id,
           pageNo: _pageNo + 1,
           //수정 필요 정렬 이상함(api)
@@ -131,24 +131,14 @@ class ProfilePresenter extends ChangeNotifier {
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         )
             .then((page) {
-          final previous = _tastingRecordsPage;
-          if (previous != null) {
-            _tastingRecordsPage = previous.copyWith(results: previous.results + page.results, hasNext: page.hasNext);
-          } else {
-            _tastingRecordsPage = page;
-          }
+          _tastingRecordsPage = page.copyWith(results: _tastingRecordsPage.results + page.results);
           _pageNo += 1;
         }).whenComplete(() {
           notifyListeners();
         });
       } else if (_tabIndex == 1) {
         repository.fetchPostPage(userId: id).then((page) {
-          final previous = _postsPage;
-          if (previous != null) {
-            _postsPage = previous.copyWith(results: previous.results + page.results, hasNext: page.hasNext);
-          } else {
-            _postsPage = page;
-          }
+          _postsPage = page.copyWith(results: _postsPage.results + page.results);
           _pageNo += 1;
         }).whenComplete(() {
           notifyListeners();
@@ -170,24 +160,14 @@ class ProfilePresenter extends ChangeNotifier {
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         )
             .then((page) {
-          final previous = _beansPage;
-          if (previous != null) {
-            _beansPage = previous.copyWith(results: previous.results + page.results, hasNext: page.hasNext);
-          } else {
-            _beansPage = page;
-          }
+          _beansPage = page.copyWith(results: _beansPage.results + page.results);
           _pageNo += 1;
         }).whenComplete(() {
           notifyListeners();
         });
       } else {
         repository.fetchNotePage(userId: id, pageNo: _pageNo + 1).then((page) {
-          final previous = _savedNotesPage;
-          if (previous != null) {
-            _savedNotesPage = previous.copyWith(results: previous.results + page.results, hasNext: page.hasNext);
-          } else {
-            _savedNotesPage = page;
-          }
+          _savedNotesPage = page.copyWith(results: _savedNotesPage.results + page.results);
           _pageNo += 1;
         }).whenComplete(() {
           notifyListeners();
