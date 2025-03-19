@@ -1,7 +1,7 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
 import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
 import 'package:brew_buds/model/common/default_page.dart';
@@ -75,54 +75,58 @@ class _FollowerListPBState extends State<FollowerListPB> {
             _buildTabBar(),
             Expanded(
               child: Selector<FollowerListPBPresenter, DefaultPage<FollowUser>?>(
-                  selector: (context, presenter) => presenter.page,
-                  builder: (context, page, child) {
-                    return ListView.builder(
-                      controller: scrollController,
-                      itemCount: page?.results.length ?? 0,
-                      itemBuilder: (context, index) {
-                        final userList = page?.results ?? [];
-                        final user = userList[index];
-                        return Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                          child: Row(
-                            children: [
-                              MyNetworkImage(
-                                imageUrl: user.profileImageUrl,
-                                height: 48,
-                                width: 48,
-                                shape: BoxShape.circle,
+                selector: (context, presenter) => presenter.page,
+                builder: (context, page, child) {
+                  return ListView.builder(
+                    controller: scrollController,
+                    itemCount: page?.results.length ?? 0,
+                    itemBuilder: (context, index) {
+                      final userList = page?.results ?? [];
+                      final user = userList[index];
+                      return Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                        child: Row(
+                          children: [
+                            MyNetworkImage(
+                              imageUrl: user.profileImageUrl,
+                              height: 48,
+                              width: 48,
+                              shape: BoxShape.circle,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                user.nickname,
+                                style: TextStyles.labelMediumMedium,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  user.nickname,
-                                  style: TextStyles.labelMediumMedium,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ButtonFactory.buildOvalButton(
-                                onTapped: () {
+                            ),
+                            const SizedBox(width: 8),
+                            if (AccountRepository.instance.id != user.id)
+                              GestureDetector(
+                                onTap: () {
                                   context.read<FollowerListPBPresenter>().onTappedFollowButton(user);
                                 },
-                                text: user.isFollowing ? '팔로잉' : '팔로우',
-                                style: user.isFollowing
-                                    ? OvalButtonStyle.fill(
-                                    color: ColorStyles.gray20,
-                                    textColor: ColorStyles.gray80,
-                                    size: OvalButtonSize.large)
-                                    : OvalButtonStyle.fill(
-                                  color: ColorStyles.red,
-                                  textColor: ColorStyles.white,
-                                  size: OvalButtonSize.large,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: user.isFollowing ? ColorStyles.gray30 : ColorStyles.red,
+                                    borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                  ),
+                                  child: Text(
+                                    user.isFollowing ? '팔로잉' : '팔로우',
+                                    style: TextStyles.labelSmallMedium
+                                        .copyWith(color: user.isFollowing ? ColorStyles.black : ColorStyles.white),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             )
           ],
         ),

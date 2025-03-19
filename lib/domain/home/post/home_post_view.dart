@@ -1,6 +1,6 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
@@ -172,32 +172,43 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
               filters.length + 1,
               (index) {
                 if (index == 0) {
-                  return ButtonFactory.buildOvalButton(
-                    onTapped: () => context.push('/home/popular_post'),
-                    text: '인기',
-                    style: OvalButtonStyle.line(
-                      color: ColorStyles.red,
-                      textColor: ColorStyles.red,
-                      size: OvalButtonSize.medium,
+                  return GestureDetector(
+                    onTap: () {
+                      context.push('/home/popular_post');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: ColorStyles.background,
+                        border: Border.all(color: ColorStyles.red),
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      ),
+                      child: Text('인기', style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red)),
                     ),
                   );
                 } else {
-                  return ButtonFactory.buildOvalButton(
-                    onTapped: () {
-                      return context.read<HomePostPresenter>().onChangeSubject(index - 1);
+                  return GestureDetector(
+                    onTap: () {
+                      context.read<HomePostPresenter>().onChangeSubject(index - 1);
                     },
-                    text: filters[index - 1],
-                    style: index - 1 == currentFilterIndex
-                        ? OvalButtonStyle.fill(
-                            color: ColorStyles.black,
-                            textColor: ColorStyles.white,
-                            size: OvalButtonSize.medium,
-                          )
-                        : OvalButtonStyle.line(
-                            color: ColorStyles.gray70,
-                            textColor: ColorStyles.gray70,
-                            size: OvalButtonSize.medium,
-                          ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                      decoration: currentFilterIndex == index - 1
+                          ? const BoxDecoration(
+                              color: ColorStyles.black,
+                              borderRadius: BorderRadius.all(Radius.circular(20)),
+                            )
+                          : BoxDecoration(
+                              border: Border.all(color: ColorStyles.gray70),
+                              borderRadius: const BorderRadius.all(Radius.circular(20)),
+                            ),
+                      child: Text(
+                        filters[index - 1],
+                        style: TextStyles.labelMediumMedium.copyWith(
+                          color: currentFilterIndex == index - 1 ? ColorStyles.white : ColorStyles.gray70,
+                        ),
+                      ),
+                    ),
                   );
                 }
               },

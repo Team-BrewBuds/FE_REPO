@@ -1,12 +1,13 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
-import 'package:brew_buds/common/factory/icon_button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
+import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
+import 'package:brew_buds/common/widgets/save_button.dart';
+import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
@@ -89,7 +90,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                   selector: (context, presenter) => presenter.bottomButtonInfo,
                   builder: (context, bottomButtonInfo, child) => buildBottomButtons(
                     likeCount: bottomButtonInfo.likeCount,
-                    isLiked: bottomButtonInfo.isLiked,
+                    isLiked: bottomButtonInfo.isSaved,
                     isSaved: bottomButtonInfo.isSaved,
                   ),
                 ),
@@ -136,12 +137,7 @@ class _PostDetailViewState extends State<PostDetailView> {
               onTap: () {
                 context.pop();
               },
-              child: SvgPicture.asset(
-                'assets/icons/x.svg',
-                fit: BoxFit.cover,
-                height: 24,
-                width: 24,
-              ),
+              child: SvgPicture.asset('assets/icons/x.svg', fit: BoxFit.cover, height: 24, width: 24),
             ),
             const Spacer(),
             const Text('게시물', style: TextStyles.title02SemiBold),
@@ -152,12 +148,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                 onTap: () {
                   showSortCriteriaBottomSheet(isMine: isMine);
                 },
-                child: SvgPicture.asset(
-                  'assets/icons/more.svg',
-                  fit: BoxFit.cover,
-                  height: 24,
-                  width: 24,
-                ),
+                child: SvgPicture.asset('assets/icons/more.svg', fit: BoxFit.cover, height: 24, width: 24),
               ),
             ),
           ],
@@ -196,24 +187,14 @@ class _PostDetailViewState extends State<PostDetailView> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            MyNetworkImage(
-              imageUrl: imageUrl,
-              height: 36,
-              width: 36,
-              shape: BoxShape.circle,
-            ),
+            MyNetworkImage(imageUrl: imageUrl, height: 36, width: 36, shape: BoxShape.circle),
             const SizedBox(width: 8),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
-                    //닉네임
-                    child: Text(
-                      nickName,
-                      textAlign: TextAlign.start,
-                      style: TextStyles.title01SemiBold,
-                    ),
+                    child: Text(nickName, textAlign: TextAlign.start, style: TextStyles.title01SemiBold),
                   ),
                   Expanded(
                     child: Text(
@@ -226,7 +207,6 @@ class _PostDetailViewState extends State<PostDetailView> {
             ),
             if (!isMine) ...[
               const SizedBox(width: 8),
-              //Api 수정.
               FollowButton(
                 onTap: () {
                   context.read<PostDetailPresenter>().onTappedFollowButton();
@@ -288,12 +268,7 @@ class _PostDetailViewState extends State<PostDetailView> {
               ),
             ),
           ),
-        _buildTextBody(
-          title: title,
-          contents: contents,
-          tag: tag,
-          subject: subject,
-        ),
+        _buildTextBody(title: title, contents: contents, tag: tag, subject: subject),
       ],
     );
   }
@@ -317,9 +292,7 @@ class _PostDetailViewState extends State<PostDetailView> {
           const SizedBox(height: 12, width: double.infinity),
           Text(
             tag.replaceAll(',', '#').startsWith('#') ? tag.replaceAll(',', '#') : '#${tag.replaceAll(',', '#')}',
-            style: TextStyles.labelSmallMedium.copyWith(
-              color: ColorStyles.red,
-            ),
+            style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.red),
           ),
         ],
       ),
@@ -357,52 +330,22 @@ class _PostDetailViewState extends State<PostDetailView> {
       padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 16),
       child: Row(
         children: [
-          buildLikeButton(likeCount: likeCount, isLiked: isLiked),
+          LikeButton(
+            onTap: () {
+              context.read<PostDetailPresenter>().onTappedLikeButton();
+            },
+            isLiked: isLiked,
+            likeCount: likeCount,
+          ),
           const Spacer(),
-          buildSaveButton(isSaved: isSaved),
+          SaveButton(
+            onTap: () {
+              context.read<PostDetailPresenter>().onTappedSaveButton();
+            },
+            isSaved: isSaved,
+          ),
         ],
       ),
-    );
-  }
-
-  //Api 변경 내가 좋아요 했는지 모름.
-  Widget buildLikeButton({required int likeCount, required bool isLiked}) {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
-        height: 24,
-        width: 24,
-        colorFilter: ColorFilter.mode(
-          isLiked ? ColorStyles.red : ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
-      ),
-      text: '좋아요 $likeCount',
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: () {
-        context.read<PostDetailPresenter>().onTappedLikeButton();
-      },
-      iconAlign: ButtonIconAlign.left,
-    );
-  }
-
-  Widget buildSaveButton({required bool isSaved}) {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
-        height: 24,
-        width: 24,
-        colorFilter: ColorFilter.mode(
-          isSaved ? ColorStyles.red : ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
-      ),
-      text: '저장',
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      iconAlign: ButtonIconAlign.left,
-      onTapped: () {
-        context.read<PostDetailPresenter>().onTappedSaveButton();
-      },
     );
   }
 
@@ -410,10 +353,7 @@ class _PostDetailViewState extends State<PostDetailView> {
   Widget _buildCommentTitle({required int commentsCount}) {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-      child: Text(
-        '댓글 ($commentsCount)',
-        style: TextStyles.title01SemiBold,
-      ),
+      child: Text('댓글 ($commentsCount)', style: TextStyles.title01SemiBold),
     );
   }
 
@@ -563,29 +503,29 @@ class _PostDetailViewState extends State<PostDetailView> {
               ),
             ),
           if (!isMine)
-          Expanded(
-            child: GestureDetector(
-              child: Container(
-                color: ColorStyles.gray30,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/declaration.svg',
-                      height: 32,
-                      width: 32,
-                      colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
-                    ),
-                    Text(
-                      '신고하기',
-                      style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
-                    )
-                  ],
+            Expanded(
+              child: GestureDetector(
+                child: Container(
+                  color: ColorStyles.gray30,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/declaration.svg',
+                        height: 32,
+                        width: 32,
+                        colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
+                      ),
+                      Text(
+                        '신고하기',
+                        style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
       child: commentItem,
@@ -630,11 +570,7 @@ class _PostDetailViewState extends State<PostDetailView> {
                       onTap: () {
                         context.read<PostDetailPresenter>().cancelReply();
                       },
-                      child: SvgPicture.asset(
-                        'assets/icons/x_round.svg',
-                        height: 24,
-                        width: 24,
-                      ),
+                      child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
                     )
                   ],
                 ),
@@ -659,8 +595,8 @@ class _PostDetailViewState extends State<PostDetailView> {
                 contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-                  child: ButtonFactory.buildOvalButton(
-                    onTapped: () {
+                  child: SendButton(
+                    onTap: () {
                       if (_textEditingController.text.isNotEmpty) {
                         context
                             .read<PostDetailPresenter>()
@@ -668,12 +604,6 @@ class _PostDetailViewState extends State<PostDetailView> {
                             .then((_) => _textEditingController.value = TextEditingValue.empty);
                       }
                     },
-                    text: '전송',
-                    style: OvalButtonStyle.fill(
-                      color: ColorStyles.black,
-                      textColor: ColorStyles.white,
-                      size: OvalButtonSize.large,
-                    ),
                   ),
                 ),
                 suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
@@ -716,10 +646,9 @@ class _PostDetailViewState extends State<PostDetailView> {
   }
 
   Widget _buildMineBottomSheet() {
-    return Wrap(
-      direction: Axis.vertical,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
           onTap: () {},
@@ -747,15 +676,21 @@ class _PostDetailViewState extends State<PostDetailView> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: ButtonFactory.buildRoundedButton(
-            onTapped: () {
+          child: GestureDetector(
+            onTap: () {
               context.pop();
             },
-            text: '닫기',
-            style: RoundedButtonStyle.fill(
-              color: ColorStyles.black,
-              textColor: ColorStyles.white,
-              size: RoundedButtonSize.xLarge,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+              decoration: const BoxDecoration(
+                color: ColorStyles.black,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Text(
+                '닫기',
+                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         )
@@ -764,10 +699,9 @@ class _PostDetailViewState extends State<PostDetailView> {
   }
 
   Widget _buildOthersBottomSheet() {
-    return Wrap(
-      direction: Axis.vertical,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
           onTap: () {},
@@ -795,18 +729,24 @@ class _PostDetailViewState extends State<PostDetailView> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: ButtonFactory.buildRoundedButton(
-            onTapped: () {
+          child: GestureDetector(
+            onTap: () {
               context.pop();
             },
-            text: '닫기',
-            style: RoundedButtonStyle.fill(
-              color: ColorStyles.black,
-              textColor: ColorStyles.white,
-              size: RoundedButtonSize.xLarge,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+              decoration: const BoxDecoration(
+                color: ColorStyles.black,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Text(
+                '닫기',
+                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

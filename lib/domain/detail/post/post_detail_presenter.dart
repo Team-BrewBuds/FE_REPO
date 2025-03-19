@@ -25,7 +25,7 @@ typedef BodyInfo = ({
   String tag,
   PostSubject subject,
 });
-typedef BottomButtonInfo = ({int likeCount, bool isLiked, int commentCount, bool isSaved});
+typedef BottomButtonInfo = ({int likeCount, bool isLiked, bool isSaved});
 typedef CommentsInfo = ({int? authorId, DefaultPage<Comment> page});
 typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String authorNickname});
 
@@ -63,7 +63,6 @@ final class PostDetailPresenter extends ChangeNotifier {
   BottomButtonInfo get bottomButtonInfo => (
         likeCount: _post?.likeCount ?? 0,
         isLiked: _post?.isLiked ?? false,
-        commentCount: _page.results.length,
         isSaved: _post?.isSaved ?? false,
       );
 
