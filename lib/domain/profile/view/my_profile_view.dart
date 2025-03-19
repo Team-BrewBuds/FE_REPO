@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/di/navigator.dart';
@@ -74,43 +73,57 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
     return SliverToBoxAdapter(
       child: Row(
         children: [
-          ButtonFactory.buildRoundedButton(
-            onTapped: () {
-              final id = context.read<ProfilePresenter>().id;
-              final nickname = context.read<ProfilePresenter>().nickName;
-              pushToTasteReport(context: context, id: id, nickname: nickname);
-            },
-            text: '취향 리포트 보기',
-            style: RoundedButtonStyle.fill(
-              size: RoundedButtonSize.medium,
-              color: ColorStyles.black,
-              textColor: ColorStyles.white,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                final id = context.read<ProfilePresenter>().id;
+                final nickname = context.read<ProfilePresenter>().nickName;
+                pushToTasteReport(context: context, id: id, nickname: nickname);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                decoration: const BoxDecoration(
+                  color: ColorStyles.black,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: Text(
+                  '취향 리포트 보기',
+                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 8),
-          ButtonFactory.buildRoundedButton(
-            onTapped: () {
-              final nickname = context.read<ProfilePresenter>().nickName;
-              final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';
-              final profileLink = context.read<ProfilePresenter>().profile?.profileLink ?? '';
-              final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageUrl ?? '';
-              final coffeeLife = context.read<ProfilePresenter>().profile?.coffeeLife ?? [];
-              final EditProfileData data = (
-                nickname: nickname,
-                introduction: introduction,
-                link: profileLink,
-                imageUrl: profileImageURI,
-                coffeeLife: coffeeLife,
-              );
-              context.push('/profile/edit', extra: data).then(
-                    (_) => context.read<ProfilePresenter>().refresh(),
-                  );
-            },
-            text: '프로필 편집',
-            style: RoundedButtonStyle.fill(
-              size: RoundedButtonSize.medium,
-              color: ColorStyles.gray30,
-              textColor: ColorStyles.black,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                final nickname = context.read<ProfilePresenter>().nickName;
+                final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';
+                final profileLink = context.read<ProfilePresenter>().profile?.profileLink ?? '';
+                final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageUrl ?? '';
+                final coffeeLife = context.read<ProfilePresenter>().profile?.coffeeLife ?? [];
+                final EditProfileData data = (
+                  nickname: nickname,
+                  introduction: introduction,
+                  link: profileLink,
+                  imageUrl: profileImageURI,
+                  coffeeLife: coffeeLife,
+                );
+                context.push('/profile/edit', extra: data).then(
+                      (_) => context.read<ProfilePresenter>().refresh(),
+                    );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                decoration: const BoxDecoration(
+                  color: ColorStyles.gray30,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: const Text(
+                  '프로필 편진',
+                  style: TextStyles.labelSmallMedium,
+                ),
+              ),
             ),
           ),
         ],

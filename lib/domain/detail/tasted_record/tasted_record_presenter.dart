@@ -7,7 +7,7 @@ import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:flutter/foundation.dart';
 
-typedef BottomButtonInfo = ({int likeCount, bool isLiked, int commentCount, bool isSaved});
+typedef BottomButtonInfo = ({int likeCount, bool isLiked, bool isSaved});
 typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow, bool isMine});
 typedef ContentsInfo = ({double rating, List<String> flavors, String tastedAt, String contents, String location});
 typedef BeanInfo = ({
@@ -40,7 +40,6 @@ final class TastedRecordPresenter extends ChangeNotifier {
   BottomButtonInfo get bottomButtonInfo => (
         likeCount: _tastedRecord?.likeCount ?? 0,
         isLiked: _tastedRecord?.isLiked ?? false,
-        commentCount: _page.results.length,
         isSaved: _tastedRecord?.isSaved ?? false,
       );
 

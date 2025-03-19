@@ -1,13 +1,14 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
-import 'package:brew_buds/common/factory/button_factory.dart';
-import 'package:brew_buds/common/factory/icon_button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
+import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
+import 'package:brew_buds/common/widgets/save_button.dart';
+import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
@@ -29,7 +30,6 @@ class TastedRecordDetailView extends StatefulWidget {
 }
 
 class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
-  final GlobalKey _commentsListKey = GlobalKey();
   late final TextEditingController _textEditingController;
   late final ScrollController _scrollController;
   int currentIndex = 0;
@@ -74,7 +74,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                     selector: (context, presenter) => presenter.bottomButtonInfo,
                     builder: (context, bottomButtonInfo, child) => _buildButtons(
                       likeCount: bottomButtonInfo.likeCount,
-                      isLiked: bottomButtonInfo.isLiked,
+                      isLiked: bottomButtonInfo.isSaved,
                       isSaved: bottomButtonInfo.isSaved,
                     ),
                   ),
@@ -290,8 +290,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                   contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
-                    child: ButtonFactory.buildOvalButton(
-                      onTapped: () {
+                    child: SendButton(
+                      onTap: () {
                         if (_textEditingController.text.isNotEmpty) {
                           context
                               .read<TastedRecordPresenter>()
@@ -299,12 +299,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
                               .then((_) => _textEditingController.value = TextEditingValue.empty);
                         }
                       },
-                      text: '전송',
-                      style: OvalButtonStyle.fill(
-                        color: ColorStyles.black,
-                        textColor: ColorStyles.white,
-                        size: OvalButtonSize.large,
-                      ),
                     ),
                   ),
                   suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
@@ -339,71 +333,22 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
       padding: const EdgeInsets.only(left: 16, right: 16, top: 12),
       child: Row(
         children: [
-          buildLikeButton(likeCount: likeCount, isLiked: isLiked),
+          LikeButton(
+            onTap: () {
+              context.read<TastedRecordPresenter>().onTappedLikeButton();
+            },
+            isLiked: isLiked,
+            likeCount: likeCount,
+          ),
           const Spacer(),
-          buildSaveButton(isSaved: isSaved),
+          SaveButton(
+            onTap: () {
+              context.read<TastedRecordPresenter>().onTappedSaveButton();
+            },
+            isSaved: isSaved,
+          ),
         ],
       ),
-    );
-  }
-
-  Widget buildLikeButton({required int likeCount, required bool isLiked}) {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
-        height: 24,
-        width: 24,
-        colorFilter: ColorFilter.mode(
-          isLiked ? ColorStyles.red : ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
-      ),
-      text: '좋아요 $likeCount',
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: () {
-        context.read<TastedRecordPresenter>().onTappedLikeButton();
-      },
-      iconAlign: ButtonIconAlign.left,
-    );
-  }
-
-  Widget buildCommentButton({required int commentCount}) {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        'assets/icons/message.svg',
-        height: 24,
-        width: 24,
-        colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
-      ),
-      text: '댓글 $commentCount',
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      onTapped: () {
-        if (_commentsListKey.currentContext != null) {
-          Scrollable.ensureVisible(
-            _commentsListKey.currentContext!,
-            duration: const Duration(milliseconds: 300),
-          );
-        }
-      },
-      iconAlign: ButtonIconAlign.left,
-    );
-  }
-
-  Widget buildSaveButton({required bool isSaved}) {
-    return IconButtonFactory.buildHorizontalButtonWithIconWidget(
-      iconWidget: SvgPicture.asset(
-        isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
-        height: 24,
-        width: 24,
-        colorFilter: ColorFilter.mode(
-          isSaved ? ColorStyles.red : ColorStyles.gray70,
-          BlendMode.srcIn,
-        ),
-      ),
-      text: '저장',
-      textStyle: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-      iconAlign: ButtonIconAlign.left,
-      onTapped: () {},
     );
   }
 
@@ -791,10 +736,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
   }
 
   Widget _buildMineBottomSheet() {
-    return Wrap(
-      direction: Axis.vertical,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
           onTap: () {},
@@ -822,27 +766,32 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: ButtonFactory.buildRoundedButton(
-            onTapped: () {
+          child: GestureDetector(
+            onTap: () {
               context.pop();
             },
-            text: '닫기',
-            style: RoundedButtonStyle.fill(
-              color: ColorStyles.black,
-              textColor: ColorStyles.white,
-              size: RoundedButtonSize.xLarge,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+              decoration: const BoxDecoration(
+                color: ColorStyles.black,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Text(
+                '닫기',
+                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        )
+        ),
       ],
     );
   }
 
   Widget _buildOthersBottomSheet() {
-    return Wrap(
-      direction: Axis.vertical,
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
           onTap: () {},
@@ -870,18 +819,24 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: ButtonFactory.buildRoundedButton(
-            onTapped: () {
+          child: GestureDetector(
+            onTap: () {
               context.pop();
             },
-            text: '닫기',
-            style: RoundedButtonStyle.fill(
-              color: ColorStyles.black,
-              textColor: ColorStyles.white,
-              size: RoundedButtonSize.xLarge,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+              decoration: const BoxDecoration(
+                color: ColorStyles.black,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: Text(
+                '닫기',
+                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-        )
+        ),
       ],
     );
   }

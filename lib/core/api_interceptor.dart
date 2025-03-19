@@ -1,11 +1,10 @@
+import 'dart:convert';
+
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart' hide Options;
 
 final class ApiInterceptor extends Interceptor {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
   ApiInterceptor();
 
   @override
@@ -45,14 +44,13 @@ final class ApiInterceptor extends Interceptor {
 
     // AccessToken 재발급
     try {
-      final resp = await dio.post(
+      final resp = await dio.post<String>(
         '${dotenv.get('API_ADDRESS')}profiles/api/token/refresh/',
         data: {'refresh': refreshToken},
       );
-
-      // 재발급 받은 AccessToken 등록
-      final accessToken = resp.data['access'];
-      final newRefreshToken = resp.data['refresh'];
+      final result = jsonDecode(resp.data ?? '') as Map<String, dynamic>;
+      final accessToken = result['access'] as String;
+      final newRefreshToken = result['refresh'] as String;
 
       await AccountRepository.instance.saveToken(accessToken: accessToken, refreshToken: newRefreshToken);
 

@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -172,23 +171,29 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                   children: List<Widget>.generate(
                     subjectFilterState.postSubjectFilterList.length,
                     (index) {
-                      return ButtonFactory.buildOvalButton(
-                        onTapped: () {
+                      return GestureDetector(
+                        onTap: () {
                           scrollController.jumpTo(0);
                           context.read<PopularPostsPresenter>().onChangeSubject(index);
                         },
-                        text: subjectFilterState.postSubjectFilterList[index],
-                        style: index == subjectFilterState.currentIndex
-                            ? OvalButtonStyle.fill(
-                                color: ColorStyles.black,
-                                textColor: ColorStyles.white,
-                                size: OvalButtonSize.medium,
-                              )
-                            : OvalButtonStyle.line(
-                                color: ColorStyles.gray70,
-                                textColor: ColorStyles.gray70,
-                                size: OvalButtonSize.medium,
-                              ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                          decoration: index == subjectFilterState.currentIndex
+                              ? const BoxDecoration(
+                            color: ColorStyles.black,
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          )
+                              : BoxDecoration(
+                            border: Border.all(color: ColorStyles.gray70),
+                            borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          ),
+                          child: Text(
+                            subjectFilterState.postSubjectFilterList[index],
+                            style: TextStyles.labelMediumMedium.copyWith(
+                              color: index == subjectFilterState.currentIndex ? ColorStyles.white : ColorStyles.gray70,
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ).separator(separatorWidget: const SizedBox(width: 6)).toList(),

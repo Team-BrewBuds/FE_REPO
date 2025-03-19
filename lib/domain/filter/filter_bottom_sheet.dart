@@ -1,11 +1,12 @@
 import 'dart:math';
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/cancel_and_confirm_button.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -99,134 +100,124 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               ),
-              child: Consumer<FilterPresenter>(builder: (context, presenter, _) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TabBar(
-                      controller: tabController,
-                      padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
-                      indicator: const UnderlineTabIndicator(
-                        borderSide: BorderSide(color: ColorStyles.black, width: 2),
-                        insets: EdgeInsets.only(top: 6),
+              child: Consumer<FilterPresenter>(
+                builder: (context, presenter, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TabBar(
+                        controller: tabController,
+                        padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+                        indicator: const UnderlineTabIndicator(
+                          borderSide: BorderSide(color: ColorStyles.black, width: 2),
+                          insets: EdgeInsets.only(top: 6),
+                        ),
+                        indicatorSize: TabBarIndicatorSize.label,
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.center,
+                        labelPadding: const EdgeInsets.only(top: 8, left: 8, right: 16),
+                        labelStyle: TextStyles.title01SemiBold,
+                        labelColor: ColorStyles.black,
+                        unselectedLabelStyle: TextStyles.title01SemiBold,
+                        unselectedLabelColor: ColorStyles.gray50,
+                        dividerHeight: 0,
+                        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+                        tabs: const [
+                          Tab(text: '원두유형', height: 31),
+                          Tab(text: '원산지', height: 31),
+                          Tab(text: '별점', height: 31),
+                          Tab(text: '디카페인', height: 31),
+                          Tab(text: '로스팅 포인트', height: 31),
+                        ],
+                        onTap: (index) {
+                          Scrollable.ensureVisible(_tabKeys[index].currentContext!);
+                        },
                       ),
-                      indicatorSize: TabBarIndicatorSize.label,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.center,
-                      labelPadding: const EdgeInsets.only(top: 8, left: 8, right: 16),
-                      labelStyle: TextStyles.title01SemiBold,
-                      labelColor: ColorStyles.black,
-                      unselectedLabelStyle: TextStyles.title01SemiBold,
-                      unselectedLabelColor: ColorStyles.gray50,
-                      dividerHeight: 0,
-                      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-                      tabs: const [
-                        Tab(text: '원두유형', height: 31),
-                        Tab(text: '원산지', height: 31),
-                        Tab(text: '별점', height: 31),
-                        Tab(text: '디카페인', height: 31),
-                        Tab(text: '로스팅 포인트', height: 31),
-                      ],
-                      onTap: (index) {
-                        Scrollable.ensureVisible(_tabKeys[index].currentContext!);
-                      },
-                    ),
-                    Container(height: 2, color: ColorStyles.gray20),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        key: _scrollViewKey,
-                        controller: scrollController,
-                        child: Column(
-                          children: [
-                            _buildKindFilter(_tabKeys[0], presenter),
-                            Container(height: 8, color: ColorStyles.gray20),
-                            _buildOriginFilter(_tabKeys[1], presenter),
-                            Container(height: 8, color: ColorStyles.gray20),
-                            _buildRatingFilter(_tabKeys[2], presenter),
-                            Container(height: 8, color: ColorStyles.gray20),
-                            _buildDecafFilter(_tabKeys[3], presenter),
-                            Container(height: 8, color: ColorStyles.gray20),
-                            _buildRoastingPointFilter(_tabKeys[4], presenter),
-                          ],
+                      Container(height: 2, color: ColorStyles.gray20),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          key: _scrollViewKey,
+                          controller: scrollController,
+                          child: Column(
+                            children: [
+                              _buildKindFilter(_tabKeys[0], presenter),
+                              Container(height: 8, color: ColorStyles.gray20),
+                              _buildOriginFilter(_tabKeys[1], presenter),
+                              Container(height: 8, color: ColorStyles.gray20),
+                              _buildRatingFilter(_tabKeys[2], presenter),
+                              Container(height: 8, color: ColorStyles.gray20),
+                              _buildDecafFilter(_tabKeys[3], presenter),
+                              Container(height: 8, color: ColorStyles.gray20),
+                              _buildRoastingPointFilter(_tabKeys[4], presenter),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    presenter.filter.isNotEmpty
-                        ? SizedBox(
-                            height: 56,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.all(16),
-                              itemCount: presenter.filter.length,
-                              itemBuilder: (context, index) {
-                                return InkWell(
-                                  onTap: () {
-                                    presenter.removeAtFilter(index);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: ColorStyles.background,
-                                      border: Border.all(color: ColorStyles.red, width: 1),
-                                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      presenter.filter.isNotEmpty
+                          ? SizedBox(
+                              height: 56,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.all(16),
+                                itemCount: presenter.filter.length,
+                                itemBuilder: (context, index) {
+                                  return InkWell(
+                                    onTap: () {
+                                      presenter.removeAtFilter(index);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: ColorStyles.background,
+                                        border: Border.all(color: ColorStyles.red, width: 1),
+                                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            presenter.filter[index].text,
+                                            style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
+                                          ),
+                                          const SizedBox(width: 2),
+                                          SvgPicture.asset(
+                                            'assets/icons/x.svg',
+                                            width: 12,
+                                            height: 12,
+                                            fit: BoxFit.cover,
+                                            colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          presenter.filter[index].text,
-                                          style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
-                                        ),
-                                        const SizedBox(width: 2),
-                                        SvgPicture.asset(
-                                          'assets/icons/x.svg',
-                                          width: 12,
-                                          height: 12,
-                                          fit: BoxFit.cover,
-                                          colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                              separatorBuilder: (context, index) => const SizedBox(width: 4),
-                            ),
-                          )
-                        : Container(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
-                      child: Row(
-                        children: [
-                          ButtonFactory.buildRoundedButton(
-                            onTapped: () {
-                              context.pop();
-                            },
-                            text: '닫기',
-                            style: RoundedButtonStyle.fill(
-                              color: ColorStyles.gray30,
-                              textColor: ColorStyles.black,
-                              size: RoundedButtonSize.xSmall,
-                            ),
+                                  );
+                                },
+                                separatorBuilder: (context, index) => const SizedBox(width: 4),
+                              ),
+                            )
+                          : Container(),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
+                        child: CancelAndConfirmButton(
+                          onCancel: () {
+                            context.pop();
+                          },
+                          onConfirm: () {
+                            widget.onDone.call(presenter.filter);
+                            context.pop();
+                          },
+                          cancelButtonChild: const Text(
+                            '닫기',
+                            style: TextStyles.labelMediumMedium,
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(width: 8),
-                          ButtonFactory.buildRoundedButton(
-                            onTapped: () {
-                              widget.onDone.call(presenter.filter);
-                              context.pop();
-                            },
-                            text: '선택하기',
-                            style: RoundedButtonStyle.fill(
-                              color: ColorStyles.black,
-                              textColor: ColorStyles.white,
-                              size: RoundedButtonSize.large,
-                            ),
-                          ),
-                        ],
+                          confirmText: '선택하기',
+                          isValid: true,
+                        ),
                       ),
-                    ),
-                  ],
-                );
-              }),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),

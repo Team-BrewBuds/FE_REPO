@@ -2,14 +2,12 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/material.dart';
 
-class FollowButton extends StatelessWidget {
+class SendButton extends StatelessWidget {
   final void Function() onTap;
-  final bool isFollowed;
 
-  const FollowButton({
+  const SendButton({
     super.key,
     required this.onTap,
-    required this.isFollowed,
   });
 
   @override
@@ -20,13 +18,13 @@ class FollowButton extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isFollowed ? ColorStyles.gray30 : ColorStyles.red,
-          borderRadius: const BorderRadius.all(Radius.circular(20))
+        decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.all(Radius.circular(20))
         ),
         child: Text(
-          isFollowed ? '팔로잉' : '팔로우',
-          style: TextStyles.labelSmallMedium.copyWith(color: isFollowed ? ColorStyles.black : ColorStyles.white),
+          '전송',
+          style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
           textAlign: TextAlign.center,
         ),
       ),

@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -36,29 +35,45 @@ class _OtherProfileViewState extends State<OtherProfileView>
     return SliverToBoxAdapter(
       child: Row(
         children: [
-          ButtonFactory.buildRoundedButton(
-            onTapped: () {
-              final id = context.read<OtherProfilePresenter>().id;
-              final nickname = context.read<OtherProfilePresenter>().nickName;
-              pushToTasteReport(context: context, id: id, nickname: nickname);
-            },
-            text: '취향 리포트 보기',
-            style: RoundedButtonStyle.fill(
-              size: RoundedButtonSize.medium,
-              color: ColorStyles.black,
-              textColor: ColorStyles.white,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                final id = context.read<OtherProfilePresenter>().id;
+                final nickname = context.read<OtherProfilePresenter>().nickName;
+                pushToTasteReport(context: context, id: id, nickname: nickname);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                decoration: const BoxDecoration(
+                  color: ColorStyles.black,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                ),
+                child: Text(
+                  '취향 리포트 보기',
+                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 8),
-          Selector<OtherProfilePresenter, bool>(
-            selector: (context, presenter) => presenter.isFollow,
-            builder: (context, isFollow, child) => ButtonFactory.buildRoundedButton(
-              onTapped: () {},
-              text: isFollow ? '팔로잉' : '팔로우',
-              style: RoundedButtonStyle.fill(
-                size: RoundedButtonSize.medium,
-                color: isFollow ? ColorStyles.gray30 : ColorStyles.red,
-                textColor: isFollow ? ColorStyles.black : ColorStyles.white,
+          Expanded(
+            child: GestureDetector(
+              onTap: () {},
+              child: Selector<OtherProfilePresenter, bool>(
+                selector: (context, presenter) => presenter.isFollow,
+                builder: (context, isFollow, child) => Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: isFollow ? ColorStyles.gray30 : ColorStyles.red,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  ),
+                  child: Text(
+                    isFollow ? '팔로잉' : '팔로우',
+                    style:
+                        TextStyles.labelSmallMedium.copyWith(color: isFollow ? ColorStyles.black : ColorStyles.white),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
           ),
