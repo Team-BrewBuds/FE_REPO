@@ -71,7 +71,8 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
                     decoration: BoxDecoration(
                       color: selectedCoffeeLife.contains(coffeeLife) ? ColorStyles.background : ColorStyles.white,
                       border: Border.all(
-                          color: selectedCoffeeLife.contains(coffeeLife) ? ColorStyles.red : ColorStyles.gray50),
+                        color: selectedCoffeeLife.contains(coffeeLife) ? ColorStyles.red : ColorStyles.gray50,
+                      ),
                       borderRadius: const BorderRadius.all(Radius.circular(8)),
                     ),
                     child: Column(
@@ -91,9 +92,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
                         const SizedBox(height: 2),
                         Text(
                           coffeeLife.description,
-                          style: TextStyles.captionSmallMedium.copyWith(
-                            color: ColorStyles.gray60,
-                          ),
+                          style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray60),
                           textAlign: TextAlign.center,
                         ),
                       ],

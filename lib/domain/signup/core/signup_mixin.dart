@@ -98,12 +98,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
                 onTap: () {
                   Navigator.of(context).pop();
                 },
-                child: SvgPicture.asset(
-                  'assets/icons/back.svg',
-                  width: 24,
-                  height: 24,
-                  fit: BoxFit.cover,
-                ),
+                child: SvgPicture.asset('assets/icons/back.svg', width: 24, height: 24, fit: BoxFit.cover),
               ),
             ),
             Center(
@@ -122,10 +117,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
                         '건너뛰기',
                         style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
                       )
-                    : const SizedBox(
-                        width: 24,
-                        height: 24,
-                      ),
+                    : const SizedBox(width: 24, height: 24),
               ),
             )
           ],

@@ -168,21 +168,13 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
 
   Widget _buildNickNameSuffixIcon({required int nicknameLength, required bool isValidNickname}) {
     if (nicknameLength >= 2 && isValidNickname) {
-      return SvgPicture.asset(
-        'assets/icons/check_fill.svg',
-        height: 24,
-        width: 24,
-      );
+      return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else if (nicknameLength > 0 && !isValidNickname) {
       return InkWell(
         onTap: () {
           _nicknameController.clear();
         },
-        child: SvgPicture.asset(
-          'assets/icons/x_round.svg',
-          height: 24,
-          width: 24,
-        ),
+        child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
       );
     } else {
       return const SizedBox.shrink();
@@ -249,17 +241,11 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
             ),
             if (yearOfBirthValidState.yearOfBirthLength > 0 && yearOfBirthValidState.yearOfBirthLength < 4) ...[
               const SizedBox(height: 8),
-              Text(
-                '4자리 숫자를 입력해주세요.',
-                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
-              ),
+              Text('4자리 숫자를 입력해주세요.', style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red)),
               const SizedBox(height: 36),
             ] else if (yearOfBirthValidState.yearOfBirthLength == 4 && !yearOfBirthValidState.isValidYearOfBirth) ...[
               const SizedBox(height: 8),
-              Text(
-                '만 14세 미만은 가입할 수 없어요.',
-                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
-              ),
+              Text('만 14세 미만은 가입할 수 없어요.', style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red)),
               const SizedBox(height: 36),
             ] else ...[
               const SizedBox(height: 59),
@@ -274,21 +260,13 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     if (yearOfBirthLength == 0) {
       return const SizedBox.shrink();
     } else if (yearOfBirthLength == 4 && isValidYearOfBirth) {
-      return SvgPicture.asset(
-        'assets/icons/check_fill.svg',
-        height: 24,
-        width: 24,
-      );
+      return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else {
       return InkWell(
         onTap: () {
           _ageController.clear();
         },
-        child: SvgPicture.asset(
-          'assets/icons/x_round.svg',
-          height: 24,
-          width: 24,
-        ),
+        child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
       );
     }
   }

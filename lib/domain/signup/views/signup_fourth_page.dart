@@ -28,13 +28,13 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
 
   @override
   void Function() get onNext => () async {
-    final context = this.context;
-    final result = await context.read<SignUpPresenter>().register();
-    if (result && context.mounted) {
-      final nickname = context.read<SignUpPresenter>().nickName;
-      context.push('/signup/finish', extra: nickname);
-    }
-  };
+        final context = this.context;
+        final result = await context.read<SignUpPresenter>().register();
+        if (result && context.mounted) {
+          final nickname = context.read<SignUpPresenter>().nickName;
+          context.push('/signup/finish', extra: nickname);
+        }
+      };
 
   @override
   void Function() get onSkip => () {};
