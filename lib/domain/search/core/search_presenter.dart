@@ -77,7 +77,7 @@ abstract class SearchPresenter extends ChangeNotifier {
   }
 
   fetchRecentSearchWords() {
-    recentSearchWords = List.from(sharedPreferencesRepository.getRecentSearchWords());
+    recentSearchWords = List.from(sharedPreferencesRepository.recentSearchWords);
     notifyListeners();
   }
 
