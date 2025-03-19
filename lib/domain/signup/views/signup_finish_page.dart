@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignupFinishPage extends StatefulWidget {
-
   const SignupFinishPage({super.key});
 
   @override
@@ -28,12 +27,7 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset(
-                      'assets/images/login/finish.png',
-                      width: 260,
-                      height: 260,
-                      fit: BoxFit.cover,
-                    ),
+                    Image.asset('assets/images/login/finish.png', width: 260, height: 260, fit: BoxFit.cover),
                     const SizedBox(height: 16),
                     Text(
                       '${context.read<SignUpPresenter>().nickName} 님\n 환영합니다.',

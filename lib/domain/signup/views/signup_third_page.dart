@@ -2,7 +2,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
-import 'package:brew_buds/domain/signup/views/signup_fourth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
