@@ -1,3 +1,4 @@
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class PermissionRepository {
@@ -19,5 +20,6 @@ class PermissionRepository {
     photos = await Permission.photos.request();
     location = await Permission.location.request();
     notification = await Permission.notification.request();
+    await SharedPreferencesRepository.instance.setPermission();
   }
 }

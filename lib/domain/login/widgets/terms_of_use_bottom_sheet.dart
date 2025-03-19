@@ -43,12 +43,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       onTap: () {
                         context.pop();
                       },
-                      child: SvgPicture.asset(
-                        'assets/icons/x.svg',
-                        width: 16,
-                        height: 16,
-                        fit: BoxFit.cover,
-                      ),
+                      child: SvgPicture.asset('assets/icons/x.svg', width: 16, height: 16, fit: BoxFit.cover),
                     ),
                   ),
                 )
@@ -70,18 +65,12 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       }
                     });
                   },
-                  child: SvgPicture.asset(
-                    'assets/icons/${isAllChecked ? 'checked.svg' : 'uncheck.svg'}',
-                    height: 18,
-                    width: 18,
-                  ),
+                  child: SvgPicture.asset('assets/icons/${isAllChecked ? 'checked.svg' : 'uncheck.svg'}',
+                      height: 18, width: 18),
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  '약관 전체 동의',
-                  style: TextStyles.labelSmallSemiBold,
-                ),
-                Spacer(),
+                const Text('약관 전체 동의', style: TextStyles.labelSmallSemiBold),
+                const Spacer(),
               ],
             ),
           ),
@@ -173,9 +162,9 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                           '(필수) 14세 이상 확인',
                           style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Padding(
-                          padding: EdgeInsets.only(left: 1),
+                          padding: const EdgeInsets.only(left: 1),
                           child: Text(
                             '14세 미만의 회원가입은 불가합니다.',
                             style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),

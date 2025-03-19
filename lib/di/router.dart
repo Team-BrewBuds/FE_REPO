@@ -1,5 +1,4 @@
 import 'package:brew_buds/data/repository/profile_repository.dart';
-import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/home/all/home_all_presenter.dart';
 import 'package:brew_buds/domain/home/home_screen.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
@@ -41,7 +40,6 @@ GoRouter createRouter(bool hasToken) {
   return GoRouter(
     navigatorKey: mainRootNavigatorKey,
     initialLocation: hasToken ? '/home' : '/login',
-    refreshListenable: AccountRepository.instance,
     routes: [
       GoRoute(
         path: '/login',

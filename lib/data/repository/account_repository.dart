@@ -23,20 +23,17 @@ class AccountRepository extends ChangeNotifier {
     _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
     _id = int.tryParse(await _storage.read(key: 'id') ?? '');
-    notifyListeners();
   }
 
   Future<void> saveToken({String? accessToken, String? refreshToken}) async {
     if (accessToken != null) {
       await _storage.write(key: 'access', value: accessToken);
       _accessToken = accessToken;
-      notifyListeners();
     }
 
     if (refreshToken != null) {
       await _storage.write(key: 'refresh', value: refreshToken);
       _refreshToken = refreshToken;
-      notifyListeners();
     }
   }
 
@@ -50,6 +47,5 @@ class AccountRepository extends ChangeNotifier {
     _accessToken = '';
     _refreshToken = '';
     await _storage.deleteAll();
-    notifyListeners();
   }
 }
