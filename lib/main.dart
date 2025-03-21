@@ -1,4 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/services.dart';
@@ -34,6 +35,7 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  DioClient.instance.initial();
   await AccountRepository.instance.init();
   await SharedPreferencesRepository.instance.init();
 

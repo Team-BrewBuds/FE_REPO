@@ -1,30 +1,21 @@
-import 'dart:convert';
-
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+typedef RequestState = ({RequestOptions options, ErrorInterceptorHandler handler});
+
 final class ApiInterceptor extends Interceptor {
   ApiInterceptor();
 
-  @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    // 보내려는 요청의 헤더
-    if (options.headers['Authorization'] != null) {
-      // 헤더 삭제
-      options.headers.remove('Authorization');
-    }
+  bool _isRefreshing = false;
+  final List<RequestState> _pendingRequests = [];
 
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final token = AccountRepository.instance.accessToken;
 
-    if (token.isNotEmpty) {
-      options.headers.addAll({'Authorization': 'Bearer $token'});
-    }
+    options.headers['Authorization'] = 'Bearer $token';
 
-    // TODO: implement onRequest
     return super.onRequest(options, handler);
   }
 
@@ -34,38 +25,57 @@ final class ApiInterceptor extends Interceptor {
       return handler.reject(err);
     }
 
-    final refreshToken = AccountRepository.instance.refreshToken;
-
-    if (refreshToken.isEmpty) {
-      return handler.reject(err);
+    _pendingRequests.add((options: err.requestOptions, handler: handler));
+    if (_isRefreshing) {
+      return;
+    } else {
+      _isRefreshing = true;
     }
 
-    final dio = Dio();
+    final bool newTokenAvailable = await _refresh().onError((error, stackTrace) => false);
+    if (newTokenAvailable) {
+      final dio = Dio();
+      final accessToken = AccountRepository.instance.accessToken;
+      for (final request in _pendingRequests) {
+        final currentOptions = request.options;
+        final currentHandler = request.handler;
+        currentOptions.headers['Authorization'] = 'Bearer $accessToken';
+        await dio.fetch(currentOptions).then((response) {
+          currentHandler.resolve(response);
+        }, onError: (e) => handler.reject(e));
+      }
+    } else {
+      for (final request in _pendingRequests) {
+        request.handler.reject(err);
+      }
+      //로그아웃 처리로직 구현 필요.
+    }
+    _pendingRequests.clear();
+    _isRefreshing = false;
+  }
 
-    // AccessToken 재발급
+  Future<bool> _refresh() async {
     try {
-      final resp = await dio.post<String>(
-        '${dotenv.get('API_ADDRESS')}profiles/api/token/refresh/',
+      final refreshToken = AccountRepository.instance.refreshToken;
+
+      if (refreshToken.isEmpty) {
+        return false;
+      }
+
+      final refreshDio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
+      final resp = await refreshDio.post(
+        '/profiles/api/token/refresh/',
         data: {'refresh': refreshToken},
       );
-      final result = jsonDecode(resp.data ?? '') as Map<String, dynamic>;
-      final accessToken = result['access'] as String;
-      final newRefreshToken = result['refresh'] as String;
 
-      await AccountRepository.instance.saveToken(accessToken: accessToken, refreshToken: newRefreshToken);
+      final newAccessToken = resp.data['access'];
+      final newRefreshToken = resp.data['refresh'];
 
-      final options = err.requestOptions;
+      await AccountRepository.instance.saveToken(accessToken: newAccessToken, refreshToken: newRefreshToken);
 
-      if (options.headers['Authorization'] != null) {
-        options.headers.remove('Authorization');
-      }
-      options.headers.addAll({'Authorization': 'Bearer $accessToken'});
-
-      final response = await dio.fetch(options);
-
-      return handler.resolve(response);
+      return true;
     } catch (e) {
-      return handler.reject(err);
+      return false;
     }
   }
 }

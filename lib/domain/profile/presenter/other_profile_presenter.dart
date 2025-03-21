@@ -6,6 +6,7 @@ import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 final class OtherProfilePresenter extends ProfilePresenter {
   final FollowApi _followApi = FollowApi();
   final BlockApi _blockApi = BlockApi();
+  @override
   final int id;
 
   bool get isFollow => profile?.isUserFollowing ?? false;

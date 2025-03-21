@@ -1,3 +1,5 @@
+import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
@@ -32,6 +34,7 @@ typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String aut
 final class PostDetailPresenter extends ChangeNotifier {
   final PostRepository _postRepository = PostRepository.instance;
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
+  final BlockApi _blockApi = BlockApi();
   final int id;
 
   DefaultPage<Comment> _page = DefaultPage.initState();
@@ -101,6 +104,25 @@ final class PostDetailPresenter extends ChangeNotifier {
     _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
     _pageNo += 1;
     notifyListeners();
+  }
+
+  Future<Result<String>> onDelete() {
+    return _postRepository
+        .delete(id: id)
+        .then((value) => Result.success('게시글 삭제를 완료했어요.'))
+        .onError((error, stackTrace) => Result.error('게시글 삭제에 실패했어요.'));
+  }
+
+  Future<Result<String>> onBlock() {
+    final authorId = _post?.author.id;
+    if (authorId != null) {
+      return _blockApi
+          .block(id: id)
+          .then((value) => Result.success('차단을 완료했어요.'))
+          .onError((error, stackTrace) => Result.error('차단에 실패했어요.'));
+    } else {
+      return Future.value(Result.error('차단에 실패했어요.'));
+    }
   }
 
   onTappedFollowButton() {

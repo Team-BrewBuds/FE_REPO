@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_detail_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -38,9 +39,5 @@ abstract class BeansApi {
     @Path('id') required int id,
   });
 
-  factory BeansApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _BeansApi(dio);
-  }
+  factory BeansApi() => _BeansApi(DioClient.instance.dio);
 }

@@ -16,13 +16,14 @@ class SavedTastingRecordWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUri = this.imageUri;
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16.0),
+      color: Colors.transparent,
       child: Row(
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   '시음기록',

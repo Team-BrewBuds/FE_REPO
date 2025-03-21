@@ -104,7 +104,11 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
         ),
         childBuilder: (context, index) => GestureDetector(
           onTap: () {
-            showTastingRecordDetail(context: context, id: post.tastingRecords[index].id);
+            showTastingRecordDetail(context: context, id: post.tastingRecords[index].id).then((result) {
+              if (result != null) {
+                showSnackBar(message: result);
+              }
+            });
           },
           child: Container(
             color: ColorStyles.white,

@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/social_login_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -24,8 +25,5 @@ abstract class SignUpApi {
     @Header('Authorization') required String accessToken,
   });
 
-  factory SignUpApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    return _SignUpApi(dio);
-  }
+  factory SignUpApi() => _SignUpApi(DioClient.instance.dio);
 }

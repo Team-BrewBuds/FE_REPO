@@ -89,6 +89,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
                 child: Text(
                   '취향 리포트 보기',
                   style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -120,8 +121,9 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                 ),
                 child: const Text(
-                  '프로필 편진',
+                  '프로필 편집',
                   style: TextStyles.labelSmallMedium,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

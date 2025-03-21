@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/other_profile_presenter.dart';
@@ -17,7 +18,7 @@ class OtherProfileView extends StatefulWidget {
 }
 
 class _OtherProfileViewState extends State<OtherProfileView>
-    with ProfileMixin<OtherProfileView, OtherProfilePresenter> {
+    with ProfileMixin<OtherProfileView, OtherProfilePresenter>, CenterDialogMixin<OtherProfileView> {
   @override
   String get beansEmptyText => '찜한 원두가 없습니다.';
 
@@ -51,6 +52,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                 child: Text(
                   '취향 리포트 보기',
                   style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -112,7 +114,17 @@ class _OtherProfileViewState extends State<OtherProfileView>
             const Spacer(),
             InkWell(
               onTap: () {
-                _showBlockBottomSheet();
+                _showBlockBottomSheet().then((value) {
+                  if (value != null && value) {
+                    _showAskForResponseToBlockModal().then((value) {
+                      if (value != null && value) {
+                        context.pop('차단을 완료했어요.');
+                      } else {
+                        showSnackBar(message: '차단을 실패했어요.');
+                      }
+                    });
+                  }
+                });
               },
               child: SvgPicture.asset(
                 'assets/icons/more.svg',
@@ -138,16 +150,8 @@ class _OtherProfileViewState extends State<OtherProfileView>
   @override
   onTappedSettingDetailButton() {}
 
-  Future<void> onTappedBlock() async {
-    final result = await context.read<OtherProfilePresenter>().onTappedBlockButton();
-    if (result) {
-      context.pop();
-      context.pop();
-    }
-  }
-
-  _showBlockBottomSheet() {
-    showBarrierDialog(
+  Future<bool?> _showBlockBottomSheet() {
+    return showBarrierDialog<bool>(
       context: context,
       pageBuilder: (context, __, ___) {
         return Stack(
@@ -169,8 +173,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                     children: [
                       InkWell(
                         onTap: () {
-                          context.pop();
-                          _showAskForResponseToBlockModal();
+                          context.pop(true);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 24),
@@ -216,82 +219,19 @@ class _OtherProfileViewState extends State<OtherProfileView>
     );
   }
 
-  _showAskForResponseToBlockModal() {
-    showBarrierDialog(
-      context: context,
-      pageBuilder: (context, __, ___) {
-        return Stack(
-          children: [
-            Center(
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: 300,
-                  padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: ColorStyles.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 24, left: 16, right: 16),
-                        child: Text('정말 차단하시겠어요?', style: TextStyles.title02SemiBold),
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  context.pop();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                                  decoration: BoxDecoration(
-                                    color: ColorStyles.gray30,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Center(child: Text('취소', style: TextStyles.labelMediumMedium)),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  await onTappedBlock.call();
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                                  decoration: BoxDecoration(
-                                    color: ColorStyles.black,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '차단하기',
-                                      style: TextStyles.labelMediumMedium.copyWith(
-                                        color: ColorStyles.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
+  Future<bool?> _showAskForResponseToBlockModal() {
+    return showCenterDialog<bool>(
+      title: '이 사용자를 차단하시겠어요?',
+      centerTitle: true,
+      content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+      cancelText: '취소',
+      doneText: '차단하기',
+      onDone: () {
+        context.read<OtherProfilePresenter>().onTappedBlockButton().then((value) {
+          context.pop(value);
+        }).onError((error, stackTrace) {
+          context.pop(false);
+        });
       },
     );
   }

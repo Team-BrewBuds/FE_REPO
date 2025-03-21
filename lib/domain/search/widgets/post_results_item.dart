@@ -41,8 +41,9 @@ class PostResultsItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16),
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -115,7 +116,7 @@ class PostResultsItem extends StatelessWidget {
                       Container(width: 1, height: 10, color: ColorStyles.gray30),
                       const SizedBox(width: 4),
                       Text(
-                        '$_hits',
+                        '조회 ${_hits > 9999 ? '9999+' : _hits}',
                         style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
                       ),
                       const SizedBox(width: 4),

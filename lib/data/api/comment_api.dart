@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/comment/comment_dto.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:dio/dio.dart';
@@ -33,9 +34,5 @@ abstract class CommentApi {
     @Query('page') required int pageNo,
   });
 
-  factory CommentApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _CommentApi(dio);
-  }
+  factory CommentApi() => _CommentApi(DioClient.instance.dio);
 }

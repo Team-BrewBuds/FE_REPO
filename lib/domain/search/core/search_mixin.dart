@@ -13,14 +13,6 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
   late final TextEditingController textEditingController;
   late final FocusNode textFieldFocusNode;
   late final ValueNotifier<bool> showSuggestPage;
-  late final Debouncer suggestThrottle = Debouncer<String>(
-    const Duration(milliseconds: 300),
-    initialValue: '',
-    checkEquality: false,
-    onChanged: (value) {
-      onChangeSearchWord(value);
-    },
-  );
 
   int get initialIndex;
 
@@ -49,7 +41,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
       });
 
       textEditingController.addListener(() {
-        suggestThrottle.setValue(textEditingController.text);
+        context.read<Presenter>().onChangeSearchWord(textEditingController.text);
       });
     });
   }
@@ -60,7 +52,6 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
     textEditingController.dispose();
     showSuggestPage.dispose();
     textFieldFocusNode.dispose();
-    suggestThrottle.cancel();
     textFieldFocusNode.removeListener(() {
       if (textFieldFocusNode.hasFocus && !showSuggestPage.value) {
         showSuggestPage.value = true;
@@ -68,7 +59,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
     });
 
     textEditingController.removeListener(() {
-      suggestThrottle.setValue(textEditingController.text);
+      context.read<Presenter>().onChangeSearchWord(textEditingController.text);
     });
     super.dispose();
   }
@@ -231,7 +222,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
 
   Widget _buildSuggestSearchWords({required List<String> suggestSearchWords, required String searchWord}) {
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
       itemCount: suggestSearchWords.length,
       itemBuilder: (context, index) {
         final word = suggestSearchWords[index];
@@ -290,15 +281,37 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
 
   onSelectedWord(String word) {
     textEditingController.value = TextEditingValue(text: word);
+    context.read<Presenter>().onChangeSearchWord(word);
     onComplete(word);
   }
 
   clearTextField() {
-    textEditingController.value = const TextEditingValue();
+    textEditingController.value = TextEditingValue.empty;
+    context.read<Presenter>().onChangeSearchWord('');
   }
 
-  onChangeSearchWord(String word) {
-    context.read<Presenter>().onChangeSearchWord(word);
+
+  showSnackBar({required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black.withOpacity(0.9),
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+    );
   }
 
   List<TextSpan> _getSpans(String text, String matchWord, TextStyle textStyle) {

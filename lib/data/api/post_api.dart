@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/post/post_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -29,9 +30,5 @@ abstract class PostApi {
   @GET('/records/post/user/{userId}/')
   Future<String> fetchPostPage({@Path('userId') required int userId});
 
-  factory PostApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _PostApi(dio);
-  }
+  factory PostApi() => _PostApi(DioClient.instance.dio);
 }

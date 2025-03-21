@@ -1,6 +1,7 @@
 import 'package:brew_buds/data/repository/search_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/foundation.dart';
 
 typedef SuggestState = ({List<String> suggestSearchWords, String searchWord});
@@ -9,6 +10,7 @@ abstract class SearchPresenter extends ChangeNotifier {
   final SharedPreferencesRepository sharedPreferencesRepository = SharedPreferencesRepository.instance;
   final SearchRepository searchRepository = SearchRepository.instance;
   final List<SearchSubject> _searchSubjectList = SearchSubject.values;
+  late final Debouncer suggestThrottle;
   bool _isSuggestMode = false;
   int _currentTabIndex;
   String _searchWord;
@@ -32,16 +34,24 @@ abstract class SearchPresenter extends ChangeNotifier {
   bool get hasWord => _searchWord.isNotEmpty;
 
   initState() {
-    fetchData();
+    suggestThrottle = Debouncer<String>(
+      const Duration(milliseconds: 300),
+      initialValue: '',
+      checkEquality: false,
+      onChanged: (value) {
+        fetchSuggestWords();
+      },
+    );
+    fetchRecentSearchWords();
   }
 
-  onRefresh() {
-    fetchData();
-  }
+  onRefresh();
+
+  fetchData();
 
   onChangeSearchWord(String searchWord) {
+    suggestThrottle.setValue(searchWord);
     _searchWord = searchWord;
-    fetchSuggestWords();
   }
 
   onChangeTab(int index) {
@@ -79,10 +89,6 @@ abstract class SearchPresenter extends ChangeNotifier {
   fetchRecentSearchWords() {
     recentSearchWords = List.from(sharedPreferencesRepository.recentSearchWords);
     notifyListeners();
-  }
-
-  fetchData() {
-    fetchRecentSearchWords();
   }
 
   removeAtRecentSearchWord(int index) async {

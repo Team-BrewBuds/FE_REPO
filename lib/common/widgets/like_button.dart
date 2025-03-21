@@ -25,14 +25,21 @@ class LikeButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           children: [
-            SvgPicture.asset(
-              'assets/icons/like.svg',
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(isLiked ? ColorStyles.red : ColorStyles.gray70, BlendMode.srcIn),
-            ),
+            if (isLiked)
+              SvgPicture.asset(
+                'assets/icons/like_fill.svg',
+                width: 24,
+                height: 24,
+              )
+            else
+              SvgPicture.asset(
+                'assets/icons/like.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
+              ),
             Text(
-              '좋아요 $likeCount}',
+              '좋아요 $likeCount',
               style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
             )
           ],

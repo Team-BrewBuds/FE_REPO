@@ -1,19 +1,11 @@
 import 'dart:typed_data';
-
-import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PhotoApi {
-  final Dio _dio;
+  final Dio _dio = DioClient.instance.dio;
 
-  PhotoApi._(this._dio);
-
-  factory PhotoApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return PhotoApi._(dio);
-  }
+  PhotoApi();
 
   Future<String> createPhotos({required List<Uint8List> imageDataList}) async {
     final formData = FormData();

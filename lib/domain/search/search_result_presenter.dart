@@ -74,7 +74,14 @@ final class SearchResultPresenter extends SearchPresenter {
   })  : _previousSearchWord = searchWord,
         _previousTabIndex = currentTabIndex;
 
+  @override
+  initState() {
+    super.initState();
+    fetchData();
+  }
+
   fetchMoreData() async {
+    if(!_page.hasNext) return;
     switch (currentSubject) {
       case SearchSubject.coffeeBean:
         final newPage = await searchRepository.searchBean(
@@ -204,5 +211,10 @@ final class SearchResultPresenter extends SearchPresenter {
     _currentPostSubjectIndex = index;
     fetchData();
     notifyListeners();
+  }
+
+  @override
+  onRefresh() {
+    fetchData();
   }
 }

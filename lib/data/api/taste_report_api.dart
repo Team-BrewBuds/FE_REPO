@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/taste_report/activity_summary_dto.dart';
 import 'package:brew_buds/data/dto/taste_report/rating_distribution_dto.dart';
 import 'package:dio/dio.dart';
@@ -37,9 +38,5 @@ abstract class TasteReportApi {
     @Path('user_id') required int id,
   });
 
-  factory TasteReportApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _TasteReportApi(dio);
-  }
+  factory TasteReportApi() => _TasteReportApi(DioClient.instance.dio);
 }

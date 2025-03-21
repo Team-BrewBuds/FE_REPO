@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 
 class SavedPostWidget extends StatelessWidget {
@@ -14,13 +13,14 @@ class SavedPostWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUri = this.imageUri;
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16.0),
+      color: Colors.transparent,
       child: Row(
         children: [
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   '게시글',

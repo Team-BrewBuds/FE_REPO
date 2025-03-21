@@ -12,11 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-pushToProfile({required BuildContext context, required int id}) {
+Future<String?> pushToProfile({required BuildContext context, required int id}) {
   if (id == AccountRepository.instance.id) {
-    context.go('/profile');
+    return context.push<String>('/profile');
   } else {
-    Navigator.of(context).push(
+    return Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (context) => ChangeNotifierProvider<OtherProfilePresenter>(
           create: (_) => OtherProfilePresenter(id: id, repository: ProfileRepository.instance),

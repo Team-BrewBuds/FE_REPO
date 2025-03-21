@@ -9,13 +9,18 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
+import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -29,13 +34,23 @@ class TastedRecordDetailView extends StatefulWidget {
   State<TastedRecordDetailView> createState() => _TastedRecordDetailViewState();
 }
 
-class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
+class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
+    with SnackBarMixin<TastedRecordDetailView>, CenterDialogMixin<TastedRecordDetailView> {
+  late final Throttle paginationThrottle;
   late final TextEditingController _textEditingController;
   late final ScrollController _scrollController;
   int currentIndex = 0;
 
   @override
   void initState() {
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
     _textEditingController = TextEditingController();
     _scrollController = ScrollController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -51,6 +66,10 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
     super.dispose();
   }
 
+  _fetchMoreData() {
+    context.read<TastedRecordPresenter>().fetchMoreComments();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -62,94 +81,102 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
           resizeToAvoidBottomInset: true,
           appBar: _buildAppbar(),
           body: LayoutBuilder(builder: (context, constraints) {
-            return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Selector<TastedRecordPresenter, List<String>>(
-                    selector: (context, presenter) => presenter.imageUrlList,
-                    builder: (context, imageUrlList, child) => _buildImageListView(imageUrlList: imageUrlList),
-                  ),
-                  Selector<TastedRecordPresenter, BottomButtonInfo>(
-                    selector: (context, presenter) => presenter.bottomButtonInfo,
-                    builder: (context, bottomButtonInfo, child) => _buildButtons(
-                      likeCount: bottomButtonInfo.likeCount,
-                      isLiked: bottomButtonInfo.isSaved,
-                      isSaved: bottomButtonInfo.isSaved,
+            return NotificationListener<ScrollNotification>(
+              onNotification: (ScrollNotification scroll) {
+                if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                  paginationThrottle.setValue(null);
+                }
+                return false;
+              },
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Selector<TastedRecordPresenter, List<String>>(
+                      selector: (context, presenter) => presenter.imageUrlList,
+                      builder: (context, imageUrlList, child) => _buildImageListView(imageUrlList: imageUrlList),
                     ),
-                  ),
-                  Selector<TastedRecordPresenter, String>(
-                    selector: (context, presenter) => presenter.title,
-                    builder: (context, title, child) => _buildTitle(title: title),
-                  ),
-                  Selector<TastedRecordPresenter, ProfileInfo>(
-                    selector: (context, presenter) => presenter.profileInfo,
-                    builder: (context, profileInfo, child) => _buildAuthorProfile(
-                      nickName: profileInfo.nickName,
-                      authorId: profileInfo.authorId,
-                      profileImageUrl: profileInfo.profileImageUrl,
-                      isFollow: profileInfo.isFollow,
-                      isMine: profileInfo.isMine,
+                    Selector<TastedRecordPresenter, BottomButtonInfo>(
+                      selector: (context, presenter) => presenter.bottomButtonInfo,
+                      builder: (context, bottomButtonInfo, child) => _buildButtons(
+                        likeCount: bottomButtonInfo.likeCount,
+                        isLiked: bottomButtonInfo.isSaved,
+                        isSaved: bottomButtonInfo.isSaved,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  Selector<TastedRecordPresenter, ContentsInfo>(
-                    selector: (context, presenter) => presenter.contentsInfo,
-                    builder: (context, contentsInfo, child) => _buildContents(
-                      rating: contentsInfo.rating,
-                      flavors: contentsInfo.flavors,
-                      tastedAt: contentsInfo.tastedAt,
-                      contents: contentsInfo.contents,
-                      location: contentsInfo.location,
+                    Selector<TastedRecordPresenter, String>(
+                      selector: (context, presenter) => presenter.title,
+                      builder: (context, title, child) => _buildTitle(title: title),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 12),
-                    padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
-                    decoration: BoxDecoration(
-                      color: ColorStyles.gray10,
-                      borderRadius: BorderRadius.circular(4),
+                    Selector<TastedRecordPresenter, ProfileInfo>(
+                      selector: (context, presenter) => presenter.profileInfo,
+                      builder: (context, profileInfo, child) => _buildAuthorProfile(
+                        nickName: profileInfo.nickName,
+                        authorId: profileInfo.authorId,
+                        profileImageUrl: profileInfo.profileImageUrl,
+                        isFollow: profileInfo.isFollow,
+                        isMine: profileInfo.isMine,
+                      ),
                     ),
-                    child: Column(
-                      children: [
-                        Selector<TastedRecordPresenter, BeanInfo>(
-                          selector: (context, presenter) => presenter.beanInfo,
-                          builder: (context, beanInfo, child) => BeanDetail(
-                            beanType: beanInfo.beanType.toString(),
-                            country: beanInfo.country,
-                            region: beanInfo.region,
-                            variety: beanInfo.variety,
-                            process: beanInfo.process,
-                            roastery: beanInfo.roastery,
-                            extraction: beanInfo.extraction,
-                            roastPoint: beanInfo.roastingPoint,
+                    const SizedBox(height: 32),
+                    Selector<TastedRecordPresenter, ContentsInfo>(
+                      selector: (context, presenter) => presenter.contentsInfo,
+                      builder: (context, contentsInfo, child) => _buildContents(
+                        rating: contentsInfo.rating,
+                        flavors: contentsInfo.flavors,
+                        tastedAt: contentsInfo.tastedAt,
+                        contents: contentsInfo.contents,
+                        location: contentsInfo.location,
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
+                      decoration: BoxDecoration(
+                        color: ColorStyles.gray10,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Column(
+                        children: [
+                          Selector<TastedRecordPresenter, BeanInfo>(
+                            selector: (context, presenter) => presenter.beanInfo,
+                            builder: (context, beanInfo, child) => BeanDetail(
+                              beanType: beanInfo.beanType.toString(),
+                              country: beanInfo.country,
+                              region: beanInfo.region,
+                              variety: beanInfo.variety,
+                              process: beanInfo.process,
+                              roastery: beanInfo.roastery,
+                              extraction: beanInfo.extraction,
+                              roastPoint: beanInfo.roastingPoint,
+                            ),
                           ),
-                        ),
-                        Selector<TastedRecordPresenter, TasteReview?>(
-                          selector: (context, presenter) => presenter.tastingReview,
-                          builder: (context, tastingReview, child) => tastingReview != null
-                              ? TasteGraph(
-                                  bodyValue: tastingReview.body,
-                                  acidityValue: tastingReview.acidity,
-                                  bitternessValue: tastingReview.bitterness,
-                                  sweetnessValue: tastingReview.sweetness,
-                                )
-                              : const SizedBox.shrink(),
-                        ),
-                      ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                          Selector<TastedRecordPresenter, TasteReview?>(
+                            selector: (context, presenter) => presenter.tastingReview,
+                            builder: (context, tastingReview, child) => tastingReview != null
+                                ? TasteGraph(
+                                    bodyValue: tastingReview.body,
+                                    acidityValue: tastingReview.acidity,
+                                    bitternessValue: tastingReview.bitterness,
+                                    sweetnessValue: tastingReview.sweetness,
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  Selector<TastedRecordPresenter, CommentsInfo>(
-                    selector: (context, presenter) => presenter.commentsInfo,
-                    builder: (context, commentsInfo, child) => buildComments(
-                      authorId: commentsInfo.authorId,
-                      comments: commentsInfo.page.results,
-                      count: commentsInfo.page.count,
+                    const SizedBox(height: 48),
+                    Selector<TastedRecordPresenter, CommentsInfo>(
+                      selector: (context, presenter) => presenter.commentsInfo,
+                      builder: (context, commentsInfo, child) => buildComments(
+                        authorId: commentsInfo.authorId,
+                        comments: commentsInfo.page.results,
+                        count: commentsInfo.page.count,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }),
@@ -198,7 +225,11 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
               selector: (context, presenter) => presenter.isMine,
               builder: (context, isMine, child) => GestureDetector(
                 onTap: () {
-                  showSortCriteriaBottomSheet(isMine: isMine);
+                  showActionBottomSheet(isMine: isMine).then((result) {
+                    if (result != null) {
+                      context.pop(result);
+                    }
+                  });
                 },
                 child: SvgPicture.asset(
                   'assets/icons/more.svg',
@@ -326,7 +357,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
 
   Widget _buildButtons({
     required int likeCount,
-    required isLiked,
+    required bool isLiked,
     required bool isSaved,
   }) {
     return Padding(
@@ -677,37 +708,37 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
               ),
             ),
           if (!isMine)
-          Expanded(
-            child: GestureDetector(
-              child: Container(
-                color: ColorStyles.gray30,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/declaration.svg',
-                      height: 32,
-                      width: 32,
-                      colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
-                    ),
-                    Text(
-                      '신고하기',
-                      style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
-                    )
-                  ],
+            Expanded(
+              child: GestureDetector(
+                child: Container(
+                  color: ColorStyles.gray30,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/icons/declaration.svg',
+                        height: 32,
+                        width: 32,
+                        colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
+                      ),
+                      Text(
+                        '신고하기',
+                        style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray70),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
         ],
       ),
       child: commentItem,
     );
   }
 
-  showSortCriteriaBottomSheet({required bool isMine}) {
-    showBarrierDialog(
+  Future<String?> showActionBottomSheet({required bool isMine}) {
+    return showBarrierDialog<String>(
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -753,7 +784,31 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
           ),
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.pop();
+            showCenterDialog<Result<String>>(
+              title: '정말 삭제하시겠어요?',
+              centerTitle: true,
+              cancelText: '닫기',
+              doneText: '삭제하기',
+              onDone: () {
+                context.read<TastedRecordPresenter>().onDelete().then((result) {
+                  context.pop(result);
+                });
+              },
+            ).then((result) {
+              switch (result) {
+                case null:
+                  break;
+                case Success<String>():
+                  context.pop(result.data);
+                  break;
+                case Error<String>():
+                  showSnackBar(message: result.e);
+                  break;
+              }
+            });
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
@@ -794,7 +849,15 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            final id = context.read<TastedRecordPresenter>().id;
+            context.pop();
+            pushToReportScreen(context, id: id, type: 'tasted_record').then((result) {
+              if (result != null) {
+                context.pop(result);
+              }
+            });
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
@@ -806,7 +869,31 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView> {
           ),
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.pop();
+            showCenterDialog<Result<String>>(
+              title: '이 사용자를 차단하시겠어요?',
+              content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+              cancelText: '취소',
+              doneText: '차단하기',
+              onDone: () {
+                context.read<TastedRecordPresenter>().onBlock().then((result) {
+                  context.pop(result);
+                });
+              },
+            ).then((result) {
+              switch (result) {
+                case null:
+                  break;
+                case Success<String>():
+                  context.pop(result.data);
+                  break;
+                case Error<String>():
+                  showSnackBar(message: result.e);
+                  break;
+              }
+            });
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),

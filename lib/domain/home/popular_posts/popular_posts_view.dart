@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_post.dart';
@@ -19,7 +20,7 @@ class PopularPostsView extends StatefulWidget {
   State<PopularPostsView> createState() => _PopularPostsViewState();
 }
 
-class _PopularPostsViewState extends State<PopularPostsView> {
+class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<PopularPostsView> {
   late final ScrollController scrollController;
 
   @override
@@ -85,7 +86,7 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                       final popularPost = page.results[index];
                       return GestureDetector(
                         onTap: () {
-                          showCupertinoModalPopup(
+                          showCupertinoModalPopup<String>(
                             barrierColor: ColorStyles.white,
                             barrierDismissible: false,
                             context: context,
@@ -95,7 +96,11 @@ class _PopularPostsViewState extends State<PopularPostsView> {
                                 child: const PostDetailView(),
                               );
                             },
-                          );
+                          ).then((result) {
+                            if (result != null) {
+                              showSnackBar(message: result);
+                            }
+                          });
                         },
                         child: Container(
                           padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),

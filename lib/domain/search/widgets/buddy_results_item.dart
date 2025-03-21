@@ -24,6 +24,7 @@ class BuddyResultsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      color: Colors.transparent,
       child: Row(
         children: [
           if (_imageUri.isNotEmpty) ...[
