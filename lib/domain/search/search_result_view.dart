@@ -120,6 +120,7 @@ class _SearchResultViewState extends State<SearchResultView>
         return false;
       },
       child: ListView.separated(
+        padding: const EdgeInsets.only(top: 16, bottom: 20),
         itemCount: searchResultList.length,
         itemBuilder: (context, index) {
           final result = searchResultList[index];
@@ -134,10 +135,7 @@ class _SearchResultViewState extends State<SearchResultView>
               return _buildPostResultItem(result);
           }
         },
-        separatorBuilder: (context, index) => Container(
-          height: 1,
-          color: ColorStyles.gray20,
-        ),
+        separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray20),
       ),
     );
   }
@@ -159,7 +157,11 @@ class _SearchResultViewState extends State<SearchResultView>
   Widget _buildUserResultItem(BuddySearchResultModel model) {
     return GestureDetector(
       onTap: () {
-        pushToProfile(context: context, id: model.id);
+        pushToProfile(context: context, id: model.id).then((result) {
+          if (result != null) {
+            showSnackBar(message: result);
+          }
+        });
       },
       child: BuddyResultsItem(
         imageUri: model.profileImageUri,
@@ -173,7 +175,11 @@ class _SearchResultViewState extends State<SearchResultView>
   Widget _buildTastingRecordResultItem(TastedRecordSearchResultModel model) {
     return GestureDetector(
       onTap: () {
-        showTastingRecordDetail(context: context, id: model.id);
+        showTastingRecordDetail(context: context, id: model.id).then((result) {
+          if (result != null) {
+            showSnackBar(message: result);
+          }
+        });
       },
       child: TastedRecordResultsItem(
         imageUri: model.imageUri,
@@ -190,7 +196,11 @@ class _SearchResultViewState extends State<SearchResultView>
   Widget _buildPostResultItem(PostSearchResultModel model) {
     return GestureDetector(
       onTap: () {
-        showTastingRecordDetail(context: context, id: model.id);
+        showPostDetail(context: context, id: model.id).then((result) {
+          if (result != null) {
+            showSnackBar(message: result);
+          }
+        });
       },
       child: PostResultsItem(
         title: model.title,
@@ -258,7 +268,7 @@ class _SearchResultViewState extends State<SearchResultView>
   Widget _buildFilter() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.only(top: 16),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),

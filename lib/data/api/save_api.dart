@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
@@ -19,9 +20,5 @@ abstract class SaveApi {
     @Path('id') required int id,
   });
 
-  factory SaveApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _SaveApi(dio);
-  }
+  factory SaveApi() => _SaveApi(DioClient.instance.dio);
 }

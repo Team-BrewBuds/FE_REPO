@@ -15,10 +15,17 @@ final class SearchHomePresenter extends SearchPresenter {
   List<String> get beanRankingList => _beanRankingList;
 
   @override
-  fetchData() {
+  initState() {
+    super.initState();
     _fetchRecommendedBeanList();
     _fetchBeanRankingList();
-    super.fetchData();
+  }
+
+  @override
+  onRefresh() {
+    fetchRecentSearchWords();
+    _fetchRecommendedBeanList();
+    _fetchBeanRankingList();
   }
 
   _fetchRecommendedBeanList() async {
@@ -30,6 +37,9 @@ final class SearchHomePresenter extends SearchPresenter {
     _beanRankingList = List.from(_coffeeBeansRankingDummy);
     notifyListeners();
   }
+
+  @override
+  fetchData() {}
 }
 
 final List<String> _coffeeBeansRankingDummy = [

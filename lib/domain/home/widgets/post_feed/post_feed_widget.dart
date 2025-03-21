@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/feed_widget.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +42,7 @@ class PostFeedWidget extends FeedWidget {
   });
 }
 
-class _PostFeedState extends FeedWidgetState<PostFeedWidget> {
+class _PostFeedState extends FeedWidgetState<PostFeedWidget> with SnackBarMixin<PostFeedWidget> {
   late final int itemLength = 5;
   int currentIndex = 0;
 
@@ -96,7 +97,11 @@ class _PostFeedState extends FeedWidgetState<PostFeedWidget> {
           if (isOverFlow)
             GestureDetector(
               onTap: () {
-                showPostDetail(context: context, id: widget.id);
+                showPostDetail(context: context, id: widget.id).then((result) {
+                  if (result != null) {
+                    showSnackBar(message: result);
+                  }
+                });
               },
               child: Text(
                 '더보기',

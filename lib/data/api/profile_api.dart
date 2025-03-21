@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/profile/account_info_dto.dart';
 import 'package:brew_buds/data/dto/profile/profile_dto.dart';
 import 'package:dio/dio.dart';
@@ -38,9 +39,5 @@ abstract class ProfileApi {
     @Path('user_id') required int id,
   });
 
-  factory ProfileApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _ProfileApi(dio);
-  }
+  factory ProfileApi() => _ProfileApi(DioClient.instance.dio);
 }

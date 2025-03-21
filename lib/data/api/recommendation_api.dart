@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/coffee_bean/recommended_coffee_bean_dto.dart';
 import 'package:brew_buds/data/dto/recommended/recommended_page_dto.dart';
 import 'package:dio/dio.dart';
@@ -17,9 +18,5 @@ abstract class RecommendationApi {
     @Path('user_id') required int id,
   });
 
-  factory RecommendationApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _RecommendationApi(dio);
-  }
+  factory RecommendationApi() => _RecommendationApi(DioClient.instance.dio);
 }

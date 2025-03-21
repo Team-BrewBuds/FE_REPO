@@ -14,6 +14,7 @@ import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -167,29 +168,43 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
         padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
         child: Row(
           children: [
-            GestureDetector(
-              onTap: () {
-                context.read<CoffeeBeanDetailPresenter>().onTapSave();
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                decoration: const BoxDecoration(
-                  color: ColorStyles.gray30,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                ),
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/icons/save.svg',
-                      colorFilter: ColorFilter.mode(isSaved ? ColorStyles.red : ColorStyles.black, BlendMode.srcIn),
-                    ),
-                    const Text('저장', style: TextStyles.labelMediumMedium),
-                  ],
+            Expanded(
+              flex: 1,
+              child: GestureDetector(
+                onTap: () {
+                  context.read<CoffeeBeanDetailPresenter>().onTapSave();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.gray30,
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (isSaved)
+                        SvgPicture.asset(
+                          'assets/icons/save_fill.svg',
+                          width: 18,
+                          height: 18,
+                        )
+                      else
+                        SvgPicture.asset(
+                          'assets/icons/save.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+                        ),
+                      const Text('저장', style: TextStyles.labelMediumMedium)
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 8),
             Expanded(
+              flex: 3,
               child: GestureDetector(
                 onTap: () {},
                 child: Container(

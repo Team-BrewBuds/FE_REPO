@@ -1,3 +1,5 @@
+import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
@@ -26,6 +28,7 @@ typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String aut
 final class TastedRecordPresenter extends ChangeNotifier {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
+  final BlockApi _blockApi = BlockApi();
   final int id;
 
   Comment? _parentComment;
@@ -111,10 +114,30 @@ final class TastedRecordPresenter extends ChangeNotifier {
   }
 
   fetchMoreComments() async {
+    if(!_page.hasNext) return;
     final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'tasted_record', id: id, pageNo: _pageNo);
     _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
     _pageNo += 1;
     notifyListeners();
+  }
+
+  Future<Result<String>> onDelete() {
+    return _tastedRecordRepository
+        .delete(id: id)
+        .then((value) => Result.success('게시글 삭제를 완료했어요.'))
+        .onError((error, stackTrace) => Result.error('게시글 삭제에 실패했어요.'));
+  }
+
+  Future<Result<String>> onBlock() {
+    final authorId = _tastedRecord?.author.id;
+    if (authorId != null) {
+      return _blockApi
+          .block(id: id)
+          .then((value) => Result.success('차단을 완료했어요.'))
+          .onError((error, stackTrace) => Result.error('차단에 실패했어요.'));
+    } else {
+      return Future.value(Result.error('차단에 실패했어요.'));
+    }
   }
 
   onTappedFollowButton() {

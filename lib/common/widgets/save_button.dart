@@ -23,12 +23,19 @@ class SaveButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(
           children: [
-            SvgPicture.asset(
-              'assets/icons/like.svg',
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(isSaved ? ColorStyles.red : ColorStyles.gray70, BlendMode.srcIn),
-            ),
+            if (isSaved)
+              SvgPicture.asset(
+                'assets/icons/save_fill.svg',
+                width: 24,
+                height: 24,
+              )
+            else
+              SvgPicture.asset(
+                'assets/icons/save.svg',
+                width: 24,
+                height: 24,
+                colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
+              ),
             Text(
               '저장',
               style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),

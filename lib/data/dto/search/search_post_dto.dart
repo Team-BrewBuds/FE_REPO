@@ -1,3 +1,4 @@
+import 'package:brew_buds/data/dto/post/post_subject_en_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'search_post_dto.g.dart';
@@ -12,8 +13,8 @@ class SearchPostDTO {
   final String title;
   @JsonKey(name: 'content', defaultValue: '')
   final String content;
-  @JsonKey(name: 'subject', defaultValue: '')
-  final String subject;
+  @JsonKey(name: 'subject', unknownEnumValue: PostSubjectEnDTO.normal, defaultValue: PostSubjectEnDTO.normal)
+  final PostSubjectEnDTO subject;
   @JsonKey(name: 'created_at', defaultValue: '')
   final String createdAt;
   @JsonKey(name: 'photo_url', defaultValue: '')

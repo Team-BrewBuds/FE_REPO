@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/feed_widget.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_card.dart';
@@ -43,7 +44,8 @@ class TastingRecordFeedWidget extends FeedWidget {
   FeedWidgetState createState() => _TastingRecordFeedState();
 }
 
-class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget> {
+class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget>
+    with SnackBarMixin<TastingRecordFeedWidget> {
   @override
   Widget buildBody() {
     final width = MediaQuery.of(context).size.width;
@@ -77,7 +79,11 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget> {
               if (isOverFlow)
                 GestureDetector(
                   onTap: () {
-                    showTastingRecordDetail(context: context, id: widget.id);
+                    showTastingRecordDetail(context: context, id: widget.id).then((result) {
+                      if (result != null) {
+                        showSnackBar(message: result);
+                      }
+                    });
                   },
                   child: Text(
                     '더보기',

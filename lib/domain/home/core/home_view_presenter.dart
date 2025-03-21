@@ -16,13 +16,13 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
 
   List<T> get data => defaultPage.results;
 
-  initState() {
+  initState() async {
     _recommendedUserPage = List.empty();
     defaultPage = DefaultPage.initState();
     currentPage = 0;
     notifyListeners();
-    fetchMoreRecommendedUsers();
-    fetchMoreData();
+    await fetchMoreRecommendedUsers();
+    await fetchMoreData();
   }
 
   Future<void> onRefresh() async {
@@ -30,8 +30,8 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
     defaultPage = DefaultPage.initState();
     currentPage = 0;
     notifyListeners();
-    fetchMoreRecommendedUsers();
-    fetchMoreData();
+    await fetchMoreRecommendedUsers();
+    await fetchMoreData();
   }
 
   Future<void> fetchMoreData();
@@ -51,7 +51,7 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
     }
   }
 
-  fetchMoreRecommendedUsers() async {
+  Future<void> fetchMoreRecommendedUsers() async {
     final newPage = await homeRepository.fetchRecommendedUserPage();
     _recommendedUserPage = List.from(_recommendedUserPage)..add(newPage);
     notifyListeners();

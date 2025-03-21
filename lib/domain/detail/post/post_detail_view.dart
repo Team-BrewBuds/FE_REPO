@@ -8,15 +8,20 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_card.dart';
+import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,12 +35,22 @@ class PostDetailView extends StatefulWidget {
   State<PostDetailView> createState() => _PostDetailViewState();
 }
 
-class _PostDetailViewState extends State<PostDetailView> {
+class _PostDetailViewState extends State<PostDetailView>
+    with SnackBarMixin<PostDetailView>, CenterDialogMixin<PostDetailView> {
+  late final Throttle paginationThrottle;
   late final TextEditingController _textEditingController;
   int currentIndex = 0;
 
   @override
   void initState() {
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
     _textEditingController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<PostDetailPresenter>().init();
@@ -49,6 +64,10 @@ class _PostDetailViewState extends State<PostDetailView> {
     super.dispose();
   }
 
+  _fetchMoreData() {
+    context.read<PostDetailPresenter>().fetchMorComments();
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -59,51 +78,59 @@ class _PostDetailViewState extends State<PostDetailView> {
         child: Scaffold(
           resizeToAvoidBottomInset: true,
           appBar: _buildTitle(),
-          body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Selector<PostDetailPresenter, ProfileInfo>(
-                  selector: (context, presenter) => presenter.profileInfo,
-                  builder: (context, profileInfo, child) => _buildProfile(
-                    authorId: profileInfo.authorId,
-                    nickName: profileInfo.nickName,
-                    imageUrl: profileInfo.profileImageUrl,
-                    createdAt: profileInfo.createdAt,
-                    viewCount: profileInfo.viewCount,
-                    isFollow: profileInfo.isFollow,
-                    isMine: profileInfo.isMine,
+          body: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scroll) {
+              if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                paginationThrottle.setValue(null);
+              }
+              return false;
+            },
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Selector<PostDetailPresenter, ProfileInfo>(
+                    selector: (context, presenter) => presenter.profileInfo,
+                    builder: (context, profileInfo, child) => _buildProfile(
+                      authorId: profileInfo.authorId,
+                      nickName: profileInfo.nickName,
+                      imageUrl: profileInfo.profileImageUrl,
+                      createdAt: profileInfo.createdAt,
+                      viewCount: profileInfo.viewCount,
+                      isFollow: profileInfo.isFollow,
+                      isMine: profileInfo.isMine,
+                    ),
                   ),
-                ),
-                Selector<PostDetailPresenter, BodyInfo>(
-                  selector: (context, presenter) => presenter.bodyInfo,
-                  builder: (context, bodyInfo, child) => buildBody(
-                    imageUrlList: bodyInfo.imageUrlList,
-                    tastingRecords: bodyInfo.tastingRecords,
-                    title: bodyInfo.title,
-                    contents: bodyInfo.contents,
-                    tag: bodyInfo.tag,
-                    subject: bodyInfo.subject,
+                  Selector<PostDetailPresenter, BodyInfo>(
+                    selector: (context, presenter) => presenter.bodyInfo,
+                    builder: (context, bodyInfo, child) => buildBody(
+                      imageUrlList: bodyInfo.imageUrlList,
+                      tastingRecords: bodyInfo.tastingRecords,
+                      title: bodyInfo.title,
+                      contents: bodyInfo.contents,
+                      tag: bodyInfo.tag,
+                      subject: bodyInfo.subject,
+                    ),
                   ),
-                ),
-                Selector<PostDetailPresenter, BottomButtonInfo>(
-                  selector: (context, presenter) => presenter.bottomButtonInfo,
-                  builder: (context, bottomButtonInfo, child) => buildBottomButtons(
-                    likeCount: bottomButtonInfo.likeCount,
-                    isLiked: bottomButtonInfo.isSaved,
-                    isSaved: bottomButtonInfo.isSaved,
+                  Selector<PostDetailPresenter, BottomButtonInfo>(
+                    selector: (context, presenter) => presenter.bottomButtonInfo,
+                    builder: (context, bottomButtonInfo, child) => buildBottomButtons(
+                      likeCount: bottomButtonInfo.likeCount,
+                      isLiked: bottomButtonInfo.isLiked,
+                      isSaved: bottomButtonInfo.isSaved,
+                    ),
                   ),
-                ),
-                Container(height: 12, color: ColorStyles.gray20),
-                Selector<PostDetailPresenter, CommentsInfo>(
-                  selector: (context, presenter) => presenter.commentsInfo,
-                  builder: (context, commentsInfo, child) => buildComments(
-                    authorId: commentsInfo.authorId,
-                    comments: commentsInfo.page.results,
-                    count: commentsInfo.page.count,
+                  Container(height: 12, color: ColorStyles.gray20),
+                  Selector<PostDetailPresenter, CommentsInfo>(
+                    selector: (context, presenter) => presenter.commentsInfo,
+                    builder: (context, commentsInfo, child) => buildComments(
+                      authorId: commentsInfo.authorId,
+                      comments: commentsInfo.page.results,
+                      count: commentsInfo.page.count,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: Padding(
@@ -146,7 +173,11 @@ class _PostDetailViewState extends State<PostDetailView> {
               selector: (context, presenter) => presenter.isMine,
               builder: (context, isMine, child) => GestureDetector(
                 onTap: () {
-                  showSortCriteriaBottomSheet(isMine: isMine);
+                  showActionBottomSheet(isMine: isMine).then((result) {
+                    if (result != null) {
+                      context.pop(result);
+                    }
+                  });
                 },
                 child: SvgPicture.asset('assets/icons/more.svg', fit: BoxFit.cover, height: 24, width: 24),
               ),
@@ -289,11 +320,13 @@ class _PostDetailViewState extends State<PostDetailView> {
           Text(title, style: TextStyles.title01SemiBold),
           const SizedBox(height: 12, width: double.infinity),
           Text(contents, style: TextStyles.bodyRegular),
-          const SizedBox(height: 12, width: double.infinity),
-          Text(
-            tag.replaceAll(',', '#').startsWith('#') ? tag.replaceAll(',', '#') : '#${tag.replaceAll(',', '#')}',
-            style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.red),
-          ),
+          if (tag.isNotEmpty) ...[
+            const SizedBox(height: 12, width: double.infinity),
+            Text(
+              tag.replaceAll(',', '#').startsWith('#') ? tag.replaceAll(',', '#') : '#${tag.replaceAll(',', '#')}',
+              style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.red),
+            ),
+          ],
         ],
       ),
     );
@@ -323,7 +356,7 @@ class _PostDetailViewState extends State<PostDetailView> {
 
   Widget buildBottomButtons({
     required int likeCount,
-    required isLiked,
+    required bool isLiked,
     required bool isSaved,
   }) {
     return Padding(
@@ -616,8 +649,8 @@ class _PostDetailViewState extends State<PostDetailView> {
     );
   }
 
-  showSortCriteriaBottomSheet({required bool isMine}) {
-    showBarrierDialog(
+  Future<String?> showActionBottomSheet({required bool isMine}) {
+    return showBarrierDialog<String>(
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -663,12 +696,36 @@ class _PostDetailViewState extends State<PostDetailView> {
           ),
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.pop();
+            showCenterDialog<Result<String>>(
+              title: '정말 삭제하시겠어요?',
+              centerTitle: true,
+              cancelText: '닫기',
+              doneText: '삭제하기',
+              onDone: () {
+                context.read<PostDetailPresenter>().onDelete().then((result) {
+                  context.pop(result);
+                });
+              },
+            ).then((result) {
+              switch (result) {
+                case null:
+                  break;
+                case Success<String>():
+                  context.pop(result.data);
+                  break;
+                case Error<String>():
+                  showSnackBar(message: result.e);
+                  break;
+              }
+            });
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
-              '샥제햐기',
+              '삭제하기',
               style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),
@@ -704,7 +761,15 @@ class _PostDetailViewState extends State<PostDetailView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            final id = context.read<PostDetailPresenter>().id;
+            context.pop();
+            pushToReportScreen(context, id: id, type: 'post').then((result) {
+              if (result != null) {
+                context.pop(result);
+              }
+            });
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
@@ -716,7 +781,31 @@ class _PostDetailViewState extends State<PostDetailView> {
           ),
         ),
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.pop();
+            showCenterDialog<Result<String>>(
+              title: '이 사용자를 차단하시겠어요?',
+              content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+              cancelText: '취소',
+              doneText: '차단하기',
+              onDone: () {
+                context.read<PostDetailPresenter>().onBlock().then((result) {
+                  context.pop(result);
+                });
+              },
+            ).then((result) {
+              switch (result) {
+                case null:
+                  break;
+                case Success<String>():
+                  context.pop(result.data);
+                  break;
+                case Error<String>():
+                  showSnackBar(message: result.e);
+                  break;
+              }
+            });
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),

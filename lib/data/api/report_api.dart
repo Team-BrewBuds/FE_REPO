@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
@@ -11,11 +12,8 @@ abstract class ReportApi {
   Future<void> report({
     @Path('type') required String type,
     @Path('id') required int id,
+    required Map<String, dynamic> data,
   });
 
-  factory ReportApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _ReportApi(dio);
-  }
+  factory ReportApi() => _ReportApi(DioClient.instance.dio);
 }

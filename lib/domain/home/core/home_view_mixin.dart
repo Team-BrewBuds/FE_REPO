@@ -240,4 +240,27 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       },
     );
   }
+
+  showSnackBar({required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black.withOpacity(0.9),
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+    );
+  }
 }

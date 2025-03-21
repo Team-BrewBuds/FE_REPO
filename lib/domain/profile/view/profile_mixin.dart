@@ -546,7 +546,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 final tastingRecord = tastingRecords[index];
                 return GestureDetector(
                   onTap: () {
-                    showTastingRecordDetail(context: context, id: tastingRecords[index].id);
+                    showTastingRecordDetail(context: context, id: tastingRecords[index].id).then((value) {
+                      if (value != null) {
+                        showSnackBar(message: value);
+                      }
+                    });
                   },
                   child: TastingRecordItemWidget(
                     imageUri: tastingRecord.imageUrl,
@@ -571,7 +575,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               final post = posts[index];
               return GestureDetector(
                 onTap: () {
-                  showPostDetail(context: context, id: post.id);
+                  showPostDetail(context: context, id: post.id).then((value) {
+                    if (value != null) {
+                      showSnackBar(message: value);
+                    }
+                  });
                 },
                 child: ProfilePostItemWidget(
                   title: post.title,
@@ -598,11 +606,16 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             itemCount: beans.length,
             itemBuilder: (context, index) {
               final bean = beans[index];
-              return SavedCoffeeBeanWidget(
-                name: bean.name,
-                rating: bean.rating,
-                tastedRecordsCount: bean.tastedRecordsCount,
-                imageUri: '',
+              return GestureDetector(
+                onTap: () {
+                  showCoffeeBeanDetail(context: context, id: bean.id);
+                },
+                child: SavedCoffeeBeanWidget(
+                  name: bean.name,
+                  rating: bean.rating,
+                  tastedRecordsCount: bean.tastedRecordsCount,
+                  imageUri: '',
+                ),
               );
             },
             separatorBuilder: (context, index) {
@@ -626,7 +639,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 case NotedPost():
                   return GestureDetector(
                     onTap: () {
-                      showTastingRecordDetail(context: context, id: note.id);
+                      showPostDetail(context: context, id: note.id).then((value) {
+                        if (value != null) {
+                          showSnackBar(message: value);
+                        }
+                      });
                     },
                     child: SavedPostWidget(
                       title: note.title,
@@ -639,7 +656,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 case NotedTastedRecord():
                   return GestureDetector(
                     onTap: () {
-                      showTastingRecordDetail(context: context, id: note.id);
+                      showTastingRecordDetail(context: context, id: note.id).then((value) {
+                        if (value != null) {
+                          showSnackBar(message: value);
+                        }
+                      });
                     },
                     child: SavedTastingRecordWidget(
                       beanName: note.beanName,
@@ -737,6 +758,29 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             isLeftIcon ? textWidget : iconWidget,
           ],
         ),
+      ),
+    );
+  }
+
+  showSnackBar({required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black.withOpacity(0.9),
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
     );
   }

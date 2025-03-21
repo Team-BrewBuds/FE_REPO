@@ -2,7 +2,6 @@ import 'package:brew_buds/data/dto/common/interaction_dto.dart';
 import 'package:brew_buds/data/dto/user/user_dto.dart';
 import 'package:brew_buds/data/dto/post/post_subject_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_post_dto.dart';
-import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'post_dto.g.dart';

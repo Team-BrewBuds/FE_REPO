@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -48,9 +49,5 @@ abstract class TastedRecordApi {
     @Query('star_max') double? ratingMax,
   });
 
-  factory TastedRecordApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _TastedRecordApi(dio);
-  }
+  factory TastedRecordApi() => _TastedRecordApi(DioClient.instance.dio);
 }
