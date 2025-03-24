@@ -6,7 +6,9 @@ class AccountRepository extends ChangeNotifier {
   String _refreshToken = '';
   String _accessToken = '';
   int? _id;
+
   String get accessToken => _accessToken;
+
   String get refreshToken => _refreshToken;
 
   int? get id => _id;
@@ -42,10 +44,10 @@ class AccountRepository extends ChangeNotifier {
     _id = id;
   }
 
-  logout() async {
+  Future<bool> logout() async {
     _id = null;
     _accessToken = '';
     _refreshToken = '';
-    await _storage.deleteAll();
+    return _storage.deleteAll().then((value) => true).onError((error, stackTrace) => false);
   }
 }

@@ -1,13 +1,18 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
+import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -16,7 +21,30 @@ class SettingScreen extends StatefulWidget {
   State<SettingScreen> createState() => _SettingScreenState();
 }
 
-class _SettingScreenState extends State<SettingScreen> {
+class _SettingScreenState extends State<SettingScreen>
+    with CenterDialogMixin<SettingScreen>, SnackBarMixin<SettingScreen> {
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+    buildSignature: 'Unknown',
+    installerStore: 'Unknown',
+  );
+
+  @override
+  void initState() {
+    _initPackageInfo();
+    super.initState();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,6 +66,19 @@ class _SettingScreenState extends State<SettingScreen> {
                     child: Text(title, style: TextStyles.title01SemiBold),
                   ),
                 ...category.items.map((item) {
+                  if (item == SettingItem.version) {
+                    return Container(
+                      padding: const EdgeInsets.all(16.0),
+                      color: ColorStyles.white,
+                      child: Row(
+                        children: [
+                          Text(item.toString(), style: TextStyles.labelMediumMedium),
+                          const Spacer(),
+                          Text(_packageInfo.version, style: TextStyles.labelMediumMedium),
+                        ],
+                      ),
+                    );
+                  }
                   return GestureDetector(
                     onTap: () {
                       onTapped(item);
@@ -115,7 +156,11 @@ class _SettingScreenState extends State<SettingScreen> {
         context.go('/profile/setting/account_info');
         break;
       case SettingItem.detail:
-        context.go('/profile/setting/account_detail');
+        context.push<String>('/profile/setting/account_detail').then((value) {
+          if (value != null) {
+            showSnackBar(message: value);
+          }
+        });
         break;
       case SettingItem.notice:
         break;
@@ -141,6 +186,18 @@ class _SettingScreenState extends State<SettingScreen> {
         showLogoutBottomSheet();
         break;
       case SettingItem.signOut:
+        showSignOutBottomSheet().then((value) {
+          if (value != null && value) {
+            showCupertinoModalPopup(
+              barrierColor: ColorStyles.white,
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return const SignOutView();
+              },
+            );
+          }
+        });
         break;
     }
   }
@@ -168,16 +225,88 @@ class _SettingScreenState extends State<SettingScreen> {
                     children: [
                       InkWell(
                         onTap: () async {
-                          await AccountRepository.instance.logout();
-                          context.go('/login');
+                          AccountRepository.instance.logout().then((value) {
+                            if (value) {
+                              context.go('/login');
+                            }
+                          });
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           decoration:
-                          const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+                              const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
                           child: Center(
                             child: Text(
                               '로그아웃',
+                              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+                        child: InkWell(
+                          onTap: () {
+                            context.pop();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: ColorStyles.black,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '닫기',
+                                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool?> showSignOutBottomSheet() {
+    return showBarrierDialog<bool>(
+      context: context,
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Stack(
+          children: [
+            Positioned(
+              right: 0,
+              left: 0,
+              bottom: 0,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(bottom: 30),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                  ),
+                  child: Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          context.pop(true);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          decoration:
+                              const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+                          child: Center(
+                            child: Text(
+                              '회원탈퇴',
                               style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
                             ),
                           ),
