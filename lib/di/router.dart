@@ -35,10 +35,7 @@ import 'package:provider/provider.dart';
 
 GoRouter createRouter(bool hasToken) {
   final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
-  final GlobalKey<NavigatorState> mainRootNavigatorKey = GlobalKey<NavigatorState>();
-
   return GoRouter(
-    navigatorKey: mainRootNavigatorKey,
     initialLocation: hasToken ? '/home' : '/login',
     routes: [
       GoRoute(
@@ -91,132 +88,110 @@ GoRouter createRouter(bool hasToken) {
           ),
         ],
       ),
-      StatefulShellRoute.indexedStack(
-        parentNavigatorKey: mainRootNavigatorKey,
-        builder: (context, state, bottomNavigationShell) => MainView(navigationShell: bottomNavigationShell),
-        branches: [
-          StatefulShellBranch(
-            //홈 화면
+      ShellRoute(
+        builder: (context, state, child) => MainView(child: child),
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => MultiProvider(
+              providers: [
+                ChangeNotifierProvider(
+                  create: (_) => HomeAllPresenter(),
+                ),
+                ChangeNotifierProvider(
+                  create: (_) => HomePostPresenter(),
+                ),
+                ChangeNotifierProvider(
+                  create: (_) => HomeTastingRecordPresenter(),
+                ),
+              ],
+              child: HomeView(nestedScrollViewState: homeTabBarScrollState),
+            ),
             routes: [
               GoRoute(
-                path: '/home',
-                builder: (context, state) => MultiProvider(
-                  providers: [
-                    ChangeNotifierProvider(
-                      create: (_) => HomeAllPresenter(),
-                    ),
-                    ChangeNotifierProvider(
-                      create: (_) => HomePostPresenter(),
-                    ),
-                    ChangeNotifierProvider(
-                      create: (_) => HomeTastingRecordPresenter(),
-                    ),
-                  ],
-                  child: HomeView(nestedScrollViewState: homeTabBarScrollState),
+                path: '/popular_post',
+                builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
+                  create: (_) => PopularPostsPresenter(),
+                  child: const PopularPostsView(),
                 ),
-                routes: [
-                  GoRoute(
-                    path: '/popular_post',
-                    builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
-                      create: (_) => PopularPostsPresenter(),
-                      child: const PopularPostsView(),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
-          StatefulShellBranch(
-            //검색 화면
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
+              create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
+              child: const SearchHomeView(),
+            ),
             routes: [
               GoRoute(
-                path: '/search',
-                builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
-                  create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
-                  child: const SearchHomeView(),
-                ),
-                routes: [
-                  GoRoute(
-                    path: 'result',
-                    builder: (context, state) {
-                      final data = state.extra as SearchResultInitState?;
-                      return ChangeNotifierProvider<SearchResultPresenter>(
-                        create: (_) => SearchResultPresenter(
-                          currentTabIndex: data?.tabIndex ?? 0,
-                          searchWord: data?.searchWord ?? '',
-                        ),
-                        child:
-                            SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
-                      );
-                    },
-                  ),
-                ],
+                path: 'result',
+                builder: (context, state) {
+                  final data = state.extra as SearchResultInitState?;
+                  return ChangeNotifierProvider<SearchResultPresenter>(
+                    create: (_) => SearchResultPresenter(
+                      currentTabIndex: data?.tabIndex ?? 0,
+                      searchWord: data?.searchWord ?? '',
+                    ),
+                    child:
+                    SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
+                  );
+                },
               ),
             ],
           ),
-          StatefulShellBranch(
-            //기록 화면
-            routes: [
-              GoRoute(path: '/main3', builder: (context, state) => Container()),
-            ],
-          ),
-          StatefulShellBranch(
-            //프로필 화면
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
+              create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
+              child: const MyProfileView(),
+            ),
             routes: [
               GoRoute(
-                path: '/profile',
-                builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
-                  create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-                  child: const MyProfileView(),
-                ),
+                path: 'edit',
+                builder: (context, state) {
+                  final EditProfileData data = state.extra as EditProfileData;
+                  return ChangeNotifierProvider<EditProfilePresenter>(
+                    create: (_) => EditProfilePresenter(
+                      selectedCoffeeLifeList: data.coffeeLife,
+                      imageUrl: data.imageUrl,
+                      nickname: data.nickname,
+                      introduction: data.introduction,
+                      link: data.link,
+                    ),
+                    child: EditProfileView(
+                      nickname: data.nickname,
+                      introduction: data.introduction,
+                      link: data.link,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'setting',
+                builder: (context, state) => const SettingScreen(),
                 routes: [
+                  GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
                   GoRoute(
-                    path: 'edit',
-                    builder: (context, state) {
-                      final EditProfileData data = state.extra as EditProfileData;
-                      return ChangeNotifierProvider<EditProfilePresenter>(
-                        create: (_) => EditProfilePresenter(
-                          selectedCoffeeLifeList: data.coffeeLife,
-                          imageUrl: data.imageUrl,
-                          nickname: data.nickname,
-                          introduction: data.introduction,
-                          link: data.link,
-                        ),
-                        child: EditProfileView(
-                          nickname: data.nickname,
-                          introduction: data.introduction,
-                          link: data.link,
-                        ),
-                      );
-                    },
+                    path: 'block',
+                    builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
+                      create: (_) => BlockingUserManagementPresenter(),
+                      child: const BlockingUserManagementView(),
+                    ),
                   ),
                   GoRoute(
-                    path: 'setting',
-                    builder: (context, state) => const SettingScreen(),
-                    routes: [
-                      GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
-                      GoRoute(
-                        path: 'block',
-                        builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
-                          create: (_) => BlockingUserManagementPresenter(),
-                          child: const BlockingUserManagementView(),
-                        ),
-                      ),
-                      GoRoute(
-                        path: 'account_info',
-                        builder: (context, state) => ChangeNotifierProvider<AccountInfoPresenter>(
-                          create: (_) => AccountInfoPresenter(),
-                          child: const AccountInfoView(),
-                        ),
-                      ),
-                      GoRoute(
-                        path: 'account_detail',
-                        builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
-                          create: (_) => AccountDetailPresenter(),
-                          child: const AccountDetailView(),
-                        ),
-                      ),
-                    ],
+                    path: 'account_info',
+                    builder: (context, state) => ChangeNotifierProvider<AccountInfoPresenter>(
+                      create: (_) => AccountInfoPresenter(),
+                      child: const AccountInfoView(),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'account_detail',
+                    builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
+                      create: (_) => AccountDetailPresenter(),
+                      child: const AccountDetailView(),
+                    ),
                   ),
                 ],
               ),
