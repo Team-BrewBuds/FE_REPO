@@ -24,6 +24,7 @@ import 'package:brew_buds/domain/setting/view/account_detail_view.dart';
 import 'package:brew_buds/domain/setting/view/account_info_view.dart';
 import 'package:brew_buds/domain/setting/view/blocking_user_management_view.dart';
 import 'package:brew_buds/domain/setting/view/notification_setting_view.dart';
+import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
 import 'package:brew_buds/domain/signup/views/signup_finish_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_first_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_fourth_page.dart';
@@ -172,6 +173,7 @@ GoRouter createRouter(bool hasToken) {
                 builder: (context, state) => const SettingScreen(),
                 routes: [
                   GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
+                  GoRoute(path: 'sign_out', builder: (context, state) => const SignOutView()),
                   GoRoute(
                     path: 'block',
                     builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(

@@ -90,7 +90,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
               child: Center(
                 child: InkWell(
                   onTap: () {
-                    context.read<AccountDetailPresenter>().onSave().then((_) => context.pop());
+                    context.read<AccountDetailPresenter>().onSave().then((_) => context.pop('맞춤정보 저장을 완료했어요.'));
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8, right: 8),
