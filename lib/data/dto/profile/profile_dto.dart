@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:brew_buds/common/extension/string_ext.dart';
 import 'package:brew_buds/data/dto/common/coffee_life_dto.dart';
 import 'package:brew_buds/data/dto/common/preferred_bean_taste_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -18,7 +19,7 @@ class ProfileDTO {
   final String? profileLink;
   @JsonKey(name: 'coffee_life', fromJson: _coffeeLifeFromJson)
   final List<CoffeeLifeDTO> coffeeLife;
-  @JsonKey(name: 'preferred_bean_taste', defaultValue: PreferredBeanTasteDTO.empty)
+  @JsonKey(name: 'preferred_bean_taste', fromJson: _preferredBeanTasteFromJson)
   final PreferredBeanTasteDTO preferredBeanTaste;
   @JsonKey(name: 'is_certificated', defaultValue: null)
   final bool? isCertificated;
@@ -79,12 +80,13 @@ List<CoffeeLifeDTO> _coffeeLifeFromJson(Map<String, dynamic>? json) {
   }
 }
 
-PreferredBeanTasteDTO _preferredBeanTasteFromJson(String? json) {
+PreferredBeanTasteDTO _preferredBeanTasteFromJson(dynamic json) {
   if (json != null) {
-    try {
-      final jsonData = jsonDecode(json) as Map<String, dynamic>;
-      return PreferredBeanTasteDTO.fromJson(jsonData);
-    } catch (_) {
+    if (json is Map<String, dynamic>) {
+      return PreferredBeanTasteDTO.fromJson(json);
+    } else if (json is String) {
+      return PreferredBeanTasteDTO.fromJson(json.convertToJson());
+    } else {
       return PreferredBeanTasteDTO.empty();
     }
   } else {

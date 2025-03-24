@@ -60,7 +60,9 @@ class _OtherProfileViewState extends State<OtherProfileView>
           const SizedBox(width: 8),
           Expanded(
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                context.read<OtherProfilePresenter>().onTappedFollowButton();
+              },
               child: Selector<OtherProfilePresenter, bool>(
                 selector: (context, presenter) => presenter.isFollow,
                 builder: (context, isFollow, child) => Container(

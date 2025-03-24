@@ -8,18 +8,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class MainView extends StatefulWidget {
-  final StatefulNavigationShell _navigationShell;
+  final Widget child;
 
   const MainView({
     super.key,
-    required StatefulNavigationShell navigationShell,
-  }) : _navigationShell = navigationShell;
+    required this.child,
+  });
 
   @override
   State<MainView> createState() => _MainViewState();
 }
 
 class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin {
+  int currentIndex = 0;
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
@@ -27,13 +28,13 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget._navigationShell,
+      body: widget.child,
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 10.5, top: 8, left: 6, right: 6),
           child: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
-            currentIndex: widget._navigationShell.currentIndex,
+            currentIndex: currentIndex,
             items: [
               BottomNavigationBarItem(
                 icon: _createSvgIcon(path: 'assets/icons/home.svg'),
@@ -65,10 +66,17 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
             elevation: 0,
             enableFeedback: false,
             onTap: (int index) {
-              if (index == 2) {
+              setState(() {
+                currentIndex = index;
+              });
+              if (index == 0) {
+                context.go('/home');
+              } else if (index == 1) {
+                context.go('/search');
+              } else if (index == 2) {
                 showCoffeeNoteBottomSheet();
               } else {
-                widget._navigationShell.goBranch(index);
+                context.go('/profile');
               }
             },
           ),
