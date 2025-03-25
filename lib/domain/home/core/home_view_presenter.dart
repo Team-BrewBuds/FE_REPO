@@ -1,10 +1,10 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:brew_buds/model/recommended/recommended_user.dart';
-import 'package:flutter/foundation.dart';
 
-abstract class HomeViewPresenter<T> extends ChangeNotifier {
+abstract class HomeViewPresenter<T> extends Presenter {
   final HomeRepository homeRepository = HomeRepository.instance;
   List<RecommendedPage> _recommendedUserPage = [];
   int currentPage = 0;
@@ -36,21 +36,6 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
 
   Future<void> fetchMoreData();
 
-  bool _disposed = false;
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
-
-  @override
-  notifyListeners() {
-    if (!_disposed) {
-      super.notifyListeners();
-    }
-  }
-
   Future<void> fetchMoreRecommendedUsers() async {
     final newPage = await homeRepository.fetchRecommendedUserPage();
     _recommendedUserPage = List.from(_recommendedUserPage)..add(newPage);
@@ -66,13 +51,9 @@ abstract class HomeViewPresenter<T> extends ChangeNotifier {
   onTappedRecommendedUserFollowButton(RecommendedUser user, int pageIndex) {
     homeRepository.follow(id: user.id, isFollow: user.isFollow).then((_) {
       final previousPage = _recommendedUserPage[pageIndex];
-      // final newPage = previousPage.copyWith(
-      //   users: List.from(previousPage.users)..map((e) => e.id == user.id ? user.copyWith(isFollow: !user.isFollow) : e),
-      // );
       _recommendedUserPage[pageIndex] = previousPage.copyWith(
         users: List.from(previousPage.users)..map((e) => e.id == user.id ? user.copyWith(isFollow: !user.isFollow) : e),
       );
-      // _recommendedUserPage = List.from(_recommendedUserPage);
       notifyListeners();
     });
   }

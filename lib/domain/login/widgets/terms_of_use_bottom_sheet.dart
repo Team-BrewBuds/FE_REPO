@@ -1,6 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -39,7 +38,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                 Positioned(
                   right: 16,
                   child: Center(
-                    child: InkWell(
+                    child: GestureDetector(
                       onTap: () {
                         context.pop();
                       },
@@ -55,7 +54,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
             padding: const EdgeInsets.all(16),
             child: Row(
               children: [
-                InkWell(
+                GestureDetector(
                   onTap: () {
                     setState(() {
                       if (isAllChecked) {
@@ -83,7 +82,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
               children: [
                 Row(
                   children: [
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         setState(() {
                           _checkList[0] = !_checkList[0];
@@ -112,7 +111,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         setState(() {
                           _checkList[1] = !_checkList[1];
@@ -142,7 +141,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         setState(() {
                           _checkList[2] = !_checkList[2];
@@ -178,7 +177,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                 const SizedBox(height: 16),
                 Row(
                   children: [
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         setState(() {
                           _checkList[3] = !_checkList[3];
@@ -206,7 +205,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
             child: Container(
               padding: const EdgeInsets.only(top: 32, left: 16, right: 16),
               width: double.infinity,
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () {
                   context.pop(true);
                 },

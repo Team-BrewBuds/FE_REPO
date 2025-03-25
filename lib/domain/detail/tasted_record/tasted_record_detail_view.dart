@@ -75,129 +75,138 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: SafeArea(
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          appBar: _buildAppbar(),
-          body: LayoutBuilder(builder: (context, constraints) {
-            return NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scroll) {
-                if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                  paginationThrottle.setValue(null);
-                }
-                return false;
-              },
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Selector<TastedRecordPresenter, List<String>>(
-                      selector: (context, presenter) => presenter.imageUrlList,
-                      builder: (context, imageUrlList, child) => _buildImageListView(imageUrlList: imageUrlList),
-                    ),
-                    Selector<TastedRecordPresenter, BottomButtonInfo>(
-                      selector: (context, presenter) => presenter.bottomButtonInfo,
-                      builder: (context, bottomButtonInfo, child) => _buildButtons(
-                        likeCount: bottomButtonInfo.likeCount,
-                        isLiked: bottomButtonInfo.isSaved,
-                        isSaved: bottomButtonInfo.isSaved,
-                      ),
-                    ),
-                    Selector<TastedRecordPresenter, String>(
-                      selector: (context, presenter) => presenter.title,
-                      builder: (context, title, child) => _buildTitle(title: title),
-                    ),
-                    Selector<TastedRecordPresenter, ProfileInfo>(
-                      selector: (context, presenter) => presenter.profileInfo,
-                      builder: (context, profileInfo, child) => _buildAuthorProfile(
-                        nickName: profileInfo.nickName,
-                        authorId: profileInfo.authorId,
-                        profileImageUrl: profileInfo.profileImageUrl,
-                        isFollow: profileInfo.isFollow,
-                        isMine: profileInfo.isMine,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Selector<TastedRecordPresenter, ContentsInfo>(
-                      selector: (context, presenter) => presenter.contentsInfo,
-                      builder: (context, contentsInfo, child) => _buildContents(
-                        rating: contentsInfo.rating,
-                        flavors: contentsInfo.flavors,
-                        tastedAt: contentsInfo.tastedAt,
-                        contents: contentsInfo.contents,
-                        location: contentsInfo.location,
-                      ),
-                    ),
-                    const SizedBox(height: 48),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 12),
-                      padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
-                      decoration: BoxDecoration(
-                        color: ColorStyles.gray10,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+    return Selector<TastedRecordPresenter, bool>(
+        selector: (context, presenter) => presenter.isEmpty,
+        builder: (context, isEmpty, child) {
+          if (isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              showEmptyDialog().then((value) => context.pop());
+            });
+          }
+          return GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: SafeArea(
+              child: Scaffold(
+                resizeToAvoidBottomInset: true,
+                appBar: _buildAppbar(),
+                body: LayoutBuilder(builder: (context, constraints) {
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scroll) {
+                      if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                        paginationThrottle.setValue(null);
+                      }
+                      return false;
+                    },
+                    child: SingleChildScrollView(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Selector<TastedRecordPresenter, BeanInfo>(
-                            selector: (context, presenter) => presenter.beanInfo,
-                            builder: (context, beanInfo, child) => BeanDetail(
-                              beanType: beanInfo.beanType.toString(),
-                              country: beanInfo.country,
-                              region: beanInfo.region,
-                              variety: beanInfo.variety,
-                              process: beanInfo.process,
-                              roastery: beanInfo.roastery,
-                              extraction: beanInfo.extraction,
-                              roastPoint: beanInfo.roastingPoint,
+                          Selector<TastedRecordPresenter, List<String>>(
+                            selector: (context, presenter) => presenter.imageUrlList,
+                            builder: (context, imageUrlList, child) => _buildImageListView(imageUrlList: imageUrlList),
+                          ),
+                          Selector<TastedRecordPresenter, BottomButtonInfo>(
+                            selector: (context, presenter) => presenter.bottomButtonInfo,
+                            builder: (context, bottomButtonInfo, child) => _buildButtons(
+                              likeCount: bottomButtonInfo.likeCount,
+                              isLiked: bottomButtonInfo.isSaved,
+                              isSaved: bottomButtonInfo.isSaved,
                             ),
                           ),
-                          Selector<TastedRecordPresenter, TasteReview?>(
-                            selector: (context, presenter) => presenter.tastingReview,
-                            builder: (context, tastingReview, child) => tastingReview != null
-                                ? TasteGraph(
-                                    bodyValue: tastingReview.body,
-                                    acidityValue: tastingReview.acidity,
-                                    bitternessValue: tastingReview.bitterness,
-                                    sweetnessValue: tastingReview.sweetness,
-                                  )
-                                : const SizedBox.shrink(),
+                          Selector<TastedRecordPresenter, String>(
+                            selector: (context, presenter) => presenter.title,
+                            builder: (context, title, child) => _buildTitle(title: title),
                           ),
-                        ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                          Selector<TastedRecordPresenter, ProfileInfo>(
+                            selector: (context, presenter) => presenter.profileInfo,
+                            builder: (context, profileInfo, child) => _buildAuthorProfile(
+                              nickName: profileInfo.nickName,
+                              authorId: profileInfo.authorId,
+                              profileImageUrl: profileInfo.profileImageUrl,
+                              isFollow: profileInfo.isFollow,
+                              isMine: profileInfo.isMine,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Selector<TastedRecordPresenter, ContentsInfo>(
+                            selector: (context, presenter) => presenter.contentsInfo,
+                            builder: (context, contentsInfo, child) => _buildContents(
+                              rating: contentsInfo.rating,
+                              flavors: contentsInfo.flavors,
+                              tastedAt: contentsInfo.tastedAt,
+                              contents: contentsInfo.contents,
+                              location: contentsInfo.location,
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
+                            decoration: BoxDecoration(
+                              color: ColorStyles.gray10,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Column(
+                              children: [
+                                Selector<TastedRecordPresenter, BeanInfo>(
+                                  selector: (context, presenter) => presenter.beanInfo,
+                                  builder: (context, beanInfo, child) => BeanDetail(
+                                    beanType: beanInfo.beanType.toString(),
+                                    country: beanInfo.country,
+                                    region: beanInfo.region,
+                                    variety: beanInfo.variety,
+                                    process: beanInfo.process,
+                                    roastery: beanInfo.roastery,
+                                    extraction: beanInfo.extraction,
+                                    roastPoint: beanInfo.roastingPoint,
+                                  ),
+                                ),
+                                Selector<TastedRecordPresenter, TasteReview?>(
+                                  selector: (context, presenter) => presenter.tastingReview,
+                                  builder: (context, tastingReview, child) => tastingReview != null
+                                      ? TasteGraph(
+                                          bodyValue: tastingReview.body,
+                                          acidityValue: tastingReview.acidity,
+                                          bitternessValue: tastingReview.bitterness,
+                                          sweetnessValue: tastingReview.sweetness,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ),
+                              ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                            ),
+                          ),
+                          const SizedBox(height: 48),
+                          Selector<TastedRecordPresenter, CommentsInfo>(
+                            selector: (context, presenter) => presenter.commentsInfo,
+                            builder: (context, commentsInfo, child) => buildComments(
+                              authorId: commentsInfo.authorId,
+                              comments: commentsInfo.page.results,
+                              count: commentsInfo.page.count,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 48),
-                    Selector<TastedRecordPresenter, CommentsInfo>(
-                      selector: (context, presenter) => presenter.commentsInfo,
-                      builder: (context, commentsInfo, child) => buildComments(
-                        authorId: commentsInfo.authorId,
-                        comments: commentsInfo.page.results,
-                        count: commentsInfo.page.count,
-                      ),
-                    ),
-                  ],
+                  );
+                }),
+                bottomNavigationBar: Padding(
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Selector<TastedRecordPresenter, CommentTextFieldState>(
+                    selector: (context, presenter) => presenter.commentTextFieldState,
+                    builder: (context, state, child) {
+                      return _buildBottomTextField(
+                        prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                        authorNickname: state.authorNickname,
+                      );
+                    },
+                  ),
                 ),
               ),
-            );
-          }),
-          bottomNavigationBar: Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Selector<TastedRecordPresenter, CommentTextFieldState>(
-              selector: (context, presenter) => presenter.commentTextFieldState,
-              builder: (context, state, child) {
-                return _buildBottomTextField(
-                  prentCommentAuthorNickname: state.prentCommentAuthorNickname,
-                  authorNickname: state.authorNickname,
-                );
-              },
             ),
-          ),
-        ),
-      ),
-    );
+          );
+        });
   }
 
   AppBar _buildAppbar() {
@@ -291,7 +300,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                       ),
                       const Spacer(),
-                      InkWell(
+                      GestureDetector(
                         onTap: () {
                           context.read<TastedRecordPresenter>().cancelReply();
                         },
@@ -809,26 +818,23 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         GestureDetector(
           onTap: () {
             context.pop();
-            showCenterDialog<Result<String>>(
+            showCenterDialog(
               title: '정말 삭제하시겠어요?',
               centerTitle: true,
               cancelText: '닫기',
               doneText: '삭제하기',
-              onDone: () {
-                context.read<TastedRecordPresenter>().onDelete().then((result) {
-                  context.pop(result);
-                });
-              },
             ).then((result) {
-              switch (result) {
-                case null:
-                  break;
-                case Success<String>():
-                  context.pop(result.data);
-                  break;
-                case Error<String>():
-                  showSnackBar(message: result.e);
-                  break;
+              if (result != null && result) {
+                context.read<TastedRecordPresenter>().onDelete().then((value) {
+                  switch (value) {
+                    case Success<String>():
+                      context.pop(value.data);
+                      break;
+                    case Error<String>():
+                      showSnackBar(message: value.e);
+                      break;
+                  }
+                });
               }
             });
           },
@@ -894,26 +900,23 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         GestureDetector(
           onTap: () {
             context.pop();
-            showCenterDialog<Result<String>>(
+            showCenterDialog(
               title: '이 사용자를 차단하시겠어요?',
               content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
               cancelText: '취소',
               doneText: '차단하기',
-              onDone: () {
-                context.read<TastedRecordPresenter>().onBlock().then((result) {
-                  context.pop(result);
-                });
-              },
             ).then((result) {
-              switch (result) {
-                case null:
-                  break;
-                case Success<String>():
-                  context.pop(result.data);
-                  break;
-                case Error<String>():
-                  showSnackBar(message: result.e);
-                  break;
+              if (result != null && result) {
+                context.read<TastedRecordPresenter>().onBlock().then((value) {
+                  switch (value) {
+                    case Success<String>():
+                      context.pop(value.data);
+                      break;
+                    case Error<String>():
+                      showSnackBar(message: value.e);
+                      break;
+                  }
+                });
               }
             });
           },
@@ -948,6 +951,90 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> showEmptyDialog() {
+    return showBarrierDialog(
+      context: context,
+      barrierColor: ColorStyles.black.withOpacity(0.95),
+      pageBuilder: (context, _, __) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 38),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      color: ColorStyles.white,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          '시음기록을 불러오는데 실패했습니다.',
+                          style: TextStyles.title02SemiBold,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.gray30,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '닫기',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.black,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '확인',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

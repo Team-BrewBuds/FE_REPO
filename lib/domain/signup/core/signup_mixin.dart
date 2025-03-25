@@ -94,7 +94,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
           children: [
             Positioned(
               left: 0,
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () {
                   Navigator.of(context).pop();
                 },
@@ -110,7 +110,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
             ),
             Positioned(
               right: 0,
-              child: InkWell(
+              child: GestureDetector(
                 onTap: onSkip,
                 child: isSkippablePage
                     ? Text(
@@ -131,7 +131,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
       padding: const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
       child: AbsorbPointer(
         absorbing: !isSatisfyRequirements,
-        child: InkWell(
+        child: GestureDetector(
           onTap: onNext,
           child: Container(
             height: 47,

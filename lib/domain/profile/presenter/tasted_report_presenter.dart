@@ -1,19 +1,13 @@
 import 'dart:math';
 
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/taste_report_repository.dart';
-import 'package:brew_buds/data/repository/tasted_record_repository.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
-import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/taste_report/activity_item.dart';
 import 'package:brew_buds/model/taste_report/activity_summary.dart';
 import 'package:brew_buds/model/taste_report/rating_distribution.dart';
 import 'package:brew_buds/model/taste_report/top_country.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
-import 'package:brew_buds/model/noted/noted_object.dart';
-import 'package:flutter/foundation.dart';
 
 typedef ActivityInformationState = ({int tastingReportCount, int postCount, int savedNoteCount, int savedBeanCount});
 
@@ -38,7 +32,7 @@ enum ActivityType {
       };
 }
 
-final class TasteReportPresenter extends ChangeNotifier {
+final class TasteReportPresenter extends Presenter {
   final TasteReportRepository _tastedReportRepository = TasteReportRepository.instance;
   final String nickname;
   final int _id;
@@ -47,10 +41,6 @@ final class TasteReportPresenter extends ChangeNotifier {
   List<TopFlavor> _topFlavors = [];
   List<TopCountry> _topCounty = [];
   Map<String, List<ActivityItem>> _activityItems = {};
-  DefaultPage<TastedRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
-  DefaultPage<PostInProfile> _postsPage = DefaultPage.initState();
-  DefaultPage<BeanInProfile> _beansPage = DefaultPage.initState();
-  DefaultPage<NotedObject> _savedNotesPage = DefaultPage.initState();
   int _activityTypeIndex = 0;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
@@ -61,19 +51,6 @@ final class TasteReportPresenter extends ChangeNotifier {
         savedNoteCount: _activitySummary?.savedNoteCount ?? 0,
         savedBeanCount: _activitySummary?.savedBeanCount ?? 0,
       );
-
-  DefaultPage get _page {
-    switch (ActivityType.values[_activityTypeIndex]) {
-      case ActivityType.tastingRecord:
-        return _tastingRecordsPage;
-      case ActivityType.post:
-        return _postsPage;
-      case ActivityType.savedBean:
-        return _beansPage;
-      case ActivityType.savedNote:
-        return _savedNotesPage;
-    }
-  }
 
   DateTime get focusedDay => _focusedDay;
 

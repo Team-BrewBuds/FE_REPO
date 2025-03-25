@@ -15,7 +15,6 @@ import 'package:brew_buds/domain/profile/widgets/saved_coffee_bean_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_tasting_record_widget.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -152,7 +151,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.pop();
               },
@@ -980,7 +979,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                             const Spacer(),
                             const Text('활동 보기', style: TextStyles.title02SemiBold),
                             const Spacer(),
-                            InkWell(
+                            GestureDetector(
                               onTap: () {
                                 context.pop();
                               },

@@ -43,7 +43,7 @@ class CommentItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   onTappedProfile.call();
                 },
@@ -93,7 +93,7 @@ class CommentItem extends StatelessWidget {
                     ),
                     if (canReply) ...[
                       const SizedBox(height: 6),
-                      InkWell(
+                      GestureDetector(
                         onTap: () {
                           onTappedReply?.call();
                         },
@@ -107,7 +107,7 @@ class CommentItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   onTappedLikeButton.call();
                 },

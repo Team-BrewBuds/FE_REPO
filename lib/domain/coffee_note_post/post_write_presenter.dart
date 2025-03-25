@@ -1,19 +1,20 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:brew_buds/core/image_compress.dart';
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
-import 'package:flutter/foundation.dart';
 
 typedef AppBarState = ({bool isValid, String? errorMessage});
 typedef ImageListViewState = ({List<Photo> images, List<TastedRecordInProfile> tastedRecords});
 typedef BottomButtonState = ({bool hasImages, List<TastedRecordInProfile> tastedRecords});
 
-final class PostWritePresenter extends ChangeNotifier {
+final class PostWritePresenter extends Presenter {
   final PostApi postApi = PostApi();
   final PhotoApi photoApi = PhotoApi();
   PostSubject? _subject;

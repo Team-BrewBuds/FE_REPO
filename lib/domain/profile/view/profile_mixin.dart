@@ -205,7 +205,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             const Text('시음기록', style: TextStyles.captionMediumRegular),
                           ],
                         ),
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             pushFollowList(0);
                           },
@@ -217,7 +217,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             ],
                           ),
                         ),
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             pushFollowList(1);
                           },
@@ -339,7 +339,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 children: [
                   Text.rich(span, maxLines: 2, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {},
                     child: Text(
                       '더보기',
@@ -355,7 +355,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   Widget _buildProfileLink({required String profileLink}) {
     return Row(
       children: [
-        InkWell(
+        GestureDetector(
           onTap: () {},
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -736,7 +736,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         color: isActive ? ColorStyles.red : ColorStyles.black,
       ),
     );
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.only(

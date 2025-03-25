@@ -141,7 +141,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.pop();
               },

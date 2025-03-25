@@ -236,7 +236,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<TastingWritePresenter>().onChangeBodyValue(value);
                             },
@@ -317,7 +317,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<TastingWritePresenter>().onChangeAcidityValue(value);
                             },
@@ -398,7 +398,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<TastingWritePresenter>().onChangeBitternessValue(value);
                             },
@@ -477,7 +477,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                       final value = index + 1;
                       return Column(
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<TastingWritePresenter>().onChangeSweetnessValue(value);
                             },

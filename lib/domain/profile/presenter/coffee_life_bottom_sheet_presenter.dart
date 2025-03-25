@@ -1,7 +1,7 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:flutter/foundation.dart';
 
-final class CoffeeLifeBottomSheetPresenter extends ChangeNotifier {
+final class CoffeeLifeBottomSheetPresenter extends Presenter {
   final List<CoffeeLife> _selectedCoffeeLifeList;
 
   List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;

@@ -1,15 +1,15 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 typedef SocialLoginResultData = ({String accessToken, String refreshToken, int id});
 
-class LoginPresenter extends ChangeNotifier {
+class LoginPresenter extends Presenter {
   bool _isLoading = false;
   SocialLoginResultData _socialLoginResultData = (accessToken: '', refreshToken: '', id: 0);
   final AccountRepository _accountRepository;
@@ -24,11 +24,6 @@ class LoginPresenter extends ChangeNotifier {
   bool get isLoading => _isLoading;
 
   SocialLoginResultData get loginResultData => _socialLoginResultData;
-
-  init() {
-    _isLoading = false;
-    notifyListeners();
-  }
 
   Future<Result<bool>> login(SocialLogin socialLogin) async {
     _isLoading = true;

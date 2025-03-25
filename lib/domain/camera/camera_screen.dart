@@ -44,6 +44,14 @@ class _CameraScreenState extends State<CameraScreen> {
   }
 
   @override
+  void dispose() {
+    isFirstNotifier.dispose();
+    _deferredPointerLink.dispose();
+    imageData.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
         valueListenable: isFirstNotifier,

@@ -66,7 +66,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             Positioned(
               left: 0,
               child: Center(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.pop();
                   },
@@ -257,14 +257,11 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
   }
 
   Future<bool?> _showSignOutDialog() {
-    return showCenterDialog<bool>(
+    return showCenterDialog(
       title: '정말 탈퇴 하시겠어요?',
       centerTitle: true,
       cancelText: '취소',
       doneText: '탈퇴하기',
-      onDone: () {
-        context.pop(true);
-      },
     );
   }
 

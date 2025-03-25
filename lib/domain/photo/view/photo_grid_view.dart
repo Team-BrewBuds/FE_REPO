@@ -50,6 +50,9 @@ class _PhotoGridViewState extends State<PhotoGridView> with PhotoGridMixin<Photo
   Function(BuildContext context, List<Uint8List> selectedImages) get onDone => widget.onDone;
 
   @override
+  bool get showTitle => true;
+
+  @override
   Function(BuildContext context) get onTapCameraButton => (context) {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(

@@ -62,7 +62,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
           builder: (context, isCertificated, child) => Row(
             children: [
               Expanded(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.read<SignUpPresenter>().onChangeCertificate(true);
                   },
@@ -86,7 +86,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.read<SignUpPresenter>().onChangeCertificate(false);
                   },

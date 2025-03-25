@@ -61,6 +61,9 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview>
   Function(BuildContext context, List<Uint8List> selectedImages) get onDone => widget.onDone;
 
   @override
+  bool get showTitle => false;
+
+  @override
   Function(BuildContext context) get onTapCameraButton => (context) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

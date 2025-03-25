@@ -31,7 +31,7 @@ class RecentSearchWordsList extends StatelessWidget {
             children: [
               const Text('최근 검색어', style: TextStyles.title02SemiBold),
               const Spacer(),
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   _onAllDelete();
                 },
@@ -63,7 +63,7 @@ class RecentSearchWordsList extends StatelessWidget {
                       children: [
                         Text(item.word, style: TextStyles.captionMediumRegular),
                         const SizedBox(width: 2),
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             item.onDelete.call();
                           },

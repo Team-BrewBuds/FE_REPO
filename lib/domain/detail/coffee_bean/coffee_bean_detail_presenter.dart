@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/coffee_bean_repository.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_detail.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
@@ -5,7 +6,6 @@ import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
-import 'package:flutter/foundation.dart';
 
 typedef BeanInfoState = ({
   String name,
@@ -26,12 +26,15 @@ typedef BeanDetailState = ({
 });
 typedef BeanTasteState = ({int body, int acidity, int bitterness, int sweetness});
 
-final class CoffeeBeanDetailPresenter extends ChangeNotifier {
+final class CoffeeBeanDetailPresenter extends Presenter {
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
   final int id;
+  bool _isEmpty = false;
   CoffeeBeanDetail? _coffeeBeanDetail;
   DefaultPage<TastedRecordInCoffeeBean> _page = DefaultPage.initState();
   List<RecommendedCoffeeBean> _recommendedCoffeeBeanList = [];
+
+  bool get isEmpty => _isEmpty;
 
   String get name => _coffeeBeanDetail?.name ?? '';
 
@@ -86,7 +89,13 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
   }
 
   fetchCoffeeBean() async {
-    _coffeeBeanDetail = await _coffeeBeanRepository.fetchCoffeeBeanDetail(id: id);
+    _coffeeBeanDetail = await _coffeeBeanRepository
+        .fetchCoffeeBeanDetail(id: id)
+        .then((value) => Future<CoffeeBeanDetail?>.value(value))
+        .catchError((e) => null);
+    if (_coffeeBeanDetail == null) {
+      _isEmpty = true;
+    }
     notifyListeners();
   }
 

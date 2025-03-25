@@ -2,7 +2,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/search/core/search_presenter.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
-import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -48,19 +47,21 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
 
   @override
   void dispose() {
-    tabController.dispose();
-    textEditingController.dispose();
-    showSuggestPage.dispose();
-    textFieldFocusNode.dispose();
     textFieldFocusNode.removeListener(() {
       if (textFieldFocusNode.hasFocus && !showSuggestPage.value) {
         showSuggestPage.value = true;
       }
     });
-
     textEditingController.removeListener(() {
       context.read<Presenter>().onChangeSearchWord(textEditingController.text);
     });
+    showSuggestPage.removeListener(() {
+      context.read<Presenter>().onChangePageState(showSuggestPage.value);
+    });
+    tabController.dispose();
+    textEditingController.dispose();
+    showSuggestPage.dispose();
+    textFieldFocusNode.dispose();
     super.dispose();
   }
 

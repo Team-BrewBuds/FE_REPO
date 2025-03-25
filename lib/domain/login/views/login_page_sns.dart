@@ -4,29 +4,20 @@ import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class SNSLogin extends StatefulWidget {
+class SNSLogin extends StatelessWidget {
   const SNSLogin({super.key});
-
-  @override
-  State<SNSLogin> createState() => _SNSLoginState();
-}
-
-class _SNSLoginState extends State<SNSLogin> {
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
     const height = 54.0;
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: Selector<LoginPresenter, bool>(
         selector: (context, presenter) => presenter.isLoading,
         builder: (context, isLoading, _) {
@@ -45,9 +36,9 @@ class _SNSLoginState extends State<SNSLogin> {
                         const SizedBox(height: 48),
                         Column(
                           children: [
-                            InkWell(
+                            GestureDetector(
                               onTap: () {
-                                _login(SocialLogin.kakao);
+                                _login(context, SocialLogin.kakao);
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -79,9 +70,9 @@ class _SNSLoginState extends State<SNSLogin> {
                               ),
                             ),
                             const SizedBox(height: 7),
-                            InkWell(
+                            GestureDetector(
                               onTap: () {
-                                _login(SocialLogin.naver);
+                                _login(context, SocialLogin.naver);
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -115,9 +106,9 @@ class _SNSLoginState extends State<SNSLogin> {
                               ),
                             ),
                             const SizedBox(height: 7),
-                            InkWell(
+                            GestureDetector(
                               onTap: () {
-                                _login(SocialLogin.apple);
+                                _login(context, SocialLogin.apple);
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -169,7 +160,7 @@ class _SNSLoginState extends State<SNSLogin> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       leading: const SizedBox.shrink(),
       leadingWidth: 0,
@@ -178,7 +169,7 @@ class _SNSLoginState extends State<SNSLogin> {
         padding: const EdgeInsets.only(top: 35, left: 16, right: 16, bottom: 12),
         child: Row(
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () => context.pop(),
               child: SvgPicture.asset('assets/icons/back.svg', width: 24, height: 24),
             )
@@ -189,42 +180,46 @@ class _SNSLoginState extends State<SNSLogin> {
     );
   }
 
-  _login(SocialLogin socialLogin) async {
+  _login(BuildContext context, SocialLogin socialLogin) async {
     final result = await context.read<LoginPresenter>().login(socialLogin);
-    switch (result) {
-      case Success<bool>():
-        if (result.data) {
-          _saveData();
-        } else {
-          _checkModal();
-        }
-        break;
-      case Error<bool>():
-        break;
+    if (context.mounted) {
+      switch (result) {
+        case Success<bool>():
+          if (result.data) {
+            _saveData(context);
+          } else {
+            _checkModal(context);
+          }
+          break;
+        case Error<bool>():
+          break;
+      }
     }
   }
 
-  _saveData() async {
+  _saveData(BuildContext context) async {
     final result = await context.read<LoginPresenter>().saveLoginResults();
     switch (result) {
       case Success<String>():
-        _pushToHome();
+        if (context.mounted) {
+          _pushToHome(context);
+        }
         break;
       case Error<String>():
         break;
     }
   }
 
-  _pushToSignUp() {
+  _pushToSignUp(BuildContext context) {
     final data = context.read<LoginPresenter>().loginResultData;
     context.go('/signup?id=${data.id}&access_token=${data.accessToken}&refresh_token=${data.refreshToken}');
   }
 
-  _pushToHome() {
+  _pushToHome(BuildContext context) {
     context.go('/home');
   }
 
-  void _checkModal() async {
+  void _checkModal(BuildContext context) async {
     final agreeToTerms = await showModalBottomSheet<bool>(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -238,8 +233,8 @@ class _SNSLoginState extends State<SNSLogin> {
       },
     );
 
-    if (agreeToTerms != null && agreeToTerms) {
-      _pushToSignUp();
+    if (agreeToTerms != null && agreeToTerms && context.mounted) {
+      _pushToSignUp(context);
     }
   }
 }

@@ -15,8 +15,8 @@ import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_button.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_card.dart';
+import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
+import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
@@ -60,6 +60,7 @@ class _PostDetailViewState extends State<PostDetailView>
 
   @override
   void dispose() {
+    paginationThrottle.cancel();
     _textEditingController.dispose();
     super.dispose();
   }
@@ -70,84 +71,93 @@ class _PostDetailViewState extends State<PostDetailView>
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        FocusManager.instance.primaryFocus?.unfocus();
-      },
-      child: SafeArea(
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          appBar: _buildTitle(),
-          body: NotificationListener<ScrollNotification>(
-            onNotification: (ScrollNotification scroll) {
-              if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                paginationThrottle.setValue(null);
-              }
-              return false;
+    return Selector<PostDetailPresenter, bool>(
+        selector: (context, presenter) => presenter.isEmpty,
+        builder: (context, isEmpty, child) {
+          if (isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              showEmptyDialog().then((value) => context.pop());
+            });
+          }
+          return GestureDetector(
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
             },
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Selector<PostDetailPresenter, ProfileInfo>(
-                    selector: (context, presenter) => presenter.profileInfo,
-                    builder: (context, profileInfo, child) => _buildProfile(
-                      authorId: profileInfo.authorId,
-                      nickName: profileInfo.nickName,
-                      imageUrl: profileInfo.profileImageUrl,
-                      createdAt: profileInfo.createdAt,
-                      viewCount: profileInfo.viewCount,
-                      isFollow: profileInfo.isFollow,
-                      isMine: profileInfo.isMine,
+            child: SafeArea(
+              child: Scaffold(
+                resizeToAvoidBottomInset: true,
+                appBar: _buildTitle(),
+                body: NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scroll) {
+                    if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                      paginationThrottle.setValue(null);
+                    }
+                    return false;
+                  },
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Selector<PostDetailPresenter, ProfileInfo>(
+                          selector: (context, presenter) => presenter.profileInfo,
+                          builder: (context, profileInfo, child) => _buildProfile(
+                            authorId: profileInfo.authorId,
+                            nickName: profileInfo.nickName,
+                            imageUrl: profileInfo.profileImageUrl,
+                            createdAt: profileInfo.createdAt,
+                            viewCount: profileInfo.viewCount,
+                            isFollow: profileInfo.isFollow,
+                            isMine: profileInfo.isMine,
+                          ),
+                        ),
+                        Selector<PostDetailPresenter, BodyInfo>(
+                          selector: (context, presenter) => presenter.bodyInfo,
+                          builder: (context, bodyInfo, child) => buildBody(
+                            imageUrlList: bodyInfo.imageUrlList,
+                            tastingRecords: bodyInfo.tastingRecords,
+                            title: bodyInfo.title,
+                            contents: bodyInfo.contents,
+                            tag: bodyInfo.tag,
+                            subject: bodyInfo.subject,
+                          ),
+                        ),
+                        Selector<PostDetailPresenter, BottomButtonInfo>(
+                          selector: (context, presenter) => presenter.bottomButtonInfo,
+                          builder: (context, bottomButtonInfo, child) => buildBottomButtons(
+                            likeCount: bottomButtonInfo.likeCount,
+                            isLiked: bottomButtonInfo.isLiked,
+                            isSaved: bottomButtonInfo.isSaved,
+                          ),
+                        ),
+                        Container(height: 12, color: ColorStyles.gray20),
+                        Selector<PostDetailPresenter, CommentsInfo>(
+                          selector: (context, presenter) => presenter.commentsInfo,
+                          builder: (context, commentsInfo, child) => buildComments(
+                            authorId: commentsInfo.authorId,
+                            comments: commentsInfo.page.results,
+                            count: commentsInfo.page.count,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  Selector<PostDetailPresenter, BodyInfo>(
-                    selector: (context, presenter) => presenter.bodyInfo,
-                    builder: (context, bodyInfo, child) => buildBody(
-                      imageUrlList: bodyInfo.imageUrlList,
-                      tastingRecords: bodyInfo.tastingRecords,
-                      title: bodyInfo.title,
-                      contents: bodyInfo.contents,
-                      tag: bodyInfo.tag,
-                      subject: bodyInfo.subject,
-                    ),
+                ),
+                bottomNavigationBar: Padding(
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Selector<PostDetailPresenter, CommentTextFieldState>(
+                    selector: (context, presenter) => presenter.commentTextFieldState,
+                    builder: (context, state, child) {
+                      return _buildBottomTextField(
+                        prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                        authorNickname: state.authorNickname,
+                      );
+                    },
                   ),
-                  Selector<PostDetailPresenter, BottomButtonInfo>(
-                    selector: (context, presenter) => presenter.bottomButtonInfo,
-                    builder: (context, bottomButtonInfo, child) => buildBottomButtons(
-                      likeCount: bottomButtonInfo.likeCount,
-                      isLiked: bottomButtonInfo.isLiked,
-                      isSaved: bottomButtonInfo.isSaved,
-                    ),
-                  ),
-                  Container(height: 12, color: ColorStyles.gray20),
-                  Selector<PostDetailPresenter, CommentsInfo>(
-                    selector: (context, presenter) => presenter.commentsInfo,
-                    builder: (context, commentsInfo, child) => buildComments(
-                      authorId: commentsInfo.authorId,
-                      comments: commentsInfo.page.results,
-                      count: commentsInfo.page.count,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-          bottomNavigationBar: Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Selector<PostDetailPresenter, CommentTextFieldState>(
-              selector: (context, presenter) => presenter.commentTextFieldState,
-              builder: (context, state, child) {
-                return _buildBottomTextField(
-                  prentCommentAuthorNickname: state.prentCommentAuthorNickname,
-                  authorNickname: state.authorNickname,
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
+          );
+        });
   }
 
   AppBar _buildTitle() {
@@ -452,7 +462,7 @@ class _PostDetailViewState extends State<PostDetailView>
                     },
                     onReport: () {
                       pushToReportScreen(context, id: comment.id, type: 'comment').then(
-                            (value) {
+                        (value) {
                           if (value != null) {
                             showSnackBar(message: value);
                           }
@@ -494,7 +504,7 @@ class _PostDetailViewState extends State<PostDetailView>
                           },
                           onReport: () {
                             pushToReportScreen(context, id: reComment.id, type: 'comment').then(
-                                  (value) {
+                              (value) {
                                 if (value != null) {
                                   showSnackBar(message: value);
                                 }
@@ -518,7 +528,7 @@ class _PostDetailViewState extends State<PostDetailView>
     required bool canDelete,
     Function()? onDelete,
     required bool isMine,
-        Function()? onReport,
+    Function()? onReport,
   }) {
     return Slidable(
       endActionPane: ActionPane(
@@ -619,7 +629,7 @@ class _PostDetailViewState extends State<PostDetailView>
                       style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                     ),
                     const Spacer(),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         context.read<PostDetailPresenter>().cancelReply();
                       },
@@ -718,26 +728,23 @@ class _PostDetailViewState extends State<PostDetailView>
         GestureDetector(
           onTap: () {
             context.pop();
-            showCenterDialog<Result<String>>(
+            showCenterDialog(
               title: '정말 삭제하시겠어요?',
               centerTitle: true,
               cancelText: '닫기',
               doneText: '삭제하기',
-              onDone: () {
-                context.read<PostDetailPresenter>().onDelete().then((result) {
-                  context.pop(result);
-                });
-              },
             ).then((result) {
-              switch (result) {
-                case null:
-                  break;
-                case Success<String>():
-                  context.pop(result.data);
-                  break;
-                case Error<String>():
-                  showSnackBar(message: result.e);
-                  break;
+              if (result != null && result) {
+                context.read<PostDetailPresenter>().onDelete().then((value) {
+                  switch (value) {
+                    case Success<String>():
+                      context.pop(value.data);
+                      break;
+                    case Error<String>():
+                      showSnackBar(message: value.e);
+                      break;
+                  }
+                });
               }
             });
           },
@@ -803,26 +810,23 @@ class _PostDetailViewState extends State<PostDetailView>
         GestureDetector(
           onTap: () {
             context.pop();
-            showCenterDialog<Result<String>>(
+            showCenterDialog(
               title: '이 사용자를 차단하시겠어요?',
               content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
               cancelText: '취소',
               doneText: '차단하기',
-              onDone: () {
-                context.read<PostDetailPresenter>().onBlock().then((result) {
-                  context.pop(result);
-                });
-              },
             ).then((result) {
-              switch (result) {
-                case null:
-                  break;
-                case Success<String>():
-                  context.pop(result.data);
-                  break;
-                case Error<String>():
-                  showSnackBar(message: result.e);
-                  break;
+              if (result != null && result) {
+                context.read<PostDetailPresenter>().onBlock().then((value) {
+                  switch (value) {
+                    case Success<String>():
+                      context.pop(value.data);
+                      break;
+                    case Error<String>():
+                      showSnackBar(message: value.e);
+                      break;
+                  }
+                });
               }
             });
           },
@@ -857,6 +861,90 @@ class _PostDetailViewState extends State<PostDetailView>
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> showEmptyDialog() {
+    return showBarrierDialog(
+      context: context,
+      barrierColor: ColorStyles.black.withOpacity(0.95),
+      pageBuilder: (context, _, __) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 38),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      color: ColorStyles.white,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          '게시글을 불러오는데 실패했습니다.',
+                          style: TextStyles.title02SemiBold,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.gray30,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '닫기',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.black,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '확인',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

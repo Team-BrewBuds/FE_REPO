@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
@@ -43,7 +44,7 @@ class PostWriteScreen extends StatefulWidget {
   State<PostWriteScreen> createState() => _PostWriteScreenState();
 }
 
-class _PostWriteScreenState extends State<PostWriteScreen> {
+class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixin<PostWriteScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _tagController = TextEditingController();
@@ -59,6 +60,20 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    _tagController.dispose();
+    _titleFocusNode.dispose();
+    _contentFocusNode.dispose();
+    _tagFocusNode.removeListener(() {
+      _handleFocusChange();
+    });
+    _tagFocusNode.dispose();
+    super.dispose();
+  }
+
   void _handleFocusChange() {
     if (_tagFocusNode.hasFocus) {
       // **1️⃣ Focus 되면 자동으로 `#` 추가**
@@ -72,17 +87,6 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
         _tagController.value = const TextEditingValue(text: '');
       }
     }
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _contentController.dispose();
-    _tagController.dispose();
-    _titleFocusNode.dispose();
-    _contentFocusNode.dispose();
-    _tagFocusNode.dispose();
-    super.dispose();
   }
 
   @override
@@ -221,7 +225,17 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
               left: 0,
               child: GestureDetector(
                 onTap: () {
-                  context.pop();
+                  showCenterDialog(
+                    title: '게시글 작성을 그만두시겠습니까?',
+                    content: '지금까지 작성한 내용은 저장되지 않아요.',
+                    contentAlign: TextAlign.center,
+                    cancelText: '그만두기',
+                    doneText: '계속쓰기',
+                  ).then((value) {
+                    if (value != null && value) {
+                      context.pop();
+                    }
+                  });
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',

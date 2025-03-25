@@ -1,15 +1,15 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
-import 'package:flutter/foundation.dart';
 
 typedef NicknameValidState = ({int nickNameLength, bool isValidNickname});
 typedef YearOfBirthValidState = ({int yearOfBirthLength, bool isValidYearOfBirth});
 
-class SignUpPresenter with ChangeNotifier {
+class SignUpPresenter extends Presenter {
   final AccountRepository _accountRepository = AccountRepository.instance;
   final LoginRepository _loginRepository = LoginRepository.instance;
   late String _accessToken;

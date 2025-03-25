@@ -1,11 +1,11 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/coffee_bean_repository.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:flutter/foundation.dart';
 
 typedef CoffeeBeanSearchResult = ({String searchWord, List<CoffeeBean> coffeebeans});
 
-final class CoffeeBeanSearchPresenter extends ChangeNotifier {
+final class CoffeeBeanSearchPresenter extends Presenter {
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
   DefaultPage<CoffeeBean> _page = DefaultPage.initState();
   String _searchWord = '';

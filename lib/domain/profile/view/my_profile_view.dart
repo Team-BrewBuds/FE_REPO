@@ -53,7 +53,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
               builder: (context, nickName, child) => Text(nickName, style: TextStyles.title02Bold),
             ),
             const Spacer(),
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.push('/profile/setting');
               },

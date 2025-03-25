@@ -63,6 +63,12 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
 
   @override
   void dispose() {
+    _nicknameController.removeListener(() {
+      context.read<SignUpPresenter>().onChangeNickName(_nicknameController.text);
+    });
+    _ageController.removeListener(() {
+      context.read<SignUpPresenter>().onChangeYearOfBirth(_ageController.text);
+    });
     _ageController.dispose();
     _nicknameController.dispose();
     _nickNameFocusNode.dispose();
@@ -170,7 +176,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     if (nicknameLength >= 2 && isValidNickname) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else if (nicknameLength > 0 && !isValidNickname) {
-      return InkWell(
+      return GestureDetector(
         onTap: () {
           _nicknameController.clear();
         },
@@ -262,7 +268,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     } else if (yearOfBirthLength == 4 && isValidYearOfBirth) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else {
-      return InkWell(
+      return GestureDetector(
         onTap: () {
           _ageController.clear();
         },
@@ -281,7 +287,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
           children: Gender.values
               .map(
                 (gender) => Expanded(
-                  child: InkWell(
+                  child: GestureDetector(
                     onTap: () {
                       context.read<SignUpPresenter>().onChangeGender(gender);
                     },

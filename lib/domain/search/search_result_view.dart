@@ -16,6 +16,7 @@ import 'package:brew_buds/domain/search/widgets/buddy_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/coffee_bean_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/post_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/tatsed_record_results_item.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -37,11 +38,36 @@ class SearchResultView extends StatefulWidget {
 
 class _SearchResultViewState extends State<SearchResultView>
     with SingleTickerProviderStateMixin, SearchMixin<SearchResultView, SearchResultPresenter> {
+  late final Throttle paginationThrottle;
+
   @override
   String get initialText => widget.initialText;
 
   @override
   int get initialIndex => widget.currentTabIndex;
+
+  @override
+  void initState() {
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    paginationThrottle.cancel();
+    super.dispose();
+  }
+
+  _fetchMoreData() {
+    context.read<SearchResultPresenter>().fetchMoreData();
+  }
 
   @override
   AppBar buildAppBar({required bool showSuggestPage}) {
@@ -115,7 +141,7 @@ class _SearchResultViewState extends State<SearchResultView>
     return NotificationListener<ScrollNotification>(
       onNotification: (ScrollNotification scroll) {
         if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-          context.read<SearchResultPresenter>().fetchMoreData();
+          paginationThrottle.setValue(null);
         }
         return false;
       },

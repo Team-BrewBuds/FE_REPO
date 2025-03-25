@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
-  Future<R?> showCenterDialog<R>({
+  Future<bool?> showCenterDialog({
     required String title,
     bool centerTitle = false,
     String content = '',
+    TextAlign contentAlign = TextAlign.left,
     required String cancelText,
     required String doneText,
-    required Function() onDone,
   }) {
-    return showBarrierDialog<R>(
+    return showBarrierDialog<bool>(
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -41,7 +41,7 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
                         ),
                         if (content.isNotEmpty) ...[
                           const SizedBox(height: 8),
-                          Text(content, style: TextStyles.bodyNarrowRegular),
+                          Text(content, style: TextStyles.bodyNarrowRegular, textAlign: contentAlign),
                         ],
                         const SizedBox(height: 20),
                         Row(
@@ -69,7 +69,7 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  onDone.call();
+                                  context.pop(true);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),

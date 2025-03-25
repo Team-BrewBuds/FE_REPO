@@ -1,11 +1,10 @@
-import 'package:brew_buds/data/mapper/common/coffee_life_mapper.dart';
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/model/profile/profile.dart';
-import 'package:flutter/foundation.dart';
 
-final class AccountDetailPresenter extends ChangeNotifier {
+final class AccountDetailPresenter extends Presenter {
   final ProfileRepository _repository = ProfileRepository.instance;
   Profile? _profile;
 

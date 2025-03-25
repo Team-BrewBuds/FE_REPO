@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/search/core/search_mixin.dart';
 import 'package:brew_buds/domain/search/search_home_presenter.dart';
 import 'package:brew_buds/domain/search/widgets/coffee_beans_ranking_list.dart';
@@ -109,7 +110,9 @@ class _SearchHomeViewState extends State<SearchHomeView>
                           name: recommendedBean.name,
                           rating: recommendedBean.rating,
                           recordCount: recommendedBean.recordCount,
-                          onTapped: () {},
+                          onTapped: () {
+                            showCoffeeBeanDetail(context: context, id: recommendedBean.id);
+                          },
                         );
                       },
                     ),

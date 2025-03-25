@@ -107,7 +107,6 @@ GoRouter createRouter(bool hasToken) {
                 ),
               ],
               child: HomeView(
-                key: (state.extra as UniqueKey?) ?? UniqueKey(),
                 nestedScrollViewState: homeTabBarScrollState,
               ),
             ),
@@ -125,7 +124,7 @@ GoRouter createRouter(bool hasToken) {
             path: '/search',
             builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
               create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
-              child: SearchHomeView(key: (state.extra as UniqueKey?) ?? UniqueKey(),),
+              child: const SearchHomeView(),
             ),
             routes: [
               GoRoute(
@@ -147,7 +146,7 @@ GoRouter createRouter(bool hasToken) {
             path: '/profile',
             builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
               create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-              child: MyProfileView(key: (state.extra as UniqueKey?) ?? UniqueKey(),),
+              child: const MyProfileView(),
             ),
             routes: [
               GoRoute(

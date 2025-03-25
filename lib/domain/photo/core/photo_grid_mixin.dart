@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/presenter/photo_presenter.dart';
@@ -29,6 +28,8 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
   Function(BuildContext context) get onTapCameraButton;
 
   Color get backgroundColor;
+
+  bool get showTitle;
 
   @override
   void initState() {
@@ -109,34 +110,35 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
                 ),
               ),
             ),
-            Selector<Presenter, AlbumTitleState>(
-              selector: (context, presenter) => presenter.albumTitleState,
-              builder: (context, albumTitleState, child) {
-                final currentAlbum = albumTitleState.currentAlbum;
-                return albumTitleState.albumList.isNotEmpty && currentAlbum != null
-                    ? GestureDetector(
-                        onTap: () async {
-                          final result = await Navigator.push<int>(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AlbumListView(albumList: albumTitleState.albumList),
-                            ),
-                          );
-                          if (result != null && context.mounted) {
-                            context.read<Presenter>().onChangeAlbum(result);
-                          }
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(currentAlbum.name, style: TextStyles.title01SemiBold),
-                            SvgPicture.asset('assets/icons/down.svg', height: 18, width: 18),
-                          ],
-                        ),
-                      )
-                    : const SizedBox.shrink();
-              },
-            ),
+            if (showTitle)
+              Selector<Presenter, AlbumTitleState>(
+                selector: (context, presenter) => presenter.albumTitleState,
+                builder: (context, albumTitleState, child) {
+                  final currentAlbum = albumTitleState.currentAlbum;
+                  return albumTitleState.albumList.isNotEmpty && currentAlbum != null
+                      ? GestureDetector(
+                          onTap: () async {
+                            final result = await Navigator.push<int>(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AlbumListView(albumList: albumTitleState.albumList),
+                              ),
+                            );
+                            if (result != null && context.mounted) {
+                              context.read<Presenter>().onChangeAlbum(result);
+                            }
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(currentAlbum.name, style: TextStyles.title01SemiBold),
+                              SvgPicture.asset('assets/icons/down.svg', height: 18, width: 18),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink();
+                },
+              ),
             Positioned(
               right: 0,
               child: Selector<Presenter, List<Uint8List>>(

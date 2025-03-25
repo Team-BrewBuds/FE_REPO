@@ -103,6 +103,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
       _onChangeNewWord(textEditingController.text);
     });
     searchDebouncer.cancel();
+    paginationThrottle.cancel();
     textEditingController.dispose();
     searchWord.dispose();
     focusNode.dispose();
@@ -281,7 +282,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
             return searchWord.isNotEmpty
                 ? Padding(
                     padding: const EdgeInsets.only(right: 12, left: 4, top: 12, bottom: 12),
-                    child: InkWell(
+                    child: GestureDetector(
                       onTap: () {
                         textEditingController.value = const TextEditingValue();
                       },

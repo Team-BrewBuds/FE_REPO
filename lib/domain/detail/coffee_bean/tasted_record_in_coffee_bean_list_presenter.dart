@@ -1,9 +1,9 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/coffee_bean_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
-import 'package:flutter/foundation.dart';
 
-final class TastedRecordInCoffeeBeanListPresenter extends ChangeNotifier {
+final class TastedRecordInCoffeeBeanListPresenter extends Presenter {
   final int id;
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
   DefaultPage<TastedRecordInCoffeeBean> _page = DefaultPage.initState();

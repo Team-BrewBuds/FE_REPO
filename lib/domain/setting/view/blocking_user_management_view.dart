@@ -43,6 +43,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
   @override
   void dispose() {
     scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
     paginationThrottle.cancel();
     super.dispose();
   }
@@ -127,7 +128,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.pop();
               },

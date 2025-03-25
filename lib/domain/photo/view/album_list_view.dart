@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
-class AlbumListView extends StatefulWidget {
+class AlbumListView extends StatelessWidget {
   final List<Album> albumList;
 
   const AlbumListView({
@@ -14,11 +14,6 @@ class AlbumListView extends StatefulWidget {
     required this.albumList,
   });
 
-  @override
-  State<AlbumListView> createState() => _AlbumListViewState();
-}
-
-class _AlbumListViewState extends State<AlbumListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,9 +50,9 @@ class _AlbumListViewState extends State<AlbumListView> {
       ),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: widget.albumList.length,
+        itemCount: albumList.length,
         itemBuilder: (context, index) {
-          final album = widget.albumList[index];
+          final album = albumList[index];
           return GestureDetector(
             onTap: () async {
               context.pop(index);

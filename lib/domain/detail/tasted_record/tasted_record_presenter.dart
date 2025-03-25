@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
@@ -25,16 +26,18 @@ typedef BeanInfo = ({
 typedef CommentsInfo = ({int? authorId, DefaultPage<Comment> page});
 typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String authorNickname});
 
-final class TastedRecordPresenter extends ChangeNotifier {
+final class TastedRecordPresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   final BlockApi _blockApi = BlockApi();
   final int id;
-
+  bool _isEmpty = false;
   Comment? _parentComment;
   TastedRecord? _tastedRecord;
   DefaultPage<Comment> _page = DefaultPage.initState();
   int _pageNo = 1;
+
+  bool get isEmpty => _isEmpty;
 
   bool get isMine => AccountRepository.instance.id == _tastedRecord?.author.id;
 
@@ -109,12 +112,18 @@ final class TastedRecordPresenter extends ChangeNotifier {
   }
 
   _fetchTastedRecord() async {
-    _tastedRecord = await _tastedRecordRepository.fetchTastedRecord(id: id);
+    _tastedRecord = await _tastedRecordRepository
+        .fetchTastedRecord(id: id)
+        .then((value) => Future<TastedRecord?>.value(value))
+        .onError((error, stackTrace) => null);
+    if (_tastedRecord == null) {
+      _isEmpty = true;
+    }
     notifyListeners();
   }
 
   fetchMoreComments() async {
-    if(!_page.hasNext) return;
+    if (!_page.hasNext) return;
     final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'tasted_record', id: id, pageNo: _pageNo);
     _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
     _pageNo += 1;

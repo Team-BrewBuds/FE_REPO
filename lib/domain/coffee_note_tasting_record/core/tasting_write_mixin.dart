@@ -171,7 +171,11 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        const Text('지금까지 작성한 내용은 저장되지 않아요.', style: TextStyles.bodyNarrowRegular),
+                        const Text(
+                          '지금까지 작성한 내용은 저장되지 않아요.',
+                          style: TextStyles.bodyNarrowRegular,
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 20),
                         Row(
                           children: [

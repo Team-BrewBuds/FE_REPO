@@ -646,7 +646,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      InkWell(
+                      GestureDetector(
                         onTap: () {
                           context
                               .read<TastingWritePresenter>()

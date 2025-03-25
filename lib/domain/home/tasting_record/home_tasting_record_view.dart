@@ -2,7 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/home/core/home_view_mixin.dart';
 import 'package:brew_buds/domain/home/tasting_record/home_tasting_record_presenter.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_feed_widget.dart';
+import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +24,8 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
     with HomeViewMixin<HomeTastingRecordView, HomeTastingRecordPresenter> {
   @override
   void initState() {
-    super.initState();
     scrollController = widget.scrollController ?? ScrollController();
+    super.initState();
   }
 
   @override

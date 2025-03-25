@@ -1,20 +1,16 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/feed_widget.dart';
 import 'package:flutter/material.dart';
 
-class PostFeedWidget extends FeedWidget {
+final class PostFeedWidget extends FeedWidget {
   final String title;
   final String body;
   final String subjectText;
   final Widget subjectIcon;
   final String tag;
   final Widget? child;
-
-  @override
-  FeedWidgetState createState() => _PostFeedState();
 
   const PostFeedWidget({
     super.key,
@@ -40,37 +36,25 @@ class PostFeedWidget extends FeedWidget {
     required this.tag,
     this.child,
   });
-}
-
-class _PostFeedState extends FeedWidgetState<PostFeedWidget> with SnackBarMixin<PostFeedWidget> {
-  late final int itemLength = 5;
-  int currentIndex = 0;
-
-  bool get isVisibleIndicator => itemLength > 1;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget buildBody() {
-    final child = widget.child;
+  Widget buildBody(BuildContext context) {
+    final child = this.child;
     if (child != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           child,
-          _buildTextBody(bodyMaxLines: 2),
+          _buildTextBody(context, bodyMaxLines: 2),
         ],
       );
     } else {
-      return _buildTextBody();
+      return _buildTextBody(context);
     }
   }
 
-  Widget _buildTextBody({int bodyMaxLines = 5}) {
-    final isOverFlow = _calcOverFlow(bodyMaxLines);
+  Widget _buildTextBody(BuildContext context, {int bodyMaxLines = 5}) {
+    final isOverFlow = _calcOverFlow(context, bodyMaxLines);
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
       child: Column(
@@ -81,14 +65,14 @@ class _PostFeedState extends FeedWidgetState<PostFeedWidget> with SnackBarMixin<
           ),
           const SizedBox(height: 12, width: double.infinity),
           Text(
-            widget.title,
+            title,
             style: TextStyles.title01SemiBold,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 12, width: double.infinity),
           Text(
-            widget.body,
+            body,
             style: TextStyles.bodyRegular,
             maxLines: bodyMaxLines,
             overflow: TextOverflow.ellipsis,
@@ -97,9 +81,9 @@ class _PostFeedState extends FeedWidgetState<PostFeedWidget> with SnackBarMixin<
           if (isOverFlow)
             GestureDetector(
               onTap: () {
-                showPostDetail(context: context, id: widget.id).then((result) {
+                showPostDetail(context: context, id: id).then((result) {
                   if (result != null) {
-                    showSnackBar(message: result);
+                    showSnackBar(context, message: result);
                   }
                 });
               },
@@ -108,12 +92,12 @@ class _PostFeedState extends FeedWidgetState<PostFeedWidget> with SnackBarMixin<
                 style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
               ),
             ),
-          if (widget.tag.isNotEmpty) ...[
+          if (tag.isNotEmpty) ...[
             const SizedBox(height: 12, width: double.infinity),
             Text(
-              widget.tag.replaceAll(',', '#').startsWith('#')
-                  ? widget.tag.replaceAll(',', '#')
-                  : '#${widget.tag.replaceAll(',', '#')}',
+              tag.replaceAll(',', '#').startsWith('#')
+                  ? tag.replaceAll(',', '#')
+                  : '#${tag.replaceAll(',', '#')}',
               style: TextStyles.labelSmallMedium.copyWith(
                 color: ColorStyles.red,
               ),
@@ -130,18 +114,18 @@ class _PostFeedState extends FeedWidgetState<PostFeedWidget> with SnackBarMixin<
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black),
       child: Row(
         children: [
-          SizedBox(height: 12, width: 12, child: widget.subjectIcon),
+          SizedBox(height: 12, width: 12, child: subjectIcon),
           const SizedBox(width: 2),
-          Text(widget.subjectText, style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white)),
+          Text(subjectText, style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white)),
         ],
       ),
     );
   }
 
-  bool _calcOverFlow(int maxLines) {
+  bool _calcOverFlow(BuildContext context, int maxLines) {
     final width = MediaQuery.of(context).size.width - 32;
     final TextPainter bodyTextPainter = TextPainter(
-      text: TextSpan(text: widget.body, style: TextStyles.bodyRegular),
+      text: TextSpan(text: body, style: TextStyles.bodyRegular),
       maxLines: maxLines,
       textDirection: TextDirection.ltr,
     )..layout(minWidth: 0, maxWidth: width);

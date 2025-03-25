@@ -1,4 +1,3 @@
-import 'package:brew_buds/domain/camera/camera_screen.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -52,6 +51,17 @@ class _EditProfileViewState extends State<EditProfileView> {
     _introductionFocusNode = FocusNode();
     _linkFocusNode = FocusNode();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _nicknameEditingController.dispose();
+    _introductionEditingController.dispose();
+    _linkEditingController.dispose();
+    _nicknameFocusNode.dispose();
+    _introductionFocusNode.dispose();
+    _linkFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -116,7 +126,7 @@ class _EditProfileViewState extends State<EditProfileView> {
             Positioned(
               left: 0,
               child: Center(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.pop();
                   },
@@ -133,9 +143,9 @@ class _EditProfileViewState extends State<EditProfileView> {
             Positioned(
               right: 0,
               child: Center(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
-                    context.read<EditProfilePresenter>().onSave().then((value) => print(value));
+                    context.read<EditProfilePresenter>().onSave();
                   },
                   child: Padding(
                     padding: const EdgeInsets.only(left: 8, right: 8),
@@ -380,7 +390,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               ),
             ),
             const SizedBox(width: 8),
-            InkWell(
+            GestureDetector(
               onTap: () {
                 _showCoffeeLifeBottomSheet(coffeeLifeList: coffeeLifeList);
               },

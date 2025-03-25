@@ -1,10 +1,10 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/coffee_bean/country.dart';
-import 'package:flutter/foundation.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
-final class FilterPresenter extends ChangeNotifier {
+final class FilterPresenter extends Presenter {
   final List<CoffeeBeanFilter> _filter;
   CoffeeBeanType? _selectedTypes;
   final Set<Country> _selectedOrigins;
