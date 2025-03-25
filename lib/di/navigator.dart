@@ -1,6 +1,8 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/domain/coffee_note_post/post_update_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_post/post_update_screen.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
@@ -9,14 +11,16 @@ import 'package:brew_buds/domain/profile/presenter/other_profile_presenter.dart'
 import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/domain/profile/view/other_profile_view.dart';
 import 'package:brew_buds/domain/profile/view/taste_report_view.dart';
+import 'package:brew_buds/model/post/post.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 Future<String?> pushToProfile({required BuildContext context, required int id}) {
   if (id == AccountRepository.instance.id) {
-    while(context.canPop()) {
+    while (context.canPop()) {
       context.pop();
     }
     return context.push<String>('/profile');
@@ -31,14 +35,6 @@ Future<String?> pushToProfile({required BuildContext context, required int id}) 
           child: const OtherProfileView(),
         );
       },
-    );
-    return Navigator.of(context).push<String>(
-      MaterialPageRoute(
-        builder: (context) => ChangeNotifierProvider<OtherProfilePresenter>(
-          create: (_) => OtherProfilePresenter(id: id, repository: ProfileRepository.instance),
-          child: const OtherProfileView(),
-        ),
-      ),
     );
   }
 }
@@ -82,6 +78,18 @@ Future<T?> pushToTasteReport<T>({required BuildContext context, required String 
         create: (_) => TasteReportPresenter(id: id, nickname: nickname),
         child: const TasteReportView(),
       ),
+    ),
+  );
+}
+
+Future<bool?> showPostUpdateScreen({required BuildContext context, required Post post}) {
+  return showCupertinoModalPopup<bool>(
+    barrierColor: ColorStyles.white,
+    barrierDismissible: false,
+    context: context,
+    builder: (context) => ChangeNotifierProvider(
+      create: (_) => PostUpdatePresenter(post: post),
+      child: PostUpdateScreen(title: post.title, content: post.contents, tag: post.tag.replaceAll(',', '#')),
     ),
   );
 }

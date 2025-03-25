@@ -44,6 +44,8 @@ final class PostDetailPresenter extends Presenter {
 
   bool get isEmpty => _isEmpty;
 
+  Post? get post => _post;
+
   int? get authorId => _post?.author.id;
 
   ProfileInfo get profileInfo => (
@@ -88,6 +90,14 @@ final class PostDetailPresenter extends Presenter {
   });
 
   init() async {
+    _pageNo = 1;
+    _page = DefaultPage.initState();
+    notifyListeners();
+    await _fetchPost();
+    await fetchMorComments();
+  }
+
+  Future<void> onRefresh() async {
     _pageNo = 1;
     _page = DefaultPage.initState();
     notifyListeners();
