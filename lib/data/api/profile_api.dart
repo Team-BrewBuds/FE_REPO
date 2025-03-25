@@ -37,5 +37,8 @@ abstract class ProfileApi {
     @Path('user_id') required int id,
   });
 
+  @DELETE('/profiles/')
+  Future<void> signOut();
+
   factory ProfileApi() => _ProfileApi(DioClient.instance.dio);
 }

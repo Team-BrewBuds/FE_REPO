@@ -208,7 +208,6 @@ class _PostDetailViewState extends State<PostDetailView>
     return GestureDetector(
       onTap: () {
         if (authorId != null) {
-          context.pop();
           pushToProfile(context: context, id: authorId);
         }
       },
@@ -437,7 +436,6 @@ class _PostDetailViewState extends State<PostDetailView>
                       likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                       canReply: true,
                       onTappedProfile: () {
-                        context.pop();
                         pushToProfile(context: context, id: comment.author.id);
                       },
                       onTappedReply: () {
@@ -451,6 +449,15 @@ class _PostDetailViewState extends State<PostDetailView>
                     canDelete: canDelete,
                     onDelete: () {
                       context.read<PostDetailPresenter>().onTappedDeleteCommentButton(comment);
+                    },
+                    onReport: () {
+                      pushToReportScreen(context, id: comment.id, type: 'comment').then(
+                            (value) {
+                          if (value != null) {
+                            showSnackBar(message: value);
+                          }
+                        },
+                      );
                     },
                   ),
                   if (comment.reComments.isNotEmpty) ...[
@@ -485,6 +492,15 @@ class _PostDetailViewState extends State<PostDetailView>
                           onDelete: () {
                             context.read<PostDetailPresenter>().onTappedDeleteCommentButton(reComment);
                           },
+                          onReport: () {
+                            pushToReportScreen(context, id: reComment.id, type: 'comment').then(
+                                  (value) {
+                                if (value != null) {
+                                  showSnackBar(message: value);
+                                }
+                              },
+                            );
+                          },
                         );
                       },
                     )
@@ -502,6 +518,7 @@ class _PostDetailViewState extends State<PostDetailView>
     required bool canDelete,
     Function()? onDelete,
     required bool isMine,
+        Function()? onReport,
   }) {
     return Slidable(
       endActionPane: ActionPane(
@@ -538,6 +555,9 @@ class _PostDetailViewState extends State<PostDetailView>
           if (!isMine)
             Expanded(
               child: GestureDetector(
+                onTap: () {
+                  onReport?.call();
+                },
                 child: Container(
                   color: ColorStyles.gray30,
                   child: Column(

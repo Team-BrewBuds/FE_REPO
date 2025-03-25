@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_presenter.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -76,7 +77,11 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
               left: 0,
               child: GestureDetector(
                 onTap: () {
-                  context.pop();
+                  showCancelDialog().then((value) {
+                    if (value != null && value) {
+                      context.pop(false);
+                    }
+                  });
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',
@@ -135,6 +140,91 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
           },
         ),
       ],
+    );
+  }
+
+  Future<bool?> showCancelDialog() {
+    return showBarrierDialog<bool>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 38),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      color: ColorStyles.white,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          '시음기록 작성을 그만두시겠습니까?',
+                          style: TextStyles.title02SemiBold,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('지금까지 작성한 내용은 저장되지 않아요.', style: TextStyles.bodyNarrowRegular),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.gray30,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '닫기',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop(true);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.black,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '나가기',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

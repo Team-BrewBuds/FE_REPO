@@ -103,8 +103,8 @@ final class CoffeeBeanDetailPresenter extends ChangeNotifier {
     notifyListeners();
   }
 
-  onTapSave() {
-    _coffeeBeanRepository.save(id: id, isSaved: isSaved).then((_) {
+  Future<void> onTapSave() {
+    return _coffeeBeanRepository.save(id: id, isSaved: isSaved).then((_) {
       _coffeeBeanDetail = _coffeeBeanDetail?.copyWith(isUserNoted: !isSaved);
       notifyListeners();
     });

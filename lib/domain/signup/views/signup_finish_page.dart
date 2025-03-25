@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +28,12 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Image.asset('assets/images/login/finish.png', width: 260, height: 260, fit: BoxFit.cover),
+                    ExtendedImage.asset(
+                      'assets/images/sign_up_finish.png',
+                      width: 260,
+                      height: 260,
+                      fit: BoxFit.cover,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       '${context.read<SignUpPresenter>().nickName} 님\n 환영합니다.',
@@ -45,7 +51,7 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.go('/home');
                   },

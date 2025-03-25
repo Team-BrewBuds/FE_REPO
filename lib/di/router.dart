@@ -106,7 +106,10 @@ GoRouter createRouter(bool hasToken) {
                   create: (_) => HomeTastingRecordPresenter(),
                 ),
               ],
-              child: HomeView(nestedScrollViewState: homeTabBarScrollState),
+              child: HomeView(
+                key: (state.extra as UniqueKey?) ?? UniqueKey(),
+                nestedScrollViewState: homeTabBarScrollState,
+              ),
             ),
             routes: [
               GoRoute(
@@ -122,7 +125,7 @@ GoRouter createRouter(bool hasToken) {
             path: '/search',
             builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
               create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
-              child: const SearchHomeView(),
+              child: SearchHomeView(key: (state.extra as UniqueKey?) ?? UniqueKey(),),
             ),
             routes: [
               GoRoute(
@@ -134,8 +137,7 @@ GoRouter createRouter(bool hasToken) {
                       currentTabIndex: data?.tabIndex ?? 0,
                       searchWord: data?.searchWord ?? '',
                     ),
-                    child:
-                    SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
+                    child: SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
                   );
                 },
               ),
@@ -145,7 +147,7 @@ GoRouter createRouter(bool hasToken) {
             path: '/profile',
             builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
               create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-              child: const MyProfileView(),
+              child: MyProfileView(key: (state.extra as UniqueKey?) ?? UniqueKey(),),
             ),
             routes: [
               GoRoute(

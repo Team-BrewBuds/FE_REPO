@@ -48,7 +48,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!SharedPreferencesRepository.instance.haveRequestPermission && !_isDialogShown) {
+      if (SharedPreferencesRepository.instance.isFirstTimeLogin && !_isDialogShown) {
         _isDialogShown = true;
         _showPermissionDialog();
       }
@@ -158,8 +158,8 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
     );
   }
 
-  _showPermissionDialog() {
-    showBarrierDialog(
+  _showPermissionDialog() async {
+    await showBarrierDialog(
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -230,8 +230,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                     ),
                     const SizedBox(height: 26),
                     GestureDetector(
-                      onTap: () async {
-                        await PermissionRepository.instance.initPermission();
+                      onTap: () {
                         context.pop();
                       },
                       child: Container(
@@ -254,5 +253,6 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
         );
       },
     );
+    await SharedPreferencesRepository.instance.setLogin();
   }
 }

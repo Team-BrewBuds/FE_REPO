@@ -4,9 +4,12 @@ import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_screen.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
+import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
 import 'package:brew_buds/model/common/default_page.dart';
@@ -14,7 +17,6 @@ import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +28,7 @@ class CoffeeBeanDetailScreen extends StatefulWidget {
   State<CoffeeBeanDetailScreen> createState() => _CoffeeBeanDetailScreenState();
 }
 
-class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
+class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with SnackBarMixin<CoffeeBeanDetailScreen> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -172,7 +174,9 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
               flex: 1,
               child: GestureDetector(
                 onTap: () {
-                  context.read<CoffeeBeanDetailPresenter>().onTapSave();
+                  context.read<CoffeeBeanDetailPresenter>().onTapSave().then((_) {
+                    showSnackBar(message: isSaved ? '저장된 원두정보를 삭제했어요.' : '원두 정보를 저장했어요.');
+                  });
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -206,7 +210,13 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
             Expanded(
               flex: 3,
               child: GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  showTastingWriteScreen(context).then((value) {
+                    if (value != null && value) {
+                      showSnackBar(message: '시음기록 작성을 완료했어요.');
+                    }
+                  });
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
                   decoration: const BoxDecoration(
@@ -431,12 +441,20 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
               min(4, tastedRecords.length),
               (index) {
                 final tastedRecord = tastedRecords[index];
-                return TastedRecordInCoffeeBeanWidget(
-                  authorNickname: tastedRecord.nickname,
-                  rating: tastedRecord.rating.toDouble(),
-                  flavors: tastedRecord.flavors,
-                  imageUrl: tastedRecord.photoUrl,
-                  contents: tastedRecord.contents,
+                return GestureDetector(
+                  onTap: () {
+                    showTastingRecordDetail(context: context, id: tastedRecord.id);
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    child: TastedRecordInCoffeeBeanWidget(
+                      authorNickname: tastedRecord.nickname,
+                      rating: tastedRecord.rating.toDouble(),
+                      flavors: tastedRecord.flavors,
+                      imageUrl: tastedRecord.photoUrl,
+                      contents: tastedRecord.contents,
+                    ),
+                  ),
                 );
               },
             ),

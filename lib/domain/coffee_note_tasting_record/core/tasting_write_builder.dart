@@ -1,6 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:brew_buds/domain/camera/camera_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_first_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_presenter.dart';
 import 'package:brew_buds/domain/photo/check_selected_images_screen.dart';
@@ -9,8 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-showTastingWriteScreen(BuildContext context) {
-  showCupertinoModalPopup(
+Future<bool?> showTastingWriteScreen(BuildContext context) {
+  return showCupertinoModalPopup<bool>(
     barrierColor: ColorStyles.white,
     barrierDismissible: false,
     context: context,
@@ -50,22 +49,6 @@ Widget _buildTastingWriteScreen(BuildContext context) {
                 image: images,
                 onNext: (context, imageDataList) {
                   context.read<TastingWritePresenter>().setImageData(imageDataList);
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const TastingWriteFirstScreen()),
-                    (route) => false,
-                  );
-                },
-              ),
-            ),
-          );
-        },
-        onTapCamera: (context) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => CameraScreen(
-                previewShape: BoxShape.circle,
-                onDone: (context, imageData) {
-                  context.read<TastingWritePresenter>().setImageData([imageData]);
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (context) => const TastingWriteFirstScreen()),
                     (route) => false,

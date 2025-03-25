@@ -95,7 +95,6 @@ class LoginRepository {
         '/profiles/signup/',
         data: state.toJson(),
       );
-
       if (response.statusCode == 200) {
         return true;
       } else {

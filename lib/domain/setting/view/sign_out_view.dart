@@ -3,7 +3,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/data/api/sign_up_api.dart';
+import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,7 +17,7 @@ class SignOutView extends StatefulWidget {
 }
 
 class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOutView>, SnackBarMixin<SignOutView> {
-  final SignUpApi _api = SignUpApi();
+  final ProfileApi _api = ProfileApi();
   final List<String> _reason = [
     '시음 기록 과정이 복잡해요.',
     '원두 정보가 부족해요.',
