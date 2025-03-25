@@ -160,7 +160,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                                 padding: const EdgeInsets.all(16),
                                 itemCount: presenter.filter.length,
                                 itemBuilder: (context, index) {
-                                  return InkWell(
+                                  return GestureDetector(
                                     onTap: () {
                                       presenter.removeAtFilter(index);
                                     },
@@ -238,7 +238,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           const SizedBox(height: 20),
           Row(
             children: [
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   presenter.onChangeBeanType(CoffeeBeanType.singleOrigin);
                 },
@@ -251,7 +251,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
               const SizedBox(width: 12),
               const Text('싱글오리진', style: TextStyles.labelMediumMedium),
               const SizedBox(width: 80),
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   presenter.onChangeBeanType(CoffeeBeanType.blend);
                 },
@@ -299,7 +299,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                           (columnIndex) => Row(
                             children: List<Widget>.generate(
                               min(5, continent.countries().length - (columnIndex * 5)),
-                              (rowIndex) => InkWell(
+                              (rowIndex) => GestureDetector(
                                 onTap: () {
                                   presenter.onChangeStateOrigin(continent.countries()[columnIndex * 5 + rowIndex]);
                                 },
@@ -416,7 +416,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             style: TextStyles.title02SemiBold,
           ),
           const SizedBox(height: 16),
-          InkWell(
+          GestureDetector(
             onTap: () {
               presenter.onChangeIsDecaf();
             },

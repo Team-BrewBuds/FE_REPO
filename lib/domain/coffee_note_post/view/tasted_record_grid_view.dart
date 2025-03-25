@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_presenter.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,12 +24,32 @@ class TastedRecordGridView extends StatefulWidget {
 }
 
 class _TastedRecordGridViewState extends State<TastedRecordGridView> {
+  late final Throttle paginationThrottle;
+
   @override
   void initState() {
+    paginationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
+      },
+    );
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<TastedRecordGridPresenter>().initState();
     });
+  }
+
+  @override
+  void dispose() {
+    paginationThrottle.cancel();
+    super.dispose();
+  }
+
+  _fetchMoreData() {
+    context.read<TastedRecordGridPresenter>().fetchMoreData();
   }
 
   @override
@@ -43,7 +64,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
               ? NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scroll) {
                     if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                      context.read<TastedRecordGridPresenter>().fetchMoreData();
+                      paginationThrottle.setValue(null);
                     }
                     return false;
                   },

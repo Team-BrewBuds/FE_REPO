@@ -120,7 +120,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.pop();
               },

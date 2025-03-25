@@ -382,7 +382,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMi
                       style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                     ),
                     const Spacer(),
-                    InkWell(
+                    GestureDetector(
                       onTap: () {
                         context.read<CommentsPresenter>().cancelReply();
                       },
@@ -419,7 +419,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMi
                   contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
-                    child: InkWell(
+                    child: GestureDetector(
                       onTap: () {
                         context
                             .read<CommentsPresenter>()

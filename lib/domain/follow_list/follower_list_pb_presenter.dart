@@ -1,9 +1,9 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/follow_list_repository.dart';
 import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:flutter/foundation.dart';
 
-final class FollowerListPBPresenter extends ChangeNotifier {
+final class FollowerListPBPresenter extends Presenter {
   final FollowListRepository _followListRepository = FollowListRepository.instance;
   final int id;
   final String nickName;
@@ -12,7 +12,7 @@ final class FollowerListPBPresenter extends ChangeNotifier {
   int _currentTab = 0;
   int _pageNo = 1;
 
-  bool get hasNext => _page.hasNext ?? true;
+  bool get hasNext => _page.hasNext;
 
   DefaultPage<FollowUser> get page => _page;
 
@@ -67,12 +67,12 @@ final class FollowerListPBPresenter extends ChangeNotifier {
 
   onTappedFollowButton(FollowUser user) {
     _followListRepository.follow(id: user.id, isFollow: user.isFollowing).then(
-          (_) {
+      (_) {
         _page = _page.copyWith(
           results: _page.results
               .map(
                 (e) => e.id == user.id ? user.copyWith(isFollowing: !user.isFollowing) : e,
-          )
+              )
               .toList(),
         );
         notifyListeners();

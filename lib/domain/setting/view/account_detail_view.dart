@@ -71,7 +71,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
             Positioned(
               left: 0,
               child: Center(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.pop();
                   },
@@ -88,7 +88,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
             Positioned(
               right: 0,
               child: Center(
-                child: InkWell(
+                child: GestureDetector(
                   onTap: () {
                     context.read<AccountDetailPresenter>().onSave().then((_) => context.pop('맞춤정보 저장을 완료했어요.'));
                   },
@@ -124,7 +124,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
           itemBuilder: (context, index) {
-            return InkWell(
+            return GestureDetector(
               onTap: () {
                 context.read<AccountDetailPresenter>().onSelectCoffeeLife(CoffeeLife.values[index]);
               },
@@ -192,7 +192,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
         Row(
           children: [
             Expanded(
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () {
                   context.read<AccountDetailPresenter>().onSelectCertificated(true);
                 },
@@ -216,7 +216,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () {
                   context.read<AccountDetailPresenter>().onSelectCertificated(false);
                 },
@@ -306,7 +306,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             context.read<AccountDetailPresenter>().onSelectBodyValue(index + 1);
                           },
@@ -384,7 +384,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             context.read<AccountDetailPresenter>().onSelectAcidityValue(index + 1);
                           },
@@ -462,7 +462,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       mainAxisSize: MainAxisSize.max,
                       children: [
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             context.read<AccountDetailPresenter>().onSelectBitternessValue(index + 1);
                           },
@@ -538,7 +538,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
                     5,
                     (index) => Column(
                       children: [
-                        InkWell(
+                        GestureDetector(
                           onTap: () {
                             context.read<AccountDetailPresenter>().onSelectSweetValue(index + 1);
                           },

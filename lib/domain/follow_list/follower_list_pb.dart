@@ -144,7 +144,7 @@ class _FollowerListPBState extends State<FollowerListPB> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.pop();
               },

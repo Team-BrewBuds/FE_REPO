@@ -1,9 +1,9 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/model/profile/account_info.dart';
-import 'package:flutter/foundation.dart';
 
-final class AccountInfoPresenter extends ChangeNotifier {
+final class AccountInfoPresenter extends Presenter {
   final AccountRepository _accountRepository = AccountRepository.instance;
   final ProfileRepository _profileRepository = ProfileRepository.instance;
   AccountInfo? _accountInfo;

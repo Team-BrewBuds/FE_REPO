@@ -120,7 +120,7 @@ class _SettingScreenState extends State<SettingScreen>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 context.pop();
               },
@@ -223,7 +223,7 @@ class _SettingScreenState extends State<SettingScreen>
                   ),
                   child: Column(
                     children: [
-                      InkWell(
+                      GestureDetector(
                         onTap: () async {
                           AccountRepository.instance.logout().then((value) {
                             if (value) {
@@ -245,7 +245,7 @@ class _SettingScreenState extends State<SettingScreen>
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-                        child: InkWell(
+                        child: GestureDetector(
                           onTap: () {
                             context.pop();
                           },
@@ -296,7 +296,7 @@ class _SettingScreenState extends State<SettingScreen>
                   ),
                   child: Column(
                     children: [
-                      InkWell(
+                      GestureDetector(
                         onTap: () {
                           context.pop(true);
                         },
@@ -314,7 +314,7 @@ class _SettingScreenState extends State<SettingScreen>
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-                        child: InkWell(
+                        child: GestureDetector(
                           onTap: () {
                             context.pop();
                           },

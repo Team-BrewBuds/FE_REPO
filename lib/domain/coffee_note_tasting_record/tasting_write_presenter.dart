@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:brew_buds/common/extension/date_time_ext.dart';
 import 'package:brew_buds/core/image_compress.dart';
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
@@ -9,9 +11,8 @@ import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
-import 'package:flutter/foundation.dart';
 
-final class TastingWritePresenter extends ChangeNotifier {
+final class TastingWritePresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   final PhotoApi photoApi = PhotoApi();
   List<Uint8List> imageData = [];

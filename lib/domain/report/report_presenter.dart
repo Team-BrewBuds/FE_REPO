@@ -1,8 +1,8 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/report_api.dart';
-import 'package:flutter/foundation.dart';
 
-final class ReportPresenter extends ChangeNotifier {
+final class ReportPresenter extends Presenter {
   final ReportApi _reportApi = ReportApi();
   final int id;
   final String type;

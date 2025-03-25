@@ -74,6 +74,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
       _onChangeNewWord(textEditingController.text);
     });
     searchDebouncer.cancel();
+    paginationThrottle.cancel();
     textEditingController.dispose();
     searchWord.dispose();
     focusNode.dispose();
@@ -260,7 +261,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
             return searchWord.isNotEmpty
                 ? Padding(
                     padding: const EdgeInsets.only(right: 12, left: 4, top: 12, bottom: 12),
-                    child: InkWell(
+                    child: GestureDetector(
                       onTap: () {
                         textEditingController.value = const TextEditingValue();
                       },

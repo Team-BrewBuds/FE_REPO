@@ -5,7 +5,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-abstract class FeedWidget extends StatefulWidget {
+abstract class FeedWidget extends StatelessWidget {
   final int id;
   final String writerThumbnailUrl;
   final String writerNickName;
@@ -42,11 +42,6 @@ abstract class FeedWidget extends StatefulWidget {
   });
 
   @override
-  FeedWidgetState createState();
-}
-
-abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
-  @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: ColorStyles.white, borderRadius: BorderRadius.circular(8)),
@@ -55,7 +50,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           buildProfile(),
-          buildBody(),
+          buildBody(context),
           buildBottomButtons(),
         ],
       ),
@@ -65,7 +60,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
   Widget buildProfile() {
     return GestureDetector(
       onTap: () {
-        widget.onTapProfile.call();
+        onTapProfile.call();
       },
       child: Container(
         height: 36,
@@ -75,7 +70,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
           children: [
             //프로필 사진
             MyNetworkImage(
-              imageUrl: widget.writerThumbnailUrl,
+              imageUrl: writerThumbnailUrl,
               height: 36,
               width: 36,
               shape: BoxShape.circle,
@@ -88,7 +83,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
                   Expanded(
                     //닉네임
                     child: Text(
-                      widget.writerNickName,
+                      writerNickName,
                       textAlign: TextAlign.start,
                       style: TextStyles.title01SemiBold,
                     ),
@@ -96,7 +91,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
                   Expanded(
                     child: Text(
                       //작성 시간 및 조회수
-                      '${widget.writingTime}・${widget.hits}',
+                      '$writingTime・$hits',
                       style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
                     ),
                   )
@@ -104,14 +99,14 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
               ),
             ),
             const SizedBox(width: 8),
-            FollowButton(onTap: widget.onTapFollowButton, isFollowed: widget.isFollowed),
+            FollowButton(onTap: onTapFollowButton, isFollowed: isFollowed),
           ],
         ),
       ),
     );
   }
 
-  Widget buildBody();
+  Widget buildBody(BuildContext context);
 
   Widget buildBottomButtons() {
     return Padding(
@@ -131,23 +126,23 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
   Widget buildLikeButton() {
     return GestureDetector(
       onTap: () {
-        widget.onTapLikeButton.call();
+        onTapLikeButton.call();
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            widget.isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
+            isLiked ? 'assets/icons/like.svg' : 'assets/icons/like.svg',
             height: 24,
             width: 24,
             colorFilter: ColorFilter.mode(
-              widget.isLiked ? ColorStyles.red : ColorStyles.gray70,
+              isLiked ? ColorStyles.red : ColorStyles.gray70,
               BlendMode.srcIn,
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(widget.likeCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
+            child: Text(likeCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
           ),
         ],
       ),
@@ -157,7 +152,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
   Widget buildCommentButton() {
     return GestureDetector(
       onTap: () {
-        widget.onTapCommentsButton.call();
+        onTapCommentsButton.call();
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -173,7 +168,7 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(widget.commentsCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
+            child: Text(commentsCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
           ),
         ],
       ),
@@ -183,17 +178,17 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
   Widget buildSaveButton() {
     return GestureDetector(
       onTap: () {
-        widget.onTapSaveButton();
+        onTapSaveButton();
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            widget.isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
+            isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
             height: 24,
             width: 24,
             colorFilter: ColorFilter.mode(
-              widget.isSaved ? ColorStyles.red : ColorStyles.gray70,
+              isSaved ? ColorStyles.red : ColorStyles.gray70,
               BlendMode.srcIn,
             ),
           ),
@@ -202,6 +197,29 @@ abstract class FeedWidgetState<T extends FeedWidget> extends State<T> {
             child: Text('저장', style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
           ),
         ],
+      ),
+    );
+  }
+
+  showSnackBar(BuildContext context, {required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black.withOpacity(0.9),
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
     );
   }

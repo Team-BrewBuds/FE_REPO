@@ -1,9 +1,9 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/local.dart';
-import 'package:flutter/foundation.dart';
 
-final class LocalSearchPresenter extends ChangeNotifier {
+final class LocalSearchPresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   String _searchWord = '';
   DefaultPage<Local> _page = DefaultPage.initState();
@@ -11,7 +11,10 @@ final class LocalSearchPresenter extends ChangeNotifier {
 
   DefaultPage<Local> get page => _page;
 
-  initState() {}
+  initState() {
+    _page = DefaultPage.initState();
+    _pageNo = 1;
+  }
 
   fetchMoreData() async {
     if (_page.hasNext) {

@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
-import 'package:brew_buds/domain/signup/views/signup_third_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -62,7 +61,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
               mainAxisSpacing: 6,
               itemBuilder: (context, index) {
                 final coffeeLife = CoffeeLife.values[index];
-                return InkWell(
+                return GestureDetector(
                   onTap: () {
                     context.read<SignUpPresenter>().onSelectCoffeeLife(coffeeLife);
                   },

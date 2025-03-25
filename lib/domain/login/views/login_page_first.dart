@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -36,14 +35,6 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   ];
   bool _isDialogShown = false;
   int _currentIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LoginPresenter>().init();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +91,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
               bottom: 12,
               child: Column(
                 children: [
-                  InkWell(
+                  GestureDetector(
                     onTap: () {
                       context.push('/login/sns');
                     },
@@ -117,7 +108,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  InkWell(
+                  GestureDetector(
                     onTap: () {},
                     child: Container(
                       decoration: const BoxDecoration(border: Border(bottom: BorderSide())),

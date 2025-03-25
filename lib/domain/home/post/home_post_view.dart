@@ -7,9 +7,9 @@ import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/home/core/home_view_mixin.dart';
 import 'package:brew_buds/domain/home/post/home_post_presenter.dart';
-import 'package:brew_buds/domain/home/widgets/post_feed/post_feed_widget.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_button.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_card.dart';
+import 'package:brew_buds/domain/home/widgets/post_feed_widget.dart';
+import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
+import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:flutter/material.dart';
@@ -34,8 +34,8 @@ class HomePostView extends StatefulWidget {
 class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePostView, HomePostPresenter> {
   @override
   void initState() {
-    super.initState();
     scrollController = widget.scrollController ?? ScrollController();
+    super.initState();
   }
 
   @override

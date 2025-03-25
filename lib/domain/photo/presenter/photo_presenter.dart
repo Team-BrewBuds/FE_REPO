@@ -1,6 +1,8 @@
+import 'dart:typed_data';
+
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/domain/photo/model/album.dart';
-import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
@@ -8,7 +10,7 @@ typedef AlbumTitleState = ({List<Album> albumList, Album? currentAlbum});
 
 typedef ImageViewState = ({List<AssetEntity> images, List<AssetEntity> selectedImages});
 
-class PhotoPresenter extends ChangeNotifier {
+class PhotoPresenter extends Presenter {
   final PermissionStatus _permissionState;
   List<Album> _albumList = [];
   List<AssetEntity> _currentAlbumImages = [];

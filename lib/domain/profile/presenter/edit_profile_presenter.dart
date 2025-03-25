@@ -1,13 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:brew_buds/core/image_compress.dart';
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:flutter/foundation.dart';
 
 typedef ProfileImageState = ({String imageUrl, Uint8List? imageData});
 
-final class EditProfilePresenter extends ChangeNotifier {
+final class EditProfilePresenter extends Presenter {
   final PhotoApi _photoApi = PhotoApi();
   final ProfileRepository _profileRepository = ProfileRepository.instance;
   String _imageUrl;

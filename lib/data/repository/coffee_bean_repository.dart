@@ -43,22 +43,23 @@ class CoffeeBeanRepository {
   Future<CoffeeBeanDetail> fetchCoffeeBeanDetail({required int id}) =>
       _beansApi.fetchBeanDetail(id: id).then((value) => value.toDomain());
 
-  Future<DefaultPage<TastedRecordInCoffeeBean>> fetchTastedRecordsForCoffeeBean({required int id}) async {
-    final jsonString = await _beansApi.fetchTastedRecordsForCoffeeBean(id: id);
-    final json = jsonDecode(jsonString) as Map<String, dynamic>?;
-    return DefaultPage.fromJson(
-      json ?? {},
-      (jsonT) => TastedRecordInCoffeeBeanDTO.fromJson(
-        jsonT as Map<String, dynamic>? ?? {},
-      ).toDomain(),
-    );
+  Future<DefaultPage<TastedRecordInCoffeeBean>> fetchTastedRecordsForCoffeeBean({required int id}) {
+    return _beansApi.fetchTastedRecordsForCoffeeBean(id: id).then((jsonString) {
+      final json = jsonDecode(jsonString) as Map<String, dynamic>?;
+      return DefaultPage.fromJson(
+        json ?? {},
+        (jsonT) => TastedRecordInCoffeeBeanDTO.fromJson(
+          jsonT as Map<String, dynamic>? ?? {},
+        ).toDomain(),
+      );
+    }).onError((error, stackTrace) => DefaultPage.initState());
   }
 
   Future<DefaultPage<CoffeeBean>> fetchCoffeeBeans({required String word, required int pageNo}) async {
     return _beansApi.searchBeans(name: word, pageNo: pageNo).then((jsonString) {
       final jsonData = jsonDecode(jsonString) as Map<String, dynamic>;
-      return DefaultPage.fromJson(jsonData, (json) => CoffeeBeanDTO.fromJson(json as Map<String ,dynamic>).toDomain());
-    });
+      return DefaultPage.fromJson(jsonData, (json) => CoffeeBeanDTO.fromJson(json as Map<String, dynamic>).toDomain());
+    }).onError((error, stackTrace) => DefaultPage.initState());
   }
 
   Future<void> save({required int id, required bool isSaved}) {

@@ -1,12 +1,12 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/search_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
-import 'package:flutter/foundation.dart';
 
 typedef SuggestState = ({List<String> suggestSearchWords, String searchWord});
 
-abstract class SearchPresenter extends ChangeNotifier {
+abstract class SearchPresenter extends Presenter {
   final SharedPreferencesRepository sharedPreferencesRepository = SharedPreferencesRepository.instance;
   final SearchRepository searchRepository = SearchRepository.instance;
   final List<SearchSubject> _searchSubjectList = SearchSubject.values;

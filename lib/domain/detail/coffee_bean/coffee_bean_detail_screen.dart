@@ -4,6 +4,7 @@ import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
@@ -39,83 +40,92 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Selector<CoffeeBeanDetailPresenter, BeanInfoState>(
-                selector: (context, presenter) => presenter.beanInfoState,
-                builder: (context, state, child) => _buildBeanInformation(
-                  name: state.name,
-                  rating: state.rating,
-                  type: state.type,
-                  isDecaf: state.isDecaf,
-                  imageUrl: state.imageUrl,
-                  flavors: state.flavors,
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.only(left: 12, right: 12, bottom: 48),
-                padding: const EdgeInsets.only(top: 20, bottom: 24, left: 16, right: 16),
-                color: ColorStyles.gray10,
+    return Selector<CoffeeBeanDetailPresenter, bool>(
+        selector: (context, presenter) => presenter.isEmpty,
+        builder: (context, isEmpty, child) {
+          if (isEmpty) {
+            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+              showEmptyDialog().then((value) => context.pop());
+            });
+          }
+          return Scaffold(
+            appBar: _buildAppBar(),
+            body: SafeArea(
+              child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Selector<CoffeeBeanDetailPresenter, BeanDetailState>(
-                      selector: (context, presenter) => presenter.beanDetailState,
-                      builder: (context, state, child) => BeanDetail(
-                        country: state.country,
-                        region: state.region,
-                        variety: state.variety,
-                        process: state.process,
-                        roastPoint: state.roastPoint,
-                        roastery: state.roastery,
-                        extraction: state.extraction,
+                    Selector<CoffeeBeanDetailPresenter, BeanInfoState>(
+                      selector: (context, presenter) => presenter.beanInfoState,
+                      builder: (context, state, child) => _buildBeanInformation(
+                        name: state.name,
+                        rating: state.rating,
+                        type: state.type,
+                        isDecaf: state.isDecaf,
+                        imageUrl: state.imageUrl,
+                        flavors: state.flavors,
                       ),
                     ),
-                    const SizedBox(height: 32),
-                    Selector<CoffeeBeanDetailPresenter, BeanTasteState>(
-                      selector: (context, presenter) => presenter.beanTasteState,
-                      builder: (context, state, child) => TasteGraph(
-                        bodyValue: state.body,
-                        acidityValue: state.acidity,
-                        bitternessValue: state.bitterness,
-                        sweetnessValue: state.sweetness,
+                    Container(
+                      margin: const EdgeInsets.only(left: 12, right: 12, bottom: 48),
+                      padding: const EdgeInsets.only(top: 20, bottom: 24, left: 16, right: 16),
+                      color: ColorStyles.gray10,
+                      child: Column(
+                        children: [
+                          Selector<CoffeeBeanDetailPresenter, BeanDetailState>(
+                            selector: (context, presenter) => presenter.beanDetailState,
+                            builder: (context, state, child) => BeanDetail(
+                              country: state.country,
+                              region: state.region,
+                              variety: state.variety,
+                              process: state.process,
+                              roastPoint: state.roastPoint,
+                              roastery: state.roastery,
+                              extraction: state.extraction,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                          Selector<CoffeeBeanDetailPresenter, BeanTasteState>(
+                            selector: (context, presenter) => presenter.beanTasteState,
+                            builder: (context, state, child) => TasteGraph(
+                              bodyValue: state.body,
+                              acidityValue: state.acidity,
+                              bitternessValue: state.bitterness,
+                              sweetnessValue: state.sweetness,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(height: 8, color: ColorStyles.gray20),
+                    Selector<CoffeeBeanDetailPresenter, List<TopFlavor>>(
+                      selector: (context, presenter) => presenter.topFlavors,
+                      builder: (context, topFlavors, child) => _buildTopFlavors(topFlavors: topFlavors),
+                    ),
+                    Selector<CoffeeBeanDetailPresenter, DefaultPage<TastedRecordInCoffeeBean>>(
+                      selector: (context, presenter) => presenter.page,
+                      builder: (context, page, child) => _buildTastedRecords(
+                        count: page.count,
+                        tastedRecords: page.results,
+                      ),
+                    ),
+                    Container(height: 8, color: ColorStyles.gray20),
+                    Selector<CoffeeBeanDetailPresenter, List<RecommendedCoffeeBean>>(
+                      selector: (context, presenter) => presenter.recommendedCoffeeBeanList,
+                      builder: (context, recommendedCoffeeBeanList, child) => _buildRecommendedCoffeeBeans(
+                        recommendedCoffeeBeans: recommendedCoffeeBeanList,
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(height: 8, color: ColorStyles.gray20),
-              Selector<CoffeeBeanDetailPresenter, List<TopFlavor>>(
-                selector: (context, presenter) => presenter.topFlavors,
-                builder: (context, topFlavors, child) => _buildTopFlavors(topFlavors: topFlavors),
-              ),
-              Selector<CoffeeBeanDetailPresenter, DefaultPage<TastedRecordInCoffeeBean>>(
-                selector: (context, presenter) => presenter.page,
-                builder: (context, page, child) => _buildTastedRecords(
-                  count: page.count,
-                  tastedRecords: page.results,
-                ),
-              ),
-              Container(height: 8, color: ColorStyles.gray20),
-              Selector<CoffeeBeanDetailPresenter, List<RecommendedCoffeeBean>>(
-                selector: (context, presenter) => presenter.recommendedCoffeeBeanList,
-                builder: (context, recommendedCoffeeBeanList, child) => _buildRecommendedCoffeeBeans(
-                  recommendedCoffeeBeans: recommendedCoffeeBeanList,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: Selector<CoffeeBeanDetailPresenter, bool>(
-        selector: (context, presenter) => presenter.isSaved,
-        builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
-      ),
-    );
+            ),
+            bottomNavigationBar: Selector<CoffeeBeanDetailPresenter, bool>(
+              selector: (context, presenter) => presenter.isSaved,
+              builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
+            ),
+          );
+        });
   }
 
   AppBar _buildAppBar() {
@@ -343,14 +353,25 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
         children: [
           const Text('이 원두에서 많이 느낀 맛 TOP 3', style: TextStyles.title02SemiBold),
           const SizedBox(height: 24),
-          ...List.generate(
-            min(3, topFlavors.length),
-            (index) => _buildTopFlavorItem(
-              rank: index + 1,
-              flavor: topFlavors[index].flavor,
-              percent: topFlavors[index].percent.toInt(),
+          if (topFlavors.isNotEmpty)
+            ...List.generate(
+              min(3, topFlavors.length),
+              (index) => _buildTopFlavorItem(
+                rank: index + 1,
+                flavor: topFlavors[index].flavor,
+                percent: topFlavors[index].percent.toInt(),
+              ),
+            )
+          else ...[
+            const SizedBox(height: 32),
+            const Text('아직 작성된 시음기록이 없어요.', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            Text(
+              '버디님이 제일 먼저 시음 기록을 작성해보는 건 어때요?',
+              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
+              textAlign: TextAlign.center,
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -435,7 +456,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
               const Spacer(),
             ],
           ),
-          ...[
+          if(tastedRecords.isNotEmpty)...[
             const SizedBox(height: 24),
             ...List<Widget>.generate(
               min(4, tastedRecords.length),
@@ -457,6 +478,15 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                   ),
                 );
               },
+            ),
+          ] else ...[
+            const SizedBox(height: 46),
+            const Text('아직 작성된 시음기록이 없어요.', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            Text(
+              '버디님이 제일 먼저 시음 기록을 작성해보는 건 어때요?',
+              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
+              textAlign: TextAlign.center,
             ),
           ],
           if (count > 4) ...[
@@ -516,7 +546,9 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
 
   Widget _buildRecommendedCoffeeBean(RecommendedCoffeeBean recommendedCoffeeBean) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        showCoffeeBeanDetail(context: context, id: recommendedCoffeeBean.id);
+      },
       child: SizedBox(
         width: 109,
         child: Column(
@@ -549,6 +581,92 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> showEmptyDialog() {
+    return showBarrierDialog(
+      context: context,
+      barrierColor: ColorStyles.black.withOpacity(0.95),
+      pageBuilder: (context, _, __) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 38),
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      color: ColorStyles.white,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          '원두 정보가 없습니다.',
+                          style: TextStyles.title02SemiBold,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('비공식 원두는 상세페이지를 제공하지 않습니다.', style: TextStyles.bodyNarrowRegular),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.gray30,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '닫기',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.pop();
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  decoration: const BoxDecoration(
+                                    color: ColorStyles.black,
+                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    '확인',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

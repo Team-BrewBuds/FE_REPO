@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
@@ -7,7 +8,6 @@ import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/profile/profile.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
-import 'package:flutter/foundation.dart';
 
 typedef ProfileState = ({String imageUrl, int tastingRecordCount, int followerCount, int followingCount});
 typedef ProfileDetailState = ({List<String> coffeeLife, String introduction, String profileLink});
@@ -18,7 +18,7 @@ typedef FilterBarState = ({
   List<CoffeeBeanFilter> filters,
 });
 
-class ProfilePresenter extends ChangeNotifier {
+class ProfilePresenter extends Presenter {
   final List<SortCriteria> _sortCriteriaList = [
     SortCriteria.upToDate,
     SortCriteria.rating,
@@ -35,6 +35,9 @@ class ProfilePresenter extends ChangeNotifier {
   final List<CoffeeBeanFilter> _filters = [];
   int _tabIndex = 0;
   int _pageNo = 0;
+  bool _isEmpty = false;
+
+  bool get isEmpty => _isEmpty;
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
@@ -81,9 +84,11 @@ class ProfilePresenter extends ChangeNotifier {
   ProfilePresenter({required this.repository});
 
   initState() async {
-    profile = await fetchProfile();
+    profile = await fetchProfile().then((value) => Future<Profile?>.value(value)).onError((error, stackTrace) => null);
     if (profile?.id != null) {
       paginate(isPageChanged: true);
+    } else {
+      _isEmpty = true;
     }
     notifyListeners();
   }
@@ -92,6 +97,8 @@ class ProfilePresenter extends ChangeNotifier {
     profile = await fetchProfile();
     if (profile?.id != null) {
       paginate(isPageChanged: true);
+    } else {
+      _isEmpty = true;
     }
     notifyListeners();
   }

@@ -25,13 +25,8 @@ class MainView extends StatefulWidget {
   State<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin, SnackBarMixin<MainView> {
+class _MainViewState extends State<MainView> with SnackBarMixin<MainView> {
   int get currentIndex => getCurrentIndex(context);
-  Key currentKey = UniqueKey();
-
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +69,10 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin,
             elevation: 0,
             enableFeedback: false,
             onTap: (int index) {
-              if (index == currentIndex) {
-                setState(() {
-                  currentKey = UniqueKey();
-                });
-              }
               if (index == 0) {
-                context.go('/home', extra: currentKey);
+                context.go('/home');
               } else if (index == 1) {
-                context.go('/search', extra: currentKey);
+                context.go('/search');
               } else if (index == 2) {
                 showCoffeeNoteBottomSheet().then((value) {
                   if (value == CoffeeNote.post) {
@@ -100,7 +90,7 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin,
                   }
                 });
               } else {
-                context.go('/profile', extra: currentKey);
+                context.go('/profile');
               }
             },
           ),

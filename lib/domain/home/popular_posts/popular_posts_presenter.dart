@@ -1,12 +1,12 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
-import 'package:flutter/foundation.dart';
 
 typedef PopularPostSubjectFilterState = ({List<String> postSubjectFilterList, int currentIndex});
 
-final class PopularPostsPresenter extends ChangeNotifier {
+final class PopularPostsPresenter extends Presenter {
   final List<PostSubject> _postSubjectFilterList = [
     PostSubject.all,
     PostSubject.normal,

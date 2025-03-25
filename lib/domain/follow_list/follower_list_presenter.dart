@@ -1,9 +1,9 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/follow_list_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
-import 'package:flutter/foundation.dart';
 
-final class FollowerListPresenter extends ChangeNotifier {
+final class FollowerListPresenter extends Presenter {
   final FollowListRepository _followListRepository = FollowListRepository.instance;
   final String nickName;
 

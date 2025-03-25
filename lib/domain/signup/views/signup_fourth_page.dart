@@ -112,7 +112,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<SignUpPresenter>().onChangeBodyValue(value);
                             },
@@ -193,7 +193,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<SignUpPresenter>().onChangeAcidityValue(value);
                             },
@@ -274,7 +274,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                         mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<SignUpPresenter>().onChangeBitternessValue(value);
                             },
@@ -353,7 +353,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
                       final value = index + 1;
                       return Column(
                         children: [
-                          InkWell(
+                          GestureDetector(
                             onTap: () {
                               context.read<SignUpPresenter>().onChangeSweetnessValue(value);
                             },

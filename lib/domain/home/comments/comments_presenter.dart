@@ -1,11 +1,11 @@
 import 'dart:async';
 
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/user.dart';
-import 'package:flutter/foundation.dart';
 
 typedef BottomTextFieldState = ({String? reCommentAuthorNickname, String authorNickname});
 
@@ -17,14 +17,13 @@ enum _FeedType {
   String toString() => switch (this) { _FeedType.post => 'post', _FeedType.tastingRecord => 'tasted_record' };
 }
 
-final class CommentsPresenter extends ChangeNotifier {
+final class CommentsPresenter extends Presenter {
   final _FeedType _type;
   final int _id;
   final User author;
   final CommentsRepository _repository = CommentsRepository.instance;
   int _currentPage = 0;
   Comment? _replyComment;
-  bool _disposed = false;
   DefaultPage<Comment> _page = DefaultPage.initState();
 
   CommentsPresenter({
@@ -111,19 +110,6 @@ final class CommentsPresenter extends ChangeNotifier {
     _repository
         .unLikeComment(id: comment.id)
         .then((_) => _updateComments(newComment: comment.copyWith(isLiked: false, likeCount: comment.likeCount - 1)));
-  }
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
-
-  @override
-  notifyListeners() {
-    if (!_disposed) {
-      super.notifyListeners();
-    }
   }
 
   onTappedReply(Comment comment) {

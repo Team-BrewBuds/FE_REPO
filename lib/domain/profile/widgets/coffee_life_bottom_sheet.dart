@@ -57,7 +57,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
           const Spacer(),
           const Text('커피생활', style: TextStyles.title02Bold),
           const Spacer(),
-          InkWell(
+          GestureDetector(
             onTap: () => context.pop(),
             child: SvgPicture.asset('assets/icons/x.svg', fit: BoxFit.cover, height: 24, width: 24),
           ),
@@ -76,7 +76,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
       mainAxisSpacing: 6,
       itemCount: CoffeeLife.values.length,
       itemBuilder: (context, index) {
-        return InkWell(
+        return GestureDetector(
           onTap: () {
             context.read<CoffeeLifeBottomSheetPresenter>().onSelectCoffeeLife(CoffeeLife.values[index]);
           },
@@ -127,7 +127,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 24),
       child: Row(
         children: [
-          InkWell(
+          GestureDetector(
             onTap: () {
               context.read<CoffeeLifeBottomSheetPresenter>().reset();
             },
@@ -142,7 +142,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: InkWell(
+            child: GestureDetector(
               onTap: () {
                 context.pop(context.read<CoffeeLifeBottomSheetPresenter>().selectedCoffeeLifeList);
               },

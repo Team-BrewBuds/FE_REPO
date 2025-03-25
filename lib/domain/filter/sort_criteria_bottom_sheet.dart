@@ -57,7 +57,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                         Positioned(
                           top: 21,
                           right: 16,
-                          child: InkWell(
+                          child: GestureDetector(
                             onTap: () {
                               context.pop();
                             },
@@ -76,7 +76,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                   ...List<Widget>.generate(
                     widget.items.length,
                         (index) {
-                      return InkWell(
+                      return GestureDetector(
                         onTap: () {
                           widget.items[index].$2();
                           context.pop();

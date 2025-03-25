@@ -7,7 +7,7 @@ class Alarm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTapped,
       child: SvgPicture.asset('assets/icons/alarm.svg', width: 28, height: 28),
     );

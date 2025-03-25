@@ -18,30 +18,25 @@ Future<String?> pushToReportScreen(BuildContext context, {required int id, requi
   );
 }
 
-class ReportScreen extends StatefulWidget {
+class ReportScreen extends StatelessWidget {
   const ReportScreen({super.key});
 
   @override
-  State<ReportScreen> createState() => _ReportScreenState();
-}
-
-class _ReportScreenState extends State<ReportScreen> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(context),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 28),
             Selector<ReportPresenter, String>(
               selector: (context, presenter) => presenter.selectedReason,
-              builder: (context, selectedReason, child) => _buildReportReason(selectedReason: selectedReason),
+              builder: (context, selectedReason, child) => _buildReportReason(context, selectedReason: selectedReason),
             ),
             const Spacer(),
             Selector<ReportPresenter, bool>(
               selector: (context, presenter) => presenter.canReport,
-              builder: (context, canReport, child) => _buildReportButton(canReport: canReport),
+              builder: (context, canReport, child) => _buildReportButton(context, canReport: canReport),
             ),
           ],
         ),
@@ -49,7 +44,7 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  AppBar _buildAppBar() {
+  AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       leading: const SizedBox.shrink(),
       leadingWidth: 0,
@@ -59,7 +54,7 @@ class _ReportScreenState extends State<ReportScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InkWell(
+            GestureDetector(
               onTap: () {
                 Navigator.of(context).pop();
               },
@@ -80,7 +75,7 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  Widget _buildReportReason({required String selectedReason}) {
+  Widget _buildReportReason(BuildContext context, {required String selectedReason}) {
     final reasonList = context.read<ReportPresenter>().reasonList;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -117,7 +112,7 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  Widget _buildReportButton({required bool canReport}) {
+  Widget _buildReportButton(BuildContext context, {required bool canReport}) {
     return Padding(
       padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
       child: AbsorbPointer(
@@ -130,7 +125,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   Navigator.of(context).pop(result.data);
                   break;
                 case Error<String>():
-                  _showSnackBar(message: result.e);
+                  _showSnackBar(context, message: result.e);
               }
             });
           },
@@ -151,7 +146,7 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
-  _showSnackBar({required String message}) {
+  _showSnackBar(BuildContext context, {required String message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(

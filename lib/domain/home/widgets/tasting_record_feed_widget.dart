@@ -1,10 +1,9 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/feed_widget.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed/tasting_record_card.dart';
+import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:flutter/material.dart';
 
 class TastingRecordFeedWidget extends FeedWidget {
@@ -41,13 +40,7 @@ class TastingRecordFeedWidget extends FeedWidget {
   });
 
   @override
-  FeedWidgetState createState() => _TastingRecordFeedState();
-}
-
-class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget>
-    with SnackBarMixin<TastingRecordFeedWidget> {
-  @override
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final isOverFlow = _calcOverFlow(context);
     return Column(
@@ -55,14 +48,14 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget>
       children: [
         TastingRecordCard(
           image: MyNetworkImage(
-            imageUrl: widget.thumbnailUri,
+            imageUrl: thumbnailUri,
             height: width,
             width: width,
           ),
-          rating: widget.rating,
-          type: widget.type,
-          name: widget.name,
-          tags: widget.tags,
+          rating: rating,
+          type: type,
+          name: name,
+          tags: tags,
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12, top: 16),
@@ -70,7 +63,7 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.body,
+                body,
                 style: TextStyles.bodyRegular,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -79,9 +72,9 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget>
               if (isOverFlow)
                 GestureDetector(
                   onTap: () {
-                    showTastingRecordDetail(context: context, id: widget.id).then((result) {
+                    showTastingRecordDetail(context: context, id: id).then((result) {
                       if (result != null) {
-                        showSnackBar(message: result);
+                        showSnackBar(context, message: result);
                       }
                     });
                   },
@@ -100,7 +93,7 @@ class _TastingRecordFeedState extends FeedWidgetState<TastingRecordFeedWidget>
   bool _calcOverFlow(BuildContext context) {
     final width = MediaQuery.of(context).size.width - 32;
     final TextPainter bodyTextPainter = TextPainter(
-      text: TextSpan(text: widget.body, style: TextStyles.bodyRegular),
+      text: TextSpan(text: body, style: TextStyles.bodyRegular),
       maxLines: 2,
       textDirection: TextDirection.ltr,
     )..layout(minWidth: 0, maxWidth: width);

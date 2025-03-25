@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
@@ -8,7 +9,6 @@ import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
-import 'package:flutter/foundation.dart';
 
 typedef ProfileInfo = ({
   int? authorId,
@@ -31,16 +31,18 @@ typedef BottomButtonInfo = ({int likeCount, bool isLiked, bool isSaved});
 typedef CommentsInfo = ({int? authorId, DefaultPage<Comment> page});
 typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String authorNickname});
 
-final class PostDetailPresenter extends ChangeNotifier {
+final class PostDetailPresenter extends Presenter {
   final PostRepository _postRepository = PostRepository.instance;
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   final BlockApi _blockApi = BlockApi();
   final int id;
-
+  bool _isEmpty = false;
   DefaultPage<Comment> _page = DefaultPage.initState();
   int _pageNo = 1;
   Post? _post;
   Comment? _parentComment;
+
+  bool get isEmpty => _isEmpty;
 
   int? get authorId => _post?.author.id;
 
@@ -94,7 +96,13 @@ final class PostDetailPresenter extends ChangeNotifier {
   }
 
   _fetchPost() async {
-    _post = await _postRepository.fetchPost(id: id);
+    _post = await _postRepository
+        .fetchPost(id: id)
+        .then((value) => Future<Post?>.value(value))
+        .onError((error, stackTrace) => null);
+    if (_post == null) {
+      _isEmpty = true;
+    }
     notifyListeners();
   }
 
