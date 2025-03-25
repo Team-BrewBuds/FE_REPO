@@ -36,9 +36,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
   @override
   void initState() {
     _hashTagFocusNode.addListener(() {
-      if(!_hashTagFocusNode.hasFocus && _hashTagController.text.length == 1) {
-        _hashTagController.value = TextEditingValue.empty;
-      }
+      _handleFocusChange();
     });
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -51,13 +49,26 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     _hashTagController.dispose();
     _contentsController.dispose();
     _focusNode.dispose();
-    _hashTagFocusNode.dispose();
     _hashTagFocusNode.removeListener(() {
-      if(!_hashTagFocusNode.hasFocus && _hashTagController.text.length == 1) {
-        _hashTagController.value = TextEditingValue.empty;
-      }
+      _handleFocusChange();
     });
+    _hashTagFocusNode.dispose();
     super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (_hashTagFocusNode.hasFocus) {
+      // **1️⃣ Focus 되면 자동으로 `#` 추가**
+      if (_hashTagController.text.isEmpty) {
+        _hashTagController.value =
+        const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
+      }
+    } else {
+      // **2️⃣ Focus 해제 시 `#`만 남아있다면 모두 삭제**
+      if (_hashTagController.text == '#') {
+        _hashTagController.value = const TextEditingValue(text: '');
+      }
+    }
   }
 
   @override

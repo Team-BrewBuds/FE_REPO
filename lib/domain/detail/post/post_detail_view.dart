@@ -28,6 +28,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+enum PostDetailAction {
+  update,
+  delete,
+  block,
+  report;
+}
+
 class PostDetailView extends StatefulWidget {
   const PostDetailView({super.key});
 
@@ -184,8 +191,70 @@ class _PostDetailViewState extends State<PostDetailView>
               builder: (context, isMine, child) => GestureDetector(
                 onTap: () {
                   showActionBottomSheet(isMine: isMine).then((result) {
-                    if (result != null) {
-                      context.pop(result);
+                    switch (result) {
+                      case null:
+                        break;
+                      case PostDetailAction.update:
+                        final post = context.read<PostDetailPresenter>().post;
+                        if (post != null) {
+                          showPostUpdateScreen(context: context, post: post).then((value) {
+                            if (value != null && value && context.mounted) {
+                              context.read<PostDetailPresenter>().onRefresh();
+                              showSnackBar(message: '게시글 수정을 완료했어요.');
+                            }
+                          });
+                        }
+                        break;
+                      case PostDetailAction.delete:
+                        showCenterDialog(
+                          title: '정말 삭제하시겠어요?',
+                          centerTitle: true,
+                          cancelText: '닫기',
+                          doneText: '삭제하기',
+                        ).then((result) {
+                          if (result != null && result) {
+                            context.read<PostDetailPresenter>().onDelete().then((value) {
+                              switch (value) {
+                                case Success<String>():
+                                  context.pop(value.data);
+                                  break;
+                                case Error<String>():
+                                  showSnackBar(message: value.e);
+                                  break;
+                              }
+                            });
+                          }
+                        });
+                        break;
+                      case PostDetailAction.block:
+                      showCenterDialog(
+                        title: '이 사용자를 차단하시겠어요?',
+                        content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                        cancelText: '취소',
+                        doneText: '차단하기',
+                      ).then((result) {
+                        if (result != null && result) {
+                          context.read<PostDetailPresenter>().onBlock().then((value) {
+                            switch (value) {
+                              case Success<String>():
+                                context.pop(value.data);
+                                break;
+                              case Error<String>():
+                                showSnackBar(message: value.e);
+                                break;
+                            }
+                          });
+                        }
+                      });
+                      break;
+                      case PostDetailAction.report:
+                        final id = context.read<PostDetailPresenter>().id;
+                        pushToReportScreen(context, id: id, type: 'post').then((result) {
+                          if (result != null) {
+                            context.pop(result);
+                          }
+                        });
+                        break;
                     }
                   });
                 },
@@ -679,8 +748,8 @@ class _PostDetailViewState extends State<PostDetailView>
     );
   }
 
-  Future<String?> showActionBottomSheet({required bool isMine}) {
-    return showBarrierDialog<String>(
+  Future<PostDetailAction?> showActionBottomSheet({required bool isMine}) {
+    return showBarrierDialog<PostDetailAction>(
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -714,7 +783,9 @@ class _PostDetailViewState extends State<PostDetailView>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.pop(PostDetailAction.update);
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
@@ -727,26 +798,7 @@ class _PostDetailViewState extends State<PostDetailView>
         ),
         GestureDetector(
           onTap: () {
-            context.pop();
-            showCenterDialog(
-              title: '정말 삭제하시겠어요?',
-              centerTitle: true,
-              cancelText: '닫기',
-              doneText: '삭제하기',
-            ).then((result) {
-              if (result != null && result) {
-                context.read<PostDetailPresenter>().onDelete().then((value) {
-                  switch (value) {
-                    case Success<String>():
-                      context.pop(value.data);
-                      break;
-                    case Error<String>():
-                      showSnackBar(message: value.e);
-                      break;
-                  }
-                });
-              }
-            });
+            context.pop(PostDetailAction.delete);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -789,13 +841,7 @@ class _PostDetailViewState extends State<PostDetailView>
       children: [
         GestureDetector(
           onTap: () {
-            final id = context.read<PostDetailPresenter>().id;
-            context.pop();
-            pushToReportScreen(context, id: id, type: 'post').then((result) {
-              if (result != null) {
-                context.pop(result);
-              }
-            });
+            context.pop(PostDetailAction.report);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -809,26 +855,7 @@ class _PostDetailViewState extends State<PostDetailView>
         ),
         GestureDetector(
           onTap: () {
-            context.pop();
-            showCenterDialog(
-              title: '이 사용자를 차단하시겠어요?',
-              content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
-              cancelText: '취소',
-              doneText: '차단하기',
-            ).then((result) {
-              if (result != null && result) {
-                context.read<PostDetailPresenter>().onBlock().then((value) {
-                  switch (value) {
-                    case Success<String>():
-                      context.pop(value.data);
-                      break;
-                    case Error<String>():
-                      showSnackBar(message: value.e);
-                      break;
-                  }
-                });
-              }
-            });
+            context.pop(PostDetailAction.block);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),

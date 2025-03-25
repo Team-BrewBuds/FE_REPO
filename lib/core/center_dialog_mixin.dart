@@ -49,7 +49,7 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () {
-                                  context.pop();
+                                  context.pop(false);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
