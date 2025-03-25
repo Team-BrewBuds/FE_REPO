@@ -102,7 +102,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                 context.pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/back.svg',
+                'assets/icons/x.svg',
                 fit: BoxFit.cover,
                 height: 24,
                 width: 24,

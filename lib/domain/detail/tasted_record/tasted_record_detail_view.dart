@@ -63,11 +63,14 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   void dispose() {
     _textEditingController.dispose();
     _scrollController.dispose();
+    paginationThrottle.cancel();
     super.dispose();
   }
 
   _fetchMoreData() {
-    context.read<TastedRecordPresenter>().fetchMoreComments();
+    if (context.mounted) {
+      context.read<TastedRecordPresenter>().fetchMoreComments();
+    }
   }
 
   @override
@@ -388,8 +391,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
       child: Text(
         title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        maxLines: null,
         style: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 22,
@@ -413,7 +415,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         onTap: () {
           final id = authorId;
           if (id != null) {
-            context.pop();
             pushToProfile(context: context, id: id);
           }
         },
@@ -624,6 +625,15 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     onDelete: () {
                       context.read<TastedRecordPresenter>().onTappedDeleteCommentButton(comment);
                     },
+                    onReport: () {
+                      pushToReportScreen(context, id: comment.id, type: 'comment').then(
+                        (value) {
+                          if (value != null) {
+                            showSnackBar(message: value);
+                          }
+                        },
+                      );
+                    },
                   ),
                   if (comment.reComments.isNotEmpty) ...[
                     ReCommentsList(
@@ -657,6 +667,15 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                           onDelete: () {
                             context.read<TastedRecordPresenter>().onTappedDeleteCommentButton(reComment);
                           },
+                          onReport: () {
+                            pushToReportScreen(context, id: reComment.id, type: 'comment').then(
+                              (value) {
+                                if (value != null) {
+                                  showSnackBar(message: value);
+                                }
+                              },
+                            );
+                          },
                         );
                       },
                     )
@@ -674,6 +693,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
     required bool canDelete,
     Function()? onDelete,
     required bool isMine,
+    Function()? onReport,
   }) {
     return Slidable(
       endActionPane: ActionPane(
@@ -710,6 +730,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           if (!isMine)
             Expanded(
               child: GestureDetector(
+                onTap: () {
+                  onReport?.call();
+                },
                 child: Container(
                   color: ColorStyles.gray30,
                   child: Column(
@@ -813,7 +836,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
-              '샥제하기',
+              '삭제하기',
               style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),

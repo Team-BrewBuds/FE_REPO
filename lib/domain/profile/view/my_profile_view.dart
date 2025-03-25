@@ -40,6 +40,8 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
   @override
   AppBar buildTitle() {
     return AppBar(
+      leadingWidth: 0,
+      leading: const SizedBox.shrink(),
       titleSpacing: 0,
       title: Padding(
         padding: const EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 12),

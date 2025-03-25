@@ -2,9 +2,12 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/presenter/photo_presenter.dart';
 import 'package:brew_buds/domain/photo/view/album_list_view.dart';
+import 'package:brew_buds/domain/photo/view/photo_first_time_view.dart';
 import 'package:brew_buds/domain/photo/widget/management_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,6 +18,8 @@ import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:provider/provider.dart';
 
 mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter> on State<T> {
+  late final ValueNotifier<bool> isFirstNotifier;
+
   PermissionStatus get permissionStatus;
 
   BoxShape get previewShape;
@@ -27,28 +32,49 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
 
   @override
   void initState() {
+    isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeAlbum);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<Presenter>().initState();
     });
     super.initState();
   }
 
+  @override
+  void dispose() {
+    isFirstNotifier.dispose();
+    super.dispose();
+  }
+
   Widget buildBody(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
-    switch (permissionStatus) {
-      case PermissionStatus.granted || PermissionStatus.limited:
-        return Scaffold(
-          backgroundColor: backgroundColor,
-          appBar: buildAppBar(context),
-          body: SafeArea(
-            child: buildBody(context),
-          ),
-        );
-      default:
-        return PermissionDeniedView.photo();
-    }
+    return ValueListenableBuilder(
+      valueListenable: isFirstNotifier,
+      builder: (context, isFirst, _) {
+        if (isFirst) {
+          return PhotoFirstTimeView(
+            onNext: () async {
+              await SharedPreferencesRepository.instance.useAlbum();
+              isFirstNotifier.value = false;
+            },
+          );
+        } else {
+          switch (permissionStatus) {
+            case PermissionStatus.granted || PermissionStatus.limited:
+              return Scaffold(
+                backgroundColor: backgroundColor,
+                appBar: buildAppBar(context),
+                body: SafeArea(
+                  child: buildBody(context),
+                ),
+              );
+            default:
+              return PermissionDeniedView.photo();
+          }
+        }
+      },
+    );
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -104,10 +130,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(currentAlbum.name, style: TextStyles.title01SemiBold),
-                            GestureDetector(
-                              onTap: () {},
-                              child: SvgPicture.asset('assets/icons/down.svg', height: 18, width: 18),
-                            ),
+                            SvgPicture.asset('assets/icons/down.svg', height: 18, width: 18),
                           ],
                         ),
                       )

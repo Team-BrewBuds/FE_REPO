@@ -15,7 +15,7 @@ extension SignUpStateToJson on SignUpState {
     writeNotNull('nickname', nickName);
     writeNotNull('birth_year', yearOfBirth);
     writeNotNull('gender', _genderEnumMap[gender]);
-    writeNotNull('coffee_life', coffeeLifes?.map((e) => e.toJson()));
+    writeNotNull('coffee_life', coffeeLifes?.map((e) => e.toJson()).toList());
     writeNotNull('is_certificated', isCertificated);
     writeNotNull('preferred_bean_taste', preferredBeanTaste?.toJson());
 

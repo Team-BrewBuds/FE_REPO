@@ -30,6 +30,8 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   late final Throttle paginationThrottle;
   final GlobalKey<NestedScrollViewState> scrollKey = GlobalKey<NestedScrollViewState>();
 
+  bool isExpandedIntro = false;
+
   String get tastingRecordsEmptyText;
 
   String get postsEmptyText;
@@ -257,23 +259,20 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   if (profileLink.isNotEmpty) _buildProfileLink(profileLink: profileLink),
                 ].separator(separatorWidget: const SizedBox(height: 8)).toList(),
               )
-            : InkWell(
-                onTap: () {},
-                child: Container(
-                  padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
-                  decoration: const BoxDecoration(
-                    color: ColorStyles.gray20,
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
-                      const SizedBox(width: 2),
-                      SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
-                    ],
-                  ),
-                ),
+            : Container(
+              padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
+              decoration: const BoxDecoration(
+                color: ColorStyles.gray20,
+                borderRadius: BorderRadius.all(Radius.circular(40)),
               ),
+              child: Row(
+                children: [
+                  const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
+                  const SizedBox(width: 2),
+                  SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
+                ],
+              ),
+            ),
       ),
     );
   }

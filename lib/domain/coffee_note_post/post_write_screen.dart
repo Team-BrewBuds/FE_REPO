@@ -1,11 +1,9 @@
-
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:brew_buds/domain/camera/camera_screen.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_view.dart';
 import 'package:brew_buds/domain/photo/view/photo_grid_view.dart';
@@ -20,8 +18,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-showPostWriteScreen({required BuildContext context}) {
-  showCupertinoModalPopup(
+Future<bool?> showPostWriteScreen({required BuildContext context}) {
+  return showCupertinoModalPopup<bool>(
     barrierColor: ColorStyles.white,
     barrierDismissible: false,
     context: context,
@@ -65,7 +63,8 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
     if (_tagFocusNode.hasFocus) {
       // **1️⃣ Focus 되면 자동으로 `#` 추가**
       if (_tagController.text.isEmpty) {
-        _tagController.value = const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
+        _tagController.value =
+            const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
       }
     } else {
       // **2️⃣ Focus 해제 시 `#`만 남아있다면 모두 삭제**
@@ -243,7 +242,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
                           if (context.mounted) {
                             switch (result) {
                               case Success<String>():
-                                context.pop(result.data);
+                                context.pop(true);
                               case Error<String>():
                                 _showErrorSnackBar(errorMessage: result.e);
                             }
@@ -511,18 +510,6 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
             _addImages(selectedImages);
             Navigator.of(context).pop();
           },
-          onTapCamera: (context) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => CameraScreen(
-                  onDone: (context, imageData) {
-                    _addImageData(imageData);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            );
-          },
         ),
       ),
     );
@@ -546,12 +533,6 @@ class _PostWriteScreenState extends State<PostWriteScreen> {
 
   _addImages(List<Uint8List> images) async {
     if (!await context.read<PostWritePresenter>().addImages(images)) {
-      _showErrorSnackBar(errorMessage: '이미지는 최대 10개까지 등록 가능합니다.');
-    }
-  }
-
-  _addImageData(Uint8List imageData) {
-    if (!context.read<PostWritePresenter>().addImageData(imageData)) {
       _showErrorSnackBar(errorMessage: '이미지는 최대 10개까지 등록 가능합니다.');
     }
   }

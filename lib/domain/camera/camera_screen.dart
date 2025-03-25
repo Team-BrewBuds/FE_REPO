@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
+import 'package:brew_buds/domain/camera/camera_first_time_view.dart';
 import 'package:brew_buds/domain/camera/widget/custom_camera_button.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
 import 'package:defer_pointer/defer_pointer.dart';
@@ -16,10 +18,12 @@ import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 class CameraScreen extends StatefulWidget {
   final BoxShape _previewShape;
   final Function(BuildContext context, Uint8List imageData)? onDone;
+  final Function(BuildContext context) onTapAlbum;
 
   const CameraScreen({
     super.key,
     this.onDone,
+    required this.onTapAlbum,
     BoxShape previewShape = BoxShape.rectangle,
   }) : _previewShape = previewShape;
 
@@ -29,78 +33,92 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen> {
   final DeferredPointerHandlerLink _deferredPointerLink = DeferredPointerHandlerLink();
+  late final ValueNotifier<bool> isFirstNotifier;
   final ValueNotifier<Uint8List?> imageData = ValueNotifier(null);
   Uint8List? originData;
 
   @override
   void initState() {
+    isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeCamera);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: ValueListenableBuilder(
-        valueListenable: imageData,
-        builder: (context, imageData, _) {
-          final data = imageData;
-          return DeferredPointerHandler(
-            link: _deferredPointerLink,
-            child: data != null
-                ? _buildPreviewView(data: data)
-                : Column(
-                    children: [
-                      Expanded(child: _buildCameraPreview()),
-                      FutureBuilder(
-                          future: fetchAlbumThumbnail(),
-                          builder: (context, snapShot) {
-                            final thumbnail = snapShot.data;
-                            return Container(
-                              height: 145,
-                              width: double.infinity,
-                              color: Colors.transparent,
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Center(
-                                child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: thumbnail != null
-                                          ? Container(
-                                              width: 36,
-                                              height: 36,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(8),
-                                              ),
-                                              clipBehavior: Clip.hardEdge,
-                                              child: AssetEntityImage(
-                                                thumbnail,
-                                                isOriginal: false,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            )
-                                          : SvgPicture.asset(
-                                              'assets/icons/image.svg',
-                                              height: 36,
-                                              width: 36,
-                                              colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+    return ValueListenableBuilder(
+        valueListenable: isFirstNotifier,
+        builder: (context, isFirst, _) {
+          return isFirst
+              ? CameraFirstTimeView(
+                  onNext: () async {
+                    await SharedPreferencesRepository.instance.useCamera();
+                    isFirstNotifier.value = false;
+                  },
+                )
+              : Scaffold(
+                  backgroundColor: Colors.black,
+                  body: ValueListenableBuilder(
+                    valueListenable: imageData,
+                    builder: (context, imageData, _) {
+                      final data = imageData;
+                      return DeferredPointerHandler(
+                        link: _deferredPointerLink,
+                        child: data != null
+                            ? _buildPreviewView(data: data)
+                            : Column(
+                                children: [
+                                  Expanded(child: _buildCameraPreview()),
+                                  FutureBuilder(
+                                      future: fetchAlbumThumbnail(),
+                                      builder: (context, snapShot) {
+                                        final thumbnail = snapShot.data;
+                                        return Container(
+                                          height: 145,
+                                          width: double.infinity,
+                                          color: Colors.transparent,
+                                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                                          child: Center(
+                                            child: Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    widget.onTapAlbum.call(context);
+                                                  },
+                                                  child: thumbnail != null
+                                                      ? Container(
+                                                          width: 36,
+                                                          height: 36,
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
+                                                          clipBehavior: Clip.hardEdge,
+                                                          child: AssetEntityImage(
+                                                            thumbnail,
+                                                            isOriginal: false,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        )
+                                                      : SvgPicture.asset(
+                                                          'assets/icons/image.svg',
+                                                          height: 36,
+                                                          width: 36,
+                                                          colorFilter: const ColorFilter.mode(
+                                                              ColorStyles.white, BlendMode.srcIn),
+                                                        ),
+                                                ),
+                                                const Spacer(),
+                                              ],
                                             ),
-                                    ),
-                                    const Spacer(),
-                                  ],
-                                ),
+                                          ),
+                                        );
+                                      })
+                                ],
                               ),
-                            );
-                          })
-                    ],
+                      );
+                    },
                   ),
-          );
-        },
-      ),
-    );
+                );
+        });
   }
 
   Widget _buildCameraPreview() {

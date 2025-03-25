@@ -11,7 +11,6 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_vi
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -420,7 +419,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
   }
 
   _onSuccessWrite() {
-    context.pop();
+    context.pop(true);
   }
 }
 

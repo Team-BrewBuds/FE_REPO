@@ -12,7 +12,15 @@ class SharedPreferencesRepository {
 
   List<String> get recentSearchWords => _prefs.getStringList('search_words') ?? [];
 
-  bool get haveRequestPermission => _prefs.getBool('request_permission') ?? false;
+  bool get isFirst => _prefs.getBool('is_first') ?? true;
+
+  bool get isFirstTimeLogin => _prefs.getBool('login') ?? true;
+
+  bool get isFirstTimeCamera =>  _prefs.getBool('camera') ?? true;
+
+  bool get isFirstTimeAlbum =>  _prefs.getBool('album') ?? true;
+
+  bool get isFirstTimeLocation =>  _prefs.getBool('location') ?? true;
 
   init() async {
     _prefs = await SharedPreferences.getInstance();
@@ -26,7 +34,23 @@ class SharedPreferencesRepository {
     return _prefs.remove('search_words');
   }
 
-  Future<void> setPermission() {
-    return _prefs.setBool('request_permission', true);
+  Future<void> completeTutorial() {
+    return _prefs.setBool('is_first', true);
+  }
+
+  Future<void> setLogin() {
+    return _prefs.setBool('login', false);
+  }
+
+  Future<void> useCamera() {
+    return _prefs.setBool('camera', false);
+  }
+
+  Future<void> useAlbum() {
+    return _prefs.setBool('album', false);
+  }
+
+  Future<void> useLocation() {
+    return _prefs.setBool('location', false);
   }
 }

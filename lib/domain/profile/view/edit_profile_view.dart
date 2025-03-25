@@ -486,18 +486,6 @@ class _EditProfileViewState extends State<EditProfileView> {
               context.pop(result);
             }
           },
-          onTapCamera: (context) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) => CameraScreen(
-                  previewShape: BoxShape.circle,
-                  onDone: (context, imageData) {
-                    context.pop(imageData);
-                  },
-                ),
-              ),
-            );
-          },
         );
       },
     );

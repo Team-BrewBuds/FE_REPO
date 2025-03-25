@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -6,6 +7,11 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+
+enum CoffeeNote {
+  post,
+  tastedRecord;
+}
 
 class MainView extends StatefulWidget {
   final Widget child;
@@ -19,8 +25,10 @@ class MainView extends StatefulWidget {
   State<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin {
-  int currentIndex = 0;
+class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin, SnackBarMixin<MainView> {
+  int get currentIndex => getCurrentIndex(context);
+  Key currentKey = UniqueKey();
+
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
@@ -66,23 +74,47 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
             elevation: 0,
             enableFeedback: false,
             onTap: (int index) {
-              setState(() {
-                currentIndex = index;
-              });
+              if (index == currentIndex) {
+                setState(() {
+                  currentKey = UniqueKey();
+                });
+              }
               if (index == 0) {
-                context.go('/home');
+                context.go('/home', extra: currentKey);
               } else if (index == 1) {
-                context.go('/search');
+                context.go('/search', extra: currentKey);
               } else if (index == 2) {
-                showCoffeeNoteBottomSheet();
+                showCoffeeNoteBottomSheet().then((value) {
+                  if (value == CoffeeNote.post) {
+                    showPostWriteScreen(context: context).then((value) {
+                      if (value != null && value) {
+                        showSnackBar(message: '게시글 작성을 완료했어요.');
+                      }
+                    });
+                  } else if (value == CoffeeNote.tastedRecord) {
+                    showTastingWriteScreen(context).then((value) {
+                      if (value != null && value) {
+                        showSnackBar(message: '시음기록 작성을 완료했어요.');
+                      }
+                    });
+                  }
+                });
               } else {
-                context.go('/profile');
+                context.go('/profile', extra: currentKey);
               }
             },
           ),
         ),
       ),
     );
+  }
+
+  int getCurrentIndex(BuildContext context) {
+    final location = GoRouterState.of(context).uri.toString();
+    if (location.startsWith('/home')) return 0;
+    if (location.startsWith('/search')) return 1;
+    if (location.startsWith('/profile')) return 3;
+    return 0;
   }
 
   SvgPicture _createSvgIcon({required String path, bool isActive = false}) {
@@ -97,8 +129,8 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
     );
   }
 
-  showCoffeeNoteBottomSheet() {
-    showBarrierDialog(
+  Future<CoffeeNote?> showCoffeeNoteBottomSheet() {
+    return showBarrierDialog<CoffeeNote>(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
         return Stack(
@@ -131,14 +163,12 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                       ),
                       GestureDetector(
                         onTap: () {
-                          context.pop();
-                          showPostWriteScreen(context: context);
+                          context.pop(CoffeeNote.post);
                         },
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: const BoxDecoration(
-                            border: Border(bottom: BorderSide(color: ColorStyles.gray10)),
-                          ),
+                              border: Border(bottom: BorderSide(color: ColorStyles.gray10)), color: Colors.transparent),
                           child: Row(
                             children: [
                               Container(
@@ -177,11 +207,11 @@ class _MainViewState extends State<MainView> with AutomaticKeepAliveClientMixin 
                       ),
                       GestureDetector(
                         onTap: () {
-                          context.pop();
-                          showTastingWriteScreen(context);
+                          context.pop(CoffeeNote.tastedRecord);
                         },
-                        child: Padding(
+                        child: Container(
                           padding: const EdgeInsets.all(16),
+                          color: Colors.transparent,
                           child: Row(
                             children: [
                               Container(

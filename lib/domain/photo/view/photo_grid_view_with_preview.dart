@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:brew_buds/domain/camera/camera_screen.dart';
 import 'package:brew_buds/domain/photo/core/photo_grid_mixin.dart';
 import 'package:brew_buds/domain/photo/model/album.dart';
 import 'package:brew_buds/domain/photo/presenter/photo_presenter.dart';
@@ -16,7 +17,6 @@ class GridPhotoViewWithPreview extends StatefulWidget {
   final PermissionStatus _permissionStatus;
   final BoxShape _previewShape;
   final Function(BuildContext context, List<Uint8List> images) onDone;
-  final Function(BuildContext context) onTapCamera;
 
   @override
   State<GridPhotoViewWithPreview> createState() => _GridPhotoViewWithPreviewState();
@@ -26,14 +26,12 @@ class GridPhotoViewWithPreview extends StatefulWidget {
     required PermissionStatus permissionStatus,
     BoxShape previewShape = BoxShape.rectangle,
     required this.onDone,
-    required this.onTapCamera,
   })  : _permissionStatus = permissionStatus,
         _previewShape = previewShape;
 
   static Widget build({
     required PermissionStatus permissionStatus,
     required Function(BuildContext context, List<Uint8List> images) onDone,
-    required Function(BuildContext context) onTapCamera,
     BoxShape previewShape = BoxShape.rectangle,
     bool canMultiSelect = true,
   }) {
@@ -43,7 +41,6 @@ class GridPhotoViewWithPreview extends StatefulWidget {
         permissionStatus: permissionStatus,
         previewShape: previewShape,
         onDone: onDone,
-        onTapCamera: onTapCamera,
       ),
     );
   }
@@ -64,7 +61,26 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview>
   Function(BuildContext context, List<Uint8List> selectedImages) get onDone => widget.onDone;
 
   @override
-  Function(BuildContext context) get onTapCameraButton => widget.onTapCamera;
+  Function(BuildContext context) get onTapCameraButton => (context) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CameraScreen(
+              previewShape: previewShape,
+              onDone: (context, imageData) {
+                widget.onDone.call(context, [imageData]);
+              },
+              onTapAlbum: (context) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        GridPhotoViewWithPreview.build(permissionStatus: permissionStatus, onDone: onDone),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      };
 
   @override
   Widget buildBody(BuildContext context) {

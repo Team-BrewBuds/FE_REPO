@@ -2,8 +2,10 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
+import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +26,7 @@ class CommentBottomSheet extends StatefulWidget {
   State<CommentBottomSheet> createState() => _CommentBottomSheetState();
 }
 
-class _CommentBottomSheetState extends State<CommentBottomSheet> {
+class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMixin<CommentBottomSheet> {
   late final ScrollController _scrollController;
   late final TextEditingController _textEditingController;
   late double _height;
@@ -45,6 +47,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
   @override
   void dispose() {
     _textEditingController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -222,6 +225,15 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
           onDelete: () {
             context.read<CommentsPresenter>().deleteComment(comment: comment);
           },
+          onReport: () {
+            pushToReportScreen(context, id: comment.id, type: 'comment').then(
+                  (value) {
+                if (value != null) {
+                  showSnackBar(message: value);
+                }
+              },
+            );
+          },
         ),
         if (comment.reComments.isNotEmpty) ...[
           ReCommentsList(
@@ -251,6 +263,15 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
                 onDelete: () {
                   context.read<CommentsPresenter>().deleteComment(comment: reComment);
                 },
+                onReport: () {
+                  pushToReportScreen(context, id: reComment.id, type: 'comment').then(
+                        (value) {
+                      if (value != null) {
+                        showSnackBar(message: value);
+                      }
+                    },
+                  );
+                },
               );
             },
           ),
@@ -264,6 +285,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
     required bool canDelete,
     Function()? onDelete,
     required bool isMine,
+    Function()? onReport,
   }) {
     return Slidable(
       endActionPane: ActionPane(
@@ -272,7 +294,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
         children: [
           if (canDelete)
             Expanded(
-              child: InkWell(
+              child: GestureDetector(
                 onTap: () {
                   onDelete?.call();
                 },
@@ -299,7 +321,10 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> {
             ),
           if (!isMine)
             Expanded(
-              child: InkWell(
+              child: GestureDetector(
+                onTap: () {
+                  onReport?.call();
+                },
                 child: Container(
                   color: ColorStyles.gray30,
                   child: Column(
