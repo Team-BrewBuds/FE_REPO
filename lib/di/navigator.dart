@@ -3,6 +3,8 @@ import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_update_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_update_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_first_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
@@ -12,6 +14,7 @@ import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart'
 import 'package:brew_buds/domain/profile/view/other_profile_view.dart';
 import 'package:brew_buds/domain/profile/view/taste_report_view.dart';
 import 'package:brew_buds/model/post/post.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

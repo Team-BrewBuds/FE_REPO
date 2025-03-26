@@ -39,6 +39,8 @@ final class TastedRecordPresenter extends Presenter {
 
   bool get isEmpty => _isEmpty;
 
+  TastedRecord? get tastedRecord => _tastedRecord;
+
   bool get isMine => AccountRepository.instance.id == _tastedRecord?.author.id;
 
   List<String> get imageUrlList => _tastedRecord?.imagesUrl ?? [];
@@ -104,6 +106,14 @@ final class TastedRecordPresenter extends Presenter {
   });
 
   init() async {
+    _page = DefaultPage.initState();
+    _pageNo = 1;
+    notifyListeners();
+    _fetchTastedRecord();
+    fetchMoreComments();
+  }
+
+  onRefresh() async {
     _page = DefaultPage.initState();
     _pageNo = 1;
     notifyListeners();

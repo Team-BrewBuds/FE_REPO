@@ -99,7 +99,7 @@ class TastedRecordRepository {
       final resultJson = json['documents'] as List<dynamic>?;
       return DefaultPage(
         count: count ?? 0,
-        results: resultJson?.map((e) => LocalDTO.fromJson(e as Map<String ,dynamic>).toDomain()).toList() ?? [],
+        results: resultJson?.map((e) => LocalDTO.fromJson(e as Map<String, dynamic>).toDomain()).toList() ?? [],
         hasNext: hasNext ?? false,
       );
     });
@@ -143,6 +143,9 @@ class TastedRecordRepository {
   }) {
     final Map<String, dynamic> data = {};
     data['content'] = content;
+    if (tag.isNotEmpty) {
+      data['tag'] = tag;
+    }
     data['isprivate'] = isPrivate;
     data['bean'] = coffeeBean.toJson();
     data['taste_review'] = tasteReview.toJson();
@@ -152,4 +155,9 @@ class TastedRecordRepository {
 
     return _tastedRecordApi.createTastedRecord(data: data);
   }
+
+  Future<void> update({required int id, required TastedRecord tastedRecord}) => _tastedRecordApi.updateTastedRecord(
+        id: id,
+        data: tastedRecord.toJson(),
+      );
 }
