@@ -6,7 +6,7 @@ import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
 
-typedef NicknameValidState = ({int nickNameLength, bool isValidNickname});
+typedef NicknameValidState = ({int nickNameLength, bool isValidNickname, bool isCheckingDuplicateNicknames});
 typedef YearOfBirthValidState = ({int yearOfBirthLength, bool isValidYearOfBirth});
 
 class SignUpPresenter extends Presenter {
@@ -36,9 +36,12 @@ class SignUpPresenter extends Presenter {
 
   bool _isValidNickname = false;
 
+  bool _isCheckingDuplicateNicknames = false;
+
   NicknameValidState get nicknameValidState => (
         nickNameLength: (_state.nickName ?? '').length,
         isValidNickname: _isValidNickname,
+        isCheckingDuplicateNicknames: _isCheckingDuplicateNicknames,
       );
 
   int _yearOfBirthLength = 0;
@@ -89,12 +92,12 @@ class SignUpPresenter extends Presenter {
 
   onChangeNickName(String newNickName) {
     _state = _state.copyWith(nickName: newNickName);
-    if (_state.nickName == '중복검사') {
-      _isValidNickname = false;
-    } else {
-      _isValidNickname = true;
-    }
+    // _checkNickname();
     notifyListeners();
+  }
+
+  _checkNickname() {
+    //미구현
   }
 
   onChangeYearOfBirth(String newYearOfBirth) {

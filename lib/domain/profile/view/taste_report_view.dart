@@ -505,9 +505,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                             },
                             child: SavedTastingRecordWidget(
                               beanName: activity.beanName,
-                              rating: '4.5',
-                              likeCount: '22',
-                              flavor: [],
+                              rating: '${activity.rating}',
+                              flavor: activity.flavors,
                               imageUri: activity.thumbnail,
                             ),
                           );

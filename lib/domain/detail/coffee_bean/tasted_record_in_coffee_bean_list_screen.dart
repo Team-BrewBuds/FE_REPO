@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
+import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 import 'package:flutter/material.dart';
@@ -67,12 +68,17 @@ class _TastedRecordInCoffeeBeanListScreenState extends State<TastedRecordInCoffe
                       itemCount: page.results.length,
                       itemBuilder: (context, index) {
                         final tastedRecord = page.results[index];
-                        return TastedRecordInCoffeeBeanWidget(
-                          authorNickname: tastedRecord.nickname,
-                          rating: tastedRecord.rating.toDouble(),
-                          flavors: tastedRecord.flavors,
-                          imageUrl: tastedRecord.photoUrl,
-                          contents: tastedRecord.contents,
+                        return GestureDetector(
+                          onTap: () {
+                            showTastingRecordDetail(context: context, id: tastedRecord.id);
+                          },
+                          child: TastedRecordInCoffeeBeanWidget(
+                            authorNickname: tastedRecord.nickname,
+                            rating: tastedRecord.rating.toDouble(),
+                            flavors: tastedRecord.flavors,
+                            imageUrl: tastedRecord.photoUrl,
+                            contents: tastedRecord.contents,
+                          ),
                         );
                       },
                       separatorBuilder: (_, __) => Container(
