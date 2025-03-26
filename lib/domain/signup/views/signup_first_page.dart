@@ -5,6 +5,7 @@ import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
 import 'package:brew_buds/domain/signup/views/signup_second_page.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -41,7 +42,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
 
   @override
   void Function() get onNext => () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => SignUpSecondPage()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SignUpSecondPage()));
       };
 
   @override
@@ -137,6 +138,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
                   child: _buildNickNameSuffixIcon(
                     nicknameLength: nicknameValidState.nickNameLength,
                     isValidNickname: nicknameValidState.isValidNickname,
+                    isCheckingDuplicateNicknames: nicknameValidState.isCheckingDuplicateNicknames,
                   ),
                 ),
                 suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
@@ -172,8 +174,14 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     );
   }
 
-  Widget _buildNickNameSuffixIcon({required int nicknameLength, required bool isValidNickname}) {
-    if (nicknameLength >= 2 && isValidNickname) {
+  Widget _buildNickNameSuffixIcon({
+    required int nicknameLength,
+    required bool isValidNickname,
+    required bool isCheckingDuplicateNicknames,
+  }) {
+    if (isCheckingDuplicateNicknames) {
+      return const SizedBox(height: 24, width: 24, child: CupertinoActivityIndicator(color: ColorStyles.gray50));
+    } else if (nicknameLength >= 2 && isValidNickname) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else if (nicknameLength > 0 && !isValidNickname) {
       return GestureDetector(

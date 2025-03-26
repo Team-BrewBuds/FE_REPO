@@ -663,8 +663,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     },
                     child: SavedTastingRecordWidget(
                       beanName: note.beanName,
-                      rating: '4.5',
-                      likeCount: '22',
+                      rating: 'Api 미구현',
                       flavor: note.flavor,
                       imageUri: note.imageUrl,
                     ),

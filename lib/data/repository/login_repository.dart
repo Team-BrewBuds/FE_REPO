@@ -32,6 +32,10 @@ class LoginRepository {
     );
   }
 
+  Future<void> checkNickname({required String nickname}) {
+    return Future.value();
+  }
+
   Future<RegisterTokenResultData> registerToken(String token, String platform) async {
     return _signUpApi
         .registerToken(

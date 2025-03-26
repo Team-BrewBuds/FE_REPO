@@ -8,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 class SavedTastingRecordWidget extends StatelessWidget {
   final String beanName;
   final String rating;
-  final String likeCount;
   final List<String> flavor;
   final String? imageUri;
 
@@ -41,10 +40,6 @@ class SavedTastingRecordWidget extends StatelessWidget {
                       height: 16,
                       width: 16,
                       colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                    ),
-                    Text(
-                      '$rating ($likeCount)',
-                      style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
                     ),
                     const Spacer(),
                   ],
@@ -92,7 +87,6 @@ class SavedTastingRecordWidget extends StatelessWidget {
     super.key,
     required this.beanName,
     required this.rating,
-    required this.likeCount,
     required this.flavor,
     this.imageUri,
   });
