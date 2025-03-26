@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_first_screen.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_first_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
 import 'package:brew_buds/domain/photo/check_selected_images_screen.dart';
 import 'package:brew_buds/domain/photo/view/photo_grid_view_with_preview.dart';
 import 'package:flutter/cupertino.dart';

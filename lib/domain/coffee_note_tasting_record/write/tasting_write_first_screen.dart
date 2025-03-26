@@ -1,8 +1,8 @@
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/bean_write_option.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_presenter.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_secod_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_secod_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/country_bottom_sheet.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';

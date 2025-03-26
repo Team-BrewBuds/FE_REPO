@@ -14,6 +14,7 @@ import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_update_builder.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
@@ -26,6 +27,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+enum TastedRecordDetailAction {
+  update,
+  delete,
+  block,
+  report;
+}
 
 class TastedRecordDetailView extends StatefulWidget {
   const TastedRecordDetailView({super.key});
@@ -238,8 +246,70 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               builder: (context, isMine, child) => GestureDetector(
                 onTap: () {
                   showActionBottomSheet(isMine: isMine).then((result) {
-                    if (result != null) {
-                      context.pop(result);
+                    switch (result) {
+                      case null:
+                        break;
+                      case TastedRecordDetailAction.update:
+                        final tastedRecord = context.read<TastedRecordPresenter>().tastedRecord;
+                        if (tastedRecord != null) {
+                          showTastedRecordUpdateScreen(context: context, tastedRecord: tastedRecord).then((value) {
+                            if (value != null && value && context.mounted) {
+                              context.read<TastedRecordPresenter>().onRefresh();
+                              showSnackBar(message: '게시글 수정을 완료했어요.');
+                            }
+                          });
+                        }
+                        break;
+                      case TastedRecordDetailAction.delete:
+                        showCenterDialog(
+                          title: '정말 삭제하시겠어요?',
+                          centerTitle: true,
+                          cancelText: '닫기',
+                          doneText: '삭제하기',
+                        ).then((result) {
+                          if (result != null && result) {
+                            context.read<TastedRecordPresenter>().onDelete().then((value) {
+                              switch (value) {
+                                case Success<String>():
+                                  context.pop(value.data);
+                                  break;
+                                case Error<String>():
+                                  showSnackBar(message: value.e);
+                                  break;
+                              }
+                            });
+                          }
+                        });
+                        break;
+                      case TastedRecordDetailAction.block:
+                        showCenterDialog(
+                          title: '이 사용자를 차단하시겠어요?',
+                          content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                          cancelText: '취소',
+                          doneText: '차단하기',
+                        ).then((result) {
+                          if (result != null && result) {
+                            context.read<TastedRecordPresenter>().onBlock().then((value) {
+                              switch (value) {
+                                case Success<String>():
+                                  context.pop(value.data);
+                                  break;
+                                case Error<String>():
+                                  showSnackBar(message: value.e);
+                                  break;
+                              }
+                            });
+                          }
+                        });
+                        break;
+                      case TastedRecordDetailAction.report:
+                        final id = context.read<TastedRecordPresenter>().id;
+                        pushToReportScreen(context, id: id, type: 'tasted_record').then((result) {
+                          if (result != null) {
+                            context.pop(result);
+                          }
+                        });
+                        break;
                     }
                   });
                 },
@@ -769,8 +839,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
     );
   }
 
-  Future<String?> showActionBottomSheet({required bool isMine}) {
-    return showBarrierDialog<String>(
+  Future<TastedRecordDetailAction?> showActionBottomSheet({required bool isMine}) {
+    return showBarrierDialog<TastedRecordDetailAction>(
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -804,7 +874,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            context.pop(TastedRecordDetailAction.update);
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
@@ -817,26 +889,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         ),
         GestureDetector(
           onTap: () {
-            context.pop();
-            showCenterDialog(
-              title: '정말 삭제하시겠어요?',
-              centerTitle: true,
-              cancelText: '닫기',
-              doneText: '삭제하기',
-            ).then((result) {
-              if (result != null && result) {
-                context.read<TastedRecordPresenter>().onDelete().then((value) {
-                  switch (value) {
-                    case Success<String>():
-                      context.pop(value.data);
-                      break;
-                    case Error<String>():
-                      showSnackBar(message: value.e);
-                      break;
-                  }
-                });
-              }
-            });
+            context.pop(TastedRecordDetailAction.delete);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -879,13 +932,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       children: [
         GestureDetector(
           onTap: () {
-            final id = context.read<TastedRecordPresenter>().id;
-            context.pop();
-            pushToReportScreen(context, id: id, type: 'tasted_record').then((result) {
-              if (result != null) {
-                context.pop(result);
-              }
-            });
+            context.pop(TastedRecordDetailAction.report);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -899,26 +946,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         ),
         GestureDetector(
           onTap: () {
-            context.pop();
-            showCenterDialog(
-              title: '이 사용자를 차단하시겠어요?',
-              content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
-              cancelText: '취소',
-              doneText: '차단하기',
-            ).then((result) {
-              if (result != null && result) {
-                context.read<TastedRecordPresenter>().onBlock().then((value) {
-                  switch (value) {
-                    case Success<String>():
-                      context.pop(value.data);
-                      break;
-                    case Error<String>():
-                      showSnackBar(message: value.e);
-                      break;
-                  }
-                });
-              }
-            });
+            context.pop(TastedRecordDetailAction.block);
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),

@@ -20,6 +20,22 @@ extension TastedRecordMapper on TastedRecordDTO {
       isAuthorFollowing: interaction.isFollowing,
       isLiked: interaction.isLiked,
       isSaved: interaction.isSaved,
+      isPrivate: isPrivate,
     );
+  }
+}
+
+extension TastedRecordToJson on TastedRecord {
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = {};
+
+    map['content'] = contents;
+    if (tag.isNotEmpty) {
+      map['tag'] = tag;
+    }
+    map['isprivate'] = isPrivate;
+    map['taste_review'] = tastingReview.toJson();
+
+    return map;
   }
 }

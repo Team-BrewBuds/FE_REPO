@@ -4,8 +4,9 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/date_picker_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_view.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +25,7 @@ class TastingWriteLastScreen extends StatefulWidget {
 }
 
 class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
-    with TastingWriteMixin<TastingWriteLastScreen> {
+    with TastingWriteMixin<TastingWriteLastScreen>, SnackBarMixin<TastingWriteLastScreen> {
   final TextEditingController _contentsController = TextEditingController();
   final TextEditingController _hashTagController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -162,6 +163,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                           _onSuccessWrite();
                           break;
                         case Error<String>():
+                          showSnackBar(message: result.e);
                           break;
                       }
                     },

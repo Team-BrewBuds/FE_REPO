@@ -1,26 +1,24 @@
-import 'dart:typed_data';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
+mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
   int get currentStep;
 
   int get minStep => 1;
 
-  int get maxStep => 3;
+  int get maxStep => 2;
 
   String get title {
     if (currentStep == 1) {
-      return '원두 정보를 알려주세요.';
-    } else if (currentStep == 2) {
       return '원두의 맛은 어떤가요?';
     } else {
       return '원두가 취향에 맞나요?';
@@ -68,7 +66,7 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
           children: [
             const Center(
               child: Text(
-                '시음 기록',
+                '시음 기록 수정',
                 style: TextStyles.title02SemiBold,
                 textAlign: TextAlign.center,
               ),
@@ -115,19 +113,23 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
       children: [
         Expanded(child: Text(title, style: TextStyles.title04SemiBold)),
         const SizedBox(width: 40),
-        Selector<TastingWritePresenter, List<Uint8List>>(
-          selector: (context, presenter) => presenter.imageData,
-          builder: (context, imageData, child) {
-            final thumbnail = imageData.firstOrNull;
+        Selector<TastedRecordUpdatePresenter, List<String>>(
+          selector: (context, presenter) => presenter.images,
+          builder: (context, images, child) {
             return Container(
               width: 80,
               height: 80,
               color: ColorStyles.gray50,
-              child: thumbnail != null
+              child: images.isNotEmpty
                   ? Stack(
                       children: [
-                        Positioned.fill(child: ExtendedImage.memory(thumbnail, fit: BoxFit.cover)),
-                        if (imageData.length > 1)
+                        Positioned.fill(
+                            child: MyNetworkImage(
+                          imageUrl: images.first,
+                          height: 80,
+                          width: 80,
+                        )),
+                        if (images.length > 1)
                           Positioned(
                             right: 6,
                             bottom: 6,
@@ -166,7 +168,7 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const Text(
-                          '시음기록 작성을 그만두시겠습니까?',
+                          '시음기록 수정을 그만두시겠습니까?',
                           style: TextStyles.title02SemiBold,
                           textAlign: TextAlign.center,
                         ),

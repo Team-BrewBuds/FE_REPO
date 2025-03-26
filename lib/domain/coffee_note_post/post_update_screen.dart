@@ -179,7 +179,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
           children: [
             const Center(
               child: Text(
-                '글쓰기',
+                '게시글 수정',
                 style: TextStyles.title02SemiBold,
                 textAlign: TextAlign.center,
               ),
@@ -189,14 +189,14 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
               child: GestureDetector(
                 onTap: () {
                   showCenterDialog(
-                    title: '게시글 작성을 그만두시겠습니까?',
+                    title: '게시글 수정을 그만두시겠습니까?',
                     centerTitle: true,
                     content: '지금까지 작성한 내용은 저장되지 않아요.',
                     contentAlign: TextAlign.center,
-                    cancelText: '그만두기',
-                    doneText: '계속쓰기',
+                    cancelText: '닫기',
+                    doneText: '나가기',
                   ).then((value) {
-                    if (value != null && !value) {
+                    if (value != null && value) {
                       context.pop();
                     }
                   });

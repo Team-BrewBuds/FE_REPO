@@ -22,5 +22,6 @@ class TastedRecord with _$TastedRecord {
     required String contents,
     required String tag,
     required List<String> imagesUrl,
+    required bool isPrivate,
   }) = _TastedRecord;
 }
