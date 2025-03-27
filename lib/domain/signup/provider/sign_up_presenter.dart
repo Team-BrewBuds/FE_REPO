@@ -1,29 +1,48 @@
+import 'dart:convert';
+
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/api/duplicated_nickname_api.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-typedef NicknameValidState = ({int nickNameLength, bool isValidNickname, bool isCheckingDuplicateNicknames});
+typedef NicknameValidState = ({
+  bool isChangeNickname,
+  bool hasNickname,
+  bool isValidNickname,
+  bool isDuplicatingNickname,
+  bool isNicknameChecking,
+});
 typedef YearOfBirthValidState = ({int yearOfBirthLength, bool isValidYearOfBirth});
 
 class SignUpPresenter extends Presenter {
   final AccountRepository _accountRepository = AccountRepository.instance;
   final LoginRepository _loginRepository = LoginRepository.instance;
+  final DuplicatedNicknameApi _duplicatedNicknameApi =
+      DuplicatedNicknameApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
+  late final Debouncer<String> _nicknameCheckDebouncer;
   late String _accessToken;
   late String _refreshToken;
   late int _id;
   SignUpState _state = const SignUpState();
-
+  bool _isChangeNickname = false;
+  bool _isDuplicatingNickname = false;
+  bool _isNicknameChecking = false;
   bool _isLoading = false;
 
   bool get isLoading => _isLoading;
 
   bool get isValidFirstPage =>
-      _isValidNickname &&
-      (_state.nickName?.length ?? 0) > 2 &&
+      nickName.length >= 2 &&
+      nickName.length <= 12 &&
+      !_isNicknameChecking &&
+      !_isDuplicatingNickname &&
       _yearOfBirthLength == 4 &&
       _isValidYearOfBirth &&
       _state.gender != null;
@@ -34,14 +53,12 @@ class SignUpPresenter extends Presenter {
 
   String get nickName => _state.nickName ?? '';
 
-  bool _isValidNickname = false;
-
-  bool _isCheckingDuplicateNicknames = false;
-
   NicknameValidState get nicknameValidState => (
-        nickNameLength: (_state.nickName ?? '').length,
-        isValidNickname: _isValidNickname,
-        isCheckingDuplicateNicknames: _isCheckingDuplicateNicknames,
+        isChangeNickname: _isChangeNickname,
+        hasNickname: nickName.isNotEmpty,
+        isValidNickname: nickName.length >= 2 && nickName.length <= 12,
+        isDuplicatingNickname: _isDuplicatingNickname,
+        isNicknameChecking: _isNicknameChecking,
       );
 
   int _yearOfBirthLength = 0;
@@ -68,6 +85,13 @@ class SignUpPresenter extends Presenter {
   int get sweetness => _state.preferredBeanTaste?.sweetness ?? 0;
 
   init(String accessToken, String refreshToken, int id) {
+    _nicknameCheckDebouncer = Debouncer(
+      const Duration(seconds: 10),
+      initialValue: '',
+      onChanged: (newNickname) {
+        _checkNickname(newNickname);
+      },
+    );
     _accessToken = accessToken;
     _refreshToken = refreshToken;
     _id = id;
@@ -91,13 +115,29 @@ class SignUpPresenter extends Presenter {
   }
 
   onChangeNickName(String newNickName) {
+    if (!_isChangeNickname) {
+      _isChangeNickname = true;
+    }
     _state = _state.copyWith(nickName: newNickName);
-    // _checkNickname();
+    _nicknameCheckDebouncer.setValue(newNickName);
     notifyListeners();
   }
 
-  _checkNickname() {
-    //미구현
+  _checkNickname(String newNickname) async {
+    if (!_isNicknameChecking && newNickname.length >= 2) {
+      _isNicknameChecking = true;
+      notifyListeners();
+      _isDuplicatingNickname = await _duplicatedNicknameApi.checkNickname(nickname: newNickname).then((value) {
+        try {
+          final json = jsonDecode(value) as Map<String, dynamic>;
+          return !(json['is_available'] as bool? ?? false);
+        } catch (e) {
+          return true;
+        }
+      }).onError((error, stackTrace) => true);
+      _isNicknameChecking = false;
+      notifyListeners();
+    }
   }
 
   onChangeYearOfBirth(String newYearOfBirth) {

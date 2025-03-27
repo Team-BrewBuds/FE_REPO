@@ -109,25 +109,28 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
               keyboardType: TextInputType.text,
               inputFormatters: [
                 LengthLimitingTextInputFormatter(12),
+                NicknameFormatter(),
               ],
               decoration: InputDecoration(
                 hintText: '2 ~ 12자 이내',
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: (nicknameValidState.isValidNickname && nicknameValidState.nickNameLength >= 2) ||
-                            nicknameValidState.nickNameLength == 0
-                        ? ColorStyles.gray50
-                        : ColorStyles.red,
+                    color: nicknameValidState.isChangeNickname
+                        ? (nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname)
+                            ? ColorStyles.gray50
+                            : ColorStyles.red
+                        : ColorStyles.gray50,
                     width: 1,
                   ),
                   borderRadius: BorderRadius.circular(1),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                    color: (nicknameValidState.isValidNickname && nicknameValidState.nickNameLength >= 2) ||
-                            nicknameValidState.nickNameLength == 0
-                        ? ColorStyles.black
-                        : ColorStyles.red,
+                    color: nicknameValidState.isChangeNickname
+                        ? (nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname)
+                            ? ColorStyles.gray50
+                            : ColorStyles.red
+                        : ColorStyles.gray50,
                     width: 1,
                   ),
                   borderRadius: BorderRadius.circular(1),
@@ -136,9 +139,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
                 suffixIcon: Padding(
                   padding: const EdgeInsets.all(12),
                   child: _buildNickNameSuffixIcon(
-                    nicknameLength: nicknameValidState.nickNameLength,
-                    isValidNickname: nicknameValidState.isValidNickname,
-                    isCheckingDuplicateNicknames: nicknameValidState.isCheckingDuplicateNicknames,
+                    hasNickname: nicknameValidState.hasNickname,
+                    isValidNickname: nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname,
+                    isCheckingDuplicateNicknames: nicknameValidState.isNicknameChecking,
                   ),
                 ),
                 suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
@@ -151,14 +154,14 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
               cursorWidth: 1,
               maxLines: 1,
             ),
-            if (nicknameValidState.nickNameLength < 2 && nicknameValidState.nickNameLength > 0) ...[
+            if (nicknameValidState.hasNickname && !nicknameValidState.isValidNickname) ...[
               const SizedBox(height: 4),
               Text(
                 '2자 이상 입력해 주세요.',
                 style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
               ),
               const SizedBox(height: 17),
-            ] else if (!nicknameValidState.isValidNickname && nicknameValidState.nickNameLength > 0) ...[
+            ] else if (nicknameValidState.hasNickname && nicknameValidState.isDuplicatingNickname) ...[
               const SizedBox(height: 4),
               Text(
                 '이미 사용 중인 닉네임이에요.',
@@ -175,24 +178,28 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
   }
 
   Widget _buildNickNameSuffixIcon({
-    required int nicknameLength,
+    required bool hasNickname,
     required bool isValidNickname,
     required bool isCheckingDuplicateNicknames,
   }) {
     if (isCheckingDuplicateNicknames) {
-      return const SizedBox(height: 24, width: 24, child: CupertinoActivityIndicator(color: ColorStyles.gray50));
-    } else if (nicknameLength >= 2 && isValidNickname) {
+      return const CupertinoActivityIndicator(color: ColorStyles.gray50);
+    } else if (hasNickname && isValidNickname) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
-    } else if (nicknameLength > 0 && !isValidNickname) {
+    } else if (hasNickname && !isValidNickname) {
       return GestureDetector(
         onTap: () {
-          _nicknameController.clear();
+          _clearNickname();
         },
         child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
       );
     } else {
       return const SizedBox.shrink();
     }
+  }
+
+  _clearNickname() {
+    _nicknameController.value = TextEditingValue.empty;
   }
 
   Widget _buildYearOfAgeTextFormField() {
@@ -278,11 +285,15 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     } else {
       return GestureDetector(
         onTap: () {
-          _ageController.clear();
+          _clearYearOfAge();
         },
         child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
       );
     }
+  }
+
+  _clearYearOfAge() {
+    _ageController.value = TextEditingValue.empty;
   }
 
   Widget _buildGenderSelector({Gender? selectedGender}) {
@@ -333,6 +344,25 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     return Selector<SignUpPresenter, bool>(
       selector: (context, presenter) => presenter.isValidFirstPage,
       builder: (context, isValidFirstPage, child) => buildBottomButton(isSatisfyRequirements: isValidFirstPage),
+    );
+  }
+}
+
+class NicknameFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text;
+    int cursorPosition = newValue.selection.baseOffset;
+
+    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+
+    // 6️⃣ 커서 위치 보정
+    int diff = text.length - newValue.text.length;
+    int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: newCursorPosition),
     );
   }
 }

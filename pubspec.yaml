@@ -53,6 +53,8 @@ dependencies:
   super_tooltip: ^2.0.9
   package_info_plus: ^8.0.2
   firebase_messaging: ^15.1.0
+  webview_flutter: ^4.8.0
+  showcaseview: ^4.0.1
 
 flutter_native_splash:
   color: "#FFFFFF"

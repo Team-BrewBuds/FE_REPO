@@ -35,7 +35,7 @@ class SharedPreferencesRepository {
   }
 
   Future<void> completeTutorial() {
-    return _prefs.setBool('is_first', true);
+    return _prefs.setBool('is_first', false);
   }
 
   Future<void> setLogin() {

@@ -1,4 +1,5 @@
 import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/home/all/home_all_presenter.dart';
 import 'package:brew_buds/domain/home/home_screen.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
@@ -33,6 +34,7 @@ import 'package:brew_buds/domain/signup/views/signup_third_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 GoRouter createRouter(bool hasToken) {
   final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
@@ -90,7 +92,12 @@ GoRouter createRouter(bool hasToken) {
         ],
       ),
       ShellRoute(
-        builder: (context, state, child) => MainView(child: child),
+        builder: (context, state, child) => ShowCaseWidget(
+          onComplete: (_, __) {
+            SharedPreferencesRepository.instance.completeTutorial();
+          },
+          builder: (context) => MainView(child: child),
+        ),
         routes: [
           GoRoute(
             path: '/home',

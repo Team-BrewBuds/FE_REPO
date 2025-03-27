@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class AccountDetailView extends StatefulWidget {
   State<AccountDetailView> createState() => _AccountDetailViewState();
 }
 
-class _AccountDetailViewState extends State<AccountDetailView> {
+class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixin<AccountDetailView> {
   final List<String> _body = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
   final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
@@ -40,7 +41,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
           child: Column(
             children: [
               Selector<AccountDetailPresenter, List<CoffeeLife>?>(
-                selector: (context, presenter) => presenter.selectedCoffeeLife,
+                selector: (context, presenter) => presenter.selectedCoffeeLifeList,
                 builder: (context, selectedCoffeeLife, child) =>
                     _buildCoffeeLifes(selectedCoffeeLifes: selectedCoffeeLife ?? []),
               ),
@@ -88,17 +89,31 @@ class _AccountDetailViewState extends State<AccountDetailView> {
             Positioned(
               right: 0,
               child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    context.read<AccountDetailPresenter>().onSave().then((_) => context.pop('맞춤정보 저장을 완료했어요.'));
+                child: Selector<AccountDetailPresenter, bool>(
+                  selector: (context, presenter) => presenter.canEdit,
+                  builder: (context, canEdit, child) {
+                    return AbsorbPointer(
+                      absorbing: !canEdit,
+                      child: GestureDetector(
+                        onTap: () {
+                          context
+                              .read<AccountDetailPresenter>()
+                              .onSave()
+                              .then((_) => context.pop('맞춤정보 저장을 완료했어요.'))
+                              .onError((error, stackTrace) => showSnackBar(message: '맞춤정보 저장에 실패했어요.'));
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 8),
+                          child: Text(
+                            '저장',
+                            style: TextStyles.title02SemiBold.copyWith(
+                              color: canEdit ? ColorStyles.red : ColorStyles.gray30,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    child: Text(
-                      '저장',
-                      style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
-                    ),
-                  ),
                 ),
               ),
             ),

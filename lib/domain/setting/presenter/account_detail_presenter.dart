@@ -2,133 +2,149 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
-import 'package:brew_buds/model/profile/profile.dart';
 
 final class AccountDetailPresenter extends Presenter {
   final ProfileRepository _repository = ProfileRepository.instance;
-  Profile? _profile;
+  late final List<CoffeeLife> _preCoffeeLife;
+  late final bool? _preIsCertificated;
+  late final int _preBodyValue;
+  late final int _preAcidityValue;
+  late final int _preBitternessValue;
+  late final int _preSweetnessValue;
 
-  List<CoffeeLife>? get selectedCoffeeLife => _profile?.coffeeLife;
+  List<CoffeeLife> _selectedCoffeeLifeList = [];
+  bool? _isCertificated;
+  int? _bodyValue;
+  int? _acidityValue;
+  int? _bitternessValue;
+  int? _sweetnessValue;
 
-  bool? get isCertificated => _profile?.isCertificated;
+  bool get canEdit => (_preIsCertificated != _isCertificated ||
+      _preBodyValue != _bodyValue ||
+      _preAcidityValue != _acidityValue ||
+      _preBitternessValue != _bitternessValue ||
+      _preSweetnessValue != _sweetnessValue ||
+      _compareCoffeeLifeList());
 
-  int? get bodyValue => _profile?.preferredBeanTaste.body;
+  List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
 
-  int? get acidityValue => _profile?.preferredBeanTaste.acidity;
+  bool? get isCertificated => _isCertificated;
 
-  int? get bitternessValue => _profile?.preferredBeanTaste.bitterness;
+  int? get bodyValue => _bodyValue;
 
-  int? get sweetnessValue => _profile?.preferredBeanTaste.sweetness;
+  int? get acidityValue => _acidityValue;
+
+  int? get bitternessValue => _bitternessValue;
+
+  int? get sweetnessValue => _sweetnessValue;
+
+  bool _compareCoffeeLifeList() {
+    if (_preCoffeeLife.isEmpty && selectedCoffeeLifeList.isEmpty) {
+      return false;
+    } else if (_preCoffeeLife.isEmpty && selectedCoffeeLifeList.isNotEmpty) {
+      return true;
+    } else if (_preCoffeeLife.length == selectedCoffeeLifeList.length) {
+      return _preCoffeeLife.map((e) => selectedCoffeeLifeList.contains(e)).where((element) => !element).isNotEmpty;
+    } else {
+      return true;
+    }
+  }
+
+  bool _compareBeanTaste() {
+    return (_preBodyValue != _bodyValue ||
+        _preAcidityValue != _acidityValue ||
+        _preBitternessValue != _bitternessValue ||
+        _preSweetnessValue != _sweetnessValue);
+  }
 
   initState() {
     fetchProfileDetail();
   }
 
-  onRefresh() {
-    fetchProfileDetail();
-  }
-
   fetchProfileDetail() {
     _repository.fetchMyProfile().then((newProfile) {
-      _profile = newProfile;
+      _selectedCoffeeLifeList = List.from(newProfile.coffeeLife);
+      _isCertificated = newProfile.isCertificated;
+      _bodyValue = newProfile.preferredBeanTaste.body;
+      _acidityValue = newProfile.preferredBeanTaste.acidity;
+      _bitternessValue = newProfile.preferredBeanTaste.bitterness;
+      _sweetnessValue = newProfile.preferredBeanTaste.sweetness;
+
+      _preCoffeeLife = List.from(newProfile.coffeeLife);
+      _preBodyValue = newProfile.preferredBeanTaste.body;
+      _preAcidityValue = newProfile.preferredBeanTaste.acidity;
+      _preBitternessValue = newProfile.preferredBeanTaste.bitterness;
+      _preSweetnessValue = newProfile.preferredBeanTaste.sweetness;
+      _preIsCertificated = newProfile.isCertificated;
       notifyListeners();
     });
   }
 
   onSelectCoffeeLife(CoffeeLife coffeeLife) {
-    final profile = _profile;
-
-    if (profile != null) {
-      if (profile.coffeeLife.contains(coffeeLife)) {
-        final List<CoffeeLife> currentCoffeeLifeList = List.from(profile.coffeeLife);
-        _profile = profile.copyWith(coffeeLife: currentCoffeeLifeList..remove(coffeeLife));
-      } else {
-        _profile = profile.copyWith(coffeeLife: profile.coffeeLife + [coffeeLife]);
-      }
-      notifyListeners();
+    if (selectedCoffeeLifeList.contains(coffeeLife)) {
+      _selectedCoffeeLifeList = List.from(selectedCoffeeLifeList)..remove(coffeeLife);
+    } else {
+      _selectedCoffeeLifeList = List.from(selectedCoffeeLifeList)..add(coffeeLife);
     }
+    notifyListeners();
   }
 
   onSelectCertificated(bool isCertificated) {
-    final profile = _profile;
-
-    if (profile != null) {
-      if (profile.isCertificated == isCertificated) {
-        _profile = profile.copyWith(isCertificated: null);
-      } else {
-        _profile = profile.copyWith(isCertificated: isCertificated);
-      }
-      notifyListeners();
+    if (_isCertificated == isCertificated) {
+      _isCertificated = null;
+    } else {
+      _isCertificated = isCertificated;
     }
+    notifyListeners();
   }
 
   onSelectBodyValue(int bodyValue) {
-    final profile = _profile;
-
-    if (profile != null) {
-      if (profile.preferredBeanTaste.body == bodyValue) {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(body: 0));
-      } else {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(body: bodyValue));
-      }
-      notifyListeners();
+    if (_bodyValue == bodyValue) {
+      _bodyValue = null;
+    } else {
+      _bodyValue = bodyValue;
     }
+    notifyListeners();
   }
 
   onSelectAcidityValue(int acidityValue) {
-    final profile = _profile;
-
-    if (profile != null) {
-      if (profile.preferredBeanTaste.acidity == acidityValue) {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(acidity: 0));
-      } else {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(acidity: acidityValue));
-      }
-      notifyListeners();
+    if (_acidityValue == acidityValue) {
+      _acidityValue = null;
+    } else {
+      _acidityValue = acidityValue;
     }
+    notifyListeners();
   }
 
   onSelectBitternessValue(int bitternessValue) {
-    final profile = _profile;
-
-    if (profile != null) {
-      if (profile.preferredBeanTaste.bitterness == bitternessValue) {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(bitterness: 0));
-      } else {
-        _profile =
-            profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(bitterness: bitternessValue));
-      }
-      notifyListeners();
+    if (_bitternessValue == bitternessValue) {
+      _bitternessValue = null;
+    } else {
+      _bitternessValue = bitternessValue;
     }
+    notifyListeners();
   }
 
   onSelectSweetValue(int sweetValue) {
-    final profile = _profile;
-
-    if (profile != null) {
-      if (profile.preferredBeanTaste.sweetness == sweetValue) {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(sweetness: 0));
-      } else {
-        _profile = profile.copyWith(preferredBeanTaste: profile.preferredBeanTaste.copyWith(sweetness: sweetValue));
-      }
-      notifyListeners();
+    if (_sweetnessValue == sweetValue) {
+      _sweetnessValue = null;
+    } else {
+      _sweetnessValue = sweetValue;
     }
+    notifyListeners();
   }
 
-  Future<void> onSave() async {
-    final profile = _profile;
-
-    if (profile != null) {
-      return _repository.updateProfile(
-          coffeeLife: selectedCoffeeLife ?? [],
-          preferredBeanTaste: PreferredBeanTaste(
-            body: bodyValue ?? 0,
-            acidity: acidityValue ?? 0,
-            sweetness: sweetnessValue ?? 0,
-            bitterness: bitternessValue ?? 0,
-          ),
-          isCertificated: isCertificated
-      );
-    }
+  Future<void> onSave() {
+    return _repository.updateProfile(
+        coffeeLife: _compareCoffeeLifeList() ? selectedCoffeeLifeList : null,
+        preferredBeanTaste: _compareBeanTaste()
+            ? PreferredBeanTaste(
+                body: _bodyValue ?? 0,
+                acidity: _acidityValue ?? 0,
+                sweetness: _sweetnessValue ?? 0,
+                bitterness: _bitternessValue ?? 0,
+              )
+            : null,
+        isCertificated: _preIsCertificated != _isCertificated ? _isCertificated : null);
   }
 }
