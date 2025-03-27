@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:brew_buds/data/api/beans_api.dart';
+import 'package:brew_buds/data/api/duplicated_nickname_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/api/tasted_record_api.dart';
@@ -26,12 +27,17 @@ import 'package:brew_buds/model/profile/account_info.dart';
 import 'package:brew_buds/model/profile/profile.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProfileRepository {
   final ProfileApi _profileApi = ProfileApi();
   final PostApi _postApi = PostApi();
   final TastedRecordApi _tastedRecordApi = TastedRecordApi();
   final BeansApi _beanApi = BeansApi();
+  final DuplicatedNicknameApi _duplicatedNicknameApi = DuplicatedNicknameApi(
+    Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))),
+  );
 
   ProfileRepository._();
 
@@ -46,32 +52,43 @@ class ProfileRepository {
   Future<Profile> fetchProfile({required int id}) => _profileApi.fetchProfile(id: id).then((value) => value.toDomain());
 
   Future<bool> isValidNickname({required String nickname}) async {
-    final result = await _profileApi.checkNickname(nickname: nickname).onError((error, stackTrace) => '');
-    final jsonResult = jsonDecode(result) as Map<String, dynamic>;
-    return (jsonResult['is_available'] as bool?) ?? false;
+    return _duplicatedNicknameApi.checkNickname(nickname: nickname).then(
+      (value) {
+        final json = jsonDecode(value) as Map<String, dynamic>;
+        return !(json['is_available'] as bool? ?? false);
+      },
+    ).onError((error, stackTrace) => true);
   }
 
   Future<void> updateProfile({
     String? nickname,
     String? introduction,
     String? profileLink,
-    List<CoffeeLife> coffeeLife = const [],
+    List<CoffeeLife>? coffeeLife,
     PreferredBeanTaste? preferredBeanTaste,
     bool? isCertificated,
   }) {
     final Map<String, dynamic> data = {};
+    if (nickname != null) {
+      data['nickname'] = nickname;
+    }
     final Map<String, dynamic> userDetail = {};
     writeNotNull(String key, dynamic value) {
       if (value != null) {
         userDetail[key] = value;
       }
     }
+
     writeNotNull('introduction', introduction);
     writeNotNull('profile_link', profileLink);
-    writeNotNull('coffee_life', _coffeeLifeToJson(coffeeLife));
+    if (coffeeLife != null) {
+      writeNotNull('coffee_life', _coffeeLifeToJson(coffeeLife));
+    }
     writeNotNull('preferred_bean_taste', preferredBeanTaste?.toJson());
     writeNotNull('is_certificated', isCertificated);
-    data['user_detail'] = userDetail;
+    if (userDetail.isNotEmpty) {
+      data['user_detail'] = userDetail;
+    }
 
     return _profileApi.updateMyProfile(body: data);
   }

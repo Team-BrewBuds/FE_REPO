@@ -2,7 +2,9 @@ import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/photo/check_selected_images_screen.dart';
@@ -34,7 +36,7 @@ class EditProfileView extends StatefulWidget {
   State<EditProfileView> createState() => _EditProfileViewState();
 }
 
-class _EditProfileViewState extends State<EditProfileView> {
+class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<EditProfileView> {
   late final TextEditingController _nicknameEditingController;
   late final TextEditingController _introductionEditingController;
   late final TextEditingController _linkEditingController;
@@ -47,9 +49,19 @@ class _EditProfileViewState extends State<EditProfileView> {
     _nicknameEditingController = TextEditingController(text: widget.nickname);
     _introductionEditingController = TextEditingController(text: widget.introduction);
     _linkEditingController = TextEditingController(text: widget.link);
+
     _nicknameFocusNode = FocusNode();
     _introductionFocusNode = FocusNode();
     _linkFocusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<EditProfilePresenter>().initState();
+      _linkEditingController.addListener(() {
+        context.read<EditProfilePresenter>().onChangeLink(_linkEditingController.text);
+      });
+      _linkFocusNode.addListener(() {
+        _handleFocusChange();
+      });
+    });
     super.initState();
   }
 
@@ -57,11 +69,26 @@ class _EditProfileViewState extends State<EditProfileView> {
   void dispose() {
     _nicknameEditingController.dispose();
     _introductionEditingController.dispose();
+    _linkEditingController.removeListener(() {
+      context.read<EditProfilePresenter>().onChangeLink(_linkEditingController.text);
+    });
     _linkEditingController.dispose();
     _nicknameFocusNode.dispose();
     _introductionFocusNode.dispose();
+    _linkFocusNode.removeListener(() {
+      _handleFocusChange();
+    });
     _linkFocusNode.dispose();
     super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (_linkFocusNode.hasFocus) {
+      if (_linkEditingController.text.isEmpty) {
+        _linkEditingController.value =
+            const TextEditingValue(text: 'https://', selection: TextSelection.collapsed(offset: 'https://'.length));
+      }
+    }
   }
 
   @override
@@ -92,7 +119,6 @@ class _EditProfileViewState extends State<EditProfileView> {
                   _buildIntroduction(),
                   const SizedBox(height: 24),
                   _buildLink(),
-                  const SizedBox(height: 24),
                   Selector<EditProfilePresenter, List<CoffeeLife>>(
                     selector: (context, presenter) => presenter.selectedCoffeeLifeList,
                     builder: (context, selectedCoffeeLifeList, child) => _buildCoffeeLife(
@@ -143,18 +169,35 @@ class _EditProfileViewState extends State<EditProfileView> {
             Positioned(
               right: 0,
               child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    context.read<EditProfilePresenter>().onSave();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8, right: 8),
-                    child: Text(
-                      '저장',
-                      style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
-                    ),
-                  ),
-                ),
+                child: Selector<EditProfilePresenter, bool>(
+                    selector: (context, presenter) => presenter.canEdit,
+                    builder: (context, canEdit, _) {
+                      return AbsorbPointer(
+                        absorbing: !canEdit,
+                        child: GestureDetector(
+                          onTap: () {
+                            context.read<EditProfilePresenter>().onSave().then((value) {
+                              switch (value) {
+                                case Success<String>():
+                                  context.pop(value.data);
+                                  break;
+                                case Error<String>():
+                                  showSnackBar(message: value.e);
+                                  break;
+                              }
+                            });
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8, right: 8),
+                            child: Text(
+                              '저장',
+                              style: TextStyles.title02SemiBold
+                                  .copyWith(color: canEdit ? ColorStyles.red : ColorStyles.gray30),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
               ),
             ),
           ],
@@ -212,52 +255,92 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Widget _buildNickname() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('닉네임', style: TextStyles.title01SemiBold),
-        const SizedBox(height: 8),
-        TextFormField(
-          focusNode: _nicknameFocusNode,
-          controller: _nicknameEditingController,
-          keyboardType: TextInputType.text,
-          inputFormatters: [
-            LengthLimitingTextInputFormatter(12),
-          ],
-          decoration: InputDecoration(
-            hintText: '2 ~ 12자 이내',
-            hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
-            contentPadding: const EdgeInsets.all(12),
-            filled: true,
-            fillColor: ColorStyles.gray20,
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
-              borderRadius: BorderRadius.zero,
-              gapPadding: 0,
-            ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
-              borderRadius: BorderRadius.zero,
-              gapPadding: 0,
-            ),
-          ),
-          style: TextStyles.labelSmallMedium,
-          cursorColor: ColorStyles.black,
-          cursorErrorColor: ColorStyles.black,
-          cursorHeight: 16,
-          cursorWidth: 1,
-          maxLines: 1,
-          onChanged: (newNickName) {
-            context.read<EditProfilePresenter>().onChangeNickname(newNickName);
-          },
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '닉네임은 14일 동안 최대 2번까지 변경할 수 있어요.',
-          style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
-        ),
-      ],
-    );
+    return Selector<EditProfilePresenter, NicknameState>(
+        selector: (context, presenter) => presenter.nicknameState,
+        builder: (context, state, _) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text('닉네임', style: TextStyles.title01SemiBold),
+              const SizedBox(height: 8),
+              TextFormField(
+                focusNode: _nicknameFocusNode,
+                controller: _nicknameEditingController,
+                keyboardType: TextInputType.text,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(12),
+                  NicknameFormatter(),
+                ],
+                decoration: InputDecoration(
+                  hintText: '2 ~ 12자 이내',
+                  hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                  contentPadding: const EdgeInsets.all(12),
+                  filled: true,
+                  fillColor: ColorStyles.gray20,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: state.isEditing
+                          ? state.isValid && !state.isDuplicating
+                              ? ColorStyles.gray50
+                              : ColorStyles.red
+                          : ColorStyles.gray50,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.zero,
+                    gapPadding: 0,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: state.isEditing
+                          ? state.isValid && !state.isDuplicating
+                              ? ColorStyles.gray50
+                              : ColorStyles.red
+                          : ColorStyles.gray50,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.zero,
+                    gapPadding: 0,
+                  ),
+                  suffixIcon: state.isChecking
+                      ? const Padding(
+                          padding: EdgeInsets.all(12),
+                          child: CupertinoActivityIndicator(color: ColorStyles.gray50),
+                        )
+                      : const SizedBox.shrink(),
+                  suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
+                ),
+                style: TextStyles.labelSmallMedium,
+                cursorColor: ColorStyles.black,
+                cursorErrorColor: ColorStyles.black,
+                cursorHeight: 16,
+                cursorWidth: 1,
+                maxLines: 1,
+                onChanged: (newNickName) {
+                  context.read<EditProfilePresenter>().onChangeNickname(newNickName);
+                },
+              ),
+              if (state.isEditing && !state.isValid) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '2자 이상 입력해 주세요.',
+                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+                ),
+              ] else if (state.isEditing && state.isDuplicating) ...[
+                const SizedBox(height: 8),
+                Text(
+                  '이미 사용 중인 닉네임이에요.',
+                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+                ),
+              ] else ...[
+                const SizedBox(height: 8),
+                Text(
+                  '닉네임은 14일 동안 최대 2번까지 변경할 수 있어요.',
+                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
+                ),
+              ],
+            ],
+          );
+        });
   }
 
   Widget _buildIntroduction() {
@@ -321,54 +404,84 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Widget _buildLink() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const Text('링크', style: TextStyles.title01SemiBold),
-        const SizedBox(height: 8),
-        TextFormField(
-          focusNode: _linkFocusNode,
-          controller: _linkEditingController,
-          keyboardType: TextInputType.url,
-          decoration: InputDecoration(
-            hintText: 'URL을 입력해 주세요.',
-            hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
-            contentPadding: const EdgeInsets.all(12),
-            enabledBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
-              borderRadius: BorderRadius.zero,
-              gapPadding: 0,
+    return Selector<EditProfilePresenter, LinkState>(
+      selector: (context, presenter) => presenter.linkState,
+      builder: (context, linkState, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text('링크', style: TextStyles.title01SemiBold),
+            const SizedBox(height: 8),
+            TextFormField(
+              focusNode: _linkFocusNode,
+              controller: _linkEditingController,
+              keyboardType: TextInputType.url,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9:/?&=._\-#%]')),
+              ],
+              decoration: InputDecoration(
+                hintText: 'URL을 입력해 주세요.',
+                hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                contentPadding: const EdgeInsets.all(12),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color:
+                          linkState.isStartWithHttpOrHttps && linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
+                      width: 1),
+                  borderRadius: BorderRadius.zero,
+                  gapPadding: 0,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                      color:
+                          linkState.isStartWithHttpOrHttps && linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
+                      width: 1),
+                  borderRadius: BorderRadius.zero,
+                  gapPadding: 0,
+                ),
+                suffixIcon: linkState.hasLink
+                    ? GestureDetector(
+                        onTap: () {
+                          _clearLink();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
+              ),
+              style: TextStyles.labelSmallMedium,
+              cursorColor: ColorStyles.black,
+              cursorErrorColor: ColorStyles.black,
+              cursorHeight: 16,
+              cursorWidth: 1,
+              maxLines: 1,
+              onChanged: (newLink) {
+                context.read<EditProfilePresenter>().onChangeLink(newLink);
+              },
             ),
-            focusedBorder: const OutlineInputBorder(
-              borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
-              borderRadius: BorderRadius.zero,
-              gapPadding: 0,
-            ),
-            suffixIcon: Selector<EditProfilePresenter, bool>(
-              selector: (context, presenter) => presenter.hasLink,
-              builder: (context, hasLink, child) => hasLink
-                  ? GestureDetector(
-                      onTap: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
-          ),
-          style: TextStyles.labelSmallMedium,
-          cursorColor: ColorStyles.black,
-          cursorErrorColor: ColorStyles.black,
-          cursorHeight: 16,
-          cursorWidth: 1,
-          maxLines: 1,
-          onChanged: (newLink) {
-            context.read<EditProfilePresenter>().onChangeLink(newLink);
-          },
-        ),
-      ],
+            if (!linkState.isStartWithHttpOrHttps) ...[
+              const SizedBox(height: 4),
+              Text(
+                '주소는 http:// 또는 https://로 시작해야 합니다.',
+                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+              ),
+              const SizedBox(height: 20),
+            ] else if (!linkState.isValid) ...[
+              const SizedBox(height: 4),
+              Text(
+                '주소가 유효하지 않습니다.',
+                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+              ),
+              const SizedBox(height: 20),
+            ] else ...[
+              const SizedBox(height: 24),
+            ],
+          ],
+        );
+      },
     );
   }
 
@@ -507,5 +620,28 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   _onChangeImageData(Uint8List imageData) {
     context.read<EditProfilePresenter>().onChangeImageData(imageData);
+  }
+
+  _clearLink() {
+    _linkEditingController.value = TextEditingValue.empty;
+  }
+}
+
+class NicknameFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    String text = newValue.text;
+    int cursorPosition = newValue.selection.baseOffset;
+
+    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+
+    // 6️⃣ 커서 위치 보정
+    int diff = text.length - newValue.text.length;
+    int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: newCursorPosition),
+    );
   }
 }

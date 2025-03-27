@@ -112,9 +112,15 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
                   imageUrl: profileImageURI,
                   coffeeLife: coffeeLife,
                 );
-                context.push('/profile/edit', extra: data).then(
-                      (_) => context.read<ProfilePresenter>().refresh(),
-                    );
+                context.push<String>('/profile/edit', extra: data).then(
+                  (result) {
+                    final context = this.context;
+                    if (result != null && result.isNotEmpty && context.mounted) {
+                      context.read<ProfilePresenter>().refresh();
+                      showSnackBar(message: result);
+                    }
+                  },
+                );
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

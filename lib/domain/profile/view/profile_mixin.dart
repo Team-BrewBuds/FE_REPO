@@ -10,6 +10,7 @@ import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/sort_criteria_bottom_sheet.dart';
+import 'package:brew_buds/domain/web_view/web_screen.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
@@ -22,6 +23,7 @@ import 'package:brew_buds/domain/profile/widgets/saved_post_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_tasting_record_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/tasting_record_item_widget.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -356,7 +358,14 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     return Row(
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            showCupertinoModalPopup(
+              barrierColor: ColorStyles.white,
+              barrierDismissible: false,
+              context: context,
+              builder: (context) => WebScreen(url: profileLink),
+            );
+          },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: const BoxDecoration(

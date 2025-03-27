@@ -27,11 +27,6 @@ abstract class ProfileApi {
     @Query('page') required int pageNo,
   });
 
-  @GET('/profiles/duplicated_nickname/')
-  Future<String> checkNickname({
-    @Query('nickname') required String nickname,
-  });
-
   @GET('/profiles/user/info/{user_id}/')
   Future<AccountInfoDTO> fetchUserInfo({
     @Path('user_id') required int id,
