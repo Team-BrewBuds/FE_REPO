@@ -37,6 +37,8 @@ final class HomePostPresenter extends HomeViewPresenter<Post> {
       currentPage += 1;
       notifyListeners();
     }
+
+    super.fetchMoreData();
   }
 
   onChangeSubject(int index) {

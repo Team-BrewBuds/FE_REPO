@@ -42,8 +42,8 @@ final class HomeRepository {
 
   factory HomeRepository() => instance;
 
-  Future<DefaultPage<Feed>> fetchFeedPage({required FeedType feedType, required int pageNo}) =>
-      _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).then(
+  Future<DefaultPage<Feed>> fetchFeedPage({required FeedType feedType, required int pageNo}) {
+    return _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).then(
         (jsonString) {
           final json = jsonDecode(jsonString);
           return DefaultPage<Feed>.fromJson(json, (jsonT) {
@@ -56,6 +56,7 @@ final class HomeRepository {
           });
         },
       );
+  }
 
   Future<RecommendedPage> fetchRecommendedUserPage() =>
       _recommendationApi.fetchRecommendedBuddyPage().then(

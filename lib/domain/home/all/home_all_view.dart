@@ -12,6 +12,7 @@ import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/post/post.dart';
+import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -42,34 +43,44 @@ class _HomeAllViewState extends State<HomeAllView> with HomeViewMixin<HomeAllVie
       controller: scrollController,
       slivers: [
         buildRefreshWidget(),
-        Selector<HomeAllPresenter, DefaultPage<Feed>>(
-          selector: (context, presenter) => presenter.defaultPage,
-          builder: (context, page, child) => SliverList.separated(
-            itemCount: page.results.length,
-            itemBuilder: (context, index) {
-              final feed = page.results[index];
-              final Widget feedWidget;
-              switch (feed) {
-                case PostFeed():
-                  feedWidget = _buildPostFeed(feed.data, index);
-                case TastedRecordFeed():
-                  feedWidget = _buildTastedRecordFeed(feed.data, index);
-              }
+        Selector<HomeAllPresenter, (DefaultPage<Feed>, List<RecommendedPage>)>(
+          selector: (context, presenter) => (presenter.defaultPage, presenter.recommendedUserPage),
+          builder: (context, selector, child) {
+            final page = selector.$1;
+            final recommendedUserPageList = selector.$2;
 
-              if (index % 12 == 11) {
-                return Column(
-                  children: [
-                    feedWidget,
-                    Container(height: 12, color: ColorStyles.gray20),
-                    buildRemandedBuddies(currentPageIndex: (index / 12).floor()),
-                  ],
-                );
-              } else {
-                return feedWidget;
-              }
-            },
-            separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
-          ),
+            return SliverList.separated(
+              itemCount: page.results.length,
+              itemBuilder: (context, index) {
+                final feed = page.results[index];
+                final Widget feedWidget;
+
+                switch (feed) {
+                  case PostFeed():
+                    feedWidget = _buildPostFeed(feed.data, index);
+                  case TastedRecordFeed():
+                    feedWidget = _buildTastedRecordFeed(feed.data, index);
+                }
+
+                if (index % 12 == 11 && (index / 12).floor() < recommendedUserPageList.length) {
+                  final recommendedUserIndex = (index / 12).floor();
+                  return Column(
+                    children: [
+                      feedWidget,
+                      Container(height: 12, color: ColorStyles.gray20),
+                      buildRemandedBuddies(
+                        page: recommendedUserPageList[recommendedUserIndex],
+                        currentPageIndex: (index / 12).floor(),
+                      ),
+                    ],
+                  );
+                } else {
+                  return feedWidget;
+                }
+              },
+              separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
+            );
+          },
         ),
       ],
     );

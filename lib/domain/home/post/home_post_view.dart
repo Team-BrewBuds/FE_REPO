@@ -12,6 +12,7 @@ import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post.dart';
+import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -51,18 +52,27 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
           ),
         ),
         buildRefreshWidget(),
-        Selector<HomePostPresenter, DefaultPage<Post>>(
-          selector: (context, presenter) => presenter.defaultPage,
-          builder: (context, page, child) => SliverList.separated(
+        Selector<HomePostPresenter, (DefaultPage<Post>, List<RecommendedPage>)>(
+          selector: (context, presenter) => (presenter.defaultPage, presenter.recommendedUserPage),
+          builder: (context, selector, child) {
+            final page = selector.$1;
+            final recommendedUserPageList = selector.$2;
+
+            return SliverList.separated(
             itemCount: page.results.length,
             itemBuilder: (context, index) {
               final post = page.results[index];
-              if (index % 12 == 11) {
+
+              if (index % 12 == 11 && (index / 12).floor() < recommendedUserPageList.length) {
+                final recommendedUserIndex = (index / 12).floor();
                 return Column(
                   children: [
                     _buildPostFeed(post, index),
                     Container(height: 12, color: ColorStyles.gray20),
-                    buildRemandedBuddies(currentPageIndex: (index / 12).floor()),
+                    buildRemandedBuddies(
+                      page: recommendedUserPageList[recommendedUserIndex],
+                      currentPageIndex: (index / 12).floor(),
+                    ),
                   ],
                 );
               } else {
@@ -70,7 +80,8 @@ class _HomePostViewState extends State<HomePostView> with HomeViewMixin<HomePost
               }
             },
             separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
-          ),
+          );
+          },
         ),
       ],
     );

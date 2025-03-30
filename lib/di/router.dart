@@ -1,3 +1,4 @@
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/home/all/home_all_presenter.dart';
@@ -6,6 +7,7 @@ import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_view.dart';
 import 'package:brew_buds/domain/home/post/home_post_presenter.dart';
 import 'package:brew_buds/domain/home/tasting_record/home_tasting_record_presenter.dart';
+import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_page_first.dart';
 import 'package:brew_buds/domain/login/views/login_page_sns.dart';
 import 'package:brew_buds/domain/main/main_view.dart';
@@ -40,6 +42,18 @@ GoRouter createRouter(bool hasToken) {
   final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
   return GoRouter(
     initialLocation: hasToken ? '/home' : '/login',
+    refreshListenable: AccountRepository.instance,
+    redirect: (context, state) {
+      final hasToken = AccountRepository.instance.accessToken.isNotEmpty;
+      final location = state.uri.toString();
+      if (!hasToken && !location.startsWith('/login')) {
+        return '/login';
+      } else if (hasToken && location.startsWith('/login')) {
+        return '/home';
+      } else {
+        return location;
+      }
+    },
     routes: [
       GoRoute(
         path: '/login',
@@ -49,9 +63,10 @@ GoRouter createRouter(bool hasToken) {
         routes: <RouteBase>[
           GoRoute(
             path: 'sns',
-            builder: (BuildContext context, GoRouterState state) {
-              return const SNSLogin();
-            },
+            builder: (BuildContext context, GoRouterState state) => ChangeNotifierProvider(
+              create: (context) => LoginPresenter(),
+              child: const SNSLogin(),
+            ),
           ),
         ],
       ),

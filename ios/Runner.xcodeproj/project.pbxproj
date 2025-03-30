@@ -320,7 +320,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#!/bin/sh\necho \"Exporting environment variables to Info.plist...\"\n\n# .env 파일 로드\nENV_FILE=\"${PROJECT_DIR}/.env\"\nif [ -f \"$ENV_FILE\" ]\nthen\n  export $(grep -v '^#' $ENV_FILE | xargs)\nfi\n\n# Info.plist 수정\n/usr/libexec/PlistBuddy -c \"Add :NAVER_CLIENT_SECRET string $NAVER_CLIENT_SECRET\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n";
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n#!/bin/sh\necho \"Exporting environment variables to Info.plist...\"\n\n# .env 파일 로드\nENV_FILE=\"${PROJECT_DIR}/.env\"\nif [ -f \"$ENV_FILE\" ]\nthen\n  export $(grep -v '^#' $ENV_FILE | xargs)\nfi\n";
 		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -336,7 +336,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
 		};
 		469B5395E1E48F7BE83E3B80 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
