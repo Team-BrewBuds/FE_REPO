@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -44,69 +43,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
-                      const SizedBox(height: 8),
-                      Text(
-                        '내가 작성한 커피 노트에 대한 반응과 나를 팔로우 하는 버디 등 꼭 필요한 것만 알려드려요.',
-                        style: TextStyles.captionMediumMedium.copyWith(
-                          color: ColorStyles.gray50,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 48),
-                SizedBox(
-                  width: 50,
-                  height: 30,
-                  child: CupertinoSwitch(
-                    value: _isGranted,
-                    activeColor: ColorStyles.red,
-                    onChanged: (value) {
-                      openAppSettings();
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 32),
-          FutureBuilder(
-            future: FirebaseMessaging.instance.getToken(),
-            initialData: '',
-            builder: (context, snapshot) {
-              final token = snapshot.data;
-              if (token != null) {
-                return Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text('Firebase FCM Token', style: TextStyles.labelMediumMedium),
-                      SizedBox(height: 8),
-                      SelectableText(token, style: TextStyles.captionMediumMedium, maxLines: null),
-                    ],
-                  ),
-                );
-              } else {
-                return SizedBox.shrink();
-              }
-              return SelectableText(snapshot.data!);
-            },
-          ),
-        ],
-      ),
+      body: _isGranted ? _buildGrantedBody() : _buildDeniedBody(),
     );
   }
 
@@ -140,6 +77,252 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildGrantedBody() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        '모든 알림 차단',
+                        style: TextStyles.captionMediumMedium.copyWith(
+                          color: ColorStyles.gray50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                SizedBox(
+                  width: 50,
+                  height: 30,
+                  child: CupertinoSwitch(
+                    value: _isGranted,
+                    activeColor: ColorStyles.red,
+                    onChanged: (value) {
+                      openAppSettings();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 48),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('팔로우', style: TextStyles.labelSmallSemiBold),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('새로운 팔로워', style: TextStyles.labelMediumMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        '나를 팔로우하는 버디 안내',
+                        style: TextStyles.captionMediumMedium.copyWith(
+                          color: ColorStyles.gray50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                SizedBox(
+                  width: 50,
+                  height: 30,
+                  child: CupertinoSwitch(
+                    value: _isGranted,
+                    activeColor: ColorStyles.red,
+                    onChanged: (value) {
+                      openAppSettings();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('커피노트', style: TextStyles.labelSmallSemiBold),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20))),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('좋아요', style: TextStyles.labelMediumMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        '내가 작성한 커피노트 좋아요 안내',
+                        style: TextStyles.captionMediumMedium.copyWith(
+                          color: ColorStyles.gray50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                SizedBox(
+                  width: 50,
+                  height: 30,
+                  child: CupertinoSwitch(
+                    value: _isGranted,
+                    activeColor: ColorStyles.red,
+                    onChanged: (value) {
+                      openAppSettings();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('댓글', style: TextStyles.labelMediumMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        '내가 작성한 커피노트의 댓글 또는 댓글의 답글 안내',
+                        style: TextStyles.captionMediumMedium.copyWith(
+                          color: ColorStyles.gray50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                SizedBox(
+                  width: 50,
+                  height: 30,
+                  child: CupertinoSwitch(
+                    value: _isGranted,
+                    activeColor: ColorStyles.red,
+                    onChanged: (value) {
+                      openAppSettings();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text('마케팅', style: TextStyles.labelSmallSemiBold),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text('혜택 정보 수신', style: TextStyles.labelMediumMedium),
+                      const SizedBox(height: 8),
+                      Text(
+                        '개인 맞춤 혜택과 이벤트 소식을 안내',
+                        style: TextStyles.captionMediumMedium.copyWith(
+                          color: ColorStyles.gray50,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 48),
+                SizedBox(
+                  width: 50,
+                  height: 30,
+                  child: CupertinoSwitch(
+                    value: _isGranted,
+                    activeColor: ColorStyles.red,
+                    onChanged: (value) {
+                      openAppSettings();
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeniedBody() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
+                const SizedBox(height: 8),
+                Text(
+                  '내가 작성한 커피 노트에 대한 반응과 나를 팔로우 하는 버디 등 꼭 필요한 것만 알려드려요.',
+                  style: TextStyles.captionMediumMedium.copyWith(
+                    color: ColorStyles.gray50,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 48),
+          SizedBox(
+            width: 50,
+            height: 30,
+            child: CupertinoSwitch(
+              value: _isGranted,
+              activeColor: ColorStyles.red,
+              onChanged: (value) {
+                openAppSettings();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -5,6 +5,7 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
 import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
@@ -224,12 +225,8 @@ class _SettingScreenState extends State<SettingScreen>
                   child: Column(
                     children: [
                       GestureDetector(
-                        onTap: () async {
-                          AccountRepository.instance.logout().then((value) {
-                            if (value) {
-                              context.go('/login');
-                            }
-                          });
+                        onTap: () {
+                          AccountRepository.instance.logout();
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 24),

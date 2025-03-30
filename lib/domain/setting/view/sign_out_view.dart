@@ -225,11 +225,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
               _showSignOutDialog().then((value) {
                 if (value != null && value) {
                   _api.signOut().then((_) {
-                    AccountRepository.instance.logout().then((result) {
-                      if (result) {
-                        context.go('/login');
-                      }
-                    });
+                    AccountRepository.instance.logout();
                   }).onError((error, stackTrace) {
                     showSnackBar(message: '회원 탈퇴를 실패했어요.');
                   });

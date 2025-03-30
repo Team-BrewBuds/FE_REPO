@@ -4,6 +4,7 @@ import 'package:brew_buds/domain/home/core/home_view_mixin.dart';
 import 'package:brew_buds/domain/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,18 +35,27 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
       controller: scrollController,
       slivers: [
         buildRefreshWidget(),
-        Selector<HomeTastingRecordPresenter, DefaultPage<TastedRecordInFeed>>(
-          selector: (context, presenter) => presenter.defaultPage,
-          builder: (context, page, child) => SliverList.separated(
+        Selector<HomeTastingRecordPresenter, (DefaultPage<TastedRecordInFeed>, List<RecommendedPage>)>(
+          selector: (context, presenter) => (presenter.defaultPage, presenter.recommendedUserPage),
+          builder: (context, selector, child) {
+            final page = selector.$1;
+            final recommendedUserPageList = selector.$2;
+
+            return SliverList.separated(
             itemCount: page.results.length,
             itemBuilder: (context, index) {
               final tastingRecord = page.results[index];
-              if (index % 12 == 11) {
+
+              if (index % 12 == 11 && (index / 12).floor() < recommendedUserPageList.length) {
+                final recommendedUserIndex = (index / 12).floor();
                 return Column(
                   children: [
                     _buildTastingRecordFeed(tastingRecord, index),
                     Container(height: 12, color: ColorStyles.gray20),
-                    buildRemandedBuddies(currentPageIndex: (index / 12).floor()),
+                    buildRemandedBuddies(
+                      page: recommendedUserPageList[recommendedUserIndex],
+                      currentPageIndex: (index / 12).floor(),
+                    ),
                   ],
                 );
               } else {
@@ -53,7 +63,8 @@ class _HomeTastingRecordViewState extends State<HomeTastingRecordView>
               }
             },
             separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
-          ),
+          );
+          },
         ),
       ],
     );

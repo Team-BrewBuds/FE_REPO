@@ -1,17 +1,16 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/core/dio_client.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
-import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/di/router.dart';
-import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
@@ -41,16 +40,10 @@ void main() async {
   await AccountRepository.instance.init();
   await SharedPreferencesRepository.instance.init();
   await PermissionRepository.instance.initPermission();
-  await FirebaseMessaging.instance.getAPNSToken();
+  await NotificationRepository.instance.init();
 
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(
-        create: (context) => LoginPresenter(
-          accountRepository: AccountRepository.instance,
-          loginRepository: LoginRepository.instance,
-        ),
-      ),
       ChangeNotifierProvider(create: (context) => SignUpPresenter()),
     ],
     child: MyApp(router: createRouter(AccountRepository.instance.accessToken.isNotEmpty)),

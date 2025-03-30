@@ -16,7 +16,6 @@ import 'package:provider/provider.dart';
 
 mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresenter> on State<T> {
   late final Throttle paginationThrottle;
-  late final Throttle recommendedPaginationThrottle;
   late final ScrollController scrollController;
   int currentIndex = 0;
   bool isLoading = false;
@@ -35,15 +34,6 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
       },
     );
 
-    recommendedPaginationThrottle = Throttle(
-      const Duration(seconds: 3),
-      initialValue: null,
-      checkEquality: false,
-      onChanged: (_) {
-        _fetchMorRecommendedUsers();
-      },
-    );
-
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       scrollController.addListener(_scrollListener);
       context.read<Presenter>().initState();
@@ -54,23 +44,17 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
   void dispose() {
     scrollController.removeListener(_scrollListener);
     paginationThrottle.cancel();
-    recommendedPaginationThrottle.cancel();
     super.dispose();
   }
 
   _scrollListener() {
     if (scrollController.position.pixels > scrollController.position.maxScrollExtent * 0.7) {
       paginationThrottle.setValue(null);
-      recommendedPaginationThrottle.setValue(null);
     }
   }
 
   _fetchMoreData() {
     context.read<Presenter>().fetchMoreData();
-  }
-
-  _fetchMorRecommendedUsers() {
-    context.read<Presenter>().fetchMoreRecommendedUsers();
   }
 
   @override
@@ -112,56 +96,46 @@ mixin HomeViewMixin<T extends StatefulWidget, Presenter extends HomeViewPresente
     );
   }
 
-  Widget buildRemandedBuddies({required int currentPageIndex}) {
-    return Selector<Presenter, RecommendedPage?>(
-        selector: (context, presenter) => presenter.getRecommendedPage(currentPageIndex),
-        builder: (context, recommendedUserPage, child) {
-          final currentPage = recommendedUserPage;
-          if (currentPage != null) {
-            return Container(
-              height: 304,
-              color: ColorStyles.white,
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(currentPage.category.title(), style: TextStyles.title01SemiBold),
-                  Text(
-                    currentPage.category.contents(),
-                    style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: currentPage.users.length,
-                      itemBuilder: (context, index) {
-                        final remandedBuddy = currentPage.users[index];
-                        return buildRemandedBuddyProfile(
-                          imageUrl: remandedBuddy.profileImageUrl,
-                          nickName: remandedBuddy.nickname,
-                          followCount: '${remandedBuddy.followerCount}',
-                          isFollowed: remandedBuddy.isFollow,
-                          onTappedFollowButton: () {
-                            context.read<Presenter>().onTappedRecommendedUserFollowButton(
-                                  remandedBuddy,
-                                  currentPageIndex,
-                                );
-                          },
-                        );
-                      },
-                      separatorBuilder: (context, index) => const SizedBox(width: 8),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          } else {
-            recommendedPaginationThrottle.setValue(null);
-            return const SizedBox.shrink();
-          }
-        });
+  Widget buildRemandedBuddies({required RecommendedPage page, required int currentPageIndex}) {
+    return Container(
+      height: 304,
+      color: ColorStyles.white,
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(page.category.title(), style: TextStyles.title01SemiBold),
+          Text(
+            page.category.contents(),
+            style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: page.users.length,
+              itemBuilder: (context, index) {
+                final remandedBuddy = page.users[index];
+                return buildRemandedBuddyProfile(
+                  imageUrl: remandedBuddy.profileImageUrl,
+                  nickName: remandedBuddy.nickname,
+                  followCount: '${remandedBuddy.followerCount}',
+                  isFollowed: remandedBuddy.isFollow,
+                  onTappedFollowButton: () {
+                    context.read<Presenter>().onTappedRecommendedUserFollowButton(
+                      remandedBuddy,
+                      currentPageIndex,
+                    );
+                  },
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget buildRemandedBuddyProfile({

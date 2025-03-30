@@ -1,10 +1,8 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -181,42 +179,22 @@ class SNSLogin extends StatelessWidget {
   }
 
   _login(BuildContext context, SocialLogin socialLogin) async {
-    final result = await context.read<LoginPresenter>().login(socialLogin);
-    if (context.mounted) {
-      switch (result) {
-        case Success<bool>():
-          if (result.data) {
-            _saveData(context);
-          } else {
-            _checkModal(context);
-          }
+    context.read<LoginPresenter>().login(socialLogin).then((value) {
+      switch (value) {
+        case null:
+          showSnackBar(context, message: '로그인에 실패했습니다.');
           break;
-        case Error<bool>():
+        case LoginResult.login:
           break;
+        case LoginResult.needSignUp:
+          _checkModal(context);
       }
-    }
-  }
-
-  _saveData(BuildContext context) async {
-    final result = await context.read<LoginPresenter>().saveLoginResults();
-    switch (result) {
-      case Success<String>():
-        if (context.mounted) {
-          _pushToHome(context);
-        }
-        break;
-      case Error<String>():
-        break;
-    }
+    });
   }
 
   _pushToSignUp(BuildContext context) {
     final data = context.read<LoginPresenter>().loginResultData;
     context.go('/signup?id=${data.id}&access_token=${data.accessToken}&refresh_token=${data.refreshToken}');
-  }
-
-  _pushToHome(BuildContext context) {
-    context.go('/home');
   }
 
   void _checkModal(BuildContext context) async {
@@ -236,5 +214,28 @@ class SNSLogin extends StatelessWidget {
     if (agreeToTerms != null && agreeToTerms && context.mounted) {
       _pushToSignUp(context);
     }
+  }
+
+  showSnackBar(BuildContext context, {required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black.withAlpha(90),
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+    );
   }
 }

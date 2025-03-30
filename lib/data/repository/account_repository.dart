@@ -1,3 +1,4 @@
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -37,17 +38,23 @@ class AccountRepository extends ChangeNotifier {
       await _storage.write(key: 'refresh', value: refreshToken);
       _refreshToken = refreshToken;
     }
+
+    notifyListeners();
   }
 
-  saveId({required int id}) {
-    _storage.write(key: 'id', value: '$id');
+  Future<void> saveId({required int id}) async {
+    await _storage.write(key: 'id', value: '$id');
     _id = id;
   }
 
-  Future<bool> logout() async {
-    _id = null;
-    _accessToken = '';
-    _refreshToken = '';
-    return _storage.deleteAll().then((value) => true).onError((error, stackTrace) => false);
+  Future<void> logout() async {
+    if (await NotificationRepository.instance.deleteToken().onError((error, stackTrace) => false)) {
+      await _storage.deleteAll().then((value) {
+        _id = null;
+        _accessToken = '';
+        _refreshToken = '';
+        notifyListeners();
+      });
+    }
   }
 }

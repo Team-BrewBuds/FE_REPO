@@ -18,6 +18,8 @@ final class HomeTastingRecordPresenter extends HomeViewPresenter<TastedRecordInF
       currentPage += 1;
       notifyListeners();
     }
+
+    super.fetchMoreData();
   }
 
   @override

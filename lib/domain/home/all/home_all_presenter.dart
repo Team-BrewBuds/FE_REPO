@@ -37,6 +37,8 @@ final class HomeAllPresenter extends HomeViewPresenter<Feed> {
     if (defaultPage.results.length < 12 && _currentTypeIndex < 3) {
       fetchMoreData();
     }
+
+    super.fetchMoreData();
   }
 
   @override
