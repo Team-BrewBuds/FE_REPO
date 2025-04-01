@@ -7,7 +7,9 @@ import 'package:brew_buds/data/api/save_api.dart';
 import 'package:brew_buds/data/dto/post/post_dto.dart';
 import 'package:brew_buds/data/mapper/post/post_mapper.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/post/post.dart';
+import 'package:flutter/foundation.dart';
 
 class PostRepository {
   final PostApi _postApi = PostApi();
@@ -23,18 +25,21 @@ class PostRepository {
 
   factory PostRepository() => instance;
 
-  Future<DefaultPage<Post>> fetchPostPage({required String? subjectFilter, required int pageNo}) =>
-      _postApi.fetchPostFeedPage(subject: subjectFilter, pageNo: pageNo).then(
-        (jsonString) {
-          final json = jsonDecode(jsonString);
-          return DefaultPage.fromJson(
-            json,
-            (jsonT) {
-              return PostDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
-            },
-          );
-        },
-      );
+  Future<DefaultPage<Feed>> fetchPostPage({required String? subjectFilter, required int pageNo}) async {
+    final jsonString = await _postApi.fetchPostFeedPage(subject: subjectFilter, pageNo: pageNo);
+    return compute(
+      (jsonString) {
+        final json = jsonDecode(jsonString);
+        return DefaultPage.fromJson(
+          json,
+          (jsonT) {
+            return Feed.post(data: PostDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
+          },
+        );
+      },
+      jsonString,
+    );
+  }
 
   Future<Post> fetchPost({required int id}) => _postApi.fetchPost(id: id).then((postDTO) => postDTO.toDomain());
 

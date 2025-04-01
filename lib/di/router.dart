@@ -1,12 +1,10 @@
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
-import 'package:brew_buds/domain/home/all/home_all_presenter.dart';
+import 'package:brew_buds/domain/home/home_presenter.dart';
 import 'package:brew_buds/domain/home/home_screen.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_view.dart';
-import 'package:brew_buds/domain/home/post/home_post_presenter.dart';
-import 'package:brew_buds/domain/home/tasting_record/home_tasting_record_presenter.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_page_first.dart';
 import 'package:brew_buds/domain/login/views/login_page_sns.dart';
@@ -39,7 +37,6 @@ import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 GoRouter createRouter(bool hasToken) {
-  final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
   return GoRouter(
     initialLocation: hasToken ? '/home' : '/login',
     refreshListenable: AccountRepository.instance,
@@ -116,21 +113,9 @@ GoRouter createRouter(bool hasToken) {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => MultiProvider(
-              providers: [
-                ChangeNotifierProvider(
-                  create: (_) => HomeAllPresenter(),
-                ),
-                ChangeNotifierProvider(
-                  create: (_) => HomePostPresenter(),
-                ),
-                ChangeNotifierProvider(
-                  create: (_) => HomeTastingRecordPresenter(),
-                ),
-              ],
-              child: HomeView(
-                nestedScrollViewState: homeTabBarScrollState,
-              ),
+            builder: (context, state) => ChangeNotifierProvider(
+              create: (_) => HomePresenter(),
+              child: HomeView(),
             ),
             routes: [
               GoRoute(

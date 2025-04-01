@@ -9,14 +9,14 @@ class DefaultPage<T> {
   @JsonKey(defaultValue: [])
   final List<T> results;
   @JsonKey(name: 'next', defaultValue: false, fromJson: _hasNextFromJson)
-  final bool hasNext;
+  bool hasNext;
 
   factory DefaultPage.fromJson(Map<String, dynamic> json, T Function(Object? json) fromJsonT) =>
       _$DefaultPageFromJson<T>(json, fromJsonT);
 
-  factory DefaultPage.initState() => DefaultPage(results: List<T>.empty(), hasNext: true, count: 0);
+  factory DefaultPage.initState() => DefaultPage(results: List<T>.empty(growable: true), hasNext: true, count: 0);
 
-  const DefaultPage({
+  DefaultPage({
     required this.count,
     required this.results,
     required this.hasNext,

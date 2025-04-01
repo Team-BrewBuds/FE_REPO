@@ -3,6 +3,7 @@ import 'package:brew_buds/data/repository/popular_posts_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
+import 'package:flutter/foundation.dart';
 
 typedef PopularPostSubjectFilterState = ({List<String> postSubjectFilterList, int currentIndex});
 
@@ -49,7 +50,7 @@ final class PopularPostsPresenter extends Presenter {
     _page = DefaultPage.initState();
     _currentPage = 0;
     notifyListeners();
-    fetchMoreData();
+    await fetchMoreData();
   }
 
   Future<void> fetchMoreData() async {
@@ -58,27 +59,13 @@ final class PopularPostsPresenter extends Presenter {
         subject: _postSubjectFilterList[_currentFilterIndex].toJsonValue() ?? '',
         pageNo: _currentPage + 1,
       );
-      _page = _page.copyWith(
-        results: _page.results + nextPage.results,
-        hasNext: nextPage.hasNext,
-      );
+
+      _page = await compute((message) {
+        return message.$2.copyWith(results: message.$1.results + message.$2.results);
+      }, (_page, nextPage));
+
       _currentPage += 1;
       notifyListeners();
-    }
-  }
-
-  bool _disposed = false;
-
-  @override
-  void dispose() {
-    _disposed = true;
-    super.dispose();
-  }
-
-  @override
-  notifyListeners() {
-    if (!_disposed) {
-      super.notifyListeners();
     }
   }
 

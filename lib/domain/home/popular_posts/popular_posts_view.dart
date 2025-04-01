@@ -9,6 +9,7 @@ import 'package:brew_buds/domain/home/popular_posts/popular_post.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,11 +22,24 @@ class PopularPostsView extends StatefulWidget {
 }
 
 class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<PopularPostsView> {
+  late final Throttle<bool> pageNationThrottle;
   late final ScrollController scrollController;
 
   @override
   void initState() {
-    scrollController = ScrollController();
+    scrollController = ScrollController()
+      ..addListener(() {
+        _scrollListener();
+      });
+    pageNationThrottle = Throttle(
+      const Duration(seconds: 3),
+      initialValue: false,
+      onChanged: (value) {
+        if (value) {
+          _fetchMoreData();
+        }
+      },
+    );
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<PopularPostsPresenter>().initState();
@@ -34,8 +48,22 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
 
   @override
   void dispose() {
+    scrollController.removeListener(() {
+      _scrollListener();
+    });
     scrollController.dispose();
+    pageNationThrottle.cancel();
     super.dispose();
+  }
+
+  _scrollListener() {
+    if (scrollController.position.pixels > scrollController.position.maxScrollExtent * 0.7) {
+      pageNationThrottle.setValue(true);
+    }
+  }
+
+  _fetchMoreData() {
+    context.read<PopularPostsPresenter>().fetchMoreData();
   }
 
   @override
@@ -50,6 +78,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
       body: Container(
         color: ColorStyles.gray20,
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           controller: scrollController,
           slivers: [
             buildSubjectFilter(),
@@ -78,68 +107,69 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
               },
             ),
             Selector<PopularPostsPresenter, DefaultPage<Post>>(
-                selector: (context, presenter) => presenter.page,
-                builder: (context, page, child) {
-                  return SliverList.separated(
-                    itemCount: page.results.length,
-                    itemBuilder: (context, index) {
-                      final popularPost = page.results[index];
-                      return GestureDetector(
-                        onTap: () {
-                          showCupertinoModalPopup<String>(
-                            barrierColor: ColorStyles.white,
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (context) {
-                              return ChangeNotifierProvider<PostDetailPresenter>(
-                                create: (_) => PostDetailPresenter(id: popularPost.id),
-                                child: const PostDetailView(),
-                              );
-                            },
-                          ).then((result) {
-                            if (result != null) {
-                              showSnackBar(message: result);
-                            }
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
-                          color: ColorStyles.white,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: PopularPostWidget(
-                                  title: popularPost.title,
-                                  bodyText: popularPost.contents,
-                                  likeCount: '${popularPost.likeCount > 999 ? '999+' : popularPost.likeCount}',
-                                  isLiked: popularPost.isLiked,
-                                  commentsCount:
-                                      '${popularPost.commentsCount > 999 ? '999+' : popularPost.commentsCount}',
-                                  hasComment: false,
-                                  tag: popularPost.subject.toString(),
-                                  writingTime: popularPost.createdAt,
-                                  hitsCount: '조회 ${popularPost.viewCount > 9999 ? '9999+' : popularPost.viewCount}',
-                                  nickName: popularPost.author.nickname,
-                                  imageUrl: popularPost.imagesUrl.firstOrNull,
-                                ),
+              selector: (context, presenter) => presenter.page,
+              builder: (context, page, child) {
+                return SliverList.separated(
+                  itemCount: page.results.length,
+                  itemBuilder: (context, index) {
+                    final popularPost = page.results[index];
+                    return GestureDetector(
+                      onTap: () {
+                        showCupertinoModalPopup<String>(
+                          barrierColor: ColorStyles.white,
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (context) {
+                            return ChangeNotifierProvider<PostDetailPresenter>(
+                              create: (_) => PostDetailPresenter(id: popularPost.id),
+                              child: const PostDetailView(),
+                            );
+                          },
+                        ).then((result) {
+                          if (result != null) {
+                            showSnackBar(message: result);
+                          }
+                        });
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
+                        color: ColorStyles.white,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: PopularPostWidget(
+                                title: popularPost.title,
+                                bodyText: popularPost.contents,
+                                likeCount: '${popularPost.likeCount > 999 ? '999+' : popularPost.likeCount}',
+                                isLiked: popularPost.isLiked,
+                                commentsCount:
+                                    '${popularPost.commentsCount > 999 ? '999+' : popularPost.commentsCount}',
+                                hasComment: false,
+                                tag: popularPost.subject.toString(),
+                                writingTime: popularPost.createdAt,
+                                hitsCount: '조회 ${popularPost.viewCount > 9999 ? '9999+' : popularPost.viewCount}',
+                                nickName: popularPost.author.nickname,
+                                imageUrl: popularPost.imagesUrl.firstOrNull,
                               ),
-                              SizedBox(width: popularPost.imagesUrl.isNotEmpty ? 8 : 0),
-                              popularPost.imagesUrl.isNotEmpty
-                                  ? MyNetworkImage(
-                                      imageUrl: popularPost.imagesUrl.first,
-                                      height: 80,
-                                      width: 80,
-                                    )
-                                  : const SizedBox.shrink(),
-                            ],
-                          ),
+                            ),
+                            SizedBox(width: popularPost.imagesUrl.isNotEmpty ? 8 : 0),
+                            popularPost.imagesUrl.isNotEmpty
+                                ? MyNetworkImage(
+                                    imageUrl: popularPost.imagesUrl.first,
+                                    height: 80,
+                                    width: 80,
+                                  )
+                                : const SizedBox.shrink(),
+                          ],
                         ),
-                      );
-                    },
-                    separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray20),
-                  );
-                }),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray20),
+                );
+              },
+            ),
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 200,
@@ -185,13 +215,13 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
                           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
                           decoration: index == subjectFilterState.currentIndex
                               ? const BoxDecoration(
-                            color: ColorStyles.black,
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          )
+                                  color: ColorStyles.black,
+                                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                                )
                               : BoxDecoration(
-                            border: Border.all(color: ColorStyles.gray70),
-                            borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          ),
+                                  border: Border.all(color: ColorStyles.gray70),
+                                  borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                ),
                           child: Text(
                             subjectFilterState.postSubjectFilterList[index],
                             style: TextStyles.labelMediumMedium.copyWith(

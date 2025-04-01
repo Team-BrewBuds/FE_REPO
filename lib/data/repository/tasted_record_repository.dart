@@ -17,6 +17,7 @@ import 'package:brew_buds/data/mapper/tasted_record/tasted_record_mapper.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/local.dart';
+import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
@@ -37,14 +38,14 @@ class TastedRecordRepository {
 
   factory TastedRecordRepository() => instance;
 
-  Future<DefaultPage<TastedRecordInFeed>> fetchTastedRecordFeedPage({required int pageNo}) =>
+  Future<DefaultPage<Feed>> fetchTastedRecordFeedPage({required int pageNo}) =>
       _tastedRecordApi.fetchTastingRecordFeedPage(pageNo: pageNo).then(
         (jsonString) {
           final json = jsonDecode(jsonString);
           return DefaultPage.fromJson(
             json,
             (jsonT) {
-              return TastedRecordInFeedDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
+              return Feed.tastedRecord(data: TastedRecordInFeedDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
             },
           );
         },

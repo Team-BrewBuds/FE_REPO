@@ -13,6 +13,7 @@ import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_feed_mapper
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/recommended/recommended_page.dart';
+import 'package:flutter/foundation.dart';
 
 enum FeedType {
   following,
@@ -42,8 +43,12 @@ final class HomeRepository {
 
   factory HomeRepository() => instance;
 
-  Future<DefaultPage<Feed>> fetchFeedPage({required FeedType feedType, required int pageNo}) {
-    return _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).then(
+  Future<DefaultPage<Feed>> fetchFeedPage({required FeedType feedType, required int pageNo}) async {
+    final jsonString =
+        await _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).onError((_, __) => '');
+
+    if (jsonString.isNotEmpty) {
+      return await compute<String, DefaultPage<Feed>>(
         (jsonString) {
           final json = jsonDecode(jsonString);
           return DefaultPage<Feed>.fromJson(json, (jsonT) {
@@ -55,13 +60,34 @@ final class HomeRepository {
             }
           });
         },
+        jsonString,
       );
+    } else {
+      return DefaultPage.initState();
+    }
+
+    return _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).then(
+      (jsonString) {
+        final json = jsonDecode(jsonString);
+        return DefaultPage<Feed>.fromJson(json, (jsonT) {
+          final jsonMap = jsonT as Map<String, dynamic>;
+          if (jsonMap.containsKey('tasted_records')) {
+            return Feed.post(data: PostDTO.fromJson(jsonMap).toDomain());
+          } else {
+            return Feed.tastedRecord(data: TastedRecordInFeedDTO.fromJson(jsonMap).toDomain());
+          }
+        });
+      },
+    );
   }
 
-  Future<RecommendedPage> fetchRecommendedUserPage() =>
-      _recommendationApi.fetchRecommendedBuddyPage().then(
+  Future<RecommendedPage> fetchRecommendedUserPage() async {
+    final result = await _recommendationApi.fetchRecommendedBuddyPage();
+    return compute((result) => result.toDomain(), result);
+    return _recommendationApi.fetchRecommendedBuddyPage().then(
         (result) => result.toDomain(),
       );
+  }
 
   Future<void> like({required String type, required int id, required bool isLiked}) {
     if (isLiked) {

@@ -6,6 +6,7 @@ import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/user.dart';
+import 'package:flutter/foundation.dart';
 
 typedef BottomTextFieldState = ({String? reCommentAuthorNickname, String authorNickname});
 
@@ -22,6 +23,7 @@ final class CommentsPresenter extends Presenter {
   final int _id;
   final User author;
   final CommentsRepository _repository = CommentsRepository.instance;
+  bool _isLoading = false;
   int _currentPage = 0;
   Comment? _replyComment;
   DefaultPage<Comment> _page = DefaultPage.initState();
@@ -30,10 +32,10 @@ final class CommentsPresenter extends Presenter {
     required bool isPost,
     required int id,
     required this.author,
-    required AccountRepository accountRepository,
-    required CommentsRepository repository,
   })  : _type = isPost ? _FeedType.post : _FeedType.tastingRecord,
         _id = id;
+
+  bool get isLoading => _isLoading;
 
   DefaultPage<Comment> get page => _page;
 
@@ -42,15 +44,27 @@ final class CommentsPresenter extends Presenter {
         authorNickname: author.nickname,
       );
 
-  refresh() {
+  refresh() async {
     _currentPage = 0;
     _replyComment = null;
     _page = DefaultPage.initState();
-    fetchMoreData();
+    _isLoading = true;
+    notifyListeners();
+
+    await fetchMoreData();
+
+    _isLoading = false;
+    notifyListeners();
   }
 
-  initState() {
-    fetchMoreData();
+  initState() async {
+    _isLoading = true;
+    notifyListeners();
+
+    await fetchMoreData();
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   fetchMoreData() async {
@@ -60,32 +74,39 @@ final class CommentsPresenter extends Presenter {
         id: _id,
         pageNo: _currentPage + 1,
       );
-      _page = _page.copyWith(
-        results: _page.results + newPage.results.where((element) => !_page.results.contains(element)).toList(),
-        hasNext: newPage.hasNext,
+      _page = await compute(
+        (message) {
+          return message.$2.copyWith(
+            results: message.$1.results +
+                message.$2.results.where((element) => !message.$1.results.contains(element)).toList(),
+          );
+        },
+        (_page, newPage),
       );
       _currentPage += 1;
       notifyListeners();
     }
   }
 
-  Future<void> createNewComment({required String content}) {
-    final parentId = _replyComment?.id;
-    return _repository
-        .createNewComment(feedType: _type.toString(), id: _id, content: content, parentId: parentId)
-        .then((newComment) {
+  Future<void> createNewComment({required String content}) async {
+    try {
+      final parentId = _replyComment?.id;
+      await _repository.createNewComment(feedType: _type.toString(), id: _id, content: content, parentId: parentId);
       if (parentId != null) {
-        _repository.fetchComment(id: parentId).then((newParentComment) {
-          _page = _page.copyWith(
-            results: List<Comment>.from(_page.results).map((e) => e.id == parentId ? newParentComment : e).toList(),
-          );
-          _replyComment = null;
-          notifyListeners();
-        });
+        final newParentComment = await _repository.fetchComment(id: parentId);
+        _page = await compute(
+          (message) => message.$1.copyWith(
+            results: List<Comment>.from(message.$1.results).map((e) => e.id == message.$2.id ? message.$2 : e).toList(),
+          ),
+          (_page, newParentComment),
+        );
+        notifyListeners();
       } else {
         refresh();
       }
-    });
+    } catch (_) {
+      rethrow;
+    }
   }
 
   deleteComment({required Comment comment}) {
@@ -130,28 +151,30 @@ final class CommentsPresenter extends Presenter {
     return AccountRepository.instance.id == author.id || AccountRepository.instance.id == id;
   }
 
-  _updateComments({required Comment newComment}) {
-    final parentId = newComment.parentId;
-    if (parentId != null) {
-      _page = _page.copyWith(
-        results: List<Comment>.from(_page.results).map((comment) {
+  _updateComments({required Comment newComment}) async {
+    _page = await compute((message) {
+      final parentId = message.$2.parentId;
+      if (parentId != null) {
+        return message.$1.copyWith(
+            results: List<Comment>.from(message.$1.results).map((comment) {
           if (comment.id == parentId) {
             return comment.copyWith(
               reComments: List<Comment>.from(comment.reComments)
-                  .map((reComment) => reComment.id == newComment.id ? newComment : reComment)
+                  .map((reComment) => reComment.id == message.$2.id ? message.$2 : reComment)
                   .toList(),
             );
           } else {
             return comment;
           }
-        }).toList(),
-      );
-      notifyListeners();
-    } else {
-      _page = _page.copyWith(
-        results: List<Comment>.from(_page.results).map((comment) => comment.id == newComment.id ? newComment : comment).toList(),
-      );
-      notifyListeners();
-    }
+        }).toList());
+      } else {
+        return message.$1.copyWith(
+          results: List<Comment>.from(message.$1.results)
+              .map((comment) => comment.id == message.$2.id ? message.$2 : comment)
+              .toList()
+        );
+      }
+    }, (_page, newComment));
+    notifyListeners();
   }
 }
