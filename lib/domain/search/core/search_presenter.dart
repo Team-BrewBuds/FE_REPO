@@ -11,12 +11,15 @@ abstract class SearchPresenter extends Presenter {
   final SearchRepository searchRepository = SearchRepository.instance;
   final List<SearchSubject> _searchSubjectList = SearchSubject.values;
   late final Debouncer suggestThrottle;
+  bool _isLoadingRecentSearchWords = false;
   bool _isSuggestMode = false;
   int _currentTabIndex;
   String _searchWord;
   List<String> _suggestSearchWords = [];
 
   List<String> recentSearchWords = [];
+
+  bool get isLoadingRecentSearchWords => _isLoadingRecentSearchWords;
 
   String get searchWord => _searchWord;
 
@@ -87,7 +90,11 @@ abstract class SearchPresenter extends Presenter {
   }
 
   fetchRecentSearchWords() {
+    _isLoadingRecentSearchWords = true;
+    notifyListeners();
+
     recentSearchWords = List.from(sharedPreferencesRepository.recentSearchWords);
+    _isLoadingRecentSearchWords = false;
     notifyListeners();
   }
 

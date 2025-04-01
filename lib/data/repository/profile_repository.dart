@@ -8,6 +8,8 @@ import 'package:brew_buds/data/api/tasted_record_api.dart';
 import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_in_profile_dto.dart';
 import 'package:brew_buds/data/dto/post/noted_post_dto.dart';
 import 'package:brew_buds/data/dto/post/post_in_profile_dto.dart';
+import 'package:brew_buds/data/dto/profile/account_info_dto.dart';
+import 'package:brew_buds/data/dto/profile/profile_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/noted_tasted_record_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_profile_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_in_profile_mapper.dart';
@@ -28,6 +30,7 @@ import 'package:brew_buds/model/profile/profile.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ProfileRepository {
@@ -47,9 +50,35 @@ class ProfileRepository {
 
   factory ProfileRepository() => instance;
 
-  Future<Profile> fetchMyProfile() => _profileApi.fetchMyProfile().then((value) => value.toDomain());
+  Future<Profile> fetchMyProfile() async {
+    final jsonString = await _profileApi.fetchMyProfile();
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return ProfileDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
+  }
 
-  Future<Profile> fetchProfile({required int id}) => _profileApi.fetchProfile(id: id).then((value) => value.toDomain());
+  Future<Profile> fetchProfile({required int id}) async {
+    final jsonString = await _profileApi.fetchProfile(id: id);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return ProfileDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
+  }
 
   Future<bool> isValidNickname({required String nickname}) async {
     return _duplicatedNicknameApi.checkNickname(nickname: nickname).then(
@@ -104,17 +133,36 @@ class ProfileRepository {
     };
   }
 
-  Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId}) {
-    return _postApi.fetchPostPage(userId: userId).then((jsonString) {
-      final json = jsonDecode(jsonString);
-      return DefaultPage.fromJson(json, (jsonT) {
-        return PostInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
-      });
-    });
+  Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId}) async {
+    final jsonString = await _postApi.fetchPostPage(userId: userId);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(json, (jsonT) {
+            return PostInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
+          });
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
   }
 
-  Future<AccountInfo> fetchInfo({required int id}) {
-    return _profileApi.fetchUserInfo(id: id).then((value) => value.toDomain());
+  Future<AccountInfo> fetchInfo({required int id}) async {
+    final jsonString = await _profileApi.fetchUserInfo(id: id);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return AccountInfoDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<DefaultPage<TastedRecordInProfile>> fetchTastedRecordPage({
@@ -128,9 +176,8 @@ class ProfileRepository {
     double? roastingPointMax,
     double? ratingMin,
     double? ratingMax,
-  }) {
-    return _tastedRecordApi
-        .fetchTastedRecordPage(
+  }) async {
+    final jsonString = await _tastedRecordApi.fetchTastedRecordPage(
       userId: userId,
       pageNo: pageNo,
       orderBy: orderBy,
@@ -141,17 +188,23 @@ class ProfileRepository {
       roastingPointMax: roastingPointMax,
       ratingMin: ratingMin,
       ratingMax: ratingMax,
-    )
-        .then(
+    );
+
+    return compute(
       (jsonString) {
-        final json = jsonDecode(jsonString);
-        return DefaultPage.fromJson(
-          json,
-          (jsonT) {
-            return TastedRecordInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
-          },
-        );
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) {
+              return TastedRecordInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
+            },
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
       },
+      jsonString,
     );
   }
 
@@ -166,9 +219,8 @@ class ProfileRepository {
     double? roastingPointMax,
     double? ratingMin,
     double? ratingMax,
-  }) {
-    return _beanApi
-        .fetchBeans(
+  }) async {
+    final jsonString = await _beanApi.fetchBeans(
       id: userId,
       pageNo: pageNo,
       ordering: orderBy,
@@ -179,31 +231,45 @@ class ProfileRepository {
       roastingPointMax: roastingPointMax,
       starMin: ratingMin,
       starMax: ratingMax,
-    )
-        .then(
+    );
+
+    return compute(
       (jsonString) {
-        final json = jsonDecode(jsonString);
-        return DefaultPage.fromJson(
-          json,
-          (jsonT) {
-            return CoffeeBeanInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
-          },
-        );
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) {
+              return CoffeeBeanInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
+            },
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
       },
+      jsonString,
     );
   }
 
-  Future<DefaultPage<NotedObject>> fetchNotePage({required int userId, required int pageNo}) {
-    return _profileApi.fetchSavedNotes(id: userId, pageNo: pageNo).then((jsonString) {
-      final json = jsonDecode(jsonString);
-      return DefaultPage.fromJson(json, (jsonT) {
-        final jsonMap = jsonT as Map<String, dynamic>;
-        if (jsonMap.containsKey('post_id')) {
-          return NotedPostDTO.fromJson(jsonMap).toDomain();
-        } else {
-          return NotedTastedRecordDTO.fromJson(jsonMap).toDomain();
+  Future<DefaultPage<NotedObject>> fetchNotePage({required int userId, required int pageNo}) async {
+    final jsonString = await _profileApi.fetchSavedNotes(id: userId, pageNo: pageNo);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(json, (jsonT) {
+            final jsonMap = jsonT as Map<String, dynamic>;
+            if (jsonMap.containsKey('post_id')) {
+              return NotedPostDTO.fromJson(jsonMap).toDomain();
+            } else {
+              return NotedTastedRecordDTO.fromJson(jsonMap).toDomain();
+            }
+          });
+        } catch (e) {
+          return DefaultPage.initState();
         }
-      });
-    });
+      },
+      jsonString,
+    );
   }
 }

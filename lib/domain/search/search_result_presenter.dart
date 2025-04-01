@@ -20,6 +20,7 @@ typedef PostFilterState = ({
 });
 
 final class SearchResultPresenter extends SearchPresenter {
+  bool _isLoading = false;
   String _previousSearchWord;
   int _previousTabIndex;
   int _currentSortCriteriaIndex = 0;
@@ -27,6 +28,8 @@ final class SearchResultPresenter extends SearchPresenter {
   DefaultPage<SearchResultModel> _page = DefaultPage.initState();
   int _pageNo = 1;
   List<CoffeeBeanFilter> _filters = [];
+
+  bool get isLoading => _isLoading;
 
   String get previousSearchWord => _previousSearchWord;
 
@@ -82,6 +85,10 @@ final class SearchResultPresenter extends SearchPresenter {
 
   fetchMoreData() async {
     if(!_page.hasNext) return;
+
+    _isLoading = true;
+    notifyListeners();
+
     switch (currentSubject) {
       case SearchSubject.coffeeBean:
         final newPage = await searchRepository.searchBean(
@@ -128,12 +135,16 @@ final class SearchResultPresenter extends SearchPresenter {
         break;
     }
     _pageNo++;
+    _isLoading = false;
     notifyListeners();
   }
 
   @override
   fetchData() async {
     _pageNo = 1;
+    _isLoading = true;
+    notifyListeners();
+
     switch (currentSubject) {
       case SearchSubject.coffeeBean:
         _page = await searchRepository.searchBean(
@@ -176,6 +187,7 @@ final class SearchResultPresenter extends SearchPresenter {
         break;
     }
     _pageNo++;
+    _isLoading = false;
     notifyListeners();
   }
 

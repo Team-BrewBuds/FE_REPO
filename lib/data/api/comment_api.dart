@@ -8,7 +8,7 @@ part 'comment_api.g.dart';
 @RestApi()
 abstract class CommentApi {
   @GET('/records/comment/{id}/')
-  Future<CommentDTO> fetchComment({
+  Future<String> fetchComment({
     @Path() required int id,
   });
 
@@ -18,7 +18,7 @@ abstract class CommentApi {
   });
 
   @POST('/records/comment/{feedType}/{id}/')
-  Future<CommentDTO> createComment({
+  Future<String> createComment({
     @Path() required String feedType,
     @Path() required int id,
     @Body() required Map<String, dynamic> data,

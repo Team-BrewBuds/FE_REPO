@@ -28,7 +28,7 @@ abstract class BeansApi {
   });
 
   @GET('/beans/{id}/')
-  Future<CoffeeBeanDetailDTO> fetchBeanDetail({
+  Future<String> fetchBeanDetail({
     @Path('id') required int id,
   });
 

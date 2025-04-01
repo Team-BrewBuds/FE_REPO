@@ -29,19 +29,34 @@ class PostRepository {
     final jsonString = await _postApi.fetchPostFeedPage(subject: subjectFilter, pageNo: pageNo);
     return compute(
       (jsonString) {
-        final json = jsonDecode(jsonString);
-        return DefaultPage.fromJson(
-          json,
-          (jsonT) {
-            return Feed.post(data: PostDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
-          },
-        );
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) => Feed.post(data: PostDTO.fromJson(jsonT as Map<String, dynamic>).toDomain()),
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
       },
       jsonString,
     );
   }
 
-  Future<Post> fetchPost({required int id}) => _postApi.fetchPost(id: id).then((postDTO) => postDTO.toDomain());
+  Future<Post> fetchPost({required int id}) async {
+    final jsonString = await _postApi.fetchPost(id: id);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return PostDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
+  }
 
   Future<void> like({required Post post}) {
     if (post.isLiked) {

@@ -40,7 +40,7 @@ abstract class NotificationApi {
   });
 
   @GET('/notifications/settings/')
-  Future<NotificationSettingDTO> fetchNotificationSettings();
+  Future<String> fetchNotificationSettings();
 
   @POST('/notifications/settings/')
   Future<void> createNotificationSettings({

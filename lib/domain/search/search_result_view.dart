@@ -17,6 +17,7 @@ import 'package:brew_buds/domain/search/widgets/coffee_bean_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/post_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/tatsed_record_results_item.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -127,10 +128,21 @@ class _SearchResultViewState extends State<SearchResultView>
         buildTabBar(),
         _buildFilter(),
         Expanded(
-          child: Selector<SearchResultPresenter, List<SearchResultModel>>(
-            selector: (context, presenter) => presenter.resultList,
-            builder: (context, searchResultList, child) =>
-                searchResultList.isNotEmpty ? _buildSearchResult(searchResultList: searchResultList) : buildEmpty(),
+          child: Builder(
+            builder: (context) {
+              final isLoading = context.select<SearchResultPresenter, bool>((presenter) => presenter.isLoading);
+              final searchResultList = context.select<SearchResultPresenter, List<SearchResultModel>>(
+                (presenter) => presenter.resultList,
+              );
+
+              if (isLoading) {
+                return const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70));
+              } else {
+                return searchResultList.isNotEmpty
+                    ? _buildSearchResult(searchResultList: searchResultList)
+                    : buildEmpty();
+              }
+            },
           ),
         ),
       ],
@@ -410,7 +422,7 @@ class _SearchResultViewState extends State<SearchResultView>
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: ColorStyles.black50,
       transitionDuration: const Duration(milliseconds: 300),
       context: context,
       pageBuilder: (_, __, ___) {
@@ -441,7 +453,7 @@ class _SearchResultViewState extends State<SearchResultView>
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: ColorStyles.black50,
       transitionDuration: const Duration(milliseconds: 300),
       context: context,
       pageBuilder: (_, __, ___) {
@@ -468,7 +480,7 @@ class _SearchResultViewState extends State<SearchResultView>
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: ColorStyles.black50,
       transitionDuration: const Duration(milliseconds: 300),
       context: context,
       pageBuilder: (_, __, ___) {

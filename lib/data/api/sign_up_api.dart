@@ -8,7 +8,7 @@ part 'sign_up_api.g.dart';
 @RestApi()
 abstract class SignUpApi {
   @POST('/profiles/login/{socialType}/finish/')
-  Future<SocialLoginDTO> registerToken({
+  Future<String> registerToken({
     @Path('socialType') required String socialType,
     @Body() required Map<String, dynamic> data,
   });

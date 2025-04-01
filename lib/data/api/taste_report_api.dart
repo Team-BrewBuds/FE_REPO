@@ -9,7 +9,7 @@ part 'taste_report_api.g.dart';
 @RestApi()
 abstract class TasteReportApi {
   @GET('/profiles/pref_report/summary/{user_id}/')
-  Future<ActivitySummaryDTO> fetchActivitySummary({
+  Future<String> fetchActivitySummary({
     @Path('user_id') required int id,
   });
 
@@ -22,7 +22,7 @@ abstract class TasteReportApi {
   });
 
   @GET('/profiles/pref_report/star/{user_id}/')
-  Future<RatingDistributionDTO> fetchRatingDistribution({
+  Future<String> fetchRatingDistribution({
     @Path('user_id') required int id,
   });
 

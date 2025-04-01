@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:brew_buds/data/api/notification_api.dart';
+import 'package:brew_buds/data/dto/notification/notification_setting_dto.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
@@ -25,8 +28,6 @@ final class NotificationRepository {
     if (token != null && token.isNotEmpty) {
       _token = token;
     }
-
-    print(_token);
 
     FirebaseMessaging.instance.onTokenRefresh.listen((event) {
       _token = event;
@@ -58,11 +59,19 @@ final class NotificationRepository {
     }
   }
 
-  Future<NotificationSetting?> fetchSettings() {
-    return _notificationApi
-        .fetchNotificationSettings()
-        .then((value) => Future<NotificationSetting?>.value(value.toDomain()))
-        .onError((error, stackTrace) => null);
+  Future<NotificationSetting?> fetchSettings() async {
+    final jsonString = await _notificationApi.fetchNotificationSettings();
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return NotificationSettingDTO.fromJson(json).toDomain();
+        } catch (e) {
+          return null;
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<bool> createSettings({required NotificationSetting notificationSetting}) {

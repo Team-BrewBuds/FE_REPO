@@ -2,6 +2,7 @@ import 'package:brew_buds/domain/search/core/search_presenter.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 
 final class SearchHomePresenter extends SearchPresenter {
+  bool _isLoadingRecommendedBeanList = false;
   List<RecommendedCoffeeBean> _recommendedBeanList = [];
   List<String> _beanRankingList = [];
 
@@ -11,6 +12,8 @@ final class SearchHomePresenter extends SearchPresenter {
   });
 
   List<RecommendedCoffeeBean> get recommendedBeanList => _recommendedBeanList;
+
+  bool get isLoadingRecommendedBeanList => _isLoadingRecommendedBeanList;
 
   List<String> get beanRankingList => _beanRankingList;
 
@@ -22,14 +25,18 @@ final class SearchHomePresenter extends SearchPresenter {
   }
 
   @override
-  onRefresh() {
+  onRefresh() async {
     fetchRecentSearchWords();
-    _fetchRecommendedBeanList();
     _fetchBeanRankingList();
+    await _fetchRecommendedBeanList();
   }
 
-  _fetchRecommendedBeanList() async {
+  Future<void> _fetchRecommendedBeanList() async {
+    _isLoadingRecommendedBeanList = true;
+    notifyListeners();
+
     _recommendedBeanList = List.from(await searchRepository.fetchRecommendedCoffeeBean());
+    _isLoadingRecommendedBeanList = false;
     notifyListeners();
   }
 

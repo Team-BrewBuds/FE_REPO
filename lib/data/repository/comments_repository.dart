@@ -27,17 +27,20 @@ class CommentsRepository {
     required int id,
     required int pageNo,
   }) async {
-    try {
-      final jsonString = await _api.fetchCommentsPage(feedType: feedType, id: id, pageNo: pageNo);
-      return  compute((jsonString) {
-        return DefaultPage.fromJson(
-          jsonDecode(jsonString) as Map<String, dynamic>,
-              (object) => CommentDTO.fromJson(object as Map<String, dynamic>).toDomain(),
-        );
-      }, jsonString);
-    } catch (_) {
-      rethrow;
-    }
+    final jsonString = await _api.fetchCommentsPage(feedType: feedType, id: id, pageNo: pageNo);
+    return compute(
+      (jsonString) {
+        try {
+          return DefaultPage.fromJson(
+            jsonDecode(jsonString) as Map<String, dynamic>,
+            (object) => CommentDTO.fromJson(object as Map<String, dynamic>).toDomain(),
+          );
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<Comment> createNewComment({
@@ -45,14 +48,27 @@ class CommentsRepository {
     required int id,
     required String content,
     int? parentId,
-  }) =>
-      _api.createComment(
-        feedType: feedType,
-        id: id,
-        data: parentId == null
-            ? <String, dynamic>{"content": content}
-            : <String, dynamic>{"content": content, "parent": parentId},
-      ).then((value) => value.toDomain());
+  }) async {
+    final jsonString = await _api.createComment(
+      feedType: feedType,
+      id: id,
+      data: parentId == null
+          ? <String, dynamic>{"content": content}
+          : <String, dynamic>{"content": content, "parent": parentId},
+    );
+
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return CommentDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
+  }
 
   Future<void> deleteComment({required int id}) => _api.deleteComment(id: id);
 
@@ -60,5 +76,18 @@ class CommentsRepository {
 
   Future<void> unLikeComment({required int id}) => _likeApi.unlike(type: 'comment', id: id);
 
-  Future<Comment> fetchComment({required int id}) => _api.fetchComment(id: id).then((value) => value.toDomain());
+  Future<Comment> fetchComment({required int id}) async {
+    final jsonString = await _api.fetchComment(id: id);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return CommentDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
+  }
 }
