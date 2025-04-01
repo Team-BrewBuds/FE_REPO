@@ -1,23 +1,33 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class SaveButton extends StatelessWidget {
+  final Throttle<bool> _throttle;
   final void Function() onTap;
   final bool isSaved;
 
-  const SaveButton({
+  SaveButton({
     super.key,
     required this.onTap,
     required this.isSaved,
-  });
+  }) : _throttle = Throttle(
+    const Duration(seconds: 3),
+    initialValue: false,
+    onChanged: (value) {
+      if (value) {
+        onTap.call();
+      }
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        onTap.call();
+        _throttle.setValue(true);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),

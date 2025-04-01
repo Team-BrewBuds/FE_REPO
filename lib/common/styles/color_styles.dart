@@ -27,13 +27,13 @@ final class ColorStyles {
   static const Color gray10 = Color(0xffF7F7F7);
 
   //Opacity Black
-  static Color black70 = const Color(0xff000000).withOpacity(0.7);
-  static Color black50 = const Color(0xff000000).withOpacity(0.5);
-  static Color black30 = const Color(0xff000000).withOpacity(0.3);
+  static Color black70 = const Color(0xB3000000);
+  static Color black50 = const Color(0x80000000);
+  static Color black30 = const Color(0x4D000000);
 
   //Opacity White
-  static Color white70 = const Color(0xffffffff).withOpacity(0.7);
-  static Color white50 = const Color(0xffffffff).withOpacity(0.5);
-  static Color white30 = const Color(0xffffffff).withOpacity(0.3);
+  static Color white70 = const Color(0xB3ffffff);
+  static Color white50 = const Color(0x80ffffff);
+  static Color white30 = const Color(0x4Dffffff);
 
 }

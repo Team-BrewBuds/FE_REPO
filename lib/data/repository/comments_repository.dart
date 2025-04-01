@@ -6,6 +6,7 @@ import 'package:brew_buds/data/dto/comment/comment_dto.dart';
 import 'package:brew_buds/data/mapper/comment_mapper/comment_mapper.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:flutter/foundation.dart';
 
 class CommentsRepository {
   final LikeApi _likeApi;
@@ -28,11 +29,12 @@ class CommentsRepository {
   }) async {
     try {
       final jsonString = await _api.fetchCommentsPage(feedType: feedType, id: id, pageNo: pageNo);
-      final DefaultPage<Comment> page = DefaultPage.fromJson(
-        jsonDecode(jsonString) as Map<String, dynamic>,
-        (object) => CommentDTO.fromJson(object as Map<String, dynamic>).toDomain(),
-      );
-      return page;
+      return  compute((jsonString) {
+        return DefaultPage.fromJson(
+          jsonDecode(jsonString) as Map<String, dynamic>,
+              (object) => CommentDTO.fromJson(object as Map<String, dynamic>).toDomain(),
+        );
+      }, jsonString);
     } catch (_) {
       rethrow;
     }
