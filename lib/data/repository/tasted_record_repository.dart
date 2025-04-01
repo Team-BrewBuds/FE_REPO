@@ -6,6 +6,7 @@ import 'package:brew_buds/data/api/local_api.dart';
 import 'package:brew_buds/data/api/save_api.dart';
 import 'package:brew_buds/data/api/tasted_record_api.dart';
 import 'package:brew_buds/data/dto/common/local_dto.dart';
+import 'package:brew_buds/data/dto/tasted_record/tasted_record_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_feed_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_profile_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_mapper.dart';
@@ -19,9 +20,9 @@ import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/local.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
+import 'package:flutter/foundation.dart';
 
 class TastedRecordRepository {
   final TastedRecordApi _tastedRecordApi = TastedRecordApi();
@@ -38,21 +39,40 @@ class TastedRecordRepository {
 
   factory TastedRecordRepository() => instance;
 
-  Future<DefaultPage<Feed>> fetchTastedRecordFeedPage({required int pageNo}) =>
-      _tastedRecordApi.fetchTastingRecordFeedPage(pageNo: pageNo).then(
-        (jsonString) {
-          final json = jsonDecode(jsonString);
+  Future<DefaultPage<Feed>> fetchTastedRecordFeedPage({required int pageNo}) async {
+    final jsonString = await _tastedRecordApi.fetchTastingRecordFeedPage(pageNo: pageNo);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
           return DefaultPage.fromJson(
             json,
-            (jsonT) {
-              return Feed.tastedRecord(data: TastedRecordInFeedDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
-            },
+            (jsonT) => Feed.tastedRecord(
+              data: TastedRecordInFeedDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+            ),
           );
-        },
-      );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
+  }
 
-  Future<TastedRecord> fetchTastedRecord({required int id}) =>
-      _tastedRecordApi.fetchTastedRecord(id: id).then((value) => value.toDomain());
+  Future<TastedRecord> fetchTastedRecord({required int id}) async {
+    final jsonString = await _tastedRecordApi.fetchTastedRecord(id: id);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return TastedRecordDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
+  }
 
   Future<DefaultPage<TastedRecordInProfile>> fetchTastedRecordPage({
     required int userId,
@@ -65,9 +85,8 @@ class TastedRecordRepository {
     double? roastingPointMax,
     double? ratingMin,
     double? ratingMax,
-  }) {
-    return _tastedRecordApi
-        .fetchTastedRecordPage(
+  }) async {
+    final jsonString = await _tastedRecordApi.fetchTastedRecordPage(
       userId: userId,
       pageNo: pageNo,
       orderBy: orderBy,
@@ -78,32 +97,43 @@ class TastedRecordRepository {
       roastingPointMax: roastingPointMax,
       ratingMin: ratingMin,
       ratingMax: ratingMax,
-    )
-        .then(
+    );
+    return compute(
       (jsonString) {
-        final json = jsonDecode(jsonString);
-        return DefaultPage.fromJson(
-          json,
-          (jsonT) {
-            return TastedRecordInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
-          },
-        );
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) => TastedRecordInProfileDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
       },
+      jsonString,
     );
   }
 
-  Future<DefaultPage<Local>> fetchLocal({required String word, required int pageNo, String? x, String? y}) {
-    return _localApi.fetchLocal(query: word, x: x, y: y, pageNo: pageNo).then((value) {
-      final json = jsonDecode(value) as Map<String, dynamic>;
-      final count = json['meta']['total_count'] as int?;
-      final hasNext = !json['meta']['is_end'] as bool?;
-      final resultJson = json['documents'] as List<dynamic>?;
-      return DefaultPage(
-        count: count ?? 0,
-        results: resultJson?.map((e) => LocalDTO.fromJson(e as Map<String, dynamic>).toDomain()).toList() ?? [],
-        hasNext: hasNext ?? false,
-      );
-    });
+  Future<DefaultPage<Local>> fetchLocal({required String word, required int pageNo, String? x, String? y}) async {
+    final jsonString = await _localApi.fetchLocal(query: word, x: x, y: y, pageNo: pageNo);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          final count = json['meta']['total_count'] as int?;
+          final hasNext = !json['meta']['is_end'] as bool?;
+          final resultJson = json['documents'] as List<dynamic>?;
+          return DefaultPage(
+            count: count ?? 0,
+            results: resultJson?.map((e) => LocalDTO.fromJson(e as Map<String, dynamic>).toDomain()).toList() ?? [],
+            hasNext: hasNext ?? false,
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<void> like({required int id, required bool isLiked}) {

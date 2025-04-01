@@ -14,7 +14,7 @@ abstract class PostApi {
   Future<void> createPost({@Body() required Map<String, dynamic> data});
 
   @GET('/records/post/{id}/')
-  Future<PostDTO> fetchPost({@Path('id') required int id});
+  Future<String> fetchPost({@Path('id') required int id});
 
   @PATCH('/records/post/{id}/')
   Future<void> updatePost({@Path('id') required int id, @Body() required Map<String, dynamic> data});

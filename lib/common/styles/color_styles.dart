@@ -27,6 +27,7 @@ final class ColorStyles {
   static const Color gray10 = Color(0xffF7F7F7);
 
   //Opacity Black
+  static Color black90 = const Color(0xE6000000);
   static Color black70 = const Color(0xB3000000);
   static Color black50 = const Color(0x80000000);
   static Color black30 = const Color(0x4D000000);

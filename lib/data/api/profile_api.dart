@@ -9,7 +9,7 @@ part 'profile_api.g.dart';
 @RestApi()
 abstract class ProfileApi {
   @GET('/profiles/')
-  Future<ProfileDTO> fetchMyProfile();
+  Future<String> fetchMyProfile();
 
   @PATCH('/profiles/')
   Future<void> updateMyProfile({
@@ -17,7 +17,7 @@ abstract class ProfileApi {
   });
 
   @GET('/profiles/{id}/')
-  Future<ProfileDTO> fetchProfile({
+  Future<String> fetchProfile({
     @Path('id') required int id,
   });
 
@@ -28,7 +28,7 @@ abstract class ProfileApi {
   });
 
   @GET('/profiles/user/info/{user_id}/')
-  Future<AccountInfoDTO> fetchUserInfo({
+  Future<String> fetchUserInfo({
     @Path('user_id') required int id,
   });
 

@@ -18,7 +18,7 @@ abstract class TastedRecordApi {
   });
 
   @GET('/records/tasted_record/{id}/')
-  Future<TastedRecordDTO> fetchTastedRecord({
+  Future<String> fetchTastedRecord({
     @Path('id') required int id,
   });
 

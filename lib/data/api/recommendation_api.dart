@@ -9,10 +9,10 @@ part 'recommendation_api.g.dart';
 @RestApi()
 abstract class RecommendationApi {
   @GET('/recommendation/budy/')
-  Future<RecommendedPageDTO> fetchRecommendedBuddyPage();
+  Future<String> fetchRecommendedBuddyPage();
 
   @GET('/recommendation/bean/{user_id}/')
-  Future<List<RecommendedCoffeeBeanDTO>> fetchRecommendedCoffeeBeanList({
+  Future<String> fetchRecommendedCoffeeBeanList({
     @Path('user_id') required int id,
   });
 

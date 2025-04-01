@@ -7,6 +7,7 @@ import 'package:brew_buds/domain/search/widgets/coffee_beans_ranking_list.dart';
 import 'package:brew_buds/domain/search/widgets/recent_search_words_list.dart';
 import 'package:brew_buds/domain/search/widgets/recommended_coffee_beans_list.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -61,74 +62,100 @@ class _SearchHomeViewState extends State<SearchHomeView>
 
   @override
   Widget buildBody() {
-    return SingleChildScrollView(child: _buildSearchHome());
-  }
-
-  Widget _buildSearchHome() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 24),
-        Selector<SearchHomePresenter, List<String>>(
-          selector: (context, presenter) => presenter.recentSearchWords,
-          builder: (context, recentSearchWords, child) => recentSearchWords.isNotEmpty
-              ? Column(
-                  children: [
-                    RecentSearchWordsList(
-                      itemLength: recentSearchWords.length,
-                      itemBuilder: (index) {
-                        return (
-                          word: recentSearchWords[index],
-                          onTap: () {
-                            onComplete(recentSearchWords[index]);
-                          },
-                          onDelete: () {
-                            context.read<SearchHomePresenter>().removeAtRecentSearchWord(index);
-                          },
-                        );
-                      },
-                      onAllDelete: () {
-                        context.read<SearchHomePresenter>().removeAllRecentSearchWord();
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                  ],
-                )
-              : const SizedBox.shrink(),
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        CupertinoSliverRefreshControl(
+          onRefresh: () {
+            return context.read<SearchHomePresenter>().onRefresh();
+          },
+          builder: (
+            BuildContext context,
+            RefreshIndicatorMode refreshState,
+            double pulledExtent,
+            double refreshTriggerPullDistance,
+            double refreshIndicatorExtent,
+          ) {
+            switch (refreshState) {
+              case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  child: const Center(
+                    child: CupertinoActivityIndicator(color: ColorStyles.gray70),
+                  ),
+                );
+              default:
+                return Container();
+            }
+          },
         ),
-        Selector<SearchHomePresenter, List<RecommendedCoffeeBean>>(
-          selector: (context, presenter) => presenter.recommendedBeanList,
-          builder: (context, recommendedBeanList, child) => recommendedBeanList.isNotEmpty
-              ? Column(
-                  children: [
-                    RecommendedCoffeeBeansList(
-                      itemLength: recommendedBeanList.length,
-                      itemBuilder: (index) {
-                        final recommendedBean = recommendedBeanList[index];
-                        return (
-                          imgaeUrl: recommendedBean.imageUrl,
-                          name: recommendedBean.name,
-                          rating: recommendedBean.rating,
-                          recordCount: recommendedBean.recordCount,
-                          onTapped: () {
-                            showCoffeeBeanDetail(context: context, id: recommendedBean.id);
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 28),
-                  ],
-                )
-              : const SizedBox.shrink(),
+        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+        SliverToBoxAdapter(
+          child: Builder(
+            builder: (context) {
+              final recentSearchWords = context.select<SearchHomePresenter, List<String>>(
+                (presenter) => presenter.recentSearchWords,
+              );
+              return RecentSearchWordsList(
+                itemLength: recentSearchWords.length,
+                isLoading: context.select<SearchHomePresenter, bool>(
+                  (presenter) => presenter.isLoadingRecentSearchWords,
+                ),
+                itemBuilder: (index) {
+                  return (
+                    word: recentSearchWords[index],
+                    onTap: () {
+                      onComplete(recentSearchWords[index]);
+                    },
+                    onDelete: () {
+                      context.read<SearchHomePresenter>().removeAtRecentSearchWord(index);
+                    },
+                  );
+                },
+                onAllDelete: () {
+                  context.read<SearchHomePresenter>().removeAllRecentSearchWord();
+                },
+              );
+            },
+          ),
         ),
-        Selector<SearchHomePresenter, List<String>>(
-          selector: (context, presenter) => presenter.beanRankingList,
-          builder: (context, beanRankingList, child) => beanRankingList.isNotEmpty
-              ? CoffeeBeansRankingList(
-                  coffeeBeansRank: beanRankingList,
-                  updatedAt: '10.27 16:00 업데이트',
-                )
-              : const SizedBox.shrink(),
+        SliverToBoxAdapter(
+          child: Builder(
+            builder: (context) {
+              final recommendedBeanList = context.select<SearchHomePresenter, List<RecommendedCoffeeBean>>(
+                (presenter) => presenter.recommendedBeanList,
+              );
+              return RecommendedCoffeeBeansList(
+                itemLength: recommendedBeanList.length,
+                isLoading: context.select<SearchHomePresenter, bool>(
+                  (presenter) => presenter.isLoadingRecommendedBeanList,
+                ),
+                itemBuilder: (index) {
+                  final recommendedBean = recommendedBeanList[index];
+                  return (
+                    imgaeUrl: recommendedBean.imageUrl,
+                    name: recommendedBean.name,
+                    rating: recommendedBean.rating,
+                    recordCount: recommendedBean.recordCount,
+                    onTapped: () {
+                      showCoffeeBeanDetail(context: context, id: recommendedBean.id);
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: Selector<SearchHomePresenter, List<String>>(
+            selector: (context, presenter) => presenter.beanRankingList,
+            builder: (context, beanRankingList, child) => beanRankingList.isNotEmpty
+                ? CoffeeBeansRankingList(
+                    coffeeBeansRank: beanRankingList,
+                    updatedAt: '10.27 16:00 업데이트',
+                  )
+                : const SizedBox.shrink(),
+          ),
         ),
       ],
     );

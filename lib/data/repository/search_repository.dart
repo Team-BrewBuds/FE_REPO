@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/search_api.dart';
+import 'package:brew_buds/data/dto/coffee_bean/recommended_coffee_bean_dto.dart';
 import 'package:brew_buds/data/dto/search/search_bean_dto.dart';
 import 'package:brew_buds/data/dto/search/search_post_dto.dart';
 import 'package:brew_buds/data/dto/search/search_tasting_record_dto.dart';
@@ -15,6 +16,7 @@ import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
+import 'package:flutter/foundation.dart';
 
 final class SearchRepository {
   final SearchApi _searchApi = SearchApi();
@@ -31,9 +33,20 @@ final class SearchRepository {
   Future<List<RecommendedCoffeeBean>> fetchRecommendedCoffeeBean() async {
     final id = AccountRepository.instance.id;
     if (id != null) {
-      return _recommendedApi
-          .fetchRecommendedCoffeeBeanList(id: id)
-          .then((value) => value.map((e) => e.toDomain()).toList());
+      final jsonString = await _recommendedApi.fetchRecommendedCoffeeBeanList(id: id);
+      return compute(
+        (jsonString) {
+          try {
+            final jsonList = jsonDecode(jsonString) as List<dynamic>;
+            return jsonList
+                .map((json) => RecommendedCoffeeBeanDTO.fromJson(json as Map<String, dynamic>).toDomain())
+                .toList();
+          } catch (e) {
+            rethrow;
+          }
+        },
+        jsonString,
+      );
     } else {
       return Future.error(Error());
     }
@@ -54,9 +67,18 @@ final class SearchRepository {
 
     if (result.isEmpty) return [];
 
-    final json = jsonDecode(result) as Map<String, dynamic>;
-    final suggestions = json['suggestions'] as List<dynamic>;
-    return suggestions.map((e) => e as String).toList();
+    return compute(
+      (result) {
+        try {
+          final json = jsonDecode(result) as Map<String, dynamic>;
+          final suggestions = json['suggestions'] as List<dynamic>;
+          return suggestions.map((e) => e as String).toList();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      result,
+    );
   }
 
   Future<DefaultPage<SearchResultModel>> searchBean({
@@ -69,8 +91,7 @@ final class SearchRepository {
     double? maxRating,
     String? sortBy,
   }) async {
-    return _searchApi
-        .searchBean(
+    final jsonString = await _searchApi.searchBean(
       searchWord: searchWord,
       beanType: beanType?.toJson(),
       country: country,
@@ -78,11 +99,22 @@ final class SearchRepository {
       minRating: minRating,
       maxRating: maxRating,
       sortBy: sortBy,
-    )
-        .then((jsonString) {
-      final json = jsonDecode(jsonString) as Map<String, dynamic>;
-      return DefaultPage.fromJson(json, (jsonT) => SearchBeanDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
-    });
+    );
+
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) => SearchBeanDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<DefaultPage<SearchResultModel>> searchUser({
@@ -90,15 +122,22 @@ final class SearchRepository {
     required int pageNo,
     String? sortBy,
   }) async {
-    return _searchApi
-        .searchUser(
-      searchWord: searchWord,
-      sortBy: sortBy,
-    )
-        .then((jsonString) {
-      final json = jsonDecode(jsonString) as Map<String, dynamic>;
-      return DefaultPage.fromJson(json, (jsonT) => SearchUserDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
-    });
+    final jsonString = await _searchApi.searchUser(searchWord: searchWord, sortBy: sortBy);
+
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) => SearchUserDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<DefaultPage<SearchResultModel>> searchTastingRecord({
@@ -111,8 +150,7 @@ final class SearchRepository {
     double? maxRating,
     String? sortBy,
   }) async {
-    return _searchApi
-        .searchTastingRecord(
+    final jsonString = await _searchApi.searchTastingRecord(
       searchWord: searchWord,
       beanType: beanType?.toJson(),
       country: country,
@@ -120,12 +158,22 @@ final class SearchRepository {
       minRating: minRating,
       maxRating: maxRating,
       sortBy: sortBy,
-    )
-        .then((jsonString) {
-      final json = jsonDecode(jsonString) as Map<String, dynamic>;
-      return DefaultPage.fromJson(
-          json, (jsonT) => SearchTastingRecordDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
-    });
+    );
+
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) => SearchTastingRecordDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<DefaultPage<SearchResultModel>> searchPost({
@@ -134,15 +182,22 @@ final class SearchRepository {
     PostSubject? subject,
     String? sortBy,
   }) async {
-    return _searchApi
-        .searchPost(
-      searchWord: searchWord,
-      subject: subject?.toJsonValue(),
-      sortBy: sortBy,
-    )
-        .then((jsonString) {
-      final json = jsonDecode(jsonString) as Map<String, dynamic>;
-      return DefaultPage.fromJson(json, (jsonT) => SearchPostDTO.fromJson(jsonT as Map<String, dynamic>).toDomain());
-    });
+    final jsonString =
+        await _searchApi.searchPost(searchWord: searchWord, subject: subject?.toJsonValue(), sortBy: sortBy);
+
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(
+            json,
+            (jsonT) => SearchPostDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+          );
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
   }
 }

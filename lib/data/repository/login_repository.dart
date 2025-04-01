@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:brew_buds/data/api/sign_up_api.dart';
+import 'package:brew_buds/data/dto/social_login_dto.dart';
 import 'package:brew_buds/data/mapper/sign_up/sign_up_mapper.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 typedef RegisterTokenResultData = ({String accessToken, String refreshToken, int id});
@@ -37,12 +41,22 @@ class LoginRepository {
   }
 
   Future<RegisterTokenResultData> registerToken(String token, String platform) async {
-    return _signUpApi
-        .registerToken(
-          socialType: platform,
-          data: platform == 'apple' ? {"id_token": token} : {"access_token": token},
-        )
-        .then((result) => (accessToken: result.accessToken, refreshToken: result.refreshToken, id: result.user.id));
+    final jsonString = await _signUpApi.registerToken(
+      socialType: platform,
+      data: platform == 'apple' ? {"id_token": token} : {"access_token": token},
+    );
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          final dto = SocialLoginDTO.fromJson(json);
+          return (accessToken: dto.accessToken, refreshToken: dto.refreshToken, id: dto.user.id);
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<bool> registerAccount({
@@ -104,7 +118,7 @@ class LoginRepository {
       } else {
         throw Error();
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       rethrow;
     }
   }

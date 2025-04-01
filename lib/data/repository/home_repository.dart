@@ -6,6 +6,7 @@ import 'package:brew_buds/data/api/like_api.dart';
 import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/save_api.dart';
 import 'package:brew_buds/data/dto/post/post_dto.dart';
+import 'package:brew_buds/data/dto/recommended/recommended_page_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_feed_dto.dart';
 import 'package:brew_buds/data/mapper/post/post_mapper.dart';
 import 'package:brew_buds/data/mapper/recommended/recommended_page_mapper.dart';
@@ -65,28 +66,21 @@ final class HomeRepository {
     } else {
       return DefaultPage.initState();
     }
-
-    return _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).then(
-      (jsonString) {
-        final json = jsonDecode(jsonString);
-        return DefaultPage<Feed>.fromJson(json, (jsonT) {
-          final jsonMap = jsonT as Map<String, dynamic>;
-          if (jsonMap.containsKey('tasted_records')) {
-            return Feed.post(data: PostDTO.fromJson(jsonMap).toDomain());
-          } else {
-            return Feed.tastedRecord(data: TastedRecordInFeedDTO.fromJson(jsonMap).toDomain());
-          }
-        });
-      },
-    );
   }
 
   Future<RecommendedPage> fetchRecommendedUserPage() async {
-    final result = await _recommendationApi.fetchRecommendedBuddyPage();
-    return compute((result) => result.toDomain(), result);
-    return _recommendationApi.fetchRecommendedBuddyPage().then(
-        (result) => result.toDomain(),
-      );
+    final jsonString = await _recommendationApi.fetchRecommendedBuddyPage();
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return RecommendedPageDTO.fromJson(json).toDomain();
+        } catch (e) {
+          rethrow;
+        }
+      },
+      jsonString,
+    );
   }
 
   Future<void> like({required String type, required int id, required bool isLiked}) {

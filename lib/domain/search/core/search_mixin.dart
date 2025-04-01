@@ -195,7 +195,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
         unselectedLabelStyle: TextStyles.title01SemiBold,
         unselectedLabelColor: ColorStyles.gray50,
         dividerHeight: 0,
-        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
         tabs: SearchSubject.values
             .map(
               (subject) => Tab(
@@ -299,7 +299,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
           padding: const EdgeInsets.symmetric(vertical: 15),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: ColorStyles.black.withOpacity(0.9),
+            color: ColorStyles.black90,
             borderRadius: const BorderRadius.all(Radius.circular(5)),
           ),
           child: Center(
