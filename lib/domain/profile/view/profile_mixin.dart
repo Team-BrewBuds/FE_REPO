@@ -258,7 +258,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (introduction.isNotEmpty)
+                  if (introduction.isNotEmpty) ...[
                     ExpandableText(
                       text: introduction,
                       style: TextStyles.captionMediumRegular,
@@ -266,9 +266,17 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       expandText: '펼치기',
                       shrinkText: '접기',
                     ),
-                  if (coffeeLife.isNotEmpty) ExpandableCoffeeLife(coffeeLifeList: coffeeLife, maxLength: 2),
-                  if (profileLink.isNotEmpty) _buildProfileLink(profileLink: profileLink),
-                ].separator(separatorWidget: const SizedBox(height: 8)).toList(),
+                    const SizedBox(height: 8),
+                  ],
+                  if (coffeeLife.isNotEmpty) ...[
+                    ExpandableCoffeeLife(coffeeLifeList: coffeeLife, maxLength: 2),
+                    const SizedBox(height: 8),
+                  ],
+                  if (profileLink.isNotEmpty) ...[
+                    _buildProfileLink(profileLink: profileLink),
+                    const SizedBox(height: 8),
+                  ]
+                ],
               )
             : Container(
                 padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
@@ -285,43 +293,6 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 ),
               ),
       ),
-    );
-  }
-
-  Widget _buildCoffeeLife({required List<String> coffeeLife}) {
-    return Row(
-      children: List<Widget>.generate(
-        min(coffeeLife.length, 3),
-        (index) {
-          if (index == 2) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: BoxDecoration(
-                color: ColorStyles.white,
-                border: Border.all(color: ColorStyles.gray70),
-                borderRadius: const BorderRadius.all(Radius.circular(40)),
-              ),
-              child: Center(
-                child: Text(
-                  '+ ${coffeeLife.length - 2}',
-                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                ),
-              ),
-            );
-          } else {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: const BoxDecoration(
-                color: ColorStyles.gray20,
-                borderRadius: BorderRadius.all(Radius.circular(40)),
-              ),
-              child: Center(
-                child: Text(coffeeLife[index], style: TextStyles.captionMediumMedium),
-              ),
-            );
-          }
-        },
-      ).separator(separatorWidget: const SizedBox(width: 4)).toList(),
     );
   }
 

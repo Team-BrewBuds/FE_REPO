@@ -1,8 +1,8 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
@@ -11,7 +11,6 @@ import 'package:brew_buds/domain/home/comments/comments_view.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/alarm.dart';
 import 'package:brew_buds/domain/home/widgets/post_feed_widget.dart';
-import 'package:brew_buds/domain/home/widgets/recomanded_buddy.dart';
 import 'package:brew_buds/domain/home/widgets/recommended_buddy_list.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
@@ -84,6 +83,16 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        buildApp(context),
+        if (context.select<HomePresenter, bool>((presenter) => presenter.isLoadingAction))
+          const Positioned.fill(child: LoadingBarrier(hasOpacity: false)),
+      ],
+    );
+  }
+
+  Widget buildApp(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leadingWidth: 0,

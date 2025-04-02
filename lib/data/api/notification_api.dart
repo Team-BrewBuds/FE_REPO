@@ -44,12 +44,12 @@ abstract class NotificationApi {
 
   @POST('/notifications/settings/')
   Future<void> createNotificationSettings({
-    @Body() required NotificationSettingDTO data,
+    @Body() required Map<String, dynamic> data,
   });
 
   @PATCH('/notifications/settings/')
-  Future<void> updateNotificationSettings({
-    @Body() required NotificationSettingDTO data,
+  Future<String> updateNotificationSettings({
+    @Body() required Map<String, dynamic> data,
   });
 
   factory NotificationApi() => _NotificationApi(DioClient.instance.dio);

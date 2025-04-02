@@ -551,7 +551,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
             child: Text('별점 분포', style: TextStyles.title02Bold),
           ),
           const SizedBox(height: 24),
-          if (ratingDistribution != null) ...[
+          if (ratingDistribution != null && ratingDistribution.ratingCount != 0) ...[
             Container(
               height: 100,
               padding: const EdgeInsets.symmetric(horizontal: 16),

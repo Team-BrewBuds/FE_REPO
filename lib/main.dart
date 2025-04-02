@@ -5,7 +5,6 @@ import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';

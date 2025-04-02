@@ -16,6 +16,7 @@ final class ApiInterceptor extends Interceptor {
 
     if (token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
+      print(token);
     }
 
     return super.onRequest(options, handler);
@@ -72,6 +73,8 @@ final class ApiInterceptor extends Interceptor {
 
       final newAccessToken = resp.data['access'];
       final newRefreshToken = resp.data['refresh'];
+
+      print(newAccessToken);
 
       await AccountRepository.instance.saveToken(accessToken: newAccessToken, refreshToken: newRefreshToken);
 
