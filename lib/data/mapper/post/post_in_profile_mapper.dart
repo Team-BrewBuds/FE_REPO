@@ -9,7 +9,7 @@ extension PostInProfileMapper on PostInProfileDTO {
         subject: subject.toDomain(),
         title: title,
         createdAt: createdAt,
-    imageUrl: imageUrl,
-    tastedRecordImageUrl: tastedRecordImageUrl,
+        imageUrl: imageUrl,
+        tastedRecordImageUrl: tastedRecordImageUrl,
       );
 }

@@ -15,6 +15,7 @@ sealed class NotedObject {
     required String beanName,
     required List<String> flavor,
     required String imageUrl,
+    required double rating,
   }) = NotedTastedRecord;
 }
 
@@ -41,11 +42,13 @@ final class NotedTastedRecord implements NotedObject {
   final String beanName;
   final List<String> flavor;
   final String imageUrl;
+  final double rating;
 
   const NotedTastedRecord({
     required this.id,
     required this.beanName,
     required this.flavor,
     required this.imageUrl,
+    required this.rating,
   });
 }

@@ -363,7 +363,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
           child: TextFormField(
             focusNode: _introductionFocusNode,
             controller: _introductionEditingController,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.multiline,
             maxLines: null,
             expands: true,
             inputFormatters: [

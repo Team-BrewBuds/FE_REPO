@@ -18,6 +18,7 @@ class SavedTastingRecordWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       color: Colors.transparent,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
@@ -37,15 +38,18 @@ class SavedTastingRecordWidget extends StatelessWidget {
                   children: [
                     SvgPicture.asset(
                       'assets/icons/star_fill.svg',
-                      height: 16,
-                      width: 16,
+                      height: 14,
+                      width: 14,
                       colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 2),
+                    Text(
+                      rating,
+                      style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                //Api 누락
                 Row(
                   children: flavor
                       .map(

@@ -8,6 +8,7 @@ import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/profile/profile.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
+import 'package:flutter/foundation.dart';
 
 typedef ProfileState = ({String imageUrl, int tastingRecordCount, int followerCount, int followingCount});
 typedef ProfileDetailState = ({List<String> coffeeLife, String introduction, String profileLink});
@@ -31,11 +32,17 @@ class ProfilePresenter extends Presenter {
   DefaultPage<PostInProfile> _postsPage = DefaultPage.initState();
   DefaultPage<BeanInProfile> _beansPage = DefaultPage.initState();
   DefaultPage<NotedObject> _savedNotesPage = DefaultPage.initState();
+  bool _isLoading = false;
+  bool _isLoadingData = false;
   int _currentSortCriteriaIndex = 0;
   final List<CoffeeBeanFilter> _filters = [];
   int _tabIndex = 0;
-  int _pageNo = 0;
+  int _pageNo = 1;
   bool _isEmpty = false;
+
+  bool get isLoading => _isLoading;
+
+  bool get isLoadingData => _isLoadingData;
 
   bool get isEmpty => _isEmpty;
 
@@ -84,22 +91,30 @@ class ProfilePresenter extends Presenter {
   ProfilePresenter({required this.repository});
 
   initState() async {
+    _isLoading = true;
+    notifyListeners();
+
     profile = await fetchProfile().then((value) => Future<Profile?>.value(value)).onError((error, stackTrace) => null);
     if (profile?.id != null) {
       paginate(isPageChanged: true);
     } else {
       _isEmpty = true;
     }
+    _isLoading = false;
     notifyListeners();
   }
 
   refresh() async {
+    _isLoading = true;
+    notifyListeners();
+
     profile = await fetchProfile();
     if (profile?.id != null) {
       paginate(isPageChanged: true);
     } else {
       _isEmpty = true;
     }
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -107,7 +122,7 @@ class ProfilePresenter extends Presenter {
 
   paginate({bool isPageChanged = false}) {
     if (isPageChanged) {
-      _pageNo = 0;
+      _pageNo = 1;
       _tastingRecordsPage = DefaultPage.initState();
       _postsPage = DefaultPage.initState();
       _beansPage = DefaultPage.initState();
@@ -120,67 +135,80 @@ class ProfilePresenter extends Presenter {
     }
   }
 
-  _fetchPage() {
+  _fetchPage() async {
     final id = profile?.id;
     if (id != null) {
+      _isLoadingData = true;
+      notifyListeners();
+
       if (_tabIndex == 0) {
-        repository
-            .fetchTastedRecordPage(
+        final nextPage = await repository.fetchTastedRecordPage(
           userId: id,
-          pageNo: _pageNo + 1,
-          //수정 필요 정렬 이상함(api)
-          orderBy: null,
+          pageNo: _pageNo,
+          // orderBy: _sortCriteriaList[_currentSortCriteriaIndex].toJson(),
           beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
-          //국가 여러개?(api)
-          country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
+          country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
           roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
           roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
           ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
-        )
-            .then((page) {
-          _tastingRecordsPage = page.copyWith(results: _tastingRecordsPage.results + page.results);
-          _pageNo += 1;
-        }).whenComplete(() {
-          notifyListeners();
-        });
+        );
+
+        _tastingRecordsPage = await compute(
+          (message) {
+            return message.$2.copyWith(results: message.$1.results + message.$2.results);
+          },
+          (_tastingRecordsPage, nextPage),
+        );
+        _pageNo++;
+        _isLoadingData = false;
+        notifyListeners();
       } else if (_tabIndex == 1) {
-        repository.fetchPostPage(userId: id).then((page) {
-          _postsPage = page.copyWith(results: _postsPage.results + page.results);
-          _pageNo += 1;
-        }).whenComplete(() {
-          notifyListeners();
-        });
+        final nextPage = await repository.fetchPostPage(userId: id);
+        _postsPage = await compute(
+              (message) {
+            return message.$2.copyWith(results: message.$1.results + message.$2.results);
+          },
+          (_postsPage, nextPage),
+        );
+        _isLoadingData = false;
+        notifyListeners();
       } else if (_tabIndex == 2) {
-        repository
+        final nextPage = await repository
             .fetchCoffeeBeanPage(
           userId: id,
-          pageNo: _pageNo + 1,
-          //수정 필요 정렬 이상함(api)
-          orderBy: null,
+          pageNo: _pageNo,
+          // orderBy: _sortCriteriaList[_currentSortCriteriaIndex].toJson(),
           beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
-          //국가 여러개?(api)
-          country: _filters.whereType<CountryFilter>().firstOrNull?.country.toString(),
+          country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
           roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
           roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
           ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
-        )
-            .then((page) {
-          _beansPage = page.copyWith(results: _beansPage.results + page.results);
-          _pageNo += 1;
-        }).whenComplete(() {
-          notifyListeners();
-        });
+        );
+        _beansPage = await compute(
+              (message) {
+            return message.$2.copyWith(results: message.$1.results + message.$2.results);
+          },
+          (_beansPage, nextPage),
+        );
+        _pageNo++;
+        _isLoadingData = false;
+        notifyListeners();
       } else {
-        repository.fetchNotePage(userId: id, pageNo: _pageNo + 1).then((page) {
-          _savedNotesPage = page.copyWith(results: _savedNotesPage.results + page.results);
-          _pageNo += 1;
-        }).whenComplete(() {
-          notifyListeners();
-        });
+        final nextPage = await repository.fetchNotePage(userId: id, pageNo: _pageNo);
+
+        _savedNotesPage = await compute(
+              (message) {
+            return message.$2.copyWith(results: message.$1.results + message.$2.results);
+          },
+          (_savedNotesPage, nextPage),
+        );
+        _pageNo++;
+        _isLoadingData = false;
+        notifyListeners();
       }
     }
   }

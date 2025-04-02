@@ -62,7 +62,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView> {
                   if (index == 0) {
                     return GestureDetector(
                       onTap: () {
-                        context.go('/home/all');
+                        context.go('/home');
                       },
                       child: _buildBottomNavigationItem(
                         icon: SvgPicture.asset(
