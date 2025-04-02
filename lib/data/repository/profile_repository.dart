@@ -183,7 +183,7 @@ class ProfileRepository {
       orderBy: orderBy,
       beanType: beanType,
       isDecaf: isDecaf,
-      country: country,
+      country: (country?.isEmpty ?? true) ? null : country,
       roastingPointMin: roastingPointMin,
       roastingPointMax: roastingPointMax,
       ratingMin: ratingMin,

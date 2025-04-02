@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/expandable_coffee_life.dart';
+import 'package:brew_buds/common/widgets/expandable_text.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
@@ -54,23 +56,14 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       context.read<Presenter>().initState();
-      scrollKey.currentState?.innerController.addListener(_scrollListener);
     });
     super.initState();
   }
 
   @override
   void dispose() {
-    scrollKey.currentState?.innerController.removeListener(_scrollListener);
     paginationThrottle.cancel();
     super.dispose();
-  }
-
-  _scrollListener() {
-    if ((scrollKey.currentState?.innerController.position.pixels ?? 0) >
-        (scrollKey.currentState?.innerController.position.maxScrollExtent ?? 0) * 0.7) {
-      paginationThrottle.setValue(null);
-    }
   }
 
   _fetchMoreData() {
@@ -92,70 +85,79 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
       initialIndex: 0,
       child: Scaffold(
         appBar: buildTitle(),
-        body: Selector<Presenter, bool>(
-            selector: (context, presenter) => presenter.isScrollable,
-            builder: (context, isScrollable, child) {
-              final physics = isScrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics();
-              return NestedScrollView(
-                key: scrollKey,
-                physics: physics,
-                headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                  Selector<Presenter, ProfileState>(
-                    selector: (context, presenter) => presenter.profileState,
-                    builder: (context, profileState, child) => _buildProfile(
-                      imageUri: profileState.imageUrl,
-                      tastingRecordCount: profileState.tastingRecordCount,
-                      followerCount: profileState.followerCount,
-                      followingCount: profileState.followingCount,
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                  Selector<Presenter, ProfileDetailState>(
-                    selector: (context, presenter) => presenter.profileDetailState,
-                    builder: (context, profileDetailState, child) => _buildDetail(
-                      coffeeLife: profileDetailState.coffeeLife,
-                      introduction: profileDetailState.introduction,
-                      profileLink: profileDetailState.profileLink,
-                    ),
-                  ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: buildProfileBottomButtons(),
-                  ),
-                ],
-                body: SafeArea(
-                  child: CustomScrollView(
+        body: context.select<Presenter, bool>((presenter) => presenter.isLoading)
+            ? const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70))
+            : Selector<Presenter, bool>(
+                selector: (context, presenter) => presenter.isScrollable,
+                builder: (context, isScrollable, child) {
+                  final physics = isScrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics();
+                  return NestedScrollView(
+                    key: scrollKey,
                     physics: physics,
-                    controller: scrollKey.currentState?.innerController,
-                    slivers: [
-                      _buildTabBar(),
-                      Selector<Presenter, FilterBarState>(
-                        selector: (context, presenter) => presenter.filterBarState,
-                        builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
-                            ? _buildFilterBar(
-                                sortCriteriaList: filterBarState.sortCriteriaList,
-                                currentIndex: filterBarState.currentIndex,
-                                filters: filterBarState.filters,
-                              )
-                            : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                      Selector<Presenter, ProfileState>(
+                        selector: (context, presenter) => presenter.profileState,
+                        builder: (context, profileState, child) => _buildProfile(
+                          imageUri: profileState.imageUrl,
+                          tastingRecordCount: profileState.tastingRecordCount,
+                          followerCount: profileState.followerCount,
+                          followingCount: profileState.followingCount,
+                        ),
                       ),
-                      buildContentsList(),
-                      Selector<Presenter, bool>(
-                        selector: (context, presenter) => presenter.hasNext,
-                        builder: (context, hasNext, child) => hasNext
-                            ? const SliverToBoxAdapter(
-                                child: Center(
-                                  child: CircularProgressIndicator(color: ColorStyles.gray70),
-                                ),
-                              )
-                            : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                      Selector<Presenter, ProfileDetailState>(
+                        selector: (context, presenter) => presenter.profileDetailState,
+                        builder: (context, profileDetailState, child) => _buildDetail(
+                          coffeeLife: profileDetailState.coffeeLife,
+                          introduction: profileDetailState.introduction,
+                          profileLink: profileDetailState.profileLink,
+                        ),
+                      ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        sliver: buildProfileBottomButtons(),
                       ),
                     ],
-                  ),
-                ),
-              );
-            }),
+                    body: SafeArea(
+                      child: NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scroll) {
+                          if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                            paginationThrottle.setValue(null);
+                          }
+                          return false;
+                        },
+                        child: CustomScrollView(
+                          physics: physics,
+                          controller: scrollKey.currentState?.innerController,
+                          slivers: [
+                            _buildTabBar(),
+                            Selector<Presenter, FilterBarState>(
+                              selector: (context, presenter) => presenter.filterBarState,
+                              builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
+                                  ? _buildFilterBar(
+                                      sortCriteriaList: filterBarState.sortCriteriaList,
+                                      currentIndex: filterBarState.currentIndex,
+                                      filters: filterBarState.filters,
+                                    )
+                                  : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                            ),
+                            if (context.select<Presenter, bool>((presenter) => presenter.isLoadingData))
+                              const SliverFillRemaining(
+                                child: Center(
+                                  child: CupertinoActivityIndicator(
+                                    color: ColorStyles.gray70,
+                                  ),
+                                ),
+                              )
+                            else
+                              buildContentsList(),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
       ),
     );
   }
@@ -256,25 +258,32 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (introduction.isNotEmpty) _buildIntroduction(introduction: introduction),
-                  if (coffeeLife.isNotEmpty) _buildCoffeeLife(coffeeLife: coffeeLife),
+                  if (introduction.isNotEmpty)
+                    ExpandableText(
+                      text: introduction,
+                      style: TextStyles.captionMediumRegular,
+                      maxLine: 2,
+                      expandText: '펼치기',
+                      shrinkText: '접기',
+                    ),
+                  if (coffeeLife.isNotEmpty) ExpandableCoffeeLife(coffeeLifeList: coffeeLife, maxLength: 2),
                   if (profileLink.isNotEmpty) _buildProfileLink(profileLink: profileLink),
                 ].separator(separatorWidget: const SizedBox(height: 8)).toList(),
               )
             : Container(
-              padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
-              decoration: const BoxDecoration(
-                color: ColorStyles.gray20,
-                borderRadius: BorderRadius.all(Radius.circular(40)),
+                padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
+                decoration: const BoxDecoration(
+                  color: ColorStyles.gray20,
+                  borderRadius: BorderRadius.all(Radius.circular(40)),
+                ),
+                child: Row(
+                  children: [
+                    const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
+                    const SizedBox(width: 2),
+                    SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
+                  ],
+                ),
               ),
-              child: Row(
-                children: [
-                  const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
-                  const SizedBox(width: 2),
-                  SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
-                ],
-              ),
-            ),
       ),
     );
   }
@@ -313,44 +322,6 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           }
         },
       ).separator(separatorWidget: const SizedBox(width: 4)).toList(),
-    );
-  }
-
-  Widget _buildIntroduction({required String introduction}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final span = TextSpan(
-          text: introduction.replaceAllMapped(RegExp(r'(\S)(?=\S)'), (m) => '${m[1]}\u200D'),
-          style: TextStyles.captionMediumRegular,
-        );
-
-        final painter = TextPainter(
-          maxLines: 2,
-          textAlign: TextAlign.left,
-          textDirection: TextDirection.ltr,
-          text: span,
-        );
-
-        painter.layout(maxWidth: constraints.maxWidth);
-
-        final exceeded = painter.didExceedMaxLines;
-        return !exceeded
-            ? Text.rich(span, maxLines: 2, overflow: TextOverflow.ellipsis)
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text.rich(span, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 2),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Text(
-                      '더보기',
-                      style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray50),
-                    ),
-                  )
-                ],
-              );
-      },
     );
   }
 
@@ -672,7 +643,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     },
                     child: SavedTastingRecordWidget(
                       beanName: note.beanName,
-                      rating: 'Api 미구현',
+                      rating: '${note.rating}',
                       flavor: note.flavor,
                       imageUri: note.imageUrl,
                     ),

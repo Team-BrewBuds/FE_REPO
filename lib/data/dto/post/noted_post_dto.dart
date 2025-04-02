@@ -13,9 +13,9 @@ class NotedPostDTO {
   final PostSubjectEnDTO subject;
   @JsonKey(defaultValue: '')
   final String title;
-  @JsonKey(name: 'created_at', fromJson: _createdAtFromJson, defaultValue: '')
+  @JsonKey(name: 'created_at', defaultValue: '')
   final String createdAt;
-  @JsonKey(name: 'photo_url')
+  @JsonKey(name: 'photo_url', defaultValue: null)
   final String? imageUrl;
 
   factory NotedPostDTO.fromJson(Map<String, dynamic> json) => _$NotedPostDTOFromJson(json);
@@ -28,13 +28,4 @@ class NotedPostDTO {
     required this.createdAt,
     this.imageUrl,
   });
-}
-
-String _createdAtFromJson(String json) {
-  final date = DateTime.tryParse(json);
-  if (date != null) {
-    return '${date.month}/${date.day}';
-  } else {
-    return '';
-  }
 }

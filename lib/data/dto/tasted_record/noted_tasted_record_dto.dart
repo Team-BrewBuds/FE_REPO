@@ -12,6 +12,8 @@ class NotedTastedRecordDTO {
   final List<String> flavor;
   @JsonKey(name: 'photo_url', defaultValue: '')
   final String imageUrl;
+  @JsonKey(name: 'star', defaultValue: 0.0)
+  final double rating;
   
   factory NotedTastedRecordDTO.fromJson(Map<String, dynamic> json) => _$NotedTastedRecordDTOFromJson(json);
 
@@ -20,6 +22,7 @@ class NotedTastedRecordDTO {
     required this.beanName,
     required this.flavor,
     required this.imageUrl,
+    required this.rating,
   });
 }
 
