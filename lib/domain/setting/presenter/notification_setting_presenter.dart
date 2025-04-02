@@ -6,10 +6,13 @@ import 'package:permission_handler/permission_handler.dart';
 
 final class NotificationSettingPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;
-  late NotificationSetting _notificationSetting;
+  NotificationSetting? _notificationSetting;
   late bool _isGranted;
-  bool _hasSetting = false;
   bool _isLoading = false;
+
+  NotificationSetting? get notificationSetting => _notificationSetting;
+
+  bool get isLoading => _isLoading;
 
   initState() {
     _isGranted = PermissionRepository.instance.notification.isGranted;
@@ -24,13 +27,7 @@ final class NotificationSettingPresenter extends Presenter {
     notifyListeners();
 
     final setting = await _notificationRepository.fetchSettings();
-    if (setting != null) {
-      _notificationSetting = setting;
-      _hasSetting = true;
-    } else {
-      _notificationSetting = const NotificationSetting(like: true, comment: true, follow: true, marketing: true);
-      await _notificationRepository.createSettings(notificationSetting: _notificationSetting);
-    }
+    _notificationSetting = setting;
 
     _isLoading = false;
     notifyListeners();
@@ -53,42 +50,74 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   onChangeLikeNotifyState() async {
-    _isLoading = true;
-    notifyListeners();
+    final setting = _notificationSetting;
+    if (setting != null) {
+      _isLoading = true;
+      notifyListeners();
 
-    _notificationSetting = _notificationSetting.copyWith(like: !_notificationSetting.like);
+      final newSetting = await _notificationRepository.updateSettings(
+        notificationSetting: setting.copyWith(like: !setting.like),
+      );
 
-    _isLoading = false;
-    notifyListeners();
+      if (newSetting != null) {
+        _notificationSetting = newSetting;
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   onChangeCommentNotifyState() async {
-    _isLoading = true;
-    notifyListeners();
+    final setting = _notificationSetting;
+    if (setting != null) {
+      _isLoading = true;
+      notifyListeners();
 
+      final newSetting = await _notificationRepository.updateSettings(
+        notificationSetting: setting.copyWith(comment: !setting.comment),
+      );
 
-
-    _isLoading = false;
-    notifyListeners();
+      if (newSetting != null) {
+        _notificationSetting = newSetting;
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   onChangeFollowNotifyState() async {
-    _isLoading = true;
-    notifyListeners();
+    final setting = _notificationSetting;
+    if (setting != null) {
+      _isLoading = true;
+      notifyListeners();
 
+      final newSetting = await _notificationRepository.updateSettings(
+        notificationSetting: setting.copyWith(follow: !setting.follow),
+      );
 
-
-    _isLoading = false;
-    notifyListeners();
+      if (newSetting != null) {
+        _notificationSetting = newSetting;
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   onChangeMarketingNotifyState() async {
-    _isLoading = true;
-    notifyListeners();
+    final setting = _notificationSetting;
+    if (setting != null) {
+      _isLoading = true;
+      notifyListeners();
 
+      final newSetting = await _notificationRepository.updateSettings(
+        notificationSetting: setting.copyWith(marketing: !setting.marketing),
+      );
 
-
-    _isLoading = false;
-    notifyListeners();
+      if (newSetting != null) {
+        _notificationSetting = newSetting;
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 }

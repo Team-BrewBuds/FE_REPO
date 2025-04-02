@@ -20,6 +20,7 @@ import 'package:brew_buds/domain/search/search_result_view.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
 import 'package:brew_buds/domain/setting/presenter/account_info_presenter.dart';
 import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
+import 'package:brew_buds/domain/setting/presenter/notification_setting_presenter.dart';
 import 'package:brew_buds/domain/setting/setting_screen.dart';
 import 'package:brew_buds/domain/setting/view/account_detail_view.dart';
 import 'package:brew_buds/domain/setting/view/account_info_view.dart';
@@ -180,7 +181,13 @@ GoRouter createRouter(bool hasToken) {
                 path: 'setting',
                 builder: (context, state) => const SettingScreen(),
                 routes: [
-                  GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
+                  GoRoute(
+                    path: 'notification',
+                    builder: (context, state) => ChangeNotifierProvider(
+                      create: (_) => NotificationSettingPresenter(),
+                      child: const NotificationSettingView(),
+                    ),
+                  ),
                   GoRoute(path: 'sign_out', builder: (context, state) => const SignOutView()),
                   GoRoute(
                     path: 'block',

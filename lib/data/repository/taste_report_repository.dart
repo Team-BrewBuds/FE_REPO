@@ -167,7 +167,7 @@ class TasteReportRepository {
     );
   }
 
-  Future<RatingDistribution> fetchRatingDistribution({
+  Future<RatingDistribution?> fetchRatingDistribution({
     required int id,
   }) async {
     final jsonString = await _reportApi.fetchRatingDistribution(id: id);
@@ -177,7 +177,7 @@ class TasteReportRepository {
           final json = jsonDecode(jsonString) as Map<String, dynamic>;
           return RatingDistributionDTO.fromJson(json).toDomain();
         } catch (e) {
-          rethrow;
+          return null;
         }
       },
       jsonString,

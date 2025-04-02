@@ -47,204 +47,201 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: widget.child,
-      bottomNavigationBar: Container(
-        color: ColorStyles.white,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 24, top: 8, left: 32, right: 32),
-            child: Row(
-              children: List.generate(
-                4,
-                (index) {
-                  final isSelect = currentIndex == index;
-                  if (index == 0) {
-                    return GestureDetector(
-                      onTap: () {
-                        context.go('/home');
-                      },
-                      child: _buildBottomNavigationItem(
-                        icon: SvgPicture.asset(
-                          isSelect ? 'assets/icons/home_fill.svg' : 'assets/icons/home.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                        title: '홈',
-                        isSelect: isSelect,
-                      ),
-                    );
-                  } else if (index == 1) {
-                    return Showcase(
-                      key: _one,
-                      title: '내게 맞는 원두를 찾아보세요!',
-                      titleTextStyle: TextStyles.title01Bold,
-                      titleAlignment: Alignment.centerLeft,
-                      titlePadding: const EdgeInsets.only(bottom: 4),
-                      description: '추천 원두를 확인하고,\n버디/시음기록/게시글을 검색할 수 있어요.',
-                      descTextStyle: TextStyles.bodyRegular,
-                      disableMovingAnimation: true,
-                      toolTipMargin: 48,
-                      tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
-                      tooltipActionConfig: const TooltipActionConfig(
-                        gapBetweenContentAndAction: 12,
-                        crossAxisAlignment: CrossAxisAlignment.center
-                      ),
-                      tooltipActions: [
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.previous,
-                          name: '1/3',
-                          backgroundColor: ColorStyles.white,
-                          textStyle: TextStyles.captionMediumMedium,
-                          borderRadius: BorderRadius.zero,
-                          padding: EdgeInsets.zero,
-                          onTap: () {},
-                        ),
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.next,
-                          name: '다음',
-                          backgroundColor: ColorStyles.black,
-                          textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        )
-                      ],
-                      targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
-                      targetPadding: const EdgeInsets.all(8),
-                      child: GestureDetector(
+    return AbsorbPointer(
+      absorbing: true,
+      child: Scaffold(
+        body: widget.child,
+        bottomNavigationBar: Container(
+          color: ColorStyles.white,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 24, top: 8, left: 32, right: 32),
+              child: Row(
+                children: List.generate(
+                  4,
+                  (index) {
+                    final isSelect = currentIndex == index;
+                    if (index == 0) {
+                      return GestureDetector(
                         onTap: () {
-                          context.go('/search');
+                          context.go('/home');
                         },
                         child: _buildBottomNavigationItem(
                           icon: SvgPicture.asset(
-                            isSelect ? 'assets/icons/search_fill.svg' : 'assets/icons/search.svg',
+                            isSelect ? 'assets/icons/home_fill.svg' : 'assets/icons/home.svg',
                             width: 24,
                             height: 24,
                           ),
-                          title: '검색',
+                          title: '홈',
                           isSelect: isSelect,
                         ),
-                      ),
-                    );
-                  } else if (index == 2) {
-                    return Showcase(
-                      key: _two,
-                      title: '커피노트를 작성해보세요!',
-                      titleTextStyle: TextStyles.title01Bold,
-                      titleAlignment: Alignment.centerLeft,
-                      titlePadding: const EdgeInsets.only(bottom: 4),
-                      description: '마신 커피를 기록하거나,\n게시글을 업로드할 수 있어요.',
-                      descTextStyle: TextStyles.bodyRegular,
-                      disableMovingAnimation: true,
-                      tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
-                      tooltipActionConfig: const TooltipActionConfig(
-                          gapBetweenContentAndAction: 12,
-                          crossAxisAlignment: CrossAxisAlignment.center
-                      ),
-                      tooltipActions: [
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.previous,
-                          name: '2/3',
-                          backgroundColor: ColorStyles.white,
-                          textStyle: TextStyles.captionMediumMedium,
-                          borderRadius: BorderRadius.zero,
-                          padding: EdgeInsets.zero,
-                          onTap: () {},
-                        ),
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.next,
-                          name: '다음',
-                          backgroundColor: ColorStyles.black,
-                          textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        )
-                      ],
-                      targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
-                      targetPadding: const EdgeInsets.all(8),
-                      child: GestureDetector(
-                        onTap: () {
-                          showCoffeeNoteBottomSheet().then((value) {
-                            if (value == CoffeeNote.post) {
-                              showPostWriteScreen(context: context).then((value) {
-                                if (value != null && value) {
-                                  showSnackBar(message: '게시글 작성을 완료했어요.');
-                                }
-                              });
-                            } else if (value == CoffeeNote.tastedRecord) {
-                              showTastingWriteScreen(context).then((value) {
-                                if (value != null && value) {
-                                  showSnackBar(message: '시음기록 작성을 완료했어요.');
-                                }
-                              });
-                            }
-                          });
-                        },
-                        child: _buildBottomNavigationItem(
-                          icon: SvgPicture.asset(
-                            isSelect ? 'assets/icons/coffee_note_fill.svg' : 'assets/icons/coffee_note.svg',
-                            width: 24,
-                            height: 24,
+                      );
+                    } else if (index == 1) {
+                      return Showcase(
+                        key: _one,
+                        title: '내게 맞는 원두를 찾아보세요!',
+                        titleTextStyle: TextStyles.title01Bold,
+                        titleAlignment: Alignment.centerLeft,
+                        titlePadding: const EdgeInsets.only(bottom: 4),
+                        description: '추천 원두를 확인하고,\n버디/시음기록/게시글을 검색할 수 있어요.',
+                        descTextStyle: TextStyles.bodyRegular,
+                        disableMovingAnimation: true,
+                        toolTipMargin: 48,
+                        tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
+                        tooltipActionConfig: const TooltipActionConfig(
+                            gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
+                        tooltipActions: [
+                          TooltipActionButton(
+                            type: TooltipDefaultActionType.previous,
+                            name: '1/3',
+                            backgroundColor: ColorStyles.white,
+                            textStyle: TextStyles.captionMediumMedium,
+                            borderRadius: BorderRadius.zero,
+                            padding: EdgeInsets.zero,
+                            onTap: () {},
                           ),
-                          title: '커피노트',
-                          isSelect: isSelect,
-                        ),
-                      ),
-                    );
-                  } else {
-                    return Showcase(
-                      key: _three,
-                      title: '나의 커피 취향을 확인해보세요!',
-                      titleTextStyle: TextStyles.title01Bold,
-                      titleAlignment: Alignment.centerLeft,
-                      titlePadding: const EdgeInsets.only(bottom: 4),
-                      description: '취향 리포트와 저장한 원두,\n시음기록, 게시글을 확인해보세요.',
-                      descTextStyle: TextStyles.bodyRegular,
-                      disableMovingAnimation: true,
-                      tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
-                      tooltipActionConfig: const TooltipActionConfig(
-                          gapBetweenContentAndAction: 12,
-                          crossAxisAlignment: CrossAxisAlignment.center
-                      ),
-                      tooltipActions: [
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.previous,
-                          name: '3/3',
-                          backgroundColor: ColorStyles.white,
-                          textStyle: TextStyles.captionMediumMedium,
-                          borderRadius: BorderRadius.zero,
-                          padding: EdgeInsets.zero,
-                          onTap: () {},
-                        ),
-                        TooltipActionButton(
-                          type: TooltipDefaultActionType.next,
-                          name: '다음',
-                          backgroundColor: ColorStyles.black,
-                          textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        )
-                      ],
-                      targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
-                      targetPadding: const EdgeInsets.all(8),
-                      child: GestureDetector(
-                        onTap: () {
-                          context.go('/profile');
-                        },
-                        child: _buildBottomNavigationItem(
-                          icon: SvgPicture.asset(
-                            isSelect ? 'assets/icons/profile_fill.svg' : 'assets/icons/profile.svg',
-                            width: 24,
-                            height: 24,
+                          TooltipActionButton(
+                            type: TooltipDefaultActionType.next,
+                            name: '다음',
+                            backgroundColor: ColorStyles.black,
+                            textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                            borderRadius: const BorderRadius.all(Radius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          )
+                        ],
+                        targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
+                        targetPadding: const EdgeInsets.all(8),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.go('/search');
+                          },
+                          child: _buildBottomNavigationItem(
+                            icon: SvgPicture.asset(
+                              isSelect ? 'assets/icons/search_fill.svg' : 'assets/icons/search.svg',
+                              width: 24,
+                              height: 24,
+                            ),
+                            title: '검색',
+                            isSelect: isSelect,
                           ),
-                          title: '프로필',
-                          isSelect: isSelect,
                         ),
-                      ),
-                    );
-                  }
-                },
-              ).separator(separatorWidget: const Spacer()).toList(),
+                      );
+                    } else if (index == 2) {
+                      return Showcase(
+                        key: _two,
+                        title: '커피노트를 작성해보세요!',
+                        titleTextStyle: TextStyles.title01Bold,
+                        titleAlignment: Alignment.centerLeft,
+                        titlePadding: const EdgeInsets.only(bottom: 4),
+                        description: '마신 커피를 기록하거나,\n게시글을 업로드할 수 있어요.',
+                        descTextStyle: TextStyles.bodyRegular,
+                        disableMovingAnimation: true,
+                        tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
+                        tooltipActionConfig: const TooltipActionConfig(
+                            gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
+                        tooltipActions: [
+                          TooltipActionButton(
+                            type: TooltipDefaultActionType.previous,
+                            name: '2/3',
+                            backgroundColor: ColorStyles.white,
+                            textStyle: TextStyles.captionMediumMedium,
+                            borderRadius: BorderRadius.zero,
+                            padding: EdgeInsets.zero,
+                            onTap: () {},
+                          ),
+                          TooltipActionButton(
+                            type: TooltipDefaultActionType.next,
+                            name: '다음',
+                            backgroundColor: ColorStyles.black,
+                            textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                            borderRadius: const BorderRadius.all(Radius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          )
+                        ],
+                        targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
+                        targetPadding: const EdgeInsets.all(8),
+                        child: GestureDetector(
+                          onTap: () {
+                            showCoffeeNoteBottomSheet().then((value) {
+                              if (value == CoffeeNote.post) {
+                                showPostWriteScreen(context: context).then((value) {
+                                  if (value != null && value) {
+                                    showSnackBar(message: '게시글 작성을 완료했어요.');
+                                  }
+                                });
+                              } else if (value == CoffeeNote.tastedRecord) {
+                                showTastingWriteScreen(context).then((value) {
+                                  if (value != null && value) {
+                                    showSnackBar(message: '시음기록 작성을 완료했어요.');
+                                  }
+                                });
+                              }
+                            });
+                          },
+                          child: _buildBottomNavigationItem(
+                            icon: SvgPicture.asset(
+                              isSelect ? 'assets/icons/coffee_note_fill.svg' : 'assets/icons/coffee_note.svg',
+                              width: 24,
+                              height: 24,
+                            ),
+                            title: '커피노트',
+                            isSelect: isSelect,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Showcase(
+                        key: _three,
+                        title: '나의 커피 취향을 확인해보세요!',
+                        titleTextStyle: TextStyles.title01Bold,
+                        titleAlignment: Alignment.centerLeft,
+                        titlePadding: const EdgeInsets.only(bottom: 4),
+                        description: '취향 리포트와 저장한 원두,\n시음기록, 게시글을 확인해보세요.',
+                        descTextStyle: TextStyles.bodyRegular,
+                        disableMovingAnimation: true,
+                        tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
+                        tooltipActionConfig: const TooltipActionConfig(
+                            gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
+                        tooltipActions: [
+                          TooltipActionButton(
+                            type: TooltipDefaultActionType.previous,
+                            name: '3/3',
+                            backgroundColor: ColorStyles.white,
+                            textStyle: TextStyles.captionMediumMedium,
+                            borderRadius: BorderRadius.zero,
+                            padding: EdgeInsets.zero,
+                            onTap: () {},
+                          ),
+                          TooltipActionButton(
+                            type: TooltipDefaultActionType.next,
+                            name: '다음',
+                            backgroundColor: ColorStyles.black,
+                            textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                            borderRadius: const BorderRadius.all(Radius.circular(20)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          )
+                        ],
+                        targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
+                        targetPadding: const EdgeInsets.all(8),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.go('/profile');
+                          },
+                          child: _buildBottomNavigationItem(
+                            icon: SvgPicture.asset(
+                              isSelect ? 'assets/icons/profile_fill.svg' : 'assets/icons/profile.svg',
+                              width: 24,
+                              height: 24,
+                            ),
+                            title: '프로필',
+                            isSelect: isSelect,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ).separator(separatorWidget: const Spacer()).toList(),
+              ),
             ),
           ),
         ),

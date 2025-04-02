@@ -1,11 +1,14 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/domain/setting/presenter/notification_setting_presenter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class NotificationSettingView extends StatefulWidget {
   const NotificationSettingView({super.key});
@@ -21,6 +24,9 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<NotificationSettingPresenter>().initState();
+    });
   }
 
   @override
@@ -41,9 +47,15 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: _isGranted ? _buildGrantedBody() : _buildDeniedBody(),
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: _buildAppBar(),
+          body: _isGranted ? _buildGrantedBody() : _buildDeniedBody(),
+        ),
+        if (context.select<NotificationSettingPresenter, bool>((presenter) => presenter.isLoading))
+          const Positioned.fill(child: LoadingBarrier()),
+      ],
     );
   }
 
@@ -111,7 +123,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   height: 30,
                   child: CupertinoSwitch(
                     value: _isGranted,
-                    activeColor: ColorStyles.red,
+                    activeTrackColor: ColorStyles.red,
                     onChanged: (value) {
                       openAppSettings();
                     },
@@ -149,17 +161,21 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   ),
                 ),
                 const SizedBox(width: 48),
-                SizedBox(
-                  width: 50,
-                  height: 30,
-                  child: CupertinoSwitch(
-                    value: _isGranted,
-                    activeColor: ColorStyles.red,
-                    onChanged: (value) {
-                      openAppSettings();
-                    },
-                  ),
-                ),
+                Builder(builder: (context) {
+                  final value = context.select<NotificationSettingPresenter, bool>(
+                      (presenter) => presenter.notificationSetting?.follow ?? false);
+                  return SizedBox(
+                    width: 50,
+                    height: 30,
+                    child: CupertinoSwitch(
+                      value: value,
+                      activeTrackColor: ColorStyles.red,
+                      onChanged: (value) {
+                        context.read<NotificationSettingPresenter>().onChangeFollowNotifyState();
+                      },
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -190,17 +206,21 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   ),
                 ),
                 const SizedBox(width: 48),
-                SizedBox(
-                  width: 50,
-                  height: 30,
-                  child: CupertinoSwitch(
-                    value: _isGranted,
-                    activeColor: ColorStyles.red,
-                    onChanged: (value) {
-                      openAppSettings();
-                    },
-                  ),
-                ),
+                Builder(builder: (context) {
+                  final value = context.select<NotificationSettingPresenter, bool>(
+                      (presenter) => presenter.notificationSetting?.like ?? false);
+                  return SizedBox(
+                    width: 50,
+                    height: 30,
+                    child: CupertinoSwitch(
+                      value: value,
+                      activeTrackColor: ColorStyles.red,
+                      onChanged: (value) {
+                        context.read<NotificationSettingPresenter>().onChangeLikeNotifyState();
+                      },
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -228,16 +248,22 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   ),
                 ),
                 const SizedBox(width: 48),
-                SizedBox(
-                  width: 50,
-                  height: 30,
-                  child: CupertinoSwitch(
-                    value: _isGranted,
-                    activeColor: ColorStyles.red,
-                    onChanged: (value) {
-                      openAppSettings();
-                    },
-                  ),
+                Builder(
+                  builder: (context) {
+                    final value = context.select<NotificationSettingPresenter, bool>(
+                            (presenter) => presenter.notificationSetting?.comment ?? false);
+                    return SizedBox(
+                      width: 50,
+                      height: 30,
+                      child: CupertinoSwitch(
+                        value: value,
+                        activeTrackColor: ColorStyles.red,
+                        onChanged: (value) {
+                          context.read<NotificationSettingPresenter>().onChangeCommentNotifyState();
+                        },
+                      ),
+                    );
+                  }
                 ),
               ],
             ),
@@ -271,16 +297,22 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   ),
                 ),
                 const SizedBox(width: 48),
-                SizedBox(
-                  width: 50,
-                  height: 30,
-                  child: CupertinoSwitch(
-                    value: _isGranted,
-                    activeColor: ColorStyles.red,
-                    onChanged: (value) {
-                      openAppSettings();
-                    },
-                  ),
+                Builder(
+                  builder: (context) {
+                    final value = context.select<NotificationSettingPresenter, bool>(
+                            (presenter) => presenter.notificationSetting?.marketing ?? false);
+                    return SizedBox(
+                      width: 50,
+                      height: 30,
+                      child: CupertinoSwitch(
+                        value: value,
+                        activeTrackColor: ColorStyles.red,
+                        onChanged: (value) {
+                          context.read<NotificationSettingPresenter>().onChangeMarketingNotifyState();
+                        },
+                      ),
+                    );
+                  }
                 ),
               ],
             ),
@@ -316,7 +348,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
             height: 30,
             child: CupertinoSwitch(
               value: _isGranted,
-              activeColor: ColorStyles.red,
+              activeTrackColor: ColorStyles.red,
               onChanged: (value) {
                 openAppSettings();
               },

@@ -36,13 +36,13 @@ class LoginPresenter extends Presenter {
           _socialLoginResultData = result;
           final hasAccount = await _checkUser(accessToken: result.accessToken);
           if (hasAccount != null) {
+            await _accountRepository.saveId(id: result.id);
+            await _accountRepository.saveToken(
+              accessToken: result.accessToken,
+              refreshToken: result.refreshToken,
+            );
             final registered = await NotificationRepository.instance.registerToken(result.accessToken);
             if (registered) {
-              await _accountRepository.saveId(id: result.id);
-              await _accountRepository.saveToken(
-                accessToken: result.accessToken,
-                refreshToken: result.refreshToken,
-              );
               _isLoading = false;
               notifyListeners();
               return LoginResult.login;
