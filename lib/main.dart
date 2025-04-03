@@ -41,12 +41,17 @@ void main() async {
   await PermissionRepository.instance.initPermission();
   await NotificationRepository.instance.init();
 
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (context) => SignUpPresenter()),
-    ],
-    child: MyApp(router: createRouter(AccountRepository.instance.accessToken.isNotEmpty)),
-  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => SignUpPresenter()),
+        ChangeNotifierProvider(create: (context) => AccountRepository.instance),
+      ],
+      child: MyApp(
+        router: createRouter(AccountRepository.instance.accessToken.isNotEmpty),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -58,22 +63,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {}
-
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();

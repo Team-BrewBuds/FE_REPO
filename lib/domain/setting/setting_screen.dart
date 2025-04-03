@@ -5,7 +5,6 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
 import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
@@ -145,7 +144,8 @@ class _SettingScreenState extends State<SettingScreen>
     );
   }
 
-  onTapped(SettingItem item) {
+  onTapped(SettingItem item) async {
+    final context = this.context;
     switch (item) {
       case SettingItem.notification:
         context.go('/profile/setting/notification');
@@ -184,27 +184,37 @@ class _SettingScreenState extends State<SettingScreen>
       case SettingItem.version:
         break;
       case SettingItem.logout:
-        showLogoutBottomSheet();
+        final result = await showLogoutBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+
+        if (result) {
+          final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
+          if (logoutResult && context.mounted) {
+            context.go('/');
+          } else {
+            showSnackBar(message: '로그아웃에 실패했습니다.');
+          }
+        }
         break;
       case SettingItem.signOut:
-        showSignOutBottomSheet().then((value) {
-          if (value != null && value) {
-            showCupertinoModalPopup(
-              barrierColor: ColorStyles.white,
-              barrierDismissible: false,
-              context: context,
-              builder: (context) {
-                return const SignOutView();
-              },
-            );
-          }
-        });
+        final result = await showSignOutBottomSheet();
+
+        if (result != null && result && context.mounted) {
+          showCupertinoModalPopup(
+            barrierColor: ColorStyles.white,
+            barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return const SignOutView();
+            },
+          );
+        }
+
         break;
     }
   }
 
-  showLogoutBottomSheet() {
-    showBarrierDialog(
+  Future<bool?> showLogoutBottomSheet() {
+    return showBarrierDialog<bool>(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
         return Stack(
@@ -226,7 +236,7 @@ class _SettingScreenState extends State<SettingScreen>
                     children: [
                       GestureDetector(
                         onTap: () {
-                          AccountRepository.instance.logout();
+                          context.pop(true);
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 24),

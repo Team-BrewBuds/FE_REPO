@@ -39,68 +39,58 @@ import 'package:showcaseview/showcaseview.dart';
 
 GoRouter createRouter(bool hasToken) {
   return GoRouter(
-    initialLocation: hasToken ? '/home' : '/login',
-    refreshListenable: AccountRepository.instance,
-    redirect: (context, state) {
-      final hasToken = AccountRepository.instance.accessToken.isNotEmpty;
-      final location = state.uri.toString();
-      if (!hasToken && !location.startsWith('/login')) {
-        return '/login';
-      } else if (hasToken && location.startsWith('/login')) {
-        return '/home';
-      } else {
-        return location;
-      }
-    },
+    initialLocation: hasToken ? '/home' : '/',
     routes: [
       GoRoute(
-        path: '/login',
+        path: '/',
         builder: (BuildContext context, GoRouterState state) {
           return const LoginPageFirst();
         },
         routes: <RouteBase>[
           GoRoute(
-            path: 'sns',
+            path: 'login',
             builder: (BuildContext context, GoRouterState state) => ChangeNotifierProvider(
               create: (context) => LoginPresenter(),
               child: const SNSLogin(),
             ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/signup',
-        builder: (BuildContext context, GoRouterState state) {
-          return SignUpFirstPage(
-            accessToken: state.uri.queryParameters['access_token'] ?? '',
-            refreshToken: state.uri.queryParameters['refresh_token'] ?? '',
-            id: int.tryParse(state.uri.queryParameters['id'] ?? '') ?? 0,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: 'second',
-            builder: (BuildContext context, GoRouterState state) {
-              return const SignUpSecondPage();
-            },
-          ),
-          GoRoute(
-            path: 'third',
-            builder: (BuildContext context, GoRouterState state) {
-              return const SignUpThirdPage();
-            },
-          ),
-          GoRoute(
-            path: 'fourth',
-            builder: (BuildContext context, GoRouterState state) {
-              return const SignUpFourthPage();
-            },
-          ),
-          GoRoute(
-            path: 'finish',
-            builder: (BuildContext context, GoRouterState state) {
-              return const SignupFinishPage();
-            },
+            routes: [
+              GoRoute(
+                path: '/signup',
+                builder: (BuildContext context, GoRouterState state) {
+                  return SignUpFirstPage(
+                    accessToken: state.uri.queryParameters['access_token'] ?? '',
+                    refreshToken: state.uri.queryParameters['refresh_token'] ?? '',
+                    id: int.tryParse(state.uri.queryParameters['id'] ?? '') ?? 0,
+                  );
+                },
+                routes: [
+                  GoRoute(
+                    path: 'second',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const SignUpSecondPage();
+                    },
+                  ),
+                  GoRoute(
+                    path: 'third',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const SignUpThirdPage();
+                    },
+                  ),
+                  GoRoute(
+                    path: 'fourth',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const SignUpFourthPage();
+                    },
+                  ),
+                  GoRoute(
+                    path: 'finish',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return const SignupFinishPage();
+                    },
+                  ),
+                ],
+              ),
+            ]
           ),
         ],
       ),
@@ -114,9 +104,10 @@ GoRouter createRouter(bool hasToken) {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => ChangeNotifierProvider(
-              create: (_) => HomePresenter(),
-              child: HomeView(),
+            builder: (context, state) => ChangeNotifierProxyProvider<AccountRepository, HomePresenter>(
+              update: (context, repository, previous) => HomePresenter(isGuest: repository.isGuest),
+              create: (_) => HomePresenter(isGuest: false),
+              child: const HomeView(),
             ),
             routes: [
               GoRoute(

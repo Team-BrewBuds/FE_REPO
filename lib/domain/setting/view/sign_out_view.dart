@@ -221,16 +221,17 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
           ),
           const SizedBox(height: 32),
           GestureDetector(
-            onTap: () {
-              _showSignOutDialog().then((value) {
-                if (value != null && value) {
-                  _api.signOut().then((_) {
-                    AccountRepository.instance.logout();
-                  }).onError((error, stackTrace) {
-                    showSnackBar(message: '회원 탈퇴를 실패했어요.');
-                  });
+            onTap: () async {
+              final context = this.context;
+              final result = await  _showSignOutDialog().then((value) => value ?? false).onError((_, __) => false);
+              if (result) {
+                final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
+                if (signOutResult && context.mounted) {
+                  context.go('/');
+                } else {
+                  showSnackBar(message: '회원탈퇴에 실패했습니다.');
                 }
-              });
+              }
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

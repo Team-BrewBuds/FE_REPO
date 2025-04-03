@@ -36,8 +36,8 @@ class LoginPresenter extends Presenter {
           _socialLoginResultData = result;
           final hasAccount = await _checkUser(accessToken: result.accessToken);
           if (hasAccount != null) {
-            await _accountRepository.saveId(id: result.id);
-            await _accountRepository.saveToken(
+            await _accountRepository.login(
+              id: result.id,
               accessToken: result.accessToken,
               refreshToken: result.refreshToken,
             );

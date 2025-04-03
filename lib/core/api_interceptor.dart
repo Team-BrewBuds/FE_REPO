@@ -16,7 +16,6 @@ final class ApiInterceptor extends Interceptor {
 
     if (token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
-      print(token);
     }
 
     return super.onRequest(options, handler);
@@ -51,7 +50,7 @@ final class ApiInterceptor extends Interceptor {
       for (final request in _pendingRequests) {
         request.handler.reject(err);
       }
-      //로그아웃 처리로직 구현 필요.
+      AccountRepository.instance.logout(forceLogout: true);
     }
     _pendingRequests.clear();
     _isRefreshing = false;

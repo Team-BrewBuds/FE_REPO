@@ -16,6 +16,7 @@ final class HomePresenter extends Presenter {
   final PostRepository postRepository = PostRepository.instance;
   final TastedRecordRepository tastedRecordRepository = TastedRecordRepository.instance;
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
+  final bool _isGuest;
   bool _isLoadingAction = false;
   bool _isLoading = false;
   int _currentTypeIndex = 0;
@@ -24,6 +25,8 @@ final class HomePresenter extends Presenter {
   int _currentTab = 0;
   int _pageNo = 1;
   DefaultPage<Feed> _feedPage = DefaultPage.initState();
+
+  bool get isGuest => _isGuest;
 
   bool get isLoadingAction => _isLoadingAction;
 
@@ -41,7 +44,7 @@ final class HomePresenter extends Presenter {
 
   bool get isPostFeed => _currentTab == 2;
 
-  HomePresenter() {
+  HomePresenter({required bool isGuest}) : _isGuest = isGuest {
     initState();
   }
 
@@ -67,7 +70,9 @@ final class HomePresenter extends Presenter {
     notifyListeners();
 
     await fetchFeeds();
-    await fetchRecommendedUsers();
+    if (!_isGuest) {
+      await fetchRecommendedUsers();
+    }
     notifyListeners();
 
     _isLoading = false;
@@ -311,10 +316,10 @@ final class HomePresenter extends Presenter {
             .onError((_, __) => false);
         if (result) {
           final newFeeds = await compute(
-                (message) {
+            (message) {
               final previousFeeds = List<Feed>.from(message.$1);
               return previousFeeds.map(
-                    (feed) {
+                (feed) {
                   switch (feed) {
                     case PostFeed():
                       if (feed.data.author.id == message.$2) {
@@ -335,10 +340,9 @@ final class HomePresenter extends Presenter {
             (_feedPage.results, feed.data.author.id, feed.data.isAuthorFollowing),
           );
           _feedPage = await compute(
-                (message) => message.$1.copyWith(results: message.$2),
+            (message) => message.$1.copyWith(results: message.$2),
             (_feedPage, newFeeds),
           );
-
         }
     }
     _isLoadingAction = false;

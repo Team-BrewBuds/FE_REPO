@@ -4,6 +4,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AccountRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  bool _isGuest = false;
+  bool _forceLogout = false;
   String _refreshToken = '';
   String _accessToken = '';
   int? _id;
@@ -13,6 +15,10 @@ class AccountRepository extends ChangeNotifier {
   String get refreshToken => _refreshToken;
 
   int? get id => _id;
+
+  bool get isForceLogout => _forceLogout;
+
+  bool get isGuest => _isGuest;
 
   AccountRepository._();
 
@@ -47,14 +53,34 @@ class AccountRepository extends ChangeNotifier {
     _id = id;
   }
 
-  Future<void> logout() async {
-    if (await NotificationRepository.instance.deleteToken().onError((error, stackTrace) => false)) {
-      await _storage.deleteAll().then((value) {
-        _id = null;
-        _accessToken = '';
-        _refreshToken = '';
-        notifyListeners();
-      });
+  Future<void> logout({bool forceLogout = false}) async {
+    try {
+      await NotificationRepository.instance.deleteToken();
+      await _storage.deleteAll();
+      _id = null;
+      _accessToken = '';
+      _refreshToken = '';
+      _forceLogout = forceLogout;
+      notifyListeners();
+    } catch (e) {
+      rethrow;
     }
+  }
+
+  Future<void> login({required int id, required String accessToken, required String refreshToken}) async {
+    await saveToken(accessToken: accessToken, refreshToken: refreshToken);
+    await saveId(id: id);
+    if (_isGuest) {
+      _isGuest = false;
+      notifyListeners();
+    }
+  }
+
+  loginWithGuest() {
+    _isGuest = true;
+  }
+
+  setForceLogout({required bool value}) {
+    _forceLogout = value;
   }
 }

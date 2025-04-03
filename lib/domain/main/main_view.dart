@@ -1,14 +1,18 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 enum CoffeeNote {
@@ -28,7 +32,7 @@ class MainView extends StatefulWidget {
   State<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> with SnackBarMixin<MainView> {
+class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, CenterDialogMixin<MainView> {
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
@@ -47,201 +51,265 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView> {
 
   @override
   Widget build(BuildContext context) {
-    return AbsorbPointer(
-      absorbing: true,
-      child: Scaffold(
-        body: widget.child,
-        bottomNavigationBar: Container(
-          color: ColorStyles.white,
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 24, top: 8, left: 32, right: 32),
-              child: Row(
-                children: List.generate(
-                  4,
-                  (index) {
-                    final isSelect = currentIndex == index;
-                    if (index == 0) {
-                      return GestureDetector(
-                        onTap: () {
-                          context.go('/home');
+    final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
+    return Scaffold(
+      body: widget.child,
+      bottomNavigationBar: Container(
+        color: ColorStyles.white,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 24, top: 8, left: 32, right: 32),
+            child: Row(
+              children: List.generate(
+                4,
+                (index) {
+                  final isSelect = currentIndex == index;
+                  if (index == 0) {
+                    return GestureDetector(
+                      onTap: () {
+                        context.go('/home');
+                      },
+                      child: _buildBottomNavigationItem(
+                        icon: SvgPicture.asset(
+                          isSelect ? 'assets/icons/home_fill.svg' : 'assets/icons/home.svg',
+                          width: 24,
+                          height: 24,
+                        ),
+                        title: '홈',
+                        isSelect: isSelect,
+                      ),
+                    );
+                  } else if (index == 1) {
+                    return Showcase(
+                      key: _one,
+                      title: '내게 맞는 원두를 찾아보세요!',
+                      titleTextStyle: TextStyles.title01Bold,
+                      titleAlignment: Alignment.centerLeft,
+                      titlePadding: const EdgeInsets.only(bottom: 4),
+                      description: '추천 원두를 확인하고,\n버디/시음기록/게시글을 검색할 수 있어요.',
+                      descTextStyle: TextStyles.bodyRegular,
+                      disableMovingAnimation: true,
+                      toolTipMargin: 48,
+                      tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
+                      tooltipActionConfig: const TooltipActionConfig(
+                          gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
+                      tooltipActions: [
+                        TooltipActionButton(
+                          type: TooltipDefaultActionType.previous,
+                          name: '1/3',
+                          backgroundColor: ColorStyles.white,
+                          textStyle: TextStyles.captionMediumMedium,
+                          borderRadius: BorderRadius.zero,
+                          padding: EdgeInsets.zero,
+                          onTap: () {},
+                        ),
+                        TooltipActionButton(
+                          type: TooltipDefaultActionType.next,
+                          name: '다음',
+                          backgroundColor: ColorStyles.black,
+                          textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        )
+                      ],
+                      targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
+                      targetPadding: const EdgeInsets.all(8),
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (isGuest) {
+                            final result =
+                            await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+                            if (context.mounted) {
+                              if (result) {
+                                context.go('/search');
+                              } else {
+                                showSnackBar(message: '로그인에 실패했습니다.');
+                              }
+                            }
+                          } else {
+                            context.go('/search');
+                          }
                         },
                         child: _buildBottomNavigationItem(
                           icon: SvgPicture.asset(
-                            isSelect ? 'assets/icons/home_fill.svg' : 'assets/icons/home.svg',
+                            isSelect ? 'assets/icons/search_fill.svg' : 'assets/icons/search.svg',
                             width: 24,
                             height: 24,
                           ),
-                          title: '홈',
+                          title: '검색',
                           isSelect: isSelect,
                         ),
-                      );
-                    } else if (index == 1) {
-                      return Showcase(
-                        key: _one,
-                        title: '내게 맞는 원두를 찾아보세요!',
-                        titleTextStyle: TextStyles.title01Bold,
-                        titleAlignment: Alignment.centerLeft,
-                        titlePadding: const EdgeInsets.only(bottom: 4),
-                        description: '추천 원두를 확인하고,\n버디/시음기록/게시글을 검색할 수 있어요.',
-                        descTextStyle: TextStyles.bodyRegular,
-                        disableMovingAnimation: true,
-                        toolTipMargin: 48,
-                        tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
-                        tooltipActionConfig: const TooltipActionConfig(
-                            gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
-                        tooltipActions: [
-                          TooltipActionButton(
-                            type: TooltipDefaultActionType.previous,
-                            name: '1/3',
-                            backgroundColor: ColorStyles.white,
-                            textStyle: TextStyles.captionMediumMedium,
-                            borderRadius: BorderRadius.zero,
-                            padding: EdgeInsets.zero,
-                            onTap: () {},
-                          ),
-                          TooltipActionButton(
-                            type: TooltipDefaultActionType.next,
-                            name: '다음',
-                            backgroundColor: ColorStyles.black,
-                            textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                            borderRadius: const BorderRadius.all(Radius.circular(20)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          )
-                        ],
-                        targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
-                        targetPadding: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () {
-                            context.go('/search');
-                          },
-                          child: _buildBottomNavigationItem(
-                            icon: SvgPicture.asset(
-                              isSelect ? 'assets/icons/search_fill.svg' : 'assets/icons/search.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            title: '검색',
-                            isSelect: isSelect,
-                          ),
+                      ),
+                    );
+                  } else if (index == 2) {
+                    return Showcase(
+                      key: _two,
+                      title: '커피노트를 작성해보세요!',
+                      titleTextStyle: TextStyles.title01Bold,
+                      titleAlignment: Alignment.centerLeft,
+                      titlePadding: const EdgeInsets.only(bottom: 4),
+                      description: '마신 커피를 기록하거나,\n게시글을 업로드할 수 있어요.',
+                      descTextStyle: TextStyles.bodyRegular,
+                      disableMovingAnimation: true,
+                      tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
+                      tooltipActionConfig: const TooltipActionConfig(
+                          gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
+                      tooltipActions: [
+                        TooltipActionButton(
+                          type: TooltipDefaultActionType.previous,
+                          name: '2/3',
+                          backgroundColor: ColorStyles.white,
+                          textStyle: TextStyles.captionMediumMedium,
+                          borderRadius: BorderRadius.zero,
+                          padding: EdgeInsets.zero,
+                          onTap: () {},
                         ),
-                      );
-                    } else if (index == 2) {
-                      return Showcase(
-                        key: _two,
-                        title: '커피노트를 작성해보세요!',
-                        titleTextStyle: TextStyles.title01Bold,
-                        titleAlignment: Alignment.centerLeft,
-                        titlePadding: const EdgeInsets.only(bottom: 4),
-                        description: '마신 커피를 기록하거나,\n게시글을 업로드할 수 있어요.',
-                        descTextStyle: TextStyles.bodyRegular,
-                        disableMovingAnimation: true,
-                        tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
-                        tooltipActionConfig: const TooltipActionConfig(
-                            gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
-                        tooltipActions: [
-                          TooltipActionButton(
-                            type: TooltipDefaultActionType.previous,
-                            name: '2/3',
-                            backgroundColor: ColorStyles.white,
-                            textStyle: TextStyles.captionMediumMedium,
-                            borderRadius: BorderRadius.zero,
-                            padding: EdgeInsets.zero,
-                            onTap: () {},
-                          ),
-                          TooltipActionButton(
-                            type: TooltipDefaultActionType.next,
-                            name: '다음',
-                            backgroundColor: ColorStyles.black,
-                            textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                            borderRadius: const BorderRadius.all(Radius.circular(20)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          )
-                        ],
-                        targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
-                        targetPadding: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () {
-                            showCoffeeNoteBottomSheet().then((value) {
-                              if (value == CoffeeNote.post) {
-                                showPostWriteScreen(context: context).then((value) {
-                                  if (value != null && value) {
+                        TooltipActionButton(
+                          type: TooltipDefaultActionType.next,
+                          name: '다음',
+                          backgroundColor: ColorStyles.black,
+                          textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        )
+                      ],
+                      targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
+                      targetPadding: const EdgeInsets.all(8),
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (isGuest) {
+                            final result =
+                                await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+                            if (context.mounted) {
+                              if (result) {
+                                final coffeeNoteResult = await showCoffeeNoteBottomSheet();
+                                if (context.mounted) {
+                                  switch (coffeeNoteResult) {
+                                    case null:
+                                      break;
+                                    case CoffeeNote.post:
+                                      final writeResult = await showPostWriteScreen(context: context)
+                                          .then((value) => value ?? false)
+                                          .onError((_, __) => false);
+                                      if (writeResult) {
+                                        showSnackBar(message: '게시글 작성을 완료했어요.');
+                                      }
+                                      break;
+                                    case CoffeeNote.tastedRecord:
+                                      final writeResult = await showTastingWriteScreen(context)
+                                          .then((value) => value ?? false)
+                                          .onError((_, __) => false);
+                                      if (writeResult) {
+                                        showSnackBar(message: '게시글 작성을 완료했어요.');
+                                      }
+                                      break;
+                                  }
+                                }
+                              } else {
+                                showSnackBar(message: '로그인에 실패했습니다.');
+                              }
+                            }
+                          } else {
+                            final coffeeNoteResult = await showCoffeeNoteBottomSheet();
+                            if (context.mounted) {
+                              switch (coffeeNoteResult) {
+                                case null:
+                                  break;
+                                case CoffeeNote.post:
+                                  final writeResult = await showPostWriteScreen(context: context)
+                                      .then((value) => value ?? false)
+                                      .onError((_, __) => false);
+                                  if (writeResult) {
                                     showSnackBar(message: '게시글 작성을 완료했어요.');
                                   }
-                                });
-                              } else if (value == CoffeeNote.tastedRecord) {
-                                showTastingWriteScreen(context).then((value) {
-                                  if (value != null && value) {
-                                    showSnackBar(message: '시음기록 작성을 완료했어요.');
+                                  break;
+                                case CoffeeNote.tastedRecord:
+                                  final writeResult = await showTastingWriteScreen(context)
+                                      .then((value) => value ?? false)
+                                      .onError((_, __) => false);
+                                  if (writeResult) {
+                                    showSnackBar(message: '게시글 작성을 완료했어요.');
                                   }
-                                });
+                                  break;
                               }
-                            });
-                          },
-                          child: _buildBottomNavigationItem(
-                            icon: SvgPicture.asset(
-                              isSelect ? 'assets/icons/coffee_note_fill.svg' : 'assets/icons/coffee_note.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            title: '커피노트',
-                            isSelect: isSelect,
+                            }
+                          }
+                        },
+                        child: _buildBottomNavigationItem(
+                          icon: SvgPicture.asset(
+                            isSelect ? 'assets/icons/coffee_note_fill.svg' : 'assets/icons/coffee_note.svg',
+                            width: 24,
+                            height: 24,
                           ),
+                          title: '커피노트',
+                          isSelect: isSelect,
                         ),
-                      );
-                    } else {
-                      return Showcase(
-                        key: _three,
-                        title: '나의 커피 취향을 확인해보세요!',
-                        titleTextStyle: TextStyles.title01Bold,
-                        titleAlignment: Alignment.centerLeft,
-                        titlePadding: const EdgeInsets.only(bottom: 4),
-                        description: '취향 리포트와 저장한 원두,\n시음기록, 게시글을 확인해보세요.',
-                        descTextStyle: TextStyles.bodyRegular,
-                        disableMovingAnimation: true,
-                        tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
-                        tooltipActionConfig: const TooltipActionConfig(
-                            gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
-                        tooltipActions: [
-                          TooltipActionButton(
-                            type: TooltipDefaultActionType.previous,
-                            name: '3/3',
-                            backgroundColor: ColorStyles.white,
-                            textStyle: TextStyles.captionMediumMedium,
-                            borderRadius: BorderRadius.zero,
-                            padding: EdgeInsets.zero,
-                            onTap: () {},
-                          ),
-                          TooltipActionButton(
-                            type: TooltipDefaultActionType.next,
-                            name: '다음',
-                            backgroundColor: ColorStyles.black,
-                            textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                            borderRadius: const BorderRadius.all(Radius.circular(20)),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          )
-                        ],
-                        targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
-                        targetPadding: const EdgeInsets.all(8),
-                        child: GestureDetector(
-                          onTap: () {
+                      ),
+                    );
+                  } else {
+                    return Showcase(
+                      key: _three,
+                      title: '나의 커피 취향을 확인해보세요!',
+                      titleTextStyle: TextStyles.title01Bold,
+                      titleAlignment: Alignment.centerLeft,
+                      titlePadding: const EdgeInsets.only(bottom: 4),
+                      description: '취향 리포트와 저장한 원두,\n시음기록, 게시글을 확인해보세요.',
+                      descTextStyle: TextStyles.bodyRegular,
+                      disableMovingAnimation: true,
+                      tooltipPadding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 16),
+                      tooltipActionConfig: const TooltipActionConfig(
+                          gapBetweenContentAndAction: 12, crossAxisAlignment: CrossAxisAlignment.center),
+                      tooltipActions: [
+                        TooltipActionButton(
+                          type: TooltipDefaultActionType.previous,
+                          name: '3/3',
+                          backgroundColor: ColorStyles.white,
+                          textStyle: TextStyles.captionMediumMedium,
+                          borderRadius: BorderRadius.zero,
+                          padding: EdgeInsets.zero,
+                          onTap: () {},
+                        ),
+                        TooltipActionButton(
+                          type: TooltipDefaultActionType.next,
+                          name: '다음',
+                          backgroundColor: ColorStyles.black,
+                          textStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        )
+                      ],
+                      targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
+                      targetPadding: const EdgeInsets.all(8),
+                      child: GestureDetector(
+                        onTap: () async {
+                          if (isGuest) {
+                            final result =
+                                await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+                            if (context.mounted) {
+                              if (result) {
+                                context.go('/profile');
+                              } else {
+                                showSnackBar(message: '로그인에 실패했습니다.');
+                              }
+                            }
+                          } else {
                             context.go('/profile');
-                          },
-                          child: _buildBottomNavigationItem(
-                            icon: SvgPicture.asset(
-                              isSelect ? 'assets/icons/profile_fill.svg' : 'assets/icons/profile.svg',
-                              width: 24,
-                              height: 24,
-                            ),
-                            title: '프로필',
-                            isSelect: isSelect,
+                          }
+                        },
+                        child: _buildBottomNavigationItem(
+                          icon: SvgPicture.asset(
+                            isSelect ? 'assets/icons/profile_fill.svg' : 'assets/icons/profile.svg',
+                            width: 24,
+                            height: 24,
                           ),
+                          title: '프로필',
+                          isSelect: isSelect,
                         ),
-                      );
-                    }
-                  },
-                ).separator(separatorWidget: const Spacer()).toList(),
-              ),
+                      ),
+                    );
+                  }
+                },
+              ).separator(separatorWidget: const Spacer()).toList(),
             ),
           ),
         ),
@@ -433,6 +501,13 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView> {
           ],
         );
       },
+    );
+  }
+
+  Future<bool?> showLoginBottomSheet() {
+    return showBarrierDialog(
+      context: context,
+      pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
     );
   }
 }
