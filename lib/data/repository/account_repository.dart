@@ -1,14 +1,17 @@
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:notification_center/notification_center.dart';
 
 class AccountRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   bool _isGuest = false;
-  bool _forceLogout = false;
   String _refreshToken = '';
   String _accessToken = '';
   int? _id;
+  String _refreshTokenInMemory = '';
+  String _accessTokenInMemory = '';
+  int? _idInMemory;
 
   String get accessToken => _accessToken;
 
@@ -16,7 +19,11 @@ class AccountRepository extends ChangeNotifier {
 
   int? get id => _id;
 
-  bool get isForceLogout => _forceLogout;
+  String get accessTokenInMemory => _accessTokenInMemory;
+
+  String get refreshTokenInMemory => _refreshTokenInMemory;
+
+  int? get idInMemory => _idInMemory;
 
   bool get isGuest => _isGuest;
 
@@ -32,6 +39,12 @@ class AccountRepository extends ChangeNotifier {
     _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
     _id = int.tryParse(await _storage.read(key: 'id') ?? '');
+  }
+
+  saveTokenAndIdInMemory({required int id, required String accessToken, required String refreshToken}) {
+    _refreshTokenInMemory = refreshToken;
+    _accessTokenInMemory = accessToken;
+    _idInMemory = id;
   }
 
   Future<void> saveToken({String? accessToken, String? refreshToken}) async {
@@ -60,8 +73,9 @@ class AccountRepository extends ChangeNotifier {
       _id = null;
       _accessToken = '';
       _refreshToken = '';
-      _forceLogout = forceLogout;
-      notifyListeners();
+      if (forceLogout) {
+        NotificationCenter().notify('force_logout');
+      }
     } catch (e) {
       rethrow;
     }
@@ -78,9 +92,5 @@ class AccountRepository extends ChangeNotifier {
 
   loginWithGuest() {
     _isGuest = true;
-  }
-
-  setForceLogout({required bool value}) {
-    _forceLogout = value;
   }
 }

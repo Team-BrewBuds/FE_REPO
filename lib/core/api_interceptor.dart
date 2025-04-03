@@ -50,7 +50,7 @@ final class ApiInterceptor extends Interceptor {
       for (final request in _pendingRequests) {
         request.handler.reject(err);
       }
-      AccountRepository.instance.logout(forceLogout: true);
+      await AccountRepository.instance.logout(forceLogout: true);
     }
     _pendingRequests.clear();
     _isRefreshing = false;
@@ -73,12 +73,10 @@ final class ApiInterceptor extends Interceptor {
       final newAccessToken = resp.data['access'];
       final newRefreshToken = resp.data['refresh'];
 
-      print(newAccessToken);
-
       await AccountRepository.instance.saveToken(accessToken: newAccessToken, refreshToken: newRefreshToken);
 
       return true;
-    } catch (e) {
+    } on DioException catch (e) {
       return false;
     }
   }

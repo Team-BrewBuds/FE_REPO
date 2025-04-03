@@ -9,9 +9,11 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
@@ -37,16 +39,30 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
 
+  bool _canShowAlert = true;
+
   int get currentIndex => getCurrentIndex(context);
 
   @override
   void initState() {
     super.initState();
+    NotificationCenter().subscribe(
+      'force_logout',
+      (_) {
+        showLoginAlert();
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (SharedPreferencesRepository.instance.isFirst) {
         ShowCaseWidget.of(context).startShowCase([_one, _two, _three]);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    NotificationCenter().unsubscribe('force_logout');
+    super.dispose();
   }
 
   @override
@@ -118,12 +134,10 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                         onTap: () async {
                           if (isGuest) {
                             final result =
-                            await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+                                await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
                             if (context.mounted) {
                               if (result) {
                                 context.go('/search');
-                              } else {
-                                showSnackBar(message: '로그인에 실패했습니다.');
                               }
                             }
                           } else {
@@ -205,8 +219,6 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                                       break;
                                   }
                                 }
-                              } else {
-                                showSnackBar(message: '로그인에 실패했습니다.');
                               }
                             }
                           } else {
@@ -288,8 +300,6 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                             if (context.mounted) {
                               if (result) {
                                 context.go('/profile');
-                              } else {
-                                showSnackBar(message: '로그인에 실패했습니다.');
                               }
                             }
                           } else {
@@ -509,5 +519,46 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
       context: context,
       pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
     );
+  }
+
+  showLoginAlert() async {
+    final context = this.context;
+    if (context.mounted && _canShowAlert) {
+      _canShowAlert = false;
+
+      await showCupertinoDialog(
+        context: context,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: const Text('토큰 만료', style: TextStyles.title02SemiBold),
+            content: const Text('로그인 토큰 기한이 만료되었습니다.\n로그인 페이지로 이동합니다.', style: TextStyles.bodyRegular),
+            actions: [
+              CupertinoDialogAction(
+                isDefaultAction: false,
+                child: Text(
+                  '닫기',
+                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.destructiveRed),
+                ),
+                onPressed: () {
+                  context.go('/login');
+                },
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: Text(
+                  '확인',
+                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
+                ),
+                onPressed: () {
+                  context.go('/login');
+                },
+              )
+            ],
+          );
+        },
+      );
+
+      _canShowAlert = true;
+    }
   }
 }

@@ -85,7 +85,6 @@ final class TasteReportPresenter extends Presenter {
     _activitySummary = await _tastedReportRepository.fetchActivitySummary(id: _id);
     fetchActivity();
     _ratingDistribution = await _tastedReportRepository.fetchRatingDistribution(id: _id);
-    print(_ratingDistribution);
     _topFlavors = List.from(await _tastedReportRepository.fetchFavoriteFlavor(id: _id));
     _topCounty = List.from(await _tastedReportRepository.fetchPreferredCountry(id: _id));
     notifyListeners();

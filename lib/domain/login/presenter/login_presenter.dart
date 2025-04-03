@@ -35,7 +35,7 @@ class LoginPresenter extends Presenter {
         if (result != null) {
           _socialLoginResultData = result;
           final hasAccount = await _checkUser(accessToken: result.accessToken);
-          if (hasAccount != null) {
+          if (hasAccount != null && hasAccount) {
             await _accountRepository.login(
               id: result.id,
               accessToken: result.accessToken,
@@ -130,6 +130,19 @@ class LoginPresenter extends Presenter {
       return loginResult;
     } catch (_) {
       return null;
+    }
+  }
+
+  bool saveTokenInMemory() {
+    final accessToken = loginResultData.accessToken;
+    final refreshToken = loginResultData.refreshToken;
+    final id = loginResultData.id;
+
+    if (accessToken.isNotEmpty && refreshToken.isNotEmpty && id != 0) {
+      AccountRepository.instance.saveTokenAndIdInMemory(id: id, accessToken: accessToken, refreshToken: refreshToken);
+      return true;
+    } else {
+      return false;
     }
   }
 }

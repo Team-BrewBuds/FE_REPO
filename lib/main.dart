@@ -3,7 +3,6 @@ import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
-import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -44,7 +43,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => SignUpPresenter()),
         ChangeNotifierProvider(create: (context) => AccountRepository.instance),
       ],
       child: MyApp(
