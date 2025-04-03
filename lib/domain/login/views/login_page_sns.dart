@@ -42,7 +42,7 @@ class SNSLogin extends StatelessWidget {
                                 height: height, // 버튼 높이 통일
                                 padding: const EdgeInsets.symmetric(horizontal: 14),
                                 decoration: BoxDecoration(
-                                    color: const Color(0xFFFFE812), borderRadius: BorderRadius.circular(6)),
+                                    color: const Color(0xFFFEE500), borderRadius: BorderRadius.circular(6)),
                                 child: Center(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -180,14 +180,18 @@ class SNSLogin extends StatelessWidget {
 
   _login(BuildContext context, SocialLogin socialLogin) async {
     context.read<LoginPresenter>().login(socialLogin).then((value) {
+      if (context.mounted) {
       switch (value) {
-        case null:
-          showSnackBar(context, message: '로그인에 실패했습니다.');
-          break;
-        case LoginResult.login:
-          break;
-        case LoginResult.needSignUp:
-          _checkModal(context);
+          case null:
+            showSnackBar(context, message: '로그인에 실패했습니다.');
+            break;
+          case LoginResult.login:
+            context.go('/home');
+            break;
+          case LoginResult.needSignUp:
+            _checkModal(context);
+            break;
+        }
       }
     });
   }
@@ -197,7 +201,7 @@ class SNSLogin extends StatelessWidget {
     context.go('/signup?id=${data.id}&access_token=${data.accessToken}&refresh_token=${data.refreshToken}');
   }
 
-  void _checkModal(BuildContext context) async {
+  _checkModal(BuildContext context) async {
     final agreeToTerms = await showModalBottomSheet<bool>(
       context: context,
       shape: const RoundedRectangleBorder(

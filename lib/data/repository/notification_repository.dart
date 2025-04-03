@@ -60,7 +60,7 @@ final class NotificationRepository {
         return false;
       }
     } else {
-      return false;
+      return true;
     }
   }
 
@@ -71,7 +71,7 @@ final class NotificationRepository {
           .then((value) => true)
           .onError((error, stackTrace) => false);
     } else {
-      return false;
+      return true;
     }
   }
 

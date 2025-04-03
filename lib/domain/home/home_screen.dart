@@ -4,17 +4,18 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/home/comments/comments_view.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
-import 'package:brew_buds/domain/home/widgets/alarm.dart';
 import 'package:brew_buds/domain/home/widgets/post_feed_widget.dart';
 import 'package:brew_buds/domain/home/widgets/recommended_buddy_list.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
+import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/post/post.dart';
@@ -109,10 +110,11 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 width: 130,
               ),
               const Spacer(),
-              Alarm(
-                hasNewAlarm: false,
-                onTapped: () {},
-              ),
+              // 알림 미구현
+              // Alarm(
+              //   hasNewAlarm: false,
+              //   onTapped: () {},
+              // ),
             ],
           ),
         ),
@@ -187,10 +189,14 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                             return RecommendedBuddyList(
                               page: page,
                               onTappedFollowButton: (int index) {
-                                context.read<HomePresenter>().onTappedRecommendedUserFollowButton(
-                                  page.users[index],
-                                  pageNo: pageIndex,
-                                );
+                                if (context.read<HomePresenter>().isGuest) {
+                                  showLoginBottomSheet();
+                                } else {
+                                  context.read<HomePresenter>().onTappedRecommendedUserFollowButton(
+                                        page.users[index],
+                                        pageNo: pageIndex,
+                                      );
+                                }
                               },
                             );
                           } else {
@@ -268,6 +274,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   Widget buildSubjectFilterBar({required PostSubject currentSubject}) {
     const subjectList = PostSubject.values;
+    final isGuest = context.read<HomePresenter>().isGuest;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: SingleChildScrollView(
@@ -280,7 +287,11 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
               if (index == 0) {
                 return GestureDetector(
                   onTap: () {
-                    context.push('/home/popular_post');
+                    if (isGuest) {
+                      showLoginBottomSheet();
+                    } else {
+                      context.push('/home/popular_post');
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
@@ -328,6 +339,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   Widget _buildPostFeed(Post post, int index) {
     final width = MediaQuery.of(context).size.width;
     final Widget? child;
+    final isGuest = context.read<HomePresenter>().isGuest;
 
     if (post.imagesUrl.isNotEmpty) {
       child = HorizontalSliderWidget(
@@ -354,11 +366,15 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         ),
         childBuilder: (context, index) => GestureDetector(
           onTap: () {
-            showTastingRecordDetail(context: context, id: post.tastingRecords[index].id).then((result) {
-              if (result != null) {
-                showSnackBar(message: result);
-              }
-            });
+            if (isGuest) {
+              showLoginBottomSheet();
+            } else {
+              showTastingRecordDetail(context: context, id: post.tastingRecords[index].id).then((result) {
+                if (result != null) {
+                  showSnackBar(message: result);
+                }
+              });
+            }
           },
           child: Container(
             color: ColorStyles.white,
@@ -381,23 +397,43 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       hits: '조회 ${post.viewCount}',
       isFollowed: post.isAuthorFollowing,
       onTapProfile: () {
-        pushToProfile(context: context, id: post.author.id);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          pushToProfile(context: context, id: post.author.id);
+        }
       },
       onTapFollowButton: () {
-        context.read<HomePresenter>().onTappedFollowAt(index);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          context.read<HomePresenter>().onTappedFollowAt(index);
+        }
       },
       isLiked: post.isLiked,
       likeCount: '${post.likeCount > 999 ? '999+' : post.likeCount}',
       commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
       isSaved: post.isSaved,
       onTapLikeButton: () {
-        context.read<HomePresenter>().onTappedLikeAt(index);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          context.read<HomePresenter>().onTappedLikeAt(index);
+        }
       },
       onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
+        }
       },
       onTapSaveButton: () {
-        context.read<HomePresenter>().onTappedSavedAt(index);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          context.read<HomePresenter>().onTappedSavedAt(index);
+        }
       },
       title: post.title,
       body: post.contents,
@@ -412,6 +448,8 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   }
 
   Widget _buildTastedRecordFeed(TastedRecordInFeed tastingRecord, int index) {
+    final isGuest = context.read<HomePresenter>().isGuest;
+    
     return TastingRecordFeedWidget(
       id: tastingRecord.id,
       writerThumbnailUrl: tastingRecord.author.profileImageUrl,
@@ -420,23 +458,43 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       hits: '조회 ${tastingRecord.viewCount}',
       isFollowed: tastingRecord.isAuthorFollowing,
       onTapProfile: () {
-        pushToProfile(context: context, id: tastingRecord.author.id);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          pushToProfile(context: context, id: tastingRecord.author.id);
+        }
       },
       onTapFollowButton: () {
-        context.read<HomePresenter>().onTappedFollowAt(index);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          context.read<HomePresenter>().onTappedFollowAt(index);
+        }
       },
       isLiked: tastingRecord.isLiked,
       likeCount: '${tastingRecord.likeCount > 999 ? '999+' : tastingRecord.likeCount}',
       commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
       isSaved: tastingRecord.isSaved,
       onTapLikeButton: () {
-        context.read<HomePresenter>().onTappedLikeAt(index);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          context.read<HomePresenter>().onTappedLikeAt(index);
+        }
       },
       onTapCommentsButton: () {
-        showCommentsBottomSheet(isPost: false, id: tastingRecord.id, author: tastingRecord.author);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          showCommentsBottomSheet(isPost: false, id: tastingRecord.id, author: tastingRecord.author);
+        }
       },
       onTapSaveButton: () {
-        context.read<HomePresenter>().onTappedSavedAt(index);
+        if (isGuest) {
+          showLoginBottomSheet();
+        } else {
+          context.read<HomePresenter>().onTappedSavedAt(index);
+        }
       },
       thumbnailUri: tastingRecord.thumbnailUri,
       rating: '${tastingRecord.rating}',
@@ -444,6 +502,13 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       name: tastingRecord.beanName,
       tags: tastingRecord.flavors,
       body: tastingRecord.contents,
+    );
+  }
+
+  Future<bool?> showLoginBottomSheet() {
+    return showBarrierDialog(
+      context: context,
+      pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
     );
   }
 }

@@ -1,13 +1,12 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
-import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class LoginPageFirst extends StatefulWidget {
@@ -93,7 +92,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      context.push('/login/sns');
+                      context.push('/login');
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
@@ -109,7 +108,10 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                   ),
                   const SizedBox(height: 16),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      AccountRepository.instance.loginWithGuest();
+                      context.go('/home');
+                    },
                     child: Container(
                       decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
                       child: const Text('둘러보기', style: TextStyles.labelSmallMedium),
