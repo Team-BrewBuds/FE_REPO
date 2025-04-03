@@ -1,10 +1,8 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignUpFourthPage extends StatefulWidget {
@@ -14,41 +12,14 @@ class SignUpFourthPage extends StatefulWidget {
   State<SignUpFourthPage> createState() => _SignUpFourthPageState();
 }
 
-class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<SignUpFourthPage> {
+class _SignUpFourthPageState extends State<SignUpFourthPage> {
   final List<String> _body = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
   final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _sweet = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
 
   @override
-  int get currentPageIndex => 3;
-
-  @override
-  bool get isSkippablePage => false;
-
-  @override
-  void Function() get onNext => () async {
-        final context = this.context;
-        final result = await context.read<SignUpPresenter>().register();
-        if (result && context.mounted) {
-          final nickname = context.read<SignUpPresenter>().nickName;
-          context.push('/signup/finish', extra: nickname);
-        }
-      };
-
-  @override
-  void Function() get onSkip => () {};
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SignUpPresenter>().resetPreferredBeanTaste();
-    });
-  }
-
-  @override
-  Widget buildBody() {
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -398,14 +369,6 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> with SignupMixin<Si
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget buildBottom() {
-    return buildBottomButton(
-      isSatisfyRequirements: true,
-      title: '가입하기',
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
 import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
@@ -188,8 +189,11 @@ class _SettingScreenState extends State<SettingScreen>
 
         if (result) {
           final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
-          if (logoutResult && context.mounted) {
-            context.go('/');
+          if (logoutResult) {
+            await NotificationRepository.instance.deleteToken();
+            if (context.mounted) {
+              context.go('/');
+            }
           } else {
             showSnackBar(message: '로그아웃에 실패했습니다.');
           }

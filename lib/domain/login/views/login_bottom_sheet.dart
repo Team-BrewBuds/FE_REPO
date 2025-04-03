@@ -68,15 +68,17 @@ class LoginBottomSheet extends StatelessWidget {
                         switch (loginResult) {
                           case null:
                             context.pop(false);
+                            break;
                           case LoginResult.login:
                             context.pop(true);
+                            break;
                           case LoginResult.needSignUp:
                             final result =
                                 await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
                             if (result && context.mounted) {
-                              final data = context.read<LoginPresenter>().loginResultData;
-                              if (data.accessToken.isNotEmpty && data.refreshToken.isNotEmpty) {
-                                _pushToSignUp(context, data);
+                              final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                              if (saveResult) {
+                                context.go('/login/signup/1');
                               }
                             }
                         }
@@ -128,9 +130,9 @@ class LoginBottomSheet extends StatelessWidget {
                             final result =
                             await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
                             if (result && context.mounted) {
-                              final data = context.read<LoginPresenter>().loginResultData;
-                              if (data.accessToken.isNotEmpty && data.refreshToken.isNotEmpty) {
-                                _pushToSignUp(context, data);
+                              final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                              if (saveResult) {
+                                context.go('/login/signup/1');
                               }
                             }
                         }
@@ -181,9 +183,9 @@ class LoginBottomSheet extends StatelessWidget {
                             final result =
                             await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
                             if (result && context.mounted) {
-                              final data = context.read<LoginPresenter>().loginResultData;
-                              if (data.accessToken.isNotEmpty && data.refreshToken.isNotEmpty) {
-                                _pushToSignUp(context, data);
+                              final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                              if (saveResult) {
+                                context.go('/login/signup/1');
                               }
                             }
                         }
@@ -254,10 +256,6 @@ class LoginBottomSheet extends StatelessWidget {
         return const TermsOfUseBottomSheet();
       },
     );
-  }
-
-  _pushToSignUp(BuildContext context, SocialLoginResultData data) {
-    context.push('/signup?id=${data.id}&access_token=${data.accessToken}&refresh_token=${data.refreshToken}');
   }
 
   showSnackBar(BuildContext context, {required String message}) {

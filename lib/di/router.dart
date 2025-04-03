@@ -27,6 +27,8 @@ import 'package:brew_buds/domain/setting/view/account_info_view.dart';
 import 'package:brew_buds/domain/setting/view/blocking_user_management_view.dart';
 import 'package:brew_buds/domain/setting/view/notification_setting_view.dart';
 import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
+import 'package:brew_buds/domain/signup/signup_screen.dart';
 import 'package:brew_buds/domain/signup/views/signup_finish_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_first_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_fourth_page.dart';
@@ -54,43 +56,63 @@ GoRouter createRouter(bool hasToken) {
               child: const SNSLogin(),
             ),
             routes: [
-              GoRoute(
-                path: '/signup',
-                builder: (BuildContext context, GoRouterState state) {
-                  return SignUpFirstPage(
-                    accessToken: state.uri.queryParameters['access_token'] ?? '',
-                    refreshToken: state.uri.queryParameters['refresh_token'] ?? '',
-                    id: int.tryParse(state.uri.queryParameters['id'] ?? '') ?? 0,
+              StatefulShellRoute.indexedStack(
+                builder: (context, state, navigationShell) {
+                  return ChangeNotifierProvider(
+                    create: (_) => SignUpPresenter(),
+                    child: SignupScreen(navigationShell: navigationShell),
                   );
                 },
-                routes: [
-                  GoRoute(
-                    path: 'second',
-                    builder: (BuildContext context, GoRouterState state) {
-                      return const SignUpSecondPage();
-                    },
+                branches: [
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/1',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpFirstPage();
+                        },
+                      ),
+                    ],
                   ),
-                  GoRoute(
-                    path: 'third',
-                    builder: (BuildContext context, GoRouterState state) {
-                      return const SignUpThirdPage();
-                    },
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/2',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpSecondPage();
+                        },
+                      ),
+                    ],
                   ),
-                  GoRoute(
-                    path: 'fourth',
-                    builder: (BuildContext context, GoRouterState state) {
-                      return const SignUpFourthPage();
-                    },
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/3',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpThirdPage();
+                        },
+                      ),
+                    ],
                   ),
-                  GoRoute(
-                    path: 'finish',
-                    builder: (BuildContext context, GoRouterState state) {
-                      return const SignupFinishPage();
-                    },
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/4',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpFourthPage();
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ]
+              GoRoute(
+                path: 'signup/finish',
+                builder: (BuildContext context, GoRouterState state) {
+                  return SignupFinishPage(nickname: state.uri.queryParameters['nickname'] ?? 'Unknown');
+                },
+              ),
+            ],
           ),
         ],
       ),

@@ -1,13 +1,18 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignupFinishPage extends StatefulWidget {
-  const SignupFinishPage({super.key});
+  final String nickname;
+
+  const SignupFinishPage({
+    super.key,
+    required this.nickname,
+  });
 
   @override
   State<SignupFinishPage> createState() => _SignupFinishPageState();
@@ -36,7 +41,7 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      '${context.read<SignUpPresenter>().nickName} 님\n 환영합니다.',
+                      '${widget.nickname} 님\n 환영합니다.',
                       style: TextStyles.title04SemiBold,
                       textAlign: TextAlign.center,
                     ),

@@ -35,8 +35,28 @@ class SNSLogin extends StatelessWidget {
                         Column(
                           children: [
                             GestureDetector(
-                              onTap: () {
-                                _login(context, SocialLogin.kakao);
+                              onTap: () async {
+                                final loginResult = await _login(context, SocialLogin.kakao);
+                                if (context.mounted) {
+                                  switch (loginResult) {
+                                    case null:
+                                      context.pop(false);
+                                      break;
+                                    case LoginResult.login:
+                                      context.go('/home');
+                                      break;
+                                    case LoginResult.needSignUp:
+                                      final result =
+                                          await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                      if (result && context.mounted) {
+                                        final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                        if (saveResult) {
+                                          context.push('/login/signup/1');
+                                        }
+                                      }
+                                      break;
+                                  }
+                                }
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -69,8 +89,28 @@ class SNSLogin extends StatelessWidget {
                             ),
                             const SizedBox(height: 7),
                             GestureDetector(
-                              onTap: () {
-                                _login(context, SocialLogin.naver);
+                              onTap: () async {
+                                final loginResult = await _login(context, SocialLogin.naver);
+                                if (context.mounted) {
+                                  switch (loginResult) {
+                                    case null:
+                                      context.pop(false);
+                                      break;
+                                    case LoginResult.login:
+                                      context.go('/home');
+                                      break;
+                                    case LoginResult.needSignUp:
+                                      final result =
+                                          await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                      if (result && context.mounted) {
+                                        final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                        if (saveResult) {
+                                          context.push('/login/signup/1');
+                                        }
+                                      }
+                                      break;
+                                  }
+                                }
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -105,8 +145,27 @@ class SNSLogin extends StatelessWidget {
                             ),
                             const SizedBox(height: 7),
                             GestureDetector(
-                              onTap: () {
-                                _login(context, SocialLogin.apple);
+                              onTap: () async {
+                                final loginResult = await _login(context, SocialLogin.apple);
+                                if (context.mounted) {
+                                  switch (loginResult) {
+                                    case null:
+                                      context.pop(false);
+                                    case LoginResult.login:
+                                      context.go('/home');
+                                      break;
+                                    case LoginResult.needSignUp:
+                                      final result =
+                                          await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                      if (result && context.mounted) {
+                                        final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                        if (saveResult) {
+                                          context.push('/login/signup/1');
+                                        }
+                                      }
+                                      break;
+                                  }
+                                }
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -178,31 +237,12 @@ class SNSLogin extends StatelessWidget {
     );
   }
 
-  _login(BuildContext context, SocialLogin socialLogin) async {
-    context.read<LoginPresenter>().login(socialLogin).then((value) {
-      if (context.mounted) {
-      switch (value) {
-          case null:
-            showSnackBar(context, message: '로그인에 실패했습니다.');
-            break;
-          case LoginResult.login:
-            context.go('/home');
-            break;
-          case LoginResult.needSignUp:
-            _checkModal(context);
-            break;
-        }
-      }
-    });
+  Future<LoginResult?> _login(BuildContext context, SocialLogin socialLogin) {
+    return context.read<LoginPresenter>().login(socialLogin);
   }
 
-  _pushToSignUp(BuildContext context) {
-    final data = context.read<LoginPresenter>().loginResultData;
-    context.go('/signup?id=${data.id}&access_token=${data.accessToken}&refresh_token=${data.refreshToken}');
-  }
-
-  _checkModal(BuildContext context) async {
-    final agreeToTerms = await showModalBottomSheet<bool>(
+  Future<bool?> _checkModal(BuildContext context) async {
+    return showModalBottomSheet<bool>(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
@@ -214,10 +254,6 @@ class SNSLogin extends StatelessWidget {
         return const TermsOfUseBottomSheet();
       },
     );
-
-    if (agreeToTerms != null && agreeToTerms && context.mounted) {
-      _pushToSignUp(context);
-    }
   }
 
   showSnackBar(BuildContext context, {required String message}) {

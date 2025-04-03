@@ -1,19 +1,71 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
-import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-mixin SignupMixin<T extends StatefulWidget> on State<T> {
-  void Function() get onSkip;
+import '../../common/styles/text_styles.dart';
 
-  void Function() get onNext;
+class SignupScreen extends StatefulWidget {
+  final StatefulNavigationShell navigationShell;
 
-  int get currentPageIndex;
+  const SignupScreen({super.key, required this.navigationShell});
 
-  bool get isSkippablePage;
+  @override
+  State<SignupScreen> createState() => _SignupScreenState();
+}
+
+class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupScreen> {
+  onPop() {
+    final pageIndex = widget.navigationShell.currentIndex;
+    if (pageIndex == 0) {
+      context.pop();
+    } else if (pageIndex == 1) {
+      widget.navigationShell.goBranch(pageIndex - 1);
+    } else if (pageIndex == 2) {
+      widget.navigationShell.goBranch(pageIndex - 1);
+    } else {
+      widget.navigationShell.goBranch(pageIndex - 1);
+    }
+  }
+
+  onSkip() {
+    final pageIndex = widget.navigationShell.currentIndex;
+    widget.navigationShell.goBranch(pageIndex + 1);
+  }
+
+  onNext() async {
+    final pageIndex = widget.navigationShell.currentIndex;
+    if (pageIndex == 0) {
+      context.read<SignUpPresenter>().resetCoffeeLifes();
+      widget.navigationShell.goBranch(pageIndex + 1);
+    } else if (pageIndex == 1) {
+      context.read<SignUpPresenter>().resetCertificated();
+      widget.navigationShell.goBranch(pageIndex + 1);
+    } else if (pageIndex == 2) {
+      context.read<SignUpPresenter>().resetPreferredBeanTaste();
+      widget.navigationShell.goBranch(pageIndex + 1);
+    } else {
+      final context = this.context;
+      if (await context.read<SignUpPresenter>().register() && context.mounted) {
+        context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
+      } else {
+        showSnackBar(message: '회원가입에 실패했습니다.');
+      }
+    }
+  }
+
+  bool get isSkippablePage => widget.navigationShell.currentIndex == 1 || widget.navigationShell.currentIndex == 2;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      context.read<SignUpPresenter>().init();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +99,22 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
                                 builder: (context, constraints) {
                                   final width = (constraints.maxWidth - 6) / 4;
                                   return Row(
+                                    spacing: 2,
                                     children: List<Widget>.generate(
                                       4,
                                       (index) => Container(
                                         height: 2,
                                         width: width,
-                                        color: index <= currentPageIndex ? ColorStyles.red : ColorStyles.gray40,
+                                        color: index <= widget.navigationShell.currentIndex
+                                            ? ColorStyles.red
+                                            : ColorStyles.gray40,
                                       ),
-                                    ).separator(separatorWidget: const SizedBox(width: 2)).toList(),
+                                    ),
                                   );
                                 },
                               ),
                               const SizedBox(height: 28),
-                              Expanded(child: buildBody()),
+                              Expanded(child: widget.navigationShell),
                             ],
                           ),
                         ),
@@ -74,9 +129,12 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  Widget buildBody();
-
-  Widget buildBottom();
+  Widget buildBottom() {
+    final isValid = context.select<SignUpPresenter, bool>(
+      (presenter) => presenter.canNext(widget.navigationShell.currentIndex),
+    );
+    return buildBottomButton(isSatisfyRequirements: isValid);
+  }
 
   AppBar buildAppbar() {
     return AppBar(
@@ -95,9 +153,7 @@ mixin SignupMixin<T extends StatefulWidget> on State<T> {
             Positioned(
               left: 0,
               child: GestureDetector(
-                onTap: () {
-                  Navigator.of(context).pop();
-                },
+                onTap: onPop,
                 child: SvgPicture.asset('assets/icons/back.svg', width: 24, height: 24, fit: BoxFit.cover),
               ),
             ),

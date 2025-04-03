@@ -5,6 +5,7 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -227,7 +228,11 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
               if (result) {
                 final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
                 if (signOutResult && context.mounted) {
-                  context.go('/');
+                  await AccountRepository.instance.logout();
+                  await NotificationRepository.instance.deleteToken();
+                  if (context.mounted) {
+                    context.go('/');
+                  }
                 } else {
                   showSnackBar(message: '회원탈퇴에 실패했습니다.');
                 }

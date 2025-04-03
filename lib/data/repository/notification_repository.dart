@@ -60,7 +60,7 @@ final class NotificationRepository {
         return false;
       }
     } else {
-      return true;
+      return false;
     }
   }
 

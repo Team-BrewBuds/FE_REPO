@@ -1,11 +1,9 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignUpSecondPage extends StatefulWidget {
@@ -15,33 +13,9 @@ class SignUpSecondPage extends StatefulWidget {
   State<SignUpSecondPage> createState() => _SignUpSecondPageState();
 }
 
-class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<SignUpSecondPage> {
+class _SignUpSecondPageState extends State<SignUpSecondPage> {
   @override
-  int get currentPageIndex => 1;
-
-  @override
-  bool get isSkippablePage => true;
-
-  @override
-  void Function() get onNext => () {
-        context.push('/signup/third');
-      };
-
-  @override
-  void Function() get onSkip => () {
-        context.push('/signup/third');
-      };
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SignUpPresenter>().resetCoffeeLifes();
-    });
-  }
-
-  @override
-  Widget buildBody() {
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,14 +77,6 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> with SignupMixin<Si
           ),
         ],
       ),
-    );
-  }
-
-  @override
-  Widget buildBottom() {
-    return Selector<SignUpPresenter, bool>(
-      selector: (context, presenter) => presenter.isValidSecondPage,
-      builder: (context, isValidSecondPage, child) => buildBottomButton(isSatisfyRequirements: isValidSecondPage),
     );
   }
 }

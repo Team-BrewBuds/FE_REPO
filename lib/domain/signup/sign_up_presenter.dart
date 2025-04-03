@@ -4,6 +4,7 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/duplicated_nickname_api.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
@@ -84,17 +85,17 @@ class SignUpPresenter extends Presenter {
 
   int get sweetness => _state.preferredBeanTaste?.sweetness ?? 0;
 
-  init(String accessToken, String refreshToken, int id) {
+  init() {
     _nicknameCheckDebouncer = Debouncer(
-      const Duration(seconds: 10),
+      const Duration(milliseconds: 300),
       initialValue: '',
       onChanged: (newNickname) {
         _checkNickname(newNickname);
       },
     );
-    _accessToken = accessToken;
-    _refreshToken = refreshToken;
-    _id = id;
+    _accessToken = AccountRepository.instance.accessTokenInMemory;
+    _refreshToken = AccountRepository.instance.refreshTokenInMemory;
+    _id = AccountRepository.instance.idInMemory ?? 0;
     _state = const SignUpState();
     notifyListeners();
   }
@@ -112,6 +113,18 @@ class SignUpPresenter extends Presenter {
   resetPreferredBeanTaste() {
     _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste.init());
     notifyListeners();
+  }
+
+  bool canNext(int index) {
+    if (index == 0) {
+      return isValidFirstPage;
+    } else if (index == 1) {
+      return isValidSecondPage;
+    } else if (index == 2) {
+      return isValidThirdPage;
+    } else {
+      return body != 0 && acidity != 0 && bitterness != 0 && sweetness != 0;
+    }
   }
 
   onChangeNickName(String newNickName) {
@@ -236,22 +249,27 @@ class SignUpPresenter extends Presenter {
     _isLoading = true;
     notifyListeners();
 
-    final result = await _loginRepository
-        .registerAccount(
-          accessToken: _accessToken,
-          refreshToken: _refreshToken,
-          state: _state,
-        )
-        .onError((error, stackTrace) => false);
+    try {
+      final result = await _loginRepository
+          .registerAccount(
+        accessToken: _accessToken,
+        refreshToken: _refreshToken,
+        state: _state,
+      );
 
-    if (result) {
-      _accountRepository.saveId(id: _id);
-      await _accountRepository.saveToken(accessToken: _accessToken, refreshToken: _refreshToken);
+      if (result) {
+        await NotificationRepository.instance.registerToken(_accessToken);
+        await _accountRepository.login(id: _id, accessToken: _accessToken, refreshToken: _refreshToken);
 
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } else {
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
       _isLoading = false;
       notifyListeners();
       return false;

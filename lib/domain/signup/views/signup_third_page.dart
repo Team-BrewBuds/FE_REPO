@@ -1,9 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignUpThirdPage extends StatefulWidget {
@@ -13,34 +11,9 @@ class SignUpThirdPage extends StatefulWidget {
   State<SignUpThirdPage> createState() => _SignUpThirdPageState();
 }
 
-class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<SignUpThirdPage> {
+class _SignUpThirdPageState extends State<SignUpThirdPage>{
   @override
-  int get currentPageIndex => 2;
-
-  @override
-  bool get isSkippablePage => true;
-
-  @override
-  void Function() get onNext => () {
-        context.push('/signup/fourth');
-      };
-
-  @override
-  void Function() get onSkip => () {
-        context.push('/signup/fourth');
-      };
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SignUpPresenter>().resetCertificated();
-    });
-  }
-
-  @override
-  Widget buildBody() {
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -112,14 +85,6 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> with SignupMixin<Sign
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget buildBottom() {
-    return Selector<SignUpPresenter, bool>(
-      selector: (context, presenter) => presenter.isValidThirdPage,
-      builder: (context, isValidThirdPage, child) => buildBottomButton(isSatisfyRequirements: isValidThirdPage),
     );
   }
 }

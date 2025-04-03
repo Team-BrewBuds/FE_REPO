@@ -2,9 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/common/gender.dart';
-import 'package:brew_buds/domain/signup/provider/sign_up_presenter.dart';
-import 'package:brew_buds/domain/signup/core/signup_mixin.dart';
-import 'package:brew_buds/domain/signup/views/signup_second_page.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,22 +10,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class SignUpFirstPage extends StatefulWidget {
-  final String accessToken;
-  final String refreshToken;
-  final int id;
-
   @override
   State<SignUpFirstPage> createState() => _SignUpFirstPageState();
 
-  const SignUpFirstPage({
-    super.key,
-    required this.accessToken,
-    required this.refreshToken,
-    required this.id,
-  });
+  const SignUpFirstPage({super.key});
 }
 
-class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<SignUpFirstPage> {
+class _SignUpFirstPageState extends State<SignUpFirstPage> {
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
 
@@ -35,24 +24,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
   final FocusNode _yearOfAgeFocusNode = FocusNode();
 
   @override
-  int get currentPageIndex => 0;
-
-  @override
-  bool get isSkippablePage => false;
-
-  @override
-  void Function() get onNext => () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SignUpSecondPage()));
-      };
-
-  @override
-  void Function() get onSkip => () {};
-
-  @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SignUpPresenter>().init(widget.accessToken, widget.refreshToken, widget.id);
       _nicknameController.addListener(() {
         context.read<SignUpPresenter>().onChangeNickName(_nicknameController.text);
       });
@@ -78,7 +52,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
   }
 
   @override
-  Widget buildBody() {
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -183,7 +157,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
     required bool isCheckingDuplicateNicknames,
   }) {
     if (isCheckingDuplicateNicknames) {
-      return const CupertinoActivityIndicator(color: ColorStyles.gray50);
+      return const SizedBox(height: 24, width: 24, child: CupertinoActivityIndicator(color: ColorStyles.gray70));
     } else if (hasNickname && isValidNickname) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else if (hasNickname && !isValidNickname) {
@@ -336,14 +310,6 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> with SignupMixin<Sign
               .toList(),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget buildBottom() {
-    return Selector<SignUpPresenter, bool>(
-      selector: (context, presenter) => presenter.isValidFirstPage,
-      builder: (context, isValidFirstPage, child) => buildBottomButton(isSatisfyRequirements: isValidFirstPage),
     );
   }
 }
