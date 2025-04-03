@@ -146,17 +146,18 @@ class _SearchHomeViewState extends State<SearchHomeView>
             },
           ),
         ),
-        SliverToBoxAdapter(
-          child: Selector<SearchHomePresenter, List<String>>(
-            selector: (context, presenter) => presenter.beanRankingList,
-            builder: (context, beanRankingList, child) => beanRankingList.isNotEmpty
-                ? CoffeeBeansRankingList(
-                    coffeeBeansRank: beanRankingList,
-                    updatedAt: '10.27 16:00 업데이트',
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ),
+        // 원두랭킹 미구현
+        // SliverToBoxAdapter(
+        //   child: Selector<SearchHomePresenter, List<String>>(
+        //     selector: (context, presenter) => presenter.beanRankingList,
+        //     builder: (context, beanRankingList, child) => beanRankingList.isNotEmpty
+        //         ? CoffeeBeansRankingList(
+        //             coffeeBeansRank: beanRankingList,
+        //             updatedAt: '10.27 16:00 업데이트',
+        //           )
+        //         : const SizedBox.shrink(),
+        //   ),
+        // ),
       ],
     );
   }
