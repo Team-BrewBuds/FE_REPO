@@ -248,23 +248,21 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   ),
                 ),
                 const SizedBox(width: 48),
-                Builder(
-                  builder: (context) {
-                    final value = context.select<NotificationSettingPresenter, bool>(
-                            (presenter) => presenter.notificationSetting?.comment ?? false);
-                    return SizedBox(
-                      width: 50,
-                      height: 30,
-                      child: CupertinoSwitch(
-                        value: value,
-                        activeTrackColor: ColorStyles.red,
-                        onChanged: (value) {
-                          context.read<NotificationSettingPresenter>().onChangeCommentNotifyState();
-                        },
-                      ),
-                    );
-                  }
-                ),
+                Builder(builder: (context) {
+                  final value = context.select<NotificationSettingPresenter, bool>(
+                      (presenter) => presenter.notificationSetting?.comment ?? false);
+                  return SizedBox(
+                    width: 50,
+                    height: 30,
+                    child: CupertinoSwitch(
+                      value: value,
+                      activeTrackColor: ColorStyles.red,
+                      onChanged: (value) {
+                        context.read<NotificationSettingPresenter>().onChangeCommentNotifyState();
+                      },
+                    ),
+                  );
+                }),
               ],
             ),
           ),
@@ -297,23 +295,21 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   ),
                 ),
                 const SizedBox(width: 48),
-                Builder(
-                  builder: (context) {
-                    final value = context.select<NotificationSettingPresenter, bool>(
-                            (presenter) => presenter.notificationSetting?.marketing ?? false);
-                    return SizedBox(
-                      width: 50,
-                      height: 30,
-                      child: CupertinoSwitch(
-                        value: value,
-                        activeTrackColor: ColorStyles.red,
-                        onChanged: (value) {
-                          context.read<NotificationSettingPresenter>().onChangeMarketingNotifyState();
-                        },
-                      ),
-                    );
-                  }
-                ),
+                Builder(builder: (context) {
+                  final value = context.select<NotificationSettingPresenter, bool>(
+                      (presenter) => presenter.notificationSetting?.marketing ?? false);
+                  return SizedBox(
+                    width: 50,
+                    height: 30,
+                    child: CupertinoSwitch(
+                      value: value,
+                      activeTrackColor: ColorStyles.red,
+                      onChanged: (value) {
+                        context.read<NotificationSettingPresenter>().onChangeMarketingNotifyState();
+                      },
+                    ),
+                  );
+                }),
               ],
             ),
           ),

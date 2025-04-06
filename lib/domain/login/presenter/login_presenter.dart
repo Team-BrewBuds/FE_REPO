@@ -41,6 +41,7 @@ class LoginPresenter extends Presenter {
               accessToken: result.accessToken,
               refreshToken: result.refreshToken,
             );
+
             final registered = await NotificationRepository.instance.registerToken(result.accessToken);
             if (registered) {
               _isLoading = false;
@@ -84,6 +85,7 @@ class LoginPresenter extends Presenter {
       } else {
         token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken, onError: (_) => null);
       }
+      // token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken, onError: (_) => null);
       return token;
     } catch (e) {
       return null;

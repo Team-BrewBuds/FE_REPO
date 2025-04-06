@@ -1,33 +1,34 @@
+import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
-import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
 
 sealed class SearchFilter {
-  SortCriteria get sortCriteria;
+  SearchSortCriteria get sortCriteria;
   bool get hasFilter;
 
   factory SearchFilter.coffeeBean({
-    SortCriteria? sortCriteria,
+    SearchSortCriteria? sortCriteria,
     List<CoffeeBeanFilter>? filters,
-  }) => CoffeeBeanSearchFilter(sortCriteria: sortCriteria ?? SortCriteria.rating, filters: filters ?? []);
+  }) => CoffeeBeanSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.avgStar, filters: filters ?? []);
 
   factory SearchFilter.buddy({
-    SortCriteria? sortCriteria,
-  }) => BuddySearchFilter(sortCriteria: sortCriteria ?? SortCriteria.follower);
+    SearchSortCriteria? sortCriteria,
+  }) => BuddySearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.followerCnt);
 
   factory SearchFilter.tastedRecord({
-    SortCriteria? sortCriteria,
+    SearchSortCriteria? sortCriteria,
     List<CoffeeBeanFilter>? filters,
-  }) => TastedRecordSearchFilter(sortCriteria: sortCriteria ?? SortCriteria.upToDate, filters: filters ?? []);
+  }) => TastedRecordSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.latest, filters: filters ?? []);
 
   factory SearchFilter.post({
-    SortCriteria? sortCriteria,
+    SearchSortCriteria? sortCriteria,
     PostSubject? subject,
-  }) => PostSearchFilter(sortCriteria: sortCriteria ?? SortCriteria.upToDate, subject: subject);
+  }) => PostSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.latest, subject: subject);
 }
 
 class CoffeeBeanSearchFilter implements SearchFilter {
-  final SortCriteria sortCriteria;
+  @override
+  final SearchSortCriteria sortCriteria;
   final List<CoffeeBeanFilter> filters;
 
   @override
@@ -40,7 +41,8 @@ class CoffeeBeanSearchFilter implements SearchFilter {
 }
 
 class BuddySearchFilter implements SearchFilter {
-  final SortCriteria sortCriteria;
+  @override
+  final SearchSortCriteria sortCriteria;
 
   @override
   bool get hasFilter => false;
@@ -51,7 +53,8 @@ class BuddySearchFilter implements SearchFilter {
 }
 
 class TastedRecordSearchFilter implements SearchFilter {
-  final SortCriteria sortCriteria;
+  @override
+  final SearchSortCriteria sortCriteria;
   final List<CoffeeBeanFilter> filters;
 
   @override
@@ -64,7 +67,8 @@ class TastedRecordSearchFilter implements SearchFilter {
 }
 
 class PostSearchFilter implements SearchFilter {
-  final SortCriteria sortCriteria;
+  @override
+  final SearchSortCriteria sortCriteria;
   final PostSubject? subject;
 
   @override

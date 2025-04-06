@@ -6,6 +6,7 @@ import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -191,7 +192,9 @@ class _LocalSearchViewState extends State<LocalSearchView> {
           Row(
             children: [
               GestureDetector(
-                onTap: () {},
+                onTap: () async {
+                  await _locateMe();
+                },
                 child: SvgPicture.asset(
                   'assets/icons/my_location.svg',
                   height: 24,
@@ -302,26 +305,50 @@ class _LocalSearchViewState extends State<LocalSearchView> {
             onTap: () {
               context.pop(local.name);
             },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(local.name, style: TextStyles.labelMediumMedium),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    if (local.distance.isNotEmpty) ...[
-                      Text(local.distance, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50)),
-                      Text('・', style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray50)),
+            child: Container(
+              color: ColorStyles.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(local.name, style: TextStyles.labelMediumMedium),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      if (local.distance.isNotEmpty) ...[
+                        Text(local.distance, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50)),
+                        Text('・', style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray50)),
+                      ],
+                      Text(local.address, style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray50)),
                     ],
-                    Text(local.address, style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray50)),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           );
         },
         separatorBuilder: (_, __) => const SizedBox(height: 20),
       ),
     );
+  }
+
+  Future<void> _locateMe() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('permissions are denied');
+      }
+    }
+
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    final context = this.context;
+    if (context.mounted) {
+      context.read<LocalSearchPresenter>().setMyLocation(x: '${position.longitude}', y: '${position.latitude}');
+    }
   }
 }

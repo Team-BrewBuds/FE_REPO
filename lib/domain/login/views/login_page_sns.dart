@@ -40,7 +40,6 @@ class SNSLogin extends StatelessWidget {
                                 if (context.mounted) {
                                   switch (loginResult) {
                                     case null:
-                                      context.pop(false);
                                       break;
                                     case LoginResult.login:
                                       context.go('/home');
@@ -94,7 +93,6 @@ class SNSLogin extends StatelessWidget {
                                 if (context.mounted) {
                                   switch (loginResult) {
                                     case null:
-                                      context.pop(false);
                                       break;
                                     case LoginResult.login:
                                       context.go('/home');
@@ -150,7 +148,7 @@ class SNSLogin extends StatelessWidget {
                                 if (context.mounted) {
                                   switch (loginResult) {
                                     case null:
-                                      context.pop(false);
+                                      break;
                                     case LoginResult.login:
                                       context.go('/home');
                                       break;

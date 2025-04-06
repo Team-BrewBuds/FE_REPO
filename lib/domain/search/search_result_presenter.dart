@@ -1,5 +1,5 @@
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
-import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
+import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/domain/search/core/search_presenter.dart';
@@ -8,7 +8,7 @@ import 'package:brew_buds/domain/search/models/search_subject.dart';
 
 typedef FilterBarState = ({
   int currentTabIndex,
-  List<SortCriteria> currentSortCriteriaList,
+  List<SearchSortCriteria> currentSortCriteriaList,
   int currentSortCriteriaIndex,
   String currentSortCriteria,
   List<CoffeeBeanFilter> filters,
@@ -52,11 +52,11 @@ final class SearchResultPresenter extends SearchPresenter {
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
-  List<SortCriteria> get sortCriteriaList => switch (currentTabIndex) {
-        0 => SortCriteria.coffeeBean(),
-        1 => SortCriteria.buddy(),
-        2 => SortCriteria.tastedRecord(),
-        3 => SortCriteria.post(),
+  List<SearchSortCriteria> get sortCriteriaList => switch (currentTabIndex) {
+        0 => SearchSortCriteria.coffeeBean(),
+        1 => SearchSortCriteria.buddy(),
+        2 => SearchSortCriteria.tastedRecord(),
+        3 => SearchSortCriteria.post(),
         int() => throw UnimplementedError(),
       };
 

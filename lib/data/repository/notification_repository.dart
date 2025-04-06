@@ -30,6 +30,7 @@ final class NotificationRepository {
     if (token != null && token.isNotEmpty) {
       _token = token;
     }
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
 
     FirebaseMessaging.instance.onTokenRefresh.listen((event) {
       _token = event;

@@ -68,15 +68,18 @@ class _SettingScreenState extends State<SettingScreen>
                   ),
                 ...category.items.map((item) {
                   if (item == SettingItem.version) {
-                    return Container(
-                      padding: const EdgeInsets.all(16.0),
-                      color: ColorStyles.white,
-                      child: Row(
-                        children: [
-                          Text(item.toString(), style: TextStyles.labelMediumMedium),
-                          const Spacer(),
-                          Text(_packageInfo.version, style: TextStyles.labelMediumMedium),
-                        ],
+                    return GestureDetector(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.all(16.0),
+                        color: ColorStyles.white,
+                        child: Row(
+                          children: [
+                            Text(item.toString(), style: TextStyles.labelMediumMedium),
+                            const Spacer(),
+                            Text(_packageInfo.version, style: TextStyles.labelMediumMedium),
+                          ],
+                        ),
                       ),
                     );
                   }
