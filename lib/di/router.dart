@@ -1,210 +1,207 @@
-import 'package:brew_buds/data/repository/home_repository.dart';
-import 'package:brew_buds/data/repository/popular_posts_repository.dart';
-import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/features/login/views/login_page_first.dart';
-import 'package:brew_buds/features/login/views/login_page_sns.dart';
-import 'package:brew_buds/features/signup/views/signup_third_page.dart';
-import 'package:brew_buds/features/signup/views/signup_first_page.dart';
-import 'package:brew_buds/features/signup/views/signup_second_page.dart';
-import 'package:brew_buds/features/signup/views/signup_finish_page.dart';
-import 'package:brew_buds/features/signup/views/signup_fourth_page.dart';
-import 'package:brew_buds/home/all/home_all_presenter.dart';
-import 'package:brew_buds/home/home_screen.dart';
-import 'package:brew_buds/home/popular_posts/popular_posts_presenter.dart';
-import 'package:brew_buds/home/popular_posts/popular_posts_view.dart';
-import 'package:brew_buds/home/post/home_post_presenter.dart';
-import 'package:brew_buds/home/tasting_record/home_tasting_record_presenter.dart';
-import 'package:brew_buds/main/main_view.dart';
-import 'package:brew_buds/profile/presenter/edit_profile_presenter.dart';
-import 'package:brew_buds/profile/presenter/profile_presenter.dart';
-import 'package:brew_buds/profile/view/edit_profile_view.dart';
-import 'package:brew_buds/profile/view/my_profile_view.dart';
-import 'package:brew_buds/search/search_home_presenter.dart';
-import 'package:brew_buds/search/search_home_view.dart';
-import 'package:brew_buds/search/search_result_presenter.dart';
-import 'package:brew_buds/search/search_result_view.dart';
-import 'package:brew_buds/setting/presenter/account_detail_presenter.dart';
-import 'package:brew_buds/setting/presenter/blocking_user_management_presenter.dart';
-import 'package:brew_buds/setting/view/account_detail_view.dart';
-import 'package:brew_buds/setting/view/account_info_view.dart';
-import 'package:brew_buds/setting/setting_screen.dart';
-import 'package:brew_buds/setting/view/blocking_user_management_view.dart';
-import 'package:brew_buds/setting/view/notification_setting_view.dart';
+import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
+import 'package:brew_buds/domain/home/home_presenter.dart';
+import 'package:brew_buds/domain/home/home_screen.dart';
+import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
+import 'package:brew_buds/domain/home/popular_posts/popular_posts_view.dart';
+import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
+import 'package:brew_buds/domain/login/views/login_page_first.dart';
+import 'package:brew_buds/domain/login/views/login_page_sns.dart';
+import 'package:brew_buds/domain/main/main_view.dart';
+import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
+import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/domain/profile/view/edit_profile_view.dart';
+import 'package:brew_buds/domain/profile/view/my_profile_view.dart';
+import 'package:brew_buds/domain/search/search_home_presenter.dart';
+import 'package:brew_buds/domain/search/search_home_view.dart';
+import 'package:brew_buds/domain/search/search_result_presenter.dart';
+import 'package:brew_buds/domain/search/search_result_view.dart';
+import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
+import 'package:brew_buds/domain/setting/presenter/account_info_presenter.dart';
+import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
+import 'package:brew_buds/domain/setting/presenter/notification_setting_presenter.dart';
+import 'package:brew_buds/domain/setting/setting_screen.dart';
+import 'package:brew_buds/domain/setting/view/account_detail_view.dart';
+import 'package:brew_buds/domain/setting/view/account_info_view.dart';
+import 'package:brew_buds/domain/setting/view/blocking_user_management_view.dart';
+import 'package:brew_buds/domain/setting/view/notification_setting_view.dart';
+import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
+import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
+import 'package:brew_buds/domain/signup/signup_screen.dart';
+import 'package:brew_buds/domain/signup/views/signup_finish_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_first_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_fourth_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_second_page.dart';
+import 'package:brew_buds/domain/signup/views/signup_third_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
-const String initialPath = '/login';
-
-final GlobalKey<NestedScrollViewState> homeTabBarScrollState = GlobalKey<NestedScrollViewState>();
-final GlobalKey<NavigatorState> mainRootNavigatorKey = GlobalKey<NavigatorState>();
-final GlobalKey<NavigatorState> homeRootNavigatorKey = GlobalKey<NavigatorState>();
-
-final router = GoRouter(
-  navigatorKey: mainRootNavigatorKey,
-  initialLocation: initialPath,
-  redirect: (context, state) {
-    if (context.read<AccountRepository>().refreshToken.isNotEmpty) {
-      if (state.uri.path.contains('login') || state.uri.path.contains('signup')) {
-        return '/home';
-      }
-    } else {
-      if (!state.uri.path.contains('login') && !state.uri.path.contains('signup')) {
-        return '/login';
-      }
-    }
-
-    return state.fullPath;
-  },
-  refreshListenable: AccountRepository.instance,
-  routes: [
-    GoRoute(
-      path: '/login',
-      builder: (BuildContext context, GoRouterState state) {
-        return const LoginPageFirst();
-      },
-      routes: <RouteBase>[
-        GoRoute(
-          path: 'sns',
-          builder: (BuildContext context, GoRouterState state) {
-            return const SNSLogin();
-          },
-        ),
-      ],
-    ),
-    GoRoute(
-      path: '/signup',
-      builder: (BuildContext context, GoRouterState state) {
-        return const SignUpFirstPage();
-      },
-      routes: [
-        GoRoute(
-          path: 'second',
-          builder: (BuildContext context, GoRouterState state) {
-            return const SignUpSecondPage();
-          },
-        ),
-        GoRoute(
-          path: 'third',
-          builder: (BuildContext context, GoRouterState state) {
-            return const SignUpThirdPage();
-          },
-        ),
-        GoRoute(
-          path: 'fourth',
-          builder: (BuildContext context, GoRouterState state) {
-            return const SignUpFourthPage();
-          },
-        ),
-        GoRoute(
-          path: 'finish',
-          builder: (BuildContext context, GoRouterState state) {
-            return const SignupFinishPage();
-          },
-        ),
-      ],
-    ),
-    StatefulShellRoute.indexedStack(
-      parentNavigatorKey: mainRootNavigatorKey,
-      builder: (context, state, bottomNavigationShell) => MainView(navigationShell: bottomNavigationShell),
-      branches: [
-        StatefulShellBranch(
-          //홈 화면
-          routes: [
-            GoRoute(
-              path: '/home',
-              builder: (context, state) => MultiProvider(
-                providers: [
-                  ChangeNotifierProvider(
-                    create: (_) => HomeAllPresenter(repository: HomeRepository.instance),
+GoRouter createRouter(bool hasToken) {
+  return GoRouter(
+    initialLocation: hasToken ? '/home' : '/',
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (BuildContext context, GoRouterState state) {
+          return const LoginPageFirst();
+        },
+        routes: <RouteBase>[
+          GoRoute(
+            path: 'login',
+            builder: (BuildContext context, GoRouterState state) => ChangeNotifierProvider(
+              create: (context) => LoginPresenter(),
+              child: const SNSLogin(),
+            ),
+            routes: [
+              StatefulShellRoute.indexedStack(
+                builder: (context, state, navigationShell) {
+                  return ChangeNotifierProvider(
+                    create: (_) => SignUpPresenter(),
+                    child: SignupScreen(navigationShell: navigationShell),
+                  );
+                },
+                branches: [
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/1',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpFirstPage();
+                        },
+                      ),
+                    ],
                   ),
-                  ChangeNotifierProvider(
-                    create: (_) => HomePostPresenter(repository: HomeRepository.instance),
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/2',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpSecondPage();
+                        },
+                      ),
+                    ],
                   ),
-                  ChangeNotifierProvider(
-                    create: (_) => HomeTastingRecordPresenter(repository: HomeRepository.instance),
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/3',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpThirdPage();
+                        },
+                      ),
+                    ],
+                  ),
+                  StatefulShellBranch(
+                    routes: [
+                      GoRoute(
+                        path: 'signup/4',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return const SignUpFourthPage();
+                        },
+                      ),
+                    ],
                   ),
                 ],
-                child: HomeView(nestedScrollViewState: homeTabBarScrollState),
               ),
-              routes: [
-                GoRoute(
-                  path: '/popular_post',
-                  builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
-                    create: (_) => PopularPostsPresenter(repository: PopularPostsRepository.instance),
-                    child: const PopularPostsView(),
+              GoRoute(
+                path: 'signup/finish',
+                builder: (BuildContext context, GoRouterState state) {
+                  return SignupFinishPage(nickname: state.uri.queryParameters['nickname'] ?? 'Unknown');
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+      ShellRoute(
+        builder: (context, state, child) => ShowCaseWidget(
+          onComplete: (_, __) {
+            SharedPreferencesRepository.instance.completeTutorial();
+          },
+          builder: (context) => MainView(child: child),
+        ),
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => ChangeNotifierProxyProvider<AccountRepository, HomePresenter>(
+              update: (context, repository, previous) => HomePresenter(isGuest: repository.isGuest),
+              create: (_) => HomePresenter(isGuest: false),
+              child: const HomeView(),
+            ),
+            routes: [
+              GoRoute(
+                path: '/popular_post',
+                builder: (context, state) => ChangeNotifierProvider<PopularPostsPresenter>(
+                  create: (_) => PopularPostsPresenter(),
+                  child: const PopularPostsView(),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
+              create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
+              child: const SearchHomeView(),
+            ),
+            routes: [
+              GoRoute(
+                path: 'result',
+                builder: (context, state) {
+                  final data = state.extra as SearchResultInitState?;
+                  return ChangeNotifierProvider<SearchResultPresenter>(
+                    create: (_) => SearchResultPresenter(
+                      currentTabIndex: data?.tabIndex ?? 0,
+                      searchWord: data?.searchWord ?? '',
+                    ),
+                    child: SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
+                  );
+                },
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/profile',
+            builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
+              create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
+              child: const MyProfileView(),
+            ),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) {
+                  final EditProfileData data = state.extra as EditProfileData;
+                  return ChangeNotifierProvider<EditProfilePresenter>(
+                    create: (_) => EditProfilePresenter(
+                      selectedCoffeeLifeList: data.coffeeLife,
+                      imageUrl: data.imageUrl,
+                      nickname: data.nickname,
+                      introduction: data.introduction,
+                      link: data.link,
+                    ),
+                    child: EditProfileView(
+                      nickname: data.nickname,
+                      introduction: data.introduction,
+                      link: data.link,
+                    ),
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'setting',
+                builder: (context, state) => const SettingScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'notification',
+                    builder: (context, state) => ChangeNotifierProvider(
+                      create: (_) => NotificationSettingPresenter(),
+                      child: const NotificationSettingView(),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          //검색 화면
-          routes: [
-            GoRoute(
-              path: '/search',
-              builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
-                create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
-                child: const SearchHomeView(),
-              ),
-              routes: [
-                GoRoute(
-                  path: 'result',
-                  builder: (context, state) {
-                    final data = state.extra as SearchResultInitState?;
-                    return ChangeNotifierProvider<SearchResultPresenter>(
-                      create: (_) => SearchResultPresenter(
-                        currentTabIndex: data?.tabIndex ?? 0,
-                        searchWord: data?.searchWord ?? '',
-                      ),
-                      child: SearchResultView(initialText: data?.searchWord ?? ''),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          //기록 화면
-          routes: [
-            GoRoute(path: '/main3', builder: (context, state) => Container()),
-          ],
-        ),
-        StatefulShellBranch(
-          //프로필 화면
-          routes: [
-            GoRoute(
-              path: '/profile',
-              builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
-                create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-                child: const MyProfileView(),
-              ),
-              routes: [
-                GoRoute(
-                  path: 'edit',
-                  builder: (context, state) {
-                    final EditProfileData data = state.extra as EditProfileData;
-                    return ChangeNotifierProvider<EditProfilePresenter>(
-                      create: (_) => EditProfilePresenter(
-                        selectedCoffeeLifeList: data.coffeeLife,
-                        imageUri: data.imageUri,
-                        nickname: data.nickname,
-                        introduction: data.introduction,
-                        link: data.link,
-                      ),
-                      child: EditProfileView(
-                        nickname: data.nickname,
-                        introduction: data.introduction,
-                        link: data.link,
-                      ),
-                    );
-                  },
-                ),
-                GoRoute(path: 'setting', builder: (context, state) => const SettingScreen(), routes: [
-                  GoRoute(path: 'notification', builder: (context, state) => const NotificationSettingView()),
+                  GoRoute(path: 'sign_out', builder: (context, state) => const SignOutView()),
                   GoRoute(
                     path: 'block',
                     builder: (context, state) => ChangeNotifierProvider<BlockingUserManagementPresenter>(
@@ -212,7 +209,13 @@ final router = GoRouter(
                       child: const BlockingUserManagementView(),
                     ),
                   ),
-                  GoRoute(path: 'account_info', builder: (context, state) => const AccountInfoView()),
+                  GoRoute(
+                    path: 'account_info',
+                    builder: (context, state) => ChangeNotifierProvider<AccountInfoPresenter>(
+                      create: (_) => AccountInfoPresenter(),
+                      child: const AccountInfoView(),
+                    ),
+                  ),
                   GoRoute(
                     path: 'account_detail',
                     builder: (context, state) => ChangeNotifierProvider<AccountDetailPresenter>(
@@ -220,12 +223,12 @@ final router = GoRouter(
                       child: const AccountDetailView(),
                     ),
                   ),
-                ]),
-              ],
-            ),
-          ],
-        ),
-      ],
-    ),
-  ],
-);
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    ],
+  );
+}

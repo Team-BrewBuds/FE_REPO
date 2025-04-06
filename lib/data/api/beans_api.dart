@@ -1,6 +1,6 @@
-import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_detail_dto.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'beans_api.g.dart';
@@ -22,14 +22,20 @@ abstract class BeansApi {
   });
 
   @GET('/beans/search/')
-  Future<void> searchBeans({
+  Future<String> searchBeans({
     @Query('name') String? name,
     @Query('page') required int pageNo,
   });
 
-  factory BeansApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _BeansApi(dio);
-  }
+  @GET('/beans/{id}/')
+  Future<String> fetchBeanDetail({
+    @Path('id') required int id,
+  });
+
+  @GET('beans/{id}/tasted_records/')
+  Future<String> fetchTastedRecordsForCoffeeBean({
+    @Path('id') required int id,
+  });
+
+  factory BeansApi() => _BeansApi(DioClient.instance.dio);
 }

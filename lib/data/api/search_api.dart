@@ -1,33 +1,32 @@
-import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'search_api.g.dart';
 
 @RestApi()
 abstract class SearchApi {
-  @GET('/search/bean_suggest/')
+  @GET('/search/suggest/bean/')
   Future<String> fetchBeanSuggest({
     @Query('q') required String searchWord,
   });
 
-  @GET('/search/buddy_suggest/')
+  @GET('/search/suggest/buddy/')
   Future<String> fetchUserSuggest({
     @Query('q') required String searchWord,
   });
 
-  @GET('/search/tastedrecord_suggest/')
+  @GET('/search/suggest/tasted_record/')
   Future<String> fetchTastingRecordSuggest({
     @Query('q') required String searchWord,
   });
 
-  @GET('/search/post_suggest/')
+  @GET('/search/suggest/post/')
   Future<String> fetchPostSuggest({
     @Query('q') required String searchWord,
   });
 
-  @GET('/search/bean_list/')
+  @GET('/search/bean/')
   Future<String> searchBean({
     @Query('q') required String searchWord,
     @Query('bean_type') String? beanType,
@@ -38,13 +37,13 @@ abstract class SearchApi {
     @Query('sort_by') String? sortBy,
   });
 
-  @GET('/search/buddy_list/')
+  @GET('/search/buddy/')
   Future<String> searchUser({
     @Query('q') required String searchWord,
     @Query('sort_by') String? sortBy,
   });
 
-  @GET('/search/tastedrecord_list/')
+  @GET('/search/tasted_record/')
   Future<String> searchTastingRecord({
     @Query('q') required String searchWord,
     @Query('bean_type') String? beanType,
@@ -55,16 +54,12 @@ abstract class SearchApi {
     @Query('sort_by') String? sortBy,
   });
 
-  @GET('/search/post_list/')
+  @GET('/search/post/')
   Future<String> searchPost({
     @Query('q') required String searchWord,
     @Query('subject') String? subject,
     @Query('sort_by') String? sortBy,
   });
 
-  factory SearchApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _SearchApi(dio);
-  }
+  factory SearchApi() => _SearchApi(DioClient.instance.dio);
 }

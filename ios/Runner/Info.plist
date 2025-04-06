@@ -29,15 +29,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>$(NAVER_CLIENT_ID)</string>
 				<string>com.coffee.brewBuds</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
 				<string>kakao$(KAKAO_NATIVE_APP_KEY)</string>
 			</array>
 		</dict>
@@ -48,38 +40,64 @@
 	<string>$(KAKAO_NATIVE_APP_KEY)</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+	    <string>naversearchapp</string>
+        <string>naversearchthirdlogin</string>
 		<string>kakaokompassauth</string>
-		<string>kakaoplus</string>
-		<string>kakaolink</string>
 		<string>kakaotalk</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NAVER_KEY</key>
-	<string>$(NAVER_CLIENT_SECRET)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>naver.com</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>naver.net</key>
+			<dict>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>앱을 사용 중일 때 위치 정보가 필요합니다.</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>앱을 실행 중일 때 항상 위치 정보가 필요합니다.</string>
+	<key>NSLocationDefaultAccuracyReduced</key>
+	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>To capture profile photo please grant camera access</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app required NSMicrophoneUsageDescription permission</string>
+	<string>사진을 찰영하기 위해 이 권한이 필요합니다.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>알림을 수신하기 위해 이 권한이 필요합니다.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>현재 위치를 알기위해 이 권한이 필요합니다.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>현재 위치를 알기위해 이 권한이 필요합니다.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>사진을 저장하기 위해 이 권한이 필요합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>App needs access to photo lib for profile images</string>
+	<string>사진을 첨부하기 위해 이 권한이 필요합니다.</string>
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+		<string>fetch</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UIStatusBarHidden</key>
-	<false/>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -91,6 +109,8 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 	<key>naverConsumerKey</key>
 	<string>$(NAVER_CLIENT_ID)</string>
 	<key>naverConsumerSecret</key>
@@ -99,5 +119,11 @@
 	<string>Brewbuds</string>
 	<key>naverServiceAppUrlScheme</key>
 	<string>com.coffee.brewBuds</string>
+	<key>UNUserNotificationCenter</key>
+	<true/>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>FlutterDeepLinkingEnabled</key>
+    <false/>
 </dict>
 </plist>

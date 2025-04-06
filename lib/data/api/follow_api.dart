@@ -1,6 +1,5 @@
-import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'follow_api.g.dart';
@@ -30,9 +29,5 @@ abstract class FollowApi {
     @Path('id') required int id,
   });
 
-  factory FollowApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _FollowApi(dio);
-  }
+  factory FollowApi() => _FollowApi(DioClient.instance.dio);
 }

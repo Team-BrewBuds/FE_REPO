@@ -1,6 +1,5 @@
-import 'package:brew_buds/core/api_interceptor.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'block_api.g.dart';
@@ -20,9 +19,5 @@ abstract class BlockApi {
     @Path('id') required int id,
   });
 
-  factory BlockApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _BlockApi(dio);
-  }
+  factory BlockApi() => _BlockApi(DioClient.instance.dio);
 }

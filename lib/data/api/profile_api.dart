@@ -1,7 +1,5 @@
-import 'package:brew_buds/core/api_interceptor.dart';
-import 'package:brew_buds/profile/model/profile.dart';
+import 'package:brew_buds/core/dio_client.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'profile_api.g.dart';
@@ -9,7 +7,7 @@ part 'profile_api.g.dart';
 @RestApi()
 abstract class ProfileApi {
   @GET('/profiles/')
-  Future<Profile> fetchMyProfile();
+  Future<String> fetchMyProfile();
 
   @PATCH('/profiles/')
   Future<void> updateMyProfile({
@@ -17,7 +15,7 @@ abstract class ProfileApi {
   });
 
   @GET('/profiles/{id}/')
-  Future<Profile> fetchProfile({
+  Future<String> fetchProfile({
     @Path('id') required int id,
   });
 
@@ -27,9 +25,13 @@ abstract class ProfileApi {
     @Query('page') required int pageNo,
   });
 
-  factory ProfileApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    dio.interceptors.add(ApiInterceptor());
-    return _ProfileApi(dio);
-  }
+  @GET('/profiles/user/info/{user_id}/')
+  Future<String> fetchUserInfo({
+    @Path('user_id') required int id,
+  });
+
+  @DELETE('/profiles/')
+  Future<void> signOut();
+
+  factory ProfileApi() => _ProfileApi(DioClient.instance.dio);
 }

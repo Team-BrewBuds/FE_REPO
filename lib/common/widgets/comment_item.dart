@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class CommentItem extends StatelessWidget {
   final EdgeInsets padding;
-  final String profileImageUri;
+  final String profileImageUrl;
   final String nickName;
   final String createdAt;
   final bool isWriter;
@@ -21,7 +21,7 @@ class CommentItem extends StatelessWidget {
   const CommentItem({
     super.key,
     required this.padding,
-    required this.profileImageUri,
+    required this.profileImageUrl,
     required this.nickName,
     required this.createdAt,
     required this.isWriter,
@@ -43,15 +43,14 @@ class CommentItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   onTappedProfile.call();
                 },
                 child: MyNetworkImage(
-                  imageUri: profileImageUri,
+                  imageUrl: profileImageUrl,
                   height: 36,
                   width: 36,
-                  color: const Color(0xffD9D9D9),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -94,7 +93,7 @@ class CommentItem extends StatelessWidget {
                     ),
                     if (canReply) ...[
                       const SizedBox(height: 6),
-                      InkWell(
+                      GestureDetector(
                         onTap: () {
                           onTappedReply?.call();
                         },
@@ -108,7 +107,7 @@ class CommentItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              InkWell(
+              GestureDetector(
                 onTap: () {
                   onTappedLikeButton.call();
                 },

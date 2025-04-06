@@ -1,25 +1,45 @@
-import 'package:brew_buds/common/factory/button_factory.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 
 class FollowButton extends StatelessWidget {
+  final Throttle<bool> _throttle;
   final void Function() onTap;
   final bool isFollowed;
 
-  const FollowButton({
+  FollowButton({
     super.key,
     required this.onTap,
     required this.isFollowed,
-  });
+  }) : _throttle = Throttle(
+    const Duration(seconds: 3),
+    initialValue: false,
+    onChanged: (value) {
+      if (value) {
+        onTap.call();
+      }
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
-    return ButtonFactory.buildOvalButton(
-      onTapped: onTap,
-      text: isFollowed ? '팔로잉' : '팔로우',
-      style: isFollowed
-          ? OvalButtonStyle.fill(color: ColorStyles.gray20, textColor: ColorStyles.gray80, size: OvalButtonSize.large)
-          : OvalButtonStyle.fill(color: ColorStyles.red, textColor: ColorStyles.white, size: OvalButtonSize.large),
+    return GestureDetector(
+      onTap: () {
+        _throttle.setValue(true);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isFollowed ? ColorStyles.gray30 : ColorStyles.red,
+          borderRadius: const BorderRadius.all(Radius.circular(20))
+        ),
+        child: Text(
+          isFollowed ? '팔로잉' : '팔로우',
+          style: TextStyles.labelSmallMedium.copyWith(color: isFollowed ? ColorStyles.black : ColorStyles.white),
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 }

@@ -8,7 +8,7 @@ part 'sign_up_api.g.dart';
 @RestApi()
 abstract class SignUpApi {
   @POST('/profiles/login/{socialType}/finish/')
-  Future<SocialLoginDTO> registerToken({
+  Future<String> registerToken({
     @Path('socialType') required String socialType,
     @Body() required Map<String, dynamic> data,
   });
@@ -24,8 +24,5 @@ abstract class SignUpApi {
     @Header('Authorization') required String accessToken,
   });
 
-  factory SignUpApi() {
-    final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
-    return _SignUpApi(dio);
-  }
+  factory SignUpApi() => _SignUpApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
 }
