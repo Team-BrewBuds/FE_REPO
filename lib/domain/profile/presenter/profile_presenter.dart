@@ -1,7 +1,7 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
-import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
+import 'package:brew_buds/domain/profile/model/profile_sort_criteria.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
@@ -20,12 +20,6 @@ typedef FilterBarState = ({
 });
 
 class ProfilePresenter extends Presenter {
-  final List<SortCriteria> _sortCriteriaList = [
-    SortCriteria.upToDate,
-    SortCriteria.rating,
-    SortCriteria.tastingRecords,
-  ];
-
   final ProfileRepository repository;
   Profile? profile;
   DefaultPage<TastedRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
@@ -39,14 +33,23 @@ class ProfilePresenter extends Presenter {
   int _tabIndex = 0;
   int _pageNo = 1;
   bool _isEmpty = false;
+  int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
+
+  List<ProfileSortCriteria> get sortCriteriaList => switch (_tabIndex) {
+    0 => ProfileSortCriteria.tastedRecord(),
+    1 => [],
+    2 => ProfileSortCriteria.notedCoffeeBean(),
+    3 => [],
+    int() => throw UnimplementedError(),
+  };
+
+  String get currentSortCriteria => sortCriteriaList[_currentSortCriteriaIndex].toString();
 
   bool get isLoading => _isLoading;
 
   bool get isLoadingData => _isLoadingData;
 
   bool get isEmpty => _isEmpty;
-
-  int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
   int get id => profile?.id ?? 0;
 
@@ -67,7 +70,7 @@ class ProfilePresenter extends Presenter {
 
   FilterBarState get filterBarState => (
         canShowFilterBar: _tabIndex == 0 || _tabIndex == 2,
-        sortCriteriaList: _sortCriteriaList.map((sortCriteria) => sortCriteria.toString()).toList(),
+        sortCriteriaList: sortCriteriaList.map((sortCriteria) => sortCriteria.toString()).toList(),
         currentIndex: _currentSortCriteriaIndex,
         filters: _filters,
       );
@@ -138,14 +141,16 @@ class ProfilePresenter extends Presenter {
   _fetchPage() async {
     final id = profile?.id;
     if (id != null) {
-      _isLoadingData = true;
-      notifyListeners();
+      if (currentPage?.results.isEmpty ?? true) {
+        _isLoadingData = true;
+        notifyListeners();
+      }
 
       if (_tabIndex == 0) {
         final nextPage = await repository.fetchTastedRecordPage(
           userId: id,
           pageNo: _pageNo,
-          // orderBy: _sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+          orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
           beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
@@ -179,7 +184,7 @@ class ProfilePresenter extends Presenter {
             .fetchCoffeeBeanPage(
           userId: id,
           pageNo: _pageNo,
-          // orderBy: _sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+          orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
           beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),

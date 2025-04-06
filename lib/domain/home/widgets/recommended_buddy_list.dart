@@ -13,9 +13,15 @@ class RecommendedBuddyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 304,
-      color: ColorStyles.white,
+      height: 318,
       padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
+      decoration: const BoxDecoration(
+        color: ColorStyles.white,
+        border: Border(
+          top: BorderSide(width: 12, color: ColorStyles.gray20),
+          bottom: BorderSide(width: 12, color: ColorStyles.gray20),
+        ),
+      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -6,8 +6,8 @@ import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
-import 'package:brew_buds/domain/filter/model/search_sort_criteria.dart';
 import 'package:brew_buds/domain/filter/sort_criteria_bottom_sheet.dart';
+import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/domain/search/core/search_mixin.dart';
 import 'package:brew_buds/domain/search/models/search_result_model.dart';
@@ -418,7 +418,10 @@ class _SearchResultViewState extends State<SearchResultView>
         });
   }
 
-  showSortCriteriaBottomSheet({required List<SortCriteria> sortCriteriaList, required int currentSortCriteriaIndex}) {
+  showSortCriteriaBottomSheet({
+    required List<SearchSortCriteria> sortCriteriaList,
+    required int currentSortCriteriaIndex,
+  }) {
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,

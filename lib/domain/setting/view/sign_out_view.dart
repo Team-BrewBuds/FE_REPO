@@ -224,7 +224,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
           GestureDetector(
             onTap: () async {
               final context = this.context;
-              final result = await  _showSignOutDialog().then((value) => value ?? false).onError((_, __) => false);
+              final result = await _showSignOutDialog().then((value) => value ?? false).onError((_, __) => false);
               if (result) {
                 final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
                 if (signOutResult && context.mounted) {

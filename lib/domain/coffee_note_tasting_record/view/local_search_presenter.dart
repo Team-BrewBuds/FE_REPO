@@ -7,6 +7,8 @@ final class LocalSearchPresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   String _searchWord = '';
   DefaultPage<Local> _page = DefaultPage.initState();
+  String _x = '';
+  String _y = '';
   int _pageNo = 1;
 
   DefaultPage<Local> get page => _page;
@@ -18,7 +20,12 @@ final class LocalSearchPresenter extends Presenter {
 
   fetchMoreData() async {
     if (_page.hasNext) {
-      final newPage = await _tastedRecordRepository.fetchLocal(word: _searchWord, pageNo: _pageNo);
+      final newPage = await _tastedRecordRepository.fetchLocal(
+        word: _searchWord,
+        pageNo: _pageNo,
+        x: _x.isEmpty ? null : _x,
+        y: _y.isEmpty ? null : _y,
+      );
       _page = newPage.copyWith(results: _page.results + newPage.results);
       _pageNo++;
       notifyListeners();
@@ -30,5 +37,13 @@ final class LocalSearchPresenter extends Presenter {
     _pageNo = 1;
     _searchWord = word;
     fetchMoreData();
+  }
+
+  setMyLocation({required String x, required String y}) {
+    _x = x;
+    _y = y;
+    if (_x.isNotEmpty && _y.isNotEmpty) {
+      search(_searchWord);
+    }
   }
 }

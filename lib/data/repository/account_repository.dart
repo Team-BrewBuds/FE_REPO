@@ -57,8 +57,6 @@ class AccountRepository extends ChangeNotifier {
       await _storage.write(key: 'refresh', value: refreshToken);
       _refreshToken = refreshToken;
     }
-
-    notifyListeners();
   }
 
   Future<void> saveId({required int id}) async {
@@ -70,6 +68,7 @@ class AccountRepository extends ChangeNotifier {
     try {
       await NotificationRepository.instance.deleteToken();
       await _storage.deleteAll();
+      _isGuest = false;
       _id = null;
       _accessToken = '';
       _refreshToken = '';
