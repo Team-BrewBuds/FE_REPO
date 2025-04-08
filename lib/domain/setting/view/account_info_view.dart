@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/setting/presenter/account_info_presenter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -90,7 +91,7 @@ class _AccountInfoViewState extends State<AccountInfoView> {
               ),
             ),
             const Spacer(),
-            const Text('계정 정보', style: TextStyles.title02Bold),
+            Text('계정 정보', style: TextStyles.title02Bold),
             const Spacer(),
             const SizedBox(
               height: 24,
@@ -136,9 +137,9 @@ class _AccountInfoViewState extends State<AccountInfoView> {
               message: tooltipMessage,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.symmetric(horizontal: 16),
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
                 fontWeight: FontWeight.w400,
-                fontSize: 12,
+                fontSize: 12.sp,
                 height: 16.8 / 14,
                 letterSpacing: -0.01,
                 color: ColorStyles.white,
@@ -173,9 +174,9 @@ class _AccountInfoViewState extends State<AccountInfoView> {
               message: tooltipMessage,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.symmetric(horizontal: 16),
-              textStyle: const TextStyle(
+              textStyle: TextStyle(
                 fontWeight: FontWeight.w400,
-                fontSize: 12,
+                fontSize: 12.sp,
                 height: 16.8 / 14,
                 letterSpacing: -0.01,
                 color: ColorStyles.white,

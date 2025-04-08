@@ -1,136 +1,127 @@
 import 'package:flutter/material.dart';
-
-import 'color_styles.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 final class TextStyles {
   TextStyles._();
 
   //Title
-  static const title05Bold = TextStyle(
+  static TextStyle title05Bold = TextStyle(
     fontWeight: FontWeight.w700,
-    fontSize: 24,
-    height: 28.8 / 24,
+    fontSize: 24.sp,
+    height: 1.2,
     letterSpacing: -0.01,
   );
-  static const title04SemiBold = TextStyle(
-    fontSize: 22,
+  static TextStyle title04SemiBold = TextStyle(
+    fontSize: 22.sp,
     fontWeight: FontWeight.w600,
-    height: 26.4 / 22,
+    height: 1.2,
     letterSpacing: -0.02,
   );
-  static const title03SemiBold = TextStyle(
-    fontSize: 21,
+  static TextStyle title03SemiBold = TextStyle(
+    fontSize: 21.sp,
     fontWeight: FontWeight.w400,
-    height: 25.2 / 21,
+    height: 1.2,
   );
-  static const title02Bold = TextStyle(
+  static TextStyle title02Bold = TextStyle(
     fontWeight: FontWeight.w700,
-    fontSize: 16,
-    height: 24 / 16,
+    fontSize: 16.sp,
+    height: 1.5,
     letterSpacing: -0.02,
   );
-  static const title02SemiBold = TextStyle(
+  static TextStyle title02SemiBold = TextStyle(
     fontWeight: FontWeight.w600,
-    fontSize: 16,
-    height: 19.2 / 16,
+    fontSize: 16.sp,
+    height: 1.2,
     letterSpacing: -0.02,
   );
-  static const title01Bold = TextStyle(
+  static TextStyle title01Bold = TextStyle(
     fontWeight: FontWeight.w700,
-    fontSize: 14,
+    fontSize: 14.sp,
     height: 16.8 / 14,
     letterSpacing: -0.02,
   );
-  static const title01SemiBold = TextStyle(
+  static TextStyle title01SemiBold = TextStyle(
     fontWeight: FontWeight.w600,
-    fontSize: 14,
-    height: 16.8 / 14,
+    fontSize: 14.sp,
+    height: 1.2,
     letterSpacing: -0.02,
   );
 
   //Label
-  static const labelMediumMedium = TextStyle(
+  static TextStyle labelMediumMedium = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 14,
-    height: 16.8 / 14,
+    fontSize: 14.sp,
+    height: 1.2,
     letterSpacing: -0.01,
   );
-  static const labelSmallSemiBold = TextStyle(
+  static TextStyle labelSmallSemiBold = TextStyle(
     fontWeight: FontWeight.w600,
-    fontSize: 13,
-    height: 15.6 / 13,
+    fontSize: 13.sp,
+    height: 1.2,
     letterSpacing: -0.01,
   );
-  static const labelSmallMedium = TextStyle(
+  static TextStyle labelSmallMedium = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 13,
-    height: 15.6 / 13,
+    fontSize: 13.sp,
+    height: 1.2,
   );
 
-  static const bodyRegular = TextStyle(
+  static TextStyle bodyRegular = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 14,
-    height: 21 / 14,
+    fontSize: 14.sp,
+    height: 1.5,
     letterSpacing: -0.01,
   );
-  static const bodyNarrowRegular = TextStyle(
+  static TextStyle bodyNarrowRegular = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 14,
-    height: 18.2 / 14,
+    fontSize: 14.sp,
+    height: 1.3,
     letterSpacing: -0.02,
-    color: ColorStyles.gray50
   );
 
   //Caption
-  static const captionMediumSemiBold = TextStyle(
+  static TextStyle captionMediumSemiBold = TextStyle(
     fontWeight: FontWeight.w600,
-    fontSize: 12,
-    height: 18 / 12,
+    fontSize: 12.sp,
+    height: 1.5,
   );
-  static const captionMediumMedium = TextStyle(
+  static TextStyle captionMediumMedium = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 12,
-    height: 18 / 12,
+    fontSize: 12.sp,
+    height: 1.5,
     letterSpacing: -0.01,
   );
-  static const captionMediumNarrowMedium = TextStyle(
+  static TextStyle captionMediumNarrowMedium = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 12,
-    height: 15.6 / 12,
+    fontSize: 12.sp,
+    height: 1.3,
     letterSpacing: -0.01,
   );
-  static const captionMediumRegular = TextStyle(
+  static TextStyle captionMediumRegular = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 12,
-    height: 14.4 / 12,
+    fontSize: 12.sp,
+    height: 1.2,
     letterSpacing: -0.01,
   );
 
-  static const captionSmallSemiBold = TextStyle(
+  static TextStyle captionSmallSemiBold = TextStyle(
     fontWeight: FontWeight.w600,
-    fontSize: 10,
-    height: 12 / 10,
+    fontSize: 10.sp,
+    height: 1.2,
   );
-  static const captionSmallMedium = TextStyle(
+  static TextStyle captionSmallMedium = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 10,
-    height: 15 / 10,
+    fontSize: 10.sp,
+    height: 1.5,
   );
-  static const captionSmallRegular = TextStyle(
+  static TextStyle captionSmallRegular = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 10,
-    height: 15 / 10,
+    fontSize: 10.sp,
+    height: 1.5,
   );
-  static const captionXSmallMedium = TextStyle(
+  static TextStyle captionXSmallMedium = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 8,
-    height: 12 / 8,
+    fontSize: 8.sp,
+    height: 1.5,
   );
-
-  static const textlightRegular = TextStyle(
-      fontWeight: FontWeight.w400,
-      fontSize: 16,
-      fontFamily: 'Pretendard',
-      color: Color(0xFFAAAAAA),
-      letterSpacing: -0.13);
 }

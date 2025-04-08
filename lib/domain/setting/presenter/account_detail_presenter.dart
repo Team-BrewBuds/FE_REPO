@@ -5,12 +5,12 @@ import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 
 final class AccountDetailPresenter extends Presenter {
   final ProfileRepository _repository = ProfileRepository.instance;
-  late final List<CoffeeLife> _preCoffeeLife;
-  late final bool? _preIsCertificated;
-  late final int _preBodyValue;
-  late final int _preAcidityValue;
-  late final int _preBitternessValue;
-  late final int _preSweetnessValue;
+  List<CoffeeLife>? _preCoffeeLife;
+  bool? _preIsCertificated;
+  int? _preBodyValue;
+  int? _preAcidityValue;
+  int? _preBitternessValue;
+  int? _preSweetnessValue;
 
   List<CoffeeLife> _selectedCoffeeLifeList = [];
   bool? _isCertificated;
@@ -19,12 +19,27 @@ final class AccountDetailPresenter extends Presenter {
   int? _bitternessValue;
   int? _sweetnessValue;
 
-  bool get canEdit => (_preIsCertificated != _isCertificated ||
+  bool _isLoading = true;
+
+  bool get isLoading => _isLoading;
+
+  bool get canEdit {
+    if (_preIsCertificated == null ||
+        _preBodyValue == null ||
+        _preAcidityValue == null ||
+        _preBitternessValue == null ||
+        _preSweetnessValue == null ||
+        _preCoffeeLife == null) {
+      return false;
+    }
+
+    return (_preIsCertificated != _isCertificated ||
       _preBodyValue != _bodyValue ||
       _preAcidityValue != _acidityValue ||
       _preBitternessValue != _bitternessValue ||
       _preSweetnessValue != _sweetnessValue ||
       _compareCoffeeLifeList());
+  }
 
   List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
 
@@ -39,12 +54,12 @@ final class AccountDetailPresenter extends Presenter {
   int? get sweetnessValue => _sweetnessValue;
 
   bool _compareCoffeeLifeList() {
-    if (_preCoffeeLife.isEmpty && selectedCoffeeLifeList.isEmpty) {
+    if (_preCoffeeLife?.isEmpty ?? true && selectedCoffeeLifeList.isEmpty) {
       return false;
-    } else if (_preCoffeeLife.isEmpty && selectedCoffeeLifeList.isNotEmpty) {
+    } else if (_preCoffeeLife?.isEmpty ?? true && selectedCoffeeLifeList.isNotEmpty) {
       return true;
-    } else if (_preCoffeeLife.length == selectedCoffeeLifeList.length) {
-      return _preCoffeeLife.map((e) => selectedCoffeeLifeList.contains(e)).where((element) => !element).isNotEmpty;
+    } else if (_preCoffeeLife?.length == selectedCoffeeLifeList.length) {
+      return _preCoffeeLife?.map((e) => selectedCoffeeLifeList.contains(e)).where((element) => !element).isNotEmpty ?? false;
     } else {
       return true;
     }
@@ -61,7 +76,10 @@ final class AccountDetailPresenter extends Presenter {
     fetchProfileDetail();
   }
 
-  fetchProfileDetail() {
+  fetchProfileDetail() async {
+    _isLoading = true;
+    notifyListeners();
+
     _repository.fetchMyProfile().then((newProfile) {
       _selectedCoffeeLifeList = List.from(newProfile.coffeeLife);
       _isCertificated = newProfile.isCertificated;
@@ -76,6 +94,8 @@ final class AccountDetailPresenter extends Presenter {
       _preBitternessValue = newProfile.preferredBeanTaste.bitterness;
       _preSweetnessValue = newProfile.preferredBeanTaste.sweetness;
       _preIsCertificated = newProfile.isCertificated;
+    }).whenComplete(() {
+      _isLoading = false;
       notifyListeners();
     });
   }

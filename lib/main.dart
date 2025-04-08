@@ -4,6 +4,7 @@ import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter/material.dart';
@@ -65,29 +66,32 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
-    return MaterialApp.router(
-      routerConfig: widget.router,
-      title: 'Brew Buds',
-      debugShowCheckedModeBanner: false,
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ko', ''),
-      ],
-      theme: ThemeData(
-        fontFamily: 'Pretendard',
-        scaffoldBackgroundColor: Colors.white,
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        splashFactory: NoSplash.splashFactory,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: ColorStyles.white,
-          scrolledUnderElevation: 0,
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      child: MaterialApp.router(
+        routerConfig: widget.router,
+        title: 'Brew Buds',
+        debugShowCheckedModeBanner: false,
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('ko', ''),
+        ],
+        theme: ThemeData(
+          fontFamily: 'Pretendard',
+          scaffoldBackgroundColor: Colors.white,
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: ColorStyles.white,
+            scrolledUnderElevation: 0,
+          ),
+          useMaterial3: true,
         ),
-        useMaterial3: true,
       ),
     );
   }

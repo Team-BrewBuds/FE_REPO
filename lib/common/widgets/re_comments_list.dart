@@ -48,7 +48,7 @@ class _ReCommentsListState extends State<ReCommentsList> {
         ),
         children: List<Widget>.generate(
           widget.reCommentsLength,
-          widget.reCommentsBuilder ?? (_) => Container(),
+          widget.reCommentsBuilder ?? (_) => const SizedBox.shrink(),
         ),
         onExpansionChanged: (isExpanded) {
           setState(() {

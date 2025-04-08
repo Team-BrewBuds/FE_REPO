@@ -41,33 +41,28 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
               child: Wrap(
                 children: [
                   Container(
-                    height: 59,
-                    decoration:
-                        const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
-                    child: Stack(
+                    padding: const EdgeInsets.only(top: 21, left: 16, right: 16, bottom: 14),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(color: ColorStyles.gray20, width: 1),
+                      ),
+                    ),
+                    child: Row(
                       children: [
-                        const Positioned(
-                          top: 24,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: Text('정렬', style: TextStyles.title02SemiBold),
-                          ),
-                        ),
-                        Positioned(
-                          top: 21,
-                          right: 16,
-                          child: GestureDetector(
-                            onTap: () {
-                              context.pop();
-                            },
-                            child: SvgPicture.asset(
-                              'assets/icons/x.svg',
-                              height: 24,
-                              width: 24,
-                              fit: BoxFit.cover,
-                              colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
-                            ),
+                        const SizedBox(width: 24, height: 24),
+                        const Spacer(),
+                        Text('정렬', style: TextStyles.title02SemiBold),
+                        const Spacer(),
+                        GestureDetector(
+                          onTap: () {
+                            context.pop();
+                          },
+                          child: SvgPicture.asset(
+                            'assets/icons/x.svg',
+                            height: 24,
+                            width: 24,
+                            fit: BoxFit.cover,
+                            colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
                           ),
                         ),
                       ],
@@ -75,7 +70,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                   ),
                   ...List<Widget>.generate(
                     widget.items.length,
-                        (index) {
+                    (index) {
                       return GestureDetector(
                         onTap: () {
                           widget.items[index].$2();
@@ -91,15 +86,13 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                               Text(
                                 widget.items[index].$1,
                                 style: TextStyles.labelMediumMedium.copyWith(
-                                  color: widget.currentIndex == index
-                                      ? ColorStyles.red
-                                      : ColorStyles.black,
+                                  color: widget.currentIndex == index ? ColorStyles.red : ColorStyles.black,
                                 ),
                               ),
                               const Spacer(),
                               widget.currentIndex == index
                                   ? const Icon(Icons.check, size: 18, color: ColorStyles.red)
-                                  : Container(),
+                                  : const SizedBox.shrink(),
                             ],
                           ),
                         ),

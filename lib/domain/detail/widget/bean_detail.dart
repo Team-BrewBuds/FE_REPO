@@ -30,7 +30,7 @@ class BeanDetail extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
+        Text(
           '원두 상세정보',
           style: TextStyles.title02SemiBold,
         ),

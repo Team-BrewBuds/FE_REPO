@@ -8,12 +8,16 @@ class RecommendedBuddyList extends StatelessWidget {
   final RecommendedPage page;
   final Function(int index) onTappedFollowButton;
 
-  const RecommendedBuddyList({super.key, required this.page, required this.onTappedFollowButton});
+  const RecommendedBuddyList({
+    super.key,
+    required this.page,
+    required this.onTappedFollowButton,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 318,
+      // height: 318,
       padding: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 24),
       decoration: const BoxDecoration(
         color: ColorStyles.white,
@@ -24,6 +28,7 @@ class RecommendedBuddyList extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(page.category.title(), style: TextStyles.title01SemiBold),
@@ -32,23 +37,25 @@ class RecommendedBuddyList extends StatelessWidget {
             style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray70),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: page.users.length,
-              itemBuilder: (context, index) {
-                final remandedBuddy = page.users[index];
-                return RecommendedBuddyWidget(
-                  imageUrl: remandedBuddy.profileImageUrl,
-                  nickName: remandedBuddy.nickname,
-                  followCount: remandedBuddy.followerCount,
-                  isFollowed: remandedBuddy.isFollow,
-                  onTappedFollowButton: () {
-                    onTappedFollowButton.call(index);
-                  },
-                );
-              },
-              separatorBuilder: (context, index) => const SizedBox(width: 8),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              spacing: 8,
+              children: List.generate(
+                page.users.length,
+                (index) {
+                  final remandedBuddy = page.users[index];
+                  return RecommendedBuddyWidget(
+                    imageUrl: remandedBuddy.profileImageUrl,
+                    nickName: remandedBuddy.nickname,
+                    followCount: remandedBuddy.followerCount,
+                    isFollowed: remandedBuddy.isFollow,
+                    onTappedFollowButton: () {
+                      onTappedFollowButton.call(index);
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ],

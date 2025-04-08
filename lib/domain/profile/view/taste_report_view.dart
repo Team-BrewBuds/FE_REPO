@@ -17,6 +17,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -94,48 +95,51 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: CustomScrollView(
-        key: _scrollViewKey,
-        controller: _scrollController,
-        slivers: [
-          SliverToBoxAdapter(
-            child: ExtendedImage.asset(
-              'assets/images/owner.png',
-              height: 150,
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Selector<TasteReportPresenter, ActivityInformationState>(
-              selector: (context, presenter) => presenter.activityInformationState,
-              builder: (context, activityInformationState, child) => _buildActivityInformation(
-                tastingRecordCount: activityInformationState.tastingReportCount,
-                postCount: activityInformationState.postCount,
-                savedNoteCount: activityInformationState.savedNoteCount,
-                savedBeanCount: activityInformationState.savedBeanCount,
+      body: SafeArea(
+        child: CustomScrollView(
+          key: _scrollViewKey,
+          controller: _scrollController,
+          slivers: [
+            SliverToBoxAdapter(
+              child: ExtendedImage.asset(
+                'assets/images/owner.png',
+                height: 150,
               ),
             ),
-          ),
-          _buildTabBar(),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          _buildActivityCalendar(),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          _buildActivityList(),
-          SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-          Selector<TasteReportPresenter, RatingDistribution?>(
-            selector: (context, presenter) => presenter.ratingDistribution,
-            builder: (context, ratingDistribution, child) => _buildRatingGraph(ratingDistribution: ratingDistribution),
-          ),
-          SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-          Selector<TasteReportPresenter, List<TopFlavor>>(
-            selector: (context, presenter) => presenter.topFlavor,
-            builder: (context, topFlavors, child) => _buildFlavor(topFlavors: topFlavors),
-          ),
-          SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-          Selector<TasteReportPresenter, List<TopCountry>>(
-            selector: (context, presenter) => presenter.topCountry,
-            builder: (context, topCountry, child) => _buildCountry(topCountryList: topCountry),
-          ),
-        ],
+            SliverToBoxAdapter(
+              child: Selector<TasteReportPresenter, ActivityInformationState>(
+                selector: (context, presenter) => presenter.activityInformationState,
+                builder: (context, activityInformationState, child) => _buildActivityInformation(
+                  tastingRecordCount: activityInformationState.tastingReportCount,
+                  postCount: activityInformationState.postCount,
+                  savedNoteCount: activityInformationState.savedNoteCount,
+                  savedBeanCount: activityInformationState.savedBeanCount,
+                ),
+              ),
+            ),
+            _buildTabBar(),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            _buildActivityCalendar(),
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            _buildActivityList(),
+            SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
+            Selector<TasteReportPresenter, RatingDistribution?>(
+              selector: (context, presenter) => presenter.ratingDistribution,
+              builder: (context, ratingDistribution, child) =>
+                  _buildRatingGraph(ratingDistribution: ratingDistribution),
+            ),
+            SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
+            Selector<TasteReportPresenter, List<TopFlavor>>(
+              selector: (context, presenter) => presenter.topFlavor,
+              builder: (context, topFlavors, child) => _buildFlavor(topFlavors: topFlavors),
+            ),
+            SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
+            Selector<TasteReportPresenter, List<TopCountry>>(
+              selector: (context, presenter) => presenter.topCountry,
+              builder: (context, topCountry, child) => _buildCountry(topCountryList: topCountry),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -201,7 +205,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
             padding: const EdgeInsets.only(top: 12, left: 16, right: 16),
             child: Row(
               children: [
-                const Text('활동 요약', style: TextStyles.title02Bold),
+                Text('활동 요약', style: TextStyles.title02Bold),
                 const Spacer(),
                 Row(
                   children: [
@@ -230,28 +234,28 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                   children: [
                     Text(countToString(tastingRecordCount), style: TextStyles.title02Bold),
                     const SizedBox(height: 4),
-                    const Text('시음기록', style: TextStyles.captionMediumMedium)
+                    Text('시음기록', style: TextStyles.captionMediumMedium)
                   ],
                 ),
                 Column(
                   children: [
                     Text(countToString(postCount), style: TextStyles.title02Bold),
                     const SizedBox(height: 4),
-                    const Text('게시글', style: TextStyles.captionMediumMedium)
+                    Text('게시글', style: TextStyles.captionMediumMedium)
                   ],
                 ),
                 Column(
                   children: [
                     Text(countToString(savedNoteCount), style: TextStyles.title02Bold),
                     const SizedBox(height: 4),
-                    const Text('저장한 노트', style: TextStyles.captionMediumMedium)
+                    Text('저장한 노트', style: TextStyles.captionMediumMedium)
                   ],
                 ),
                 Column(
                   children: [
                     Text(countToString(savedBeanCount), style: TextStyles.title02Bold),
                     const SizedBox(height: 4),
-                    const Text('찜한 원두', style: TextStyles.captionMediumMedium)
+                    Text('찜한 원두', style: TextStyles.captionMediumMedium)
                   ],
                 ),
               ],
@@ -286,7 +290,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         unselectedLabelColor: ColorStyles.gray50,
         dividerHeight: 1,
         dividerColor: ColorStyles.gray20,
-        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
         tabs: const [
           Tab(text: '활동 캘린더', height: 31),
           Tab(text: '별점 분포', height: 31),
@@ -317,7 +321,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           children: [
             Row(
               children: [
-                const Text('활동 캘린더', style: TextStyles.title02Bold),
+                Text('활동 캘린더', style: TextStyles.title02Bold),
                 const Spacer(),
                 Selector<TasteReportPresenter, ActivityTypeState>(
                   selector: (context, presenter) => presenter.activityTypeState,
@@ -362,9 +366,9 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
   }
 
   Widget _buildCalendar() {
-    const daysOfWeekTextStyle = TextStyle(
+    final daysOfWeekTextStyle = TextStyle(
       fontWeight: FontWeight.w500,
-      fontSize: 14,
+      fontSize: 14.sp,
       height: 16.8 / 14,
       letterSpacing: -0.01,
     );
@@ -425,7 +429,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
             daysOfWeekHeight: 44,
             rowHeight: 50,
             availableGestures: AvailableGestures.horizontalSwipe,
-            daysOfWeekStyle: const DaysOfWeekStyle(
+            daysOfWeekStyle: DaysOfWeekStyle(
               weekendStyle: daysOfWeekTextStyle,
               weekdayStyle: daysOfWeekTextStyle,
             ),
@@ -546,8 +550,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         key: _keyList[1],
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
+          Padding(
+            padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
             child: Text('별점 분포', style: TextStyles.title02Bold),
           ),
           const SizedBox(height: 24),
@@ -623,7 +627,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
                       ),
                       const SizedBox(height: 6),
-                      const Text('별점 평균', style: TextStyles.captionMediumMedium),
+                      Text('별점 평균', style: TextStyles.captionMediumMedium),
                     ],
                   ),
                   Column(
@@ -634,7 +638,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
                       ),
                       const SizedBox(height: 6),
-                      const Text('별점 개수', style: TextStyles.captionMediumMedium),
+                      Text('별점 개수', style: TextStyles.captionMediumMedium),
                     ],
                   ),
                   Column(
@@ -645,7 +649,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
                       ),
                       const SizedBox(height: 6),
-                      const Text('주요 별점', style: TextStyles.captionMediumMedium),
+                      Text('주요 별점', style: TextStyles.captionMediumMedium),
                     ],
                   ),
                 ],
@@ -668,8 +672,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 24, bottom: 16),
+            Padding(
+              padding: const EdgeInsets.only(top: 24, bottom: 16),
               child: Text('선호하는 맛', style: TextStyles.title02Bold),
             ),
             if (topFlavors.isEmpty)
@@ -708,11 +712,11 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 '1',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 32,
+                                  fontSize: 32.sp,
                                   height: 38.4 / 32,
                                   letterSpacing: -0.01,
                                   color: ColorStyles.red,
@@ -732,6 +736,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
+                spacing: 16,
                 children: List.generate(
                   topFlavors.length,
                   (index) => _buildRankRow(
@@ -739,7 +744,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     title: topFlavors[index].flavor,
                     percent: topFlavors[index].percent,
                   ),
-                ).separator(separatorWidget: const SizedBox(height: 16)).toList(),
+                ).toList(),
               ),
             ),
             Padding(
@@ -747,12 +752,12 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               child: Container(
                 padding: const EdgeInsets.all(8),
                 color: ColorStyles.gray10,
-                child: const Text(
+                child: Text(
                   '선호하는 맛은 회원님이 3.5점 이상으로 평가한 원두의 맛에, 별점에 따른 가중치를 부여한 뒤 가중 평균을 계산하여 그 결과를 바탕으로 최소 1개, 최대 5개의 맛까지 순위대로 나타냅니다.',
                   maxLines: null,
                   style: TextStyle(
                       fontWeight: FontWeight.w400,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       height: 16.8 / 12,
                       letterSpacing: -0.01,
                       color: ColorStyles.gray50),
@@ -773,8 +778,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 24, bottom: 16),
+            Padding(
+              padding: const EdgeInsets.only(top: 24, bottom: 16),
               child: Text('선호하는 원산지', style: TextStyles.title02Bold),
             ),
             if (topCountryList.isEmpty)
@@ -813,11 +818,11 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 '1',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 32,
+                                  fontSize: 32.sp,
                                   height: 38.4 / 32,
                                   letterSpacing: -0.01,
                                   color: ColorStyles.red,
@@ -837,6 +842,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Column(
+                spacing: 16,
                 children: List.generate(
                   topCountryList.length,
                   (index) => _buildRankRow(
@@ -844,7 +850,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     title: topCountryList[index].country,
                     percent: topCountryList[index].percent,
                   ),
-                ).separator(separatorWidget: const SizedBox(height: 16)).toList(),
+                ).toList(),
               ),
             ),
             Padding(
@@ -852,12 +858,12 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               child: Container(
                 padding: const EdgeInsets.all(8),
                 color: ColorStyles.gray10,
-                child: const Text(
+                child: Text(
                   '선호하는 맛은 회원님이 3.5점 이상으로 평가한 원두의 맛에, 별점에 따른 가중치를 부여한 뒤 가중 평균을 계산하여 그 결과를 바탕으로 최소 1개, 최대 5개의 맛까지 순위대로 나타냅니다.',
                   maxLines: null,
                   style: TextStyle(
                       fontWeight: FontWeight.w400,
-                      fontSize: 12,
+                      fontSize: 12.sp,
                       height: 16.8 / 12,
                       letterSpacing: -0.01,
                       color: ColorStyles.gray50),
@@ -918,7 +924,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
   Widget _buildEmpty() {
     return Column(
       children: [
-        const Text('아직 작성한 시음기록이 없어요.', style: TextStyles.title02SemiBold),
+        Text('아직 작성한 시음기록이 없어요.', style: TextStyles.title02SemiBold),
         const SizedBox(height: 8),
         Text(
           '시음 기록 1개 작성하고 내 커피 취향을 알아보는 건 어때요?',
@@ -954,70 +960,78 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 color: Colors.transparent,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 64),
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 16),
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(color: ColorStyles.gray20, width: 1),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(
-                              width: 24,
-                              height: 24,
-                            ),
-                            const Spacer(),
-                            const Text('활동 보기', style: TextStyles.title02SemiBold),
-                            const Spacer(),
-                            GestureDetector(
-                              onTap: () {
-                                context.pop();
-                              },
-                              child: SvgPicture.asset(
-                                'assets/icons/x.svg',
-                                height: 24,
-                                width: 24,
-                                fit: BoxFit.cover,
-                                colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 8,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 16),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: ColorStyles.gray20, width: 1),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ...List.generate(activityTypeList.length, (index) {
-                        final type = activityTypeList[index];
-                        return GestureDetector(
-                          onTap: () => context.pop(index),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                            child: type == currentActivityType
-                                ? Row(
-                                    children: [
-                                      Text(type, style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red)),
-                                      const Spacer(),
-                                      const Icon(
-                                        Icons.check,
-                                        color: ColorStyles.red,
-                                        size: 14,
-                                      ),
-                                    ],
-                                  )
-                                : Text(type, style: TextStyles.labelMediumMedium),
+                            child: Row(
+                              children: [
+                                const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                ),
+                                const Spacer(),
+                                Text('활동 보기', style: TextStyles.title02SemiBold),
+                                const Spacer(),
+                                GestureDetector(
+                                  onTap: () {
+                                    context.pop();
+                                  },
+                                  child: SvgPicture.asset(
+                                    'assets/icons/x.svg',
+                                    height: 24,
+                                    width: 24,
+                                    fit: BoxFit.cover,
+                                    colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        );
-                      }),
-                      const SizedBox(height: 8),
-                    ],
+                          ...List.generate(
+                            activityTypeList.length,
+                            (index) {
+                              final type = activityTypeList[index];
+                              return GestureDetector(
+                                onTap: () => context.pop(index),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                                  child: type == currentActivityType
+                                      ? Row(
+                                          children: [
+                                            Text(type,
+                                                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red)),
+                                            const Spacer(),
+                                            const Icon(
+                                              Icons.check,
+                                              color: ColorStyles.red,
+                                              size: 14,
+                                            ),
+                                          ],
+                                        )
+                                      : Text(type, style: TextStyles.labelMediumMedium),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

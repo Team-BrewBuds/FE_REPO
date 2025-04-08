@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -206,7 +204,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                           children: [
                             Text(countToString(tastingRecordCount), style: TextStyles.captionMediumMedium),
                             const SizedBox(height: 6),
-                            const Text('시음기록', style: TextStyles.captionMediumRegular),
+                            Text('시음기록', style: TextStyles.captionMediumRegular),
                           ],
                         ),
                         GestureDetector(
@@ -217,7 +215,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             children: [
                               Text(countToString(followerCount), style: TextStyles.captionMediumMedium),
                               const SizedBox(height: 6),
-                              const Text('팔로워', style: TextStyles.captionMediumRegular),
+                              Text('팔로워', style: TextStyles.captionMediumRegular),
                             ],
                           ),
                         ),
@@ -229,7 +227,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             children: [
                               Text(countToString(followingCount), style: TextStyles.captionMediumMedium),
                               const SizedBox(height: 6),
-                              const Text('팔로잉', style: TextStyles.captionMediumRegular),
+                              Text('팔로잉', style: TextStyles.captionMediumRegular),
                             ],
                           ),
                         ),
@@ -286,7 +284,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 ),
                 child: Row(
                   children: [
-                    const Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
+                    Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
                     const SizedBox(width: 2),
                     SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
                   ],
@@ -346,7 +344,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         unselectedLabelColor: ColorStyles.gray50,
         dividerHeight: 1,
         dividerColor: ColorStyles.gray20,
-        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
         tabs: const [
           Tab(text: '시음기록', height: 31),
           Tab(text: '게시글', height: 31),
@@ -384,10 +382,14 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
+            spacing: 4,
             children: [
               _buildIcon(
                 onTap: () {
-                  _showSortCriteriaBottomSheet(sortCriteriaList: sortCriteriaList, currentIndex: currentIndex);
+                  _showSortCriteriaBottomSheet(
+                    sortCriteriaList: sortCriteriaList,
+                    currentIndex: currentIndex,
+                  );
                 },
                 text: currentSortCriteria,
                 iconPath: 'assets/icons/arrow_up_down.svg',
@@ -447,7 +449,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 isLeftIcon: false,
                 isActive: hasDecafFilter,
               ),
-            ].separator(separatorWidget: const SizedBox(width: 4)).toList(),
+            ]
           ),
         ),
       ),
@@ -718,7 +720,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           padding: const EdgeInsets.symmetric(vertical: 15),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: ColorStyles.black.withOpacity(0.9),
+            color: ColorStyles.black90,
             borderRadius: const BorderRadius.all(Radius.circular(5)),
           ),
           child: Center(

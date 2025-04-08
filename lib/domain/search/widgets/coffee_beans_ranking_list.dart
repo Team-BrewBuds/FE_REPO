@@ -22,7 +22,7 @@ class CoffeeBeansRankingList extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('원두 랭킹', style: TextStyles.title02SemiBold),
+              Text('원두 랭킹', style: TextStyles.title02SemiBold),
               const SizedBox(width: 6),
               Text(
                 _updatedAt,

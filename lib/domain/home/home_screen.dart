@@ -281,6 +281,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
+          spacing: 6,
           children: List<Widget>.generate(
             subjectList.length + 1,
             (index) {
@@ -300,7 +301,10 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                       border: Border.all(color: ColorStyles.red),
                       borderRadius: const BorderRadius.all(Radius.circular(20)),
                     ),
-                    child: Text('인기', style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red)),
+                    child: Text(
+                      '인기',
+                      style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red),
+                    ),
                   ),
                 );
               } else {
@@ -330,7 +334,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 );
               }
             },
-          ).separator(separatorWidget: const SizedBox(width: 6)).toList(),
+          ).toList(),
         ),
       ),
     );
@@ -449,7 +453,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   Widget _buildTastedRecordFeed(TastedRecordInFeed tastingRecord, int index) {
     final isGuest = context.read<HomePresenter>().isGuest;
-    
+
     return TastingRecordFeedWidget(
       id: tastingRecord.id,
       writerThumbnailUrl: tastingRecord.author.profileImageUrl,
@@ -505,10 +509,15 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  Future<bool?> showLoginBottomSheet() {
-    return showBarrierDialog(
+  showLoginBottomSheet() {
+    return showBarrierDialog<bool>(
       context: context,
       pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
-    );
+    ).then((result) {
+      final context = this.context;
+      if (result != null && result && context.mounted) {
+        context.read<HomePresenter>().login();
+      }
+    });
   }
 }

@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
-import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -209,7 +208,7 @@ abstract class FeedWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 15),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: ColorStyles.black.withOpacity(0.9),
+            color: ColorStyles.black90,
             borderRadius: const BorderRadius.all(Radius.circular(5)),
           ),
           child: Center(

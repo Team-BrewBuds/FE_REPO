@@ -4,6 +4,7 @@ import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,7 @@ class SNSLogin extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('간편로그인으로\n빠르게 가입하세요.', style: TextStyles.title05Bold),
+                        Text('간편로그인으로\n빠르게 가입하세요.', style: TextStyles.title05Bold),
                         const SizedBox(height: 48),
                         Column(
                           children: [
@@ -71,11 +72,11 @@ class SNSLogin extends StatelessWidget {
                                       children: [
                                         SvgPicture.asset('assets/icons/kakao.svg', width: 18, height: 18),
                                         const SizedBox(width: 8),
-                                        const Text(
+                                        Text(
                                           '카카오로 로그인',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
-                                            fontSize: 15,
+                                            fontSize: 15.sp,
                                             height: 22.5 / 15,
                                             color: ColorStyles.black,
                                           ),
@@ -126,11 +127,11 @@ class SNSLogin extends StatelessWidget {
                                       children: [
                                         SvgPicture.asset('assets/icons/naver.svg', width: 16, height: 16),
                                         const SizedBox(width: 15),
-                                        const Text(
+                                        Text(
                                           '네이버로 로그인',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
-                                            fontSize: 15,
+                                            fontSize: 15.sp,
                                             height: 22.5 / 15,
                                             color: ColorStyles.white,
                                           ),
@@ -186,11 +187,11 @@ class SNSLogin extends StatelessWidget {
                                           colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
                                         ),
                                         const SizedBox(width: 5),
-                                        const Text(
+                                        Text(
                                           'Apple로 로그인',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
-                                            fontSize: 15,
+                                            fontSize: 15.sp,
                                             height: 22.5 / 15,
                                             color: ColorStyles.white,
                                           ),

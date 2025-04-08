@@ -21,119 +21,84 @@ class _ExpandableCoffeeLifeState extends State<ExpandableCoffeeLife> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 26,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          if (_isExpandable) {
-            if (index == widget.coffeeLifeList.length) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isExpandable = false;
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  child: Center(
-                    child: Text(
-                      '접기',
-                      style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        spacing: 4,
+        children: List.generate(
+          _isExpandable ? widget.coffeeLifeList.length + 1 : widget.maxLength + 1,
+          (index) {
+            if (_isExpandable) {
+              if (index == widget.coffeeLifeList.length) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isExpandable = false;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    child: Center(
+                      child: Text(
+                        '접기',
+                        style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                      ),
                     ),
                   ),
-                ),
-              );
-            } else {
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                decoration: const BoxDecoration(
-                  color: ColorStyles.gray20,
-                  borderRadius: BorderRadius.all(Radius.circular(40)),
-                ),
-                child: Center(
-                  child: Text(widget.coffeeLifeList[index], style: TextStyles.captionMediumMedium),
-                ),
-              );
-            }
-          } else {
-            if (index == widget.maxLength) {
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isExpandable = true;
-                  });
-                },
-                child: Container(
+                );
+              } else {
+                return Container(
                   padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                   decoration: BoxDecoration(
-                    color: ColorStyles.white,
-                    border: Border.all(color: ColorStyles.gray70),
+                    color: ColorStyles.gray20,
+                    border: Border.all(color: ColorStyles.gray20),
                     borderRadius: const BorderRadius.all(Radius.circular(40)),
                   ),
                   child: Center(
-                    child: Text(
-                      '+ ${widget.coffeeLifeList.length - widget.maxLength}',
-                      style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                    child: Text(widget.coffeeLifeList[index], style: TextStyles.captionMediumMedium),
+                  ),
+                );
+              }
+            } else {
+              if (index == widget.maxLength) {
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isExpandable = true;
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: ColorStyles.white,
+                      border: Border.all(color: ColorStyles.gray70),
+                      borderRadius: const BorderRadius.all(Radius.circular(40)),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '+ ${widget.coffeeLifeList.length - widget.maxLength}',
+                        style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                      ),
                     ),
                   ),
-                ),
-              );
-            } else {
-              return Container(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                decoration: const BoxDecoration(
-                  color: ColorStyles.gray20,
-                  borderRadius: BorderRadius.all(Radius.circular(40)),
-                ),
-                child: Center(
-                  child: Text(widget.coffeeLifeList[index], style: TextStyles.captionMediumMedium),
-                ),
-              );
+                );
+              } else {
+                return Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                  decoration: BoxDecoration(
+                    color: ColorStyles.gray20,
+                    border: Border.all(color: ColorStyles.gray20),
+                    borderRadius: const BorderRadius.all(Radius.circular(40)),
+                  ),
+                  child: Center(
+                    child: Text(widget.coffeeLifeList[index], style: TextStyles.captionMediumMedium),
+                  ),
+                );
+              }
             }
-          }
-          return Container();
-        },
-        separatorBuilder: (context, index) => const SizedBox(width: 4),
-        itemCount: _isExpandable ? widget.coffeeLifeList.length + 1 : widget.maxLength + 1,
+          },
+        ),
       ),
     );
   }
 }
-
-/*
-return Row(
-      children: List<Widget>.generate(
-        min(coffeeLife.length, 3),
-            (index) {
-          if (index == 2) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: BoxDecoration(
-                color: ColorStyles.white,
-                border: Border.all(color: ColorStyles.gray70),
-                borderRadius: const BorderRadius.all(Radius.circular(40)),
-              ),
-              child: Center(
-                child: Text(
-                  '+ ${coffeeLife.length - 2}',
-                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
-                ),
-              ),
-            );
-          } else {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: const BoxDecoration(
-                color: ColorStyles.gray20,
-                borderRadius: BorderRadius.all(Radius.circular(40)),
-              ),
-              child: Center(
-                child: Text(coffeeLife[index], style: TextStyles.captionMediumMedium),
-              ),
-            );
-          }
-        },
-      ).separator(separatorWidget: const SizedBox(width: 4)).toList(),
-    );
- */

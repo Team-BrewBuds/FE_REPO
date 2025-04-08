@@ -25,7 +25,7 @@ class CameraFirstTimeView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'Brewbuds에서 회원님의\n카메라와 마이크에 접근하도록 허용',
                 style: TextStyles.title05Bold,
                 textAlign: TextAlign.center,
@@ -40,7 +40,7 @@ class CameraFirstTimeView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('이 권한을 사용하는 방식', style: TextStyles.title01SemiBold),
+                        Text('이 권한을 사용하는 방식', style: TextStyles.title01SemiBold),
                         Text(
                           '커피로그를 작성하거나, 채팅할 때 카메라 롤의 사진을 추가하고 다른 버디와 공유할 수 있습니다.',
                           style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
@@ -60,7 +60,7 @@ class CameraFirstTimeView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('이 권한을 사용되는 방식', style: TextStyles.title01SemiBold),
+                        Text('이 권한을 사용되는 방식', style: TextStyles.title01SemiBold),
                         Text(
                           '회원님이 Brewbuds에 카메라 롤의 사진을 다른 버디와 공유할 수 있도록 지원합니다.',
                           style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
@@ -80,7 +80,7 @@ class CameraFirstTimeView extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text('이 권한 설정 방법', style: TextStyles.title01SemiBold),
+                        Text('이 권한 설정 방법', style: TextStyles.title01SemiBold),
                         Text(
                           '디바이스 설정에서 언제든지 권한 설정을 변경할 수 있습니다. 지금 접근 허용을 하면, 다시 허용하지 않아도 됩니다.',
                           style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),

@@ -126,9 +126,11 @@ GoRouter createRouter(bool hasToken) {
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => ChangeNotifierProxyProvider<AccountRepository, HomePresenter>(
-              update: (context, repository, previous) => HomePresenter(isGuest: repository.isGuest),
-              create: (_) => HomePresenter(isGuest: false),
+            builder: (context, state) => ChangeNotifierProvider<HomePresenter>(
+              create: (_) {
+                final isGuest = (state.uri.queryParameters['is_guest'] ?? 'false') == 'false' ? false : true;
+                return HomePresenter(isGuest: isGuest);
+              },
               child: const HomeView(),
             ),
             routes: [

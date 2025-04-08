@@ -97,7 +97,7 @@ class _WebScreenState extends State<WebScreen> {
                   valueListenable: isErrorNotifier,
                   builder: (context, isError, child) {
                     if (isError) {
-                      return const Center(
+                      return Center(
                         child: Text(
                           '이 웹사이트를 읽어들이는 중 문제가 발생했습니다',
                           style: TextStyles.title01SemiBold,

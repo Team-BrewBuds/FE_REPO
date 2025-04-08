@@ -87,6 +87,7 @@ class CountryBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 16,
         children: Continent.values
             .map(
               (continent) => Column(
@@ -132,7 +133,6 @@ class CountryBottomSheet extends StatelessWidget {
                 ],
               ),
             )
-            .separator(separatorWidget: const SizedBox(height: 16))
             .toList(),
       ),
     );
@@ -145,6 +145,7 @@ class CountryBottomSheet extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         scrollDirection: Axis.horizontal,
         child: Row(
+          spacing: 4,
           children: selectedCountry
               .map(
                 (country) => Container(
@@ -179,7 +180,6 @@ class CountryBottomSheet extends StatelessWidget {
                   ),
                 ),
               )
-              .separator(separatorWidget: const SizedBox(width: 4))
               .toList(),
         ),
       ),
@@ -204,7 +204,7 @@ class CountryBottomSheet extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   color: ColorStyles.gray30,
                 ),
-                child: const Text('초기화', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+                child: Text('초기화', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
               ),
             ),
           ),

@@ -53,7 +53,9 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
           appBar: _buildAppBar(),
           body: _isGranted ? _buildGrantedBody() : _buildDeniedBody(),
         ),
-        if (context.select<NotificationSettingPresenter, bool>((presenter) => presenter.isLoading))
+        if (context.select<NotificationSettingPresenter, bool>(
+          (presenter) => presenter.isLoading || presenter.notificationSetting == null,
+        ))
           const Positioned.fill(child: LoadingBarrier()),
       ],
     );
@@ -81,7 +83,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
               ),
             ),
             const Spacer(),
-            const Text('알림 설정', style: TextStyles.title02Bold),
+            Text('알림 설정', style: TextStyles.title02Bold),
             const Spacer(),
             const SizedBox(
               height: 24,
@@ -106,7 +108,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
+                      Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
                       const SizedBox(height: 8),
                       Text(
                         '모든 알림 차단',
@@ -133,7 +135,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
             ),
           ),
           const SizedBox(height: 48),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text('팔로우', style: TextStyles.labelSmallSemiBold),
           ),
@@ -149,7 +151,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('새로운 팔로워', style: TextStyles.labelMediumMedium),
+                      Text('새로운 팔로워', style: TextStyles.labelMediumMedium),
                       const SizedBox(height: 8),
                       Text(
                         '나를 팔로우하는 버디 안내',
@@ -180,7 +182,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
             ),
           ),
           const SizedBox(height: 24),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text('커피노트', style: TextStyles.labelSmallSemiBold),
           ),
@@ -194,7 +196,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('좋아요', style: TextStyles.labelMediumMedium),
+                      Text('좋아요', style: TextStyles.labelMediumMedium),
                       const SizedBox(height: 8),
                       Text(
                         '내가 작성한 커피노트 좋아요 안내',
@@ -236,7 +238,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('댓글', style: TextStyles.labelMediumMedium),
+                      Text('댓글', style: TextStyles.labelMediumMedium),
                       const SizedBox(height: 8),
                       Text(
                         '내가 작성한 커피노트의 댓글 또는 댓글의 답글 안내',
@@ -267,7 +269,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
             ),
           ),
           const SizedBox(height: 24),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Text('마케팅', style: TextStyles.labelSmallSemiBold),
           ),
@@ -283,7 +285,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text('혜택 정보 수신', style: TextStyles.labelMediumMedium),
+                      Text('혜택 정보 수신', style: TextStyles.labelMediumMedium),
                       const SizedBox(height: 8),
                       Text(
                         '개인 맞춤 혜택과 이벤트 소식을 안내',
@@ -327,7 +329,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
+                Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
                 const SizedBox(height: 8),
                 Text(
                   '내가 작성한 커피 노트에 대한 반응과 나를 팔로우 하는 버디 등 꼭 필요한 것만 알려드려요.',

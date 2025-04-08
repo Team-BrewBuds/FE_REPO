@@ -5,6 +5,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TastedRecordInCoffeeBeanWidget extends StatelessWidget {
@@ -72,9 +73,9 @@ class TastedRecordInCoffeeBeanWidget extends StatelessWidget {
                           '$rating',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontWeight: FontWeight.w500,
-                              fontSize: 12,
+                              fontSize: 12.sp,
                               height: 18 / 12,
                               letterSpacing: -0.01,
                               color: ColorStyles.gray70),
@@ -85,6 +86,7 @@ class TastedRecordInCoffeeBeanWidget extends StatelessWidget {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
+                        spacing: 2,
                         children: flavors
                             .map(
                               (e) => Container(
@@ -93,11 +95,14 @@ class TastedRecordInCoffeeBeanWidget extends StatelessWidget {
                                   border: Border.all(width: 0.8, color: ColorStyles.gray70),
                                   borderRadius: const BorderRadius.all(Radius.circular(6)),
                                 ),
-                                child:
-                                    Text(e, style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray70)),
+                                child: Text(
+                                  e,
+                                  style: TextStyles.captionSmallRegular.copyWith(
+                                    color: ColorStyles.gray70,
+                                  ),
+                                ),
                               ),
                             )
-                            .separator(separatorWidget: const SizedBox(width: 2))
                             .toList(),
                       ),
                     ),

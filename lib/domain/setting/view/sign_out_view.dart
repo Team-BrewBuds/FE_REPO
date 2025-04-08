@@ -80,7 +80,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
                 ),
               ),
             ),
-            const Center(child: Text('회원 탈퇴', style: TextStyles.title02Bold)),
+            Center(child: Text('회원 탈퇴', style: TextStyles.title02Bold)),
           ],
         ),
       ),
@@ -93,13 +93,13 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('버디님, 브루버즈와 함께하며\n내 커피 취향을 찾으셨나요?', style: TextStyles.title05Bold),
+          Text('버디님, 브루버즈와 함께하며\n내 커피 취향을 찾으셨나요?', style: TextStyles.title05Bold),
           const SizedBox(height: 16),
-          const Text('만약, 버디님이 아직 내 커피 취향을 못 찾았다면\n브루버즈와 다시 함께해봐요!', style: TextStyles.title01SemiBold),
+          Text('만약, 버디님이 아직 내 커피 취향을 못 찾았다면\n브루버즈와 다시 함께해봐요!', style: TextStyles.title01SemiBold),
           const SizedBox(height: 64),
-          const Text('버디님 탈퇴하기 전 아래 내용을 확인해 주세요.', style: TextStyles.bodyNarrowRegular),
+          Text('버디님 탈퇴하기 전 아래 내용을 확인해 주세요.', style: TextStyles.bodyNarrowRegular),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             '버디님의 모든 활동 정보는 다른 회원이 식별할 수 없도록 바로 삭제되며, 삭제된 데이터는 복구할 수 없어요. (닉네임, 프로필 사진, 작성한 커피 노트, 찜한 원두, 저장한 커피 노트, 취향 리포트, 팔로워, 팔로잉, 댓글, 좋아요 내역 등 ',
             style: TextStyles.bodyNarrowRegular,
           ),
@@ -133,7 +133,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
                       ),
               ),
               const SizedBox(width: 8),
-              const Text('안내 사항을 확인하였으며, 이에 동의합니다.', style: TextStyles.labelMediumMedium),
+              Text('안내 사항을 확인하였으며, 이에 동의합니다.', style: TextStyles.labelMediumMedium),
             ],
           ),
           const SizedBox(height: 32),
@@ -169,7 +169,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('탈퇴하시려는 이유를 선택해 주세요.', style: TextStyles.title04SemiBold),
+          Text('탈퇴하시려는 이유를 선택해 주세요.', style: TextStyles.title04SemiBold),
           const SizedBox(height: 48),
           ...List.generate(_reason.length, (index) {
             final isSelected = index == _selectedReasonIndex;

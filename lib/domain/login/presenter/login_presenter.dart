@@ -43,7 +43,7 @@ class LoginPresenter extends Presenter {
             );
 
             final registered = await NotificationRepository.instance.registerToken(result.accessToken);
-            if (registered) {
+            if (true) {
               _isLoading = false;
               notifyListeners();
               return LoginResult.login;

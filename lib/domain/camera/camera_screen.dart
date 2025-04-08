@@ -139,7 +139,7 @@ class _CameraScreenState extends State<CameraScreen> {
           children: [
             Expanded(
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: ColorStyles.black30,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 child: Center(
                   child: Row(
@@ -222,7 +222,7 @@ class _CameraScreenState extends State<CameraScreen> {
             const AspectRatio(aspectRatio: 1, child: SizedBox.shrink()),
             Expanded(
               child: Container(
-                color: Colors.black.withOpacity(0.3),
+                color: ColorStyles.black30,
                 child: Stack(
                   clipBehavior: Clip.none,
                   alignment: Alignment.bottomCenter,
@@ -339,7 +339,7 @@ class _CameraScreenState extends State<CameraScreen> {
                       color: ColorStyles.gray30,
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
-                    child: const Text(
+                    child: Text(
                       '다시찍기',
                       style: TextStyles.labelMediumMedium,
                       textAlign: TextAlign.center,
@@ -389,7 +389,7 @@ class _CameraScreenState extends State<CameraScreen> {
 class _CircleCropOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.7);
+    final paint = Paint()..color = ColorStyles.black70;
     final path = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // 원형 크롭 영역 만들기

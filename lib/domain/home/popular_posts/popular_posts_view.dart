@@ -203,6 +203,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
               selector: (context, presenter) => presenter.subjectFilterState,
               builder: (context, subjectFilterState, child) {
                 return Row(
+                  spacing: 6,
                   children: List<Widget>.generate(
                     subjectFilterState.postSubjectFilterList.length,
                     (index) {
@@ -231,7 +232,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
                         ),
                       );
                     },
-                  ).separator(separatorWidget: const SizedBox(width: 6)).toList(),
+                  ).toList(),
                 );
               }),
         ),

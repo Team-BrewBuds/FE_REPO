@@ -5,6 +5,7 @@ import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +54,7 @@ class LoginBottomSheet extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Center(
+                  Center(
                     child: Text(
                       '로그인 / 회원가입하고\n내 커피 취향을 만나보세요!',
                       style: TextStyles.title02Bold,
@@ -100,12 +101,11 @@ class LoginBottomSheet extends StatelessWidget {
                             children: [
                               SvgPicture.asset('assets/icons/kakao.svg', width: 18, height: 18),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 '카카오로 로그인',
                                 style: TextStyle(
-                                  fontFamily: 'Apple SD Gothic Neo',
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                                  fontSize: 15.sp,
                                   height: 1.5,
                                   color: ColorStyles.black,
                                 ),
@@ -154,11 +154,11 @@ class LoginBottomSheet extends StatelessWidget {
                             children: [
                               SvgPicture.asset('assets/icons/naver.svg', width: 18, height: 18),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 '네이버로 로그인',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                                  fontSize: 15.sp,
                                   height: 1.5,
                                   color: ColorStyles.white,
                                 ),
@@ -212,11 +212,11 @@ class LoginBottomSheet extends StatelessWidget {
                                 colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
                               ),
                               const SizedBox(width: 8),
-                              const Text(
+                              Text(
                                 'Apple로 로그인',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                                  fontSize: 15.sp,
                                   height: 1.5,
                                   color: ColorStyles.white,
                                 ),
@@ -265,7 +265,7 @@ class LoginBottomSheet extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 15),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: ColorStyles.black.withOpacity(0.9),
+            color: ColorStyles.black90,
             borderRadius: const BorderRadius.all(Radius.circular(5)),
           ),
           child: Center(

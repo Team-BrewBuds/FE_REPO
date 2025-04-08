@@ -18,6 +18,7 @@ import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -210,7 +211,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                           height: 18,
                           colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
                         ),
-                      const Text('저장', style: TextStyles.labelMediumMedium)
+                      Text('저장', style: TextStyles.labelMediumMedium)
                     ],
                   ),
                 ),
@@ -287,7 +288,11 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                     const SizedBox(height: 4),
                     Text(
                       name,
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600, letterSpacing: -0.02),
+                      style: TextStyle(
+                        fontSize: 22.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.02,
+                      ),
                       maxLines: null,
                     ),
                   ],
@@ -300,13 +305,14 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
+              spacing: 4,
               children: flavors
                   .map(
                     (flavor) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        color: ColorStyles.black.withOpacity(0.7),
+                        color: ColorStyles.black70,
                       ),
                       child: Text(
                         flavor,
@@ -314,7 +320,6 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                       ),
                     ),
                   )
-                  .separator(separatorWidget: const SizedBox(width: 4))
                   .toList(),
             ),
           )
@@ -351,7 +356,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('이 원두에서 많이 느낀 맛 TOP 3', style: TextStyles.title02SemiBold),
+          Text('이 원두에서 많이 느낀 맛 TOP 3', style: TextStyles.title02SemiBold),
           const SizedBox(height: 24),
           if (topFlavors.isNotEmpty)
             ...List.generate(
@@ -364,7 +369,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             )
           else ...[
             const SizedBox(height: 32),
-            const Text('아직 작성된 시음기록이 없어요.', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+            Text('아직 작성된 시음기록이 없어요.', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
               '버디님이 제일 먼저 시음 기록을 작성해보는 건 어때요?',
@@ -450,13 +455,13 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
         children: [
           Row(
             children: [
-              const Text('시음기록', style: TextStyles.title02SemiBold),
+              Text('시음기록', style: TextStyles.title02SemiBold),
               const SizedBox(width: 2),
               Text('($count)', style: TextStyles.captionMediumSemiBold),
               const Spacer(),
             ],
           ),
-          if(tastedRecords.isNotEmpty)...[
+          if (tastedRecords.isNotEmpty) ...[
             const SizedBox(height: 24),
             ...List<Widget>.generate(
               min(4, tastedRecords.length),
@@ -481,7 +486,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             ),
           ] else ...[
             const SizedBox(height: 46),
-            const Text('아직 작성된 시음기록이 없어요.', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+            Text('아직 작성된 시음기록이 없어요.', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
             const SizedBox(height: 8),
             Text(
               '버디님이 제일 먼저 시음 기록을 작성해보는 건 어때요?',
@@ -509,7 +514,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                   border: Border.all(color: ColorStyles.gray50),
                   borderRadius: const BorderRadius.all(Radius.circular(8)),
                 ),
-                child: const Center(child: Text('시음기록 더보기', style: TextStyles.labelMediumMedium)),
+                child: Center(child: Text('시음기록 더보기', style: TextStyles.labelMediumMedium)),
               ),
             ),
           ],
@@ -524,8 +529,8 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('추천 원두', style: TextStyles.title02SemiBold),
           ),
           const SizedBox(height: 16),
@@ -533,9 +538,9 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
             child: Row(
+              spacing: 8,
               children: recommendedCoffeeBeans
                   .map((recommendedCoffeeBean) => _buildRecommendedCoffeeBean(recommendedCoffeeBean))
-                  .separator(separatorWidget: const SizedBox(width: 8))
                   .toList(),
             ),
           ),
@@ -587,7 +592,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
   Future<void> showEmptyDialog() {
     return showBarrierDialog(
       context: context,
-      barrierColor: ColorStyles.black.withOpacity(0.95),
+      barrierColor: ColorStyles.black90,
       pageBuilder: (context, _, __) {
         return Stack(
           alignment: Alignment.center,
@@ -607,13 +612,13 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
+                        Text(
                           '원두 정보가 없습니다.',
                           style: TextStyles.title02SemiBold,
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        const Text('비공식 원두는 상세페이지를 제공하지 않습니다.', style: TextStyles.bodyNarrowRegular),
+                        Text('비공식 원두는 상세페이지를 제공하지 않습니다.', style: TextStyles.bodyNarrowRegular),
                         const SizedBox(height: 20),
                         Row(
                           children: [

@@ -13,14 +13,14 @@ class LoadingBarrier extends StatelessWidget {
       children: [
         if (hasOpacity)
           const Opacity(
-            opacity: 0.7,
+            opacity: 0.2,
             child: ModalBarrier(dismissible: false, color: ColorStyles.black),
           )
         else
           const ModalBarrier(dismissible: false, color: Colors.transparent),
-        const Center(
+        Center(
           child: CupertinoActivityIndicator(
-            color: ColorStyles.gray70,
+            color: hasOpacity ? ColorStyles.black : ColorStyles.gray70,
           ),
         ),
       ],

@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/material.dart';
@@ -63,30 +62,33 @@ class TasteBottomSheet extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: Container(
+              height: MediaQuery.of(context).size.height - 75,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(12),
                 ),
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildAppBar(context),
-                    ValueListenableBuilder(
-                      valueListenable: tasteListNotifier,
-                      builder: (context, tasteList, child) => _buildTaste(context, tasteList),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildAppBar(context),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: ValueListenableBuilder(
+                        valueListenable: tasteListNotifier,
+                        builder: (context, tasteList, child) => _buildTaste(context, tasteList),
+                      ),
                     ),
-                    ValueListenableBuilder(
-                      valueListenable: tasteListNotifier,
-                      builder: (context, tasteList, child) {
-                        return tasteList.isNotEmpty ? _buildSelectedTasteList(tasteList) : const SizedBox.shrink();
-                      },
-                    ),
-                    _buildBottomButtons(context),
-                  ],
-                ),
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: tasteListNotifier,
+                    builder: (context, tasteList, child) {
+                      return tasteList.isNotEmpty ? _buildSelectedTasteList(tasteList) : const SizedBox.shrink();
+                    },
+                  ),
+                  _buildBottomButtons(context),
+                ],
               ),
             ),
           ),
@@ -125,6 +127,7 @@ class TasteBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 16,
         children: TasteKind.values
             .map(
               (kind) => Column(
@@ -172,7 +175,6 @@ class TasteBottomSheet extends StatelessWidget {
                 ],
               ),
             )
-            .separator(separatorWidget: const SizedBox(height: 16))
             .toList(),
       ),
     );
@@ -185,6 +187,7 @@ class TasteBottomSheet extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         scrollDirection: Axis.horizontal,
         child: Row(
+          spacing: 4,
           children: selectedTaste
               .map(
                 (taste) => Container(
@@ -218,7 +221,6 @@ class TasteBottomSheet extends StatelessWidget {
                   ),
                 ),
               )
-              .separator(separatorWidget: const SizedBox(width: 4))
               .toList(),
         ),
       ),
@@ -227,7 +229,7 @@ class TasteBottomSheet extends StatelessWidget {
 
   Widget _buildBottomButtons(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 14, top: 24),
+      padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 24, top: 24),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFE7E7E7)))),
       child: Row(
         children: [
@@ -243,7 +245,7 @@ class TasteBottomSheet extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   color: ColorStyles.gray30,
                 ),
-                child: const Text('초기화', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+                child: Text('초기화', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
               ),
             ),
           ),

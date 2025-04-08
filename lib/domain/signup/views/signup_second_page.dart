@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('커피 생활을 어떻게 즐기세요?', style: TextStyles.title04SemiBold),
+          Text('커피 생활을 어떻게 즐기세요?', style: TextStyles.title04SemiBold),
           const SizedBox(height: 4),
           Text('최대 6개까지 선택할 수 있어요.', style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50)),
           const SizedBox(height: 14),
@@ -55,8 +56,8 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> {
                         const SizedBox(height: 4),
                         Text(
                           coffeeLife.title,
-                          style: const TextStyle(
-                            fontSize: 13,
+                          style: TextStyle(
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.w700,
                             height: 15.6 / 13,
                             letterSpacing: -0.01,

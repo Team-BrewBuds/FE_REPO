@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TastedRecordResultsItem extends StatelessWidget {
@@ -81,6 +82,7 @@ class TastedRecordResultsItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Row(
+                      spacing: 2,
                       children: _tasteList
                           .map(
                             (taste) {
@@ -98,7 +100,6 @@ class TastedRecordResultsItem extends StatelessWidget {
                               );
                             },
                           )
-                          .separator(separatorWidget: const SizedBox(width: 2))
                           .toList(),
                     )
                   ],
@@ -123,9 +124,9 @@ class TastedRecordResultsItem extends StatelessWidget {
               ),
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w400,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     height: 18.2 / 14,
                     letterSpacing: -0.02,
                     color: ColorStyles.black,

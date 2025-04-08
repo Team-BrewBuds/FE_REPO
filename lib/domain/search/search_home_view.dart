@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/search/core/search_mixin.dart';
 import 'package:brew_buds/domain/search/search_home_presenter.dart';
-import 'package:brew_buds/domain/search/widgets/coffee_beans_ranking_list.dart';
 import 'package:brew_buds/domain/search/widgets/recent_search_words_list.dart';
 import 'package:brew_buds/domain/search/widgets/recommended_coffee_beans_list.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';

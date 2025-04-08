@@ -113,7 +113,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           cornerSize: Size.zero,
           lineHeight: 1,
           lineColor: ColorStyles.white,
-          editorMaskColorHandler: (context, pointerDown) => ColorStyles.black.withOpacity(0.3),
+          editorMaskColorHandler: (context, pointerDown) => ColorStyles.black30,
           cropLayerPainter:
               widget._shape == BoxShape.rectangle ? const EditorCropLayerPainter() : CustomCircleCropLayerPainter(),
         );
@@ -135,7 +135,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
             decoration:
                 const BoxDecoration(color: ColorStyles.gray30, borderRadius: BorderRadius.all(Radius.circular(8))),
-            child: const Text(
+            child: Text(
               '완료',
               style: TextStyles.labelMediumMedium,
               textAlign: TextAlign.center,
@@ -176,7 +176,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
 class CustomCircleCropLayerPainter extends EditorCropLayerPainter {
   @override
   void paintMask(Canvas canvas, Rect rect, ExtendedImageCropLayerPainter painter) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.3);
+    final paint = Paint()..color = ColorStyles.black30;
     final path = Path()..addRect(rect);
 
     path.addOval(Rect.fromCircle(

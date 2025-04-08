@@ -5,9 +5,9 @@ import 'package:brew_buds/model/coffee_bean/country.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 final class FilterPresenter extends Presenter {
-  final List<CoffeeBeanFilter> _filter;
+  List<CoffeeBeanFilter> _filter;
   CoffeeBeanType? _selectedTypes;
-  final Set<Country> _selectedOrigins;
+  Set<Country> _selectedOrigins;
   SfRangeValues _ratingValues;
   bool _isDecaf;
   SfRangeValues _roastingPointValues;
@@ -35,8 +35,6 @@ final class FilterPresenter extends Presenter {
 
   List<String> get selectedOrigins => _selectedOrigins.map((e) => e.toString()).toList();
 
-  List<Continent> get continent => Continent.values;
-
   bool get isDecaf => _isDecaf;
 
   SfRangeValues get ratingValues => _ratingValues;
@@ -54,12 +52,13 @@ final class FilterPresenter extends Presenter {
   init() {}
 
   removeAtFilter(int index) {
-    final removedFilter = _filter.removeAt(index);
+    final newFilter = List<CoffeeBeanFilter>.from(_filter);
+    final removedFilter = newFilter.removeAt(index);
     switch (removedFilter) {
       case BeanTypeFilter():
         _selectedTypes = null;
       case CountryFilter():
-        _selectedOrigins.remove(removedFilter.country);
+        _selectedOrigins = Set<Country>.from(_selectedOrigins)..remove(removedFilter.country);
       case RatingFilter():
         _ratingValues = const SfRangeValues(0.5, 5.0);
       case DecafFilter():
@@ -67,28 +66,35 @@ final class FilterPresenter extends Presenter {
       case RoastingPointFilter():
         _roastingPointValues = const SfRangeValues(1, 5);
     }
+    _filter = newFilter;
     notifyListeners();
   }
 
   onChangeBeanType(CoffeeBeanType beanType) {
-    _filter.removeWhere((element) => element is BeanTypeFilter);
+    final newFilter = List<CoffeeBeanFilter>.from(_filter);
+    newFilter.removeWhere((element) => element is BeanTypeFilter);
     if (_selectedTypes == beanType) {
       _selectedTypes = null;
     } else {
       _selectedTypes = beanType;
-      _filter.add(CoffeeBeanFilter.beanType(beanType));
+      newFilter.add(CoffeeBeanFilter.beanType(beanType));
     }
+    _filter = newFilter;
     notifyListeners();
   }
 
   onChangeStateOrigin(Country country) {
-    if (_selectedOrigins.contains(country)) {
-      _filter.removeWhere((element) => element is CountryFilter && element.country == country);
-      _selectedOrigins.remove(country);
+    final newFilter = List<CoffeeBeanFilter>.from(_filter);
+    final newOrigins = Set<Country>.from(_selectedOrigins);
+    if (newOrigins.contains(country)) {
+      newFilter.removeWhere((element) => element is CountryFilter && element.country == country);
+      newOrigins.remove(country);
     } else {
-      _filter.add(CoffeeBeanFilter.country(country));
-      _selectedOrigins.add(country);
+      newFilter.add(CoffeeBeanFilter.country(country));
+      newOrigins.add(country);
     }
+    _filter = newFilter;
+    _selectedOrigins = newOrigins;
     notifyListeners();
   }
 
@@ -97,29 +103,35 @@ final class FilterPresenter extends Presenter {
   }
 
   onChangeRatingValues({SfRangeValues values = const SfRangeValues(0.5, 5.0)}) {
-    _filter.removeWhere((element) => element is RatingFilter);
+    final newFilter = List<CoffeeBeanFilter>.from(_filter);
+    newFilter.removeWhere((element) => element is RatingFilter);
     if (values.start != 0.5 || values.end != 5.0) {
-      _filter.add(CoffeeBeanFilter.rating(values.start, values.end));
+      newFilter.add(CoffeeBeanFilter.rating(values.start, values.end));
     }
     _ratingValues = values;
+    _filter = newFilter;
     notifyListeners();
   }
 
   onChangeIsDecaf() {
-    _filter.removeWhere((element) => element is DecafFilter);
+    final newFilter = List<CoffeeBeanFilter>.from(_filter);
+    newFilter.removeWhere((element) => element is DecafFilter);
     _isDecaf = !_isDecaf;
     if (_isDecaf) {
-      _filter.add(CoffeeBeanFilter.decaf(true));
+      newFilter.add(CoffeeBeanFilter.decaf(true));
     }
+    _filter = newFilter;
     notifyListeners();
   }
 
   onChangeRoastingPointValues({SfRangeValues values = const SfRangeValues(1, 5)}) {
-    _filter.removeWhere((element) => element is RoastingPointFilter);
+    final newFilter = List<CoffeeBeanFilter>.from(_filter);
+    newFilter.removeWhere((element) => element is RoastingPointFilter);
     if (values.start != 1 || values.end != 5) {
-      _filter.add(CoffeeBeanFilter.roastingPoint(values.start, values.end));
+      newFilter.add(CoffeeBeanFilter.roastingPoint(values.start, values.end));
     }
     _roastingPointValues = values;
+    _filter = newFilter;
     notifyListeners();
   }
 

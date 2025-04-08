@@ -28,7 +28,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
             padding: const EdgeInsets.only(top: 24, bottom: 16),
             child: Stack(
               children: [
-                const Center(
+                Center(
                   child: Text(
                     textAlign: TextAlign.center,
                     '서비스 이용약관에 동의해주세요',
@@ -68,7 +68,7 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       height: 18, width: 18),
                 ),
                 const SizedBox(width: 8),
-                const Text('약관 전체 동의', style: TextStyles.labelSmallSemiBold),
+                Text('약관 전체 동의', style: TextStyles.labelSmallSemiBold),
                 const Spacer(),
               ],
             ),

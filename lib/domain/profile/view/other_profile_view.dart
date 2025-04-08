@@ -196,7 +196,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                           padding: const EdgeInsets.symmetric(vertical: 24),
                           decoration:
                               const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
-                          child: const Center(
+                          child: Center(
                             child: Text(
                               '차단 하기',
                               style: TextStyles.title02SemiBold,
@@ -275,7 +275,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
+                        Text(
                           '유저 정보를 불러올 수 없습니다.',
                           style: TextStyles.title02SemiBold,
                           textAlign: TextAlign.center,

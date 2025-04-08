@@ -181,7 +181,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
       unselectedLabelColor: ColorStyles.gray50,
       dividerHeight: 1,
       dividerColor: ColorStyles.gray20,
-      overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
       tabs: const [
         Tab(text: '팔로워', height: 31),
         Tab(text: '팔로잉', height: 31),

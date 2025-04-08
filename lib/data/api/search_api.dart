@@ -29,6 +29,7 @@ abstract class SearchApi {
   @GET('/search/bean/')
   Future<String> searchBean({
     @Query('q') required String searchWord,
+    @Query('page') required int pageNo,
     @Query('bean_type') String? beanType,
     @Query('origin_country') String? country,
     @Query('is_decaf') bool? isDecaf,
@@ -40,12 +41,14 @@ abstract class SearchApi {
   @GET('/search/buddy/')
   Future<String> searchUser({
     @Query('q') required String searchWord,
+    @Query('page') required int pageNo,
     @Query('sort_by') String? sortBy,
   });
 
   @GET('/search/tasted_record/')
   Future<String> searchTastingRecord({
     @Query('q') required String searchWord,
+    @Query('page') required int pageNo,
     @Query('bean_type') String? beanType,
     @Query('origin_country') String? country,
     @Query('is_decaf') bool? isDecaf,
@@ -57,6 +60,7 @@ abstract class SearchApi {
   @GET('/search/post/')
   Future<String> searchPost({
     @Query('q') required String searchWord,
+    @Query('page') required int pageNo,
     @Query('subject') String? subject,
     @Query('sort_by') String? sortBy,
   });

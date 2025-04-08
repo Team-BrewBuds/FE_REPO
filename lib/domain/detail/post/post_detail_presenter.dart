@@ -135,7 +135,7 @@ final class PostDetailPresenter extends Presenter {
     final authorId = _post?.author.id;
     if (authorId != null) {
       return _blockApi
-          .block(id: id)
+          .block(id: authorId)
           .then((value) => Result.success('차단을 완료했어요.'))
           .onError((error, stackTrace) => Result.error('차단에 실패했어요.'));
     } else {

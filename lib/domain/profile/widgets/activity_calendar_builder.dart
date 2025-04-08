@@ -1,12 +1,13 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 final class ActivityCalendarBuilder extends CalendarBuilders {
-  final dayTextStyle = const TextStyle(
+  final dayTextStyle = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 18,
+    fontSize: 18.sp,
     height: 21.6 / 18,
     letterSpacing: -0.02,
     fontFamily: 'Pretendard',
@@ -14,12 +15,11 @@ final class ActivityCalendarBuilder extends CalendarBuilders {
 
   final int Function(DateTime day) fetchActivityCount;
 
-  const ActivityCalendarBuilder({
+  ActivityCalendarBuilder({
     required this.fetchActivityCount,
   });
 
   @override
-  // TODO: implement selectedBuilder
   FocusedDayBuilder? get selectedBuilder => (BuildContext context, DateTime day, DateTime focusedDay) {
         final count = fetchActivityCount(day);
 

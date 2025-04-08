@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -7,8 +9,7 @@ typedef RequestState = ({RequestOptions options, ErrorInterceptorHandler handler
 final class ApiInterceptor extends Interceptor {
   ApiInterceptor();
 
-  bool _isRefreshing = false;
-  final List<RequestState> _pendingRequests = [];
+  Completer<bool>? _refreshCompleter;
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -27,33 +28,26 @@ final class ApiInterceptor extends Interceptor {
       return handler.reject(err);
     }
 
-    _pendingRequests.add((options: err.requestOptions, handler: handler));
-    if (_isRefreshing) {
-      return;
-    } else {
-      _isRefreshing = true;
-    }
+    var completer = _refreshCompleter;
 
-    final bool newTokenAvailable = await _refresh().onError((error, stackTrace) => false);
-    if (newTokenAvailable) {
-      final dio = Dio();
-      final accessToken = AccountRepository.instance.accessToken;
-      for (final request in _pendingRequests) {
-        final currentOptions = request.options;
-        final currentHandler = request.handler;
-        currentOptions.headers['Authorization'] = 'Bearer $accessToken';
-        await dio.fetch(currentOptions).then((response) {
-          currentHandler.resolve(response);
-        }, onError: (e) => handler.reject(e));
+    if (completer != null) {
+      if (await completer.future) {
+        _retryRequest(err.requestOptions, AccountRepository.instance.accessToken, handler);
+      } else {
+        handler.reject(err);
       }
     } else {
-      for (final request in _pendingRequests) {
-        request.handler.reject(err);
+      _refreshCompleter = Completer<bool>();
+      final bool newTokenAvailable = await _refresh().onError((error, stackTrace) => false);
+      _refreshCompleter?.complete(newTokenAvailable);
+      if (newTokenAvailable) {
+        _retryRequest(err.requestOptions, AccountRepository.instance.accessToken, handler);
+      } else {
+        handler.reject(err);
+        await AccountRepository.instance.logout(forceLogout: true);
       }
-      await AccountRepository.instance.logout(forceLogout: true);
+      _refreshCompleter = null;
     }
-    _pendingRequests.clear();
-    _isRefreshing = false;
   }
 
   Future<bool> _refresh() async {
@@ -76,8 +70,20 @@ final class ApiInterceptor extends Interceptor {
       await AccountRepository.instance.saveToken(accessToken: newAccessToken, refreshToken: newRefreshToken);
 
       return true;
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       return false;
+    }
+  }
+
+  void _retryRequest(RequestOptions options, String accessToken, ErrorInterceptorHandler handler) async {
+    final dio = Dio();
+    final currentOptions = options;
+    currentOptions.headers['Authorization'] = 'Bearer $accessToken';
+    try {
+      final response = await dio.fetch(currentOptions);
+      handler.resolve(response);
+    } on DioException catch (e) {
+      handler.reject(e);
     }
   }
 }

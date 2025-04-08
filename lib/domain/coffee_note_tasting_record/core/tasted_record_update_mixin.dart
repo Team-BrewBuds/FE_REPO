@@ -1,10 +1,8 @@
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -64,7 +62,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const Center(
+            Center(
               child: Text(
                 '시음 기록 수정',
                 style: TextStyles.title02SemiBold,
@@ -98,12 +96,13 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
     if (currentStep < minStep && currentStep > maxStep) return const SizedBox.shrink();
 
     return Row(
+      spacing: 2,
       children: List<Widget>.generate(
         maxStep,
         (index) => Expanded(
           child: Container(height: 2, color: index < currentStep ? ColorStyles.red : ColorStyles.gray40),
         ),
-      ).separator(separatorWidget: const SizedBox(width: 2)).toList(),
+      ).toList(),
     );
   }
 
@@ -167,13 +166,13 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
+                        Text(
                           '시음기록 수정을 그만두시겠습니까?',
                           style: TextStyles.title02SemiBold,
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           '지금까지 작성한 내용은 저장되지 않아요.',
                           style: TextStyles.bodyNarrowRegular,
                           textAlign: TextAlign.center,

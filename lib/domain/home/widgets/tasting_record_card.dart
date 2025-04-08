@@ -89,6 +89,7 @@ class TastingRecordCard extends StatelessWidget {
 
   Widget _buildTags() {
     return Row(
+      spacing: 4,
       children: tags
           .map((text) {
             return Container(
@@ -105,7 +106,6 @@ class TastingRecordCard extends StatelessWidget {
               ),
             );
           })
-          .separator(separatorWidget: const SizedBox(width: 4))
           .toList(),
     );
   }

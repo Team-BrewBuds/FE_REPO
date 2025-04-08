@@ -135,7 +135,7 @@ class _SearchResultViewState extends State<SearchResultView>
                 (presenter) => presenter.resultList,
               );
 
-              if (isLoading) {
+              if (isLoading && searchResultList.isEmpty) {
                 return const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70));
               } else {
                 return searchResultList.isNotEmpty
@@ -314,6 +314,7 @@ class _SearchResultViewState extends State<SearchResultView>
             selector: (context, presenter) => presenter.filterBarState,
             builder: (context, filterBarState, child) {
               return Row(
+                spacing: 4,
                 children: [
                   _buildIcon(
                     onTap: () {
@@ -330,9 +331,9 @@ class _SearchResultViewState extends State<SearchResultView>
                     ..._buildBeanFilterBar(filters: filterBarState.filters)
                   else if (filterBarState.currentTabIndex == 3)
                     _buildPostFilter()
-                ].separator(separatorWidget: const SizedBox(width: 4)).toList(),
+                ],
               );
-            }),
+            },),
       ),
     );
   }
@@ -510,7 +511,7 @@ class _SearchResultViewState extends State<SearchResultView>
                             border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
                         child: Stack(
                           children: [
-                            const Positioned(
+                            Positioned(
                               top: 24,
                               left: 0,
                               right: 0,

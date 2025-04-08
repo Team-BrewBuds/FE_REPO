@@ -93,6 +93,7 @@ final class SearchRepository {
   }) async {
     final jsonString = await _searchApi.searchBean(
       searchWord: searchWord,
+      pageNo: pageNo,
       beanType: beanType?.toJson(),
       country: country,
       isDecaf: isDecaf,
@@ -122,7 +123,7 @@ final class SearchRepository {
     required int pageNo,
     String? sortBy,
   }) async {
-    final jsonString = await _searchApi.searchUser(searchWord: searchWord, sortBy: sortBy);
+    final jsonString = await _searchApi.searchUser(searchWord: searchWord, pageNo: pageNo, sortBy: sortBy);
 
     return compute(
       (jsonString) {
@@ -152,6 +153,7 @@ final class SearchRepository {
   }) async {
     final jsonString = await _searchApi.searchTastingRecord(
       searchWord: searchWord,
+      pageNo: pageNo,
       beanType: beanType?.toJson(),
       country: country,
       isDecaf: isDecaf,
@@ -182,8 +184,12 @@ final class SearchRepository {
     PostSubject? subject,
     String? sortBy,
   }) async {
-    final jsonString =
-        await _searchApi.searchPost(searchWord: searchWord, subject: subject?.toJsonValue(), sortBy: sortBy);
+    final jsonString = await _searchApi.searchPost(
+      searchWord: searchWord,
+      pageNo: pageNo,
+      subject: subject?.toJsonValue(),
+      sortBy: sortBy,
+    );
 
     return compute(
       (jsonString) {

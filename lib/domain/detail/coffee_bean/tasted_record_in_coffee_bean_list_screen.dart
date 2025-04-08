@@ -49,7 +49,7 @@ class _TastedRecordInCoffeeBeanListScreenState extends State<TastedRecordInCoffe
               const SizedBox(height: 29),
               Row(
                 children: [
-                  const Text('시음기록', style: TextStyles.title02SemiBold),
+                  Text('시음기록', style: TextStyles.title02SemiBold),
                   const SizedBox(width: 2),
                   Selector<TastedRecordInCoffeeBeanListPresenter, int>(
                     selector: (context, presenter) => presenter.count,

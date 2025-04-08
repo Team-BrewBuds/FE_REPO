@@ -165,7 +165,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 ),
               ),
             ),
-            const Center(child: Text('프로필 편집', style: TextStyles.title02Bold)),
+            Center(child: Text('프로필 편집', style: TextStyles.title02Bold)),
             Positioned(
               right: 0,
               child: Center(
@@ -261,7 +261,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('닉네임', style: TextStyles.title01SemiBold),
+              Text('닉네임', style: TextStyles.title01SemiBold),
               const SizedBox(height: 8),
               TextFormField(
                 focusNode: _nicknameFocusNode,
@@ -349,7 +349,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
       children: [
         Row(
           children: [
-            const Text('소개', style: TextStyles.title01SemiBold),
+            Text('소개', style: TextStyles.title01SemiBold),
             const Spacer(),
             Selector<EditProfilePresenter, int>(
               selector: (context, presenter) => presenter.introductionCount,
@@ -410,7 +410,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('링크', style: TextStyles.title01SemiBold),
+            Text('링크', style: TextStyles.title01SemiBold),
             const SizedBox(height: 8),
             TextFormField(
               focusNode: _linkFocusNode,
@@ -489,7 +489,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('커피 생활', style: TextStyles.title01SemiBold),
+        Text('커피 생활', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         Row(
           children: [
@@ -513,7 +513,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                   borderRadius: BorderRadius.circular(8),
                   color: ColorStyles.gray30,
                 ),
-                child: const Text('정보 설정', style: TextStyles.labelMediumMedium),
+                child: Text('정보 설정', style: TextStyles.labelMediumMedium),
               ),
             ),
           ],
@@ -539,6 +539,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
+                    spacing: 4,
                     children: coffeeLifeList
                         .map(
                           (e) => Container(
@@ -553,7 +554,6 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                             ),
                           ),
                         )
-                        .separator(separatorWidget: const SizedBox(width: 4))
                         .toList(),
                   ),
                 ),

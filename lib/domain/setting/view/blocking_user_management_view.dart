@@ -6,6 +6,7 @@ import 'package:brew_buds/domain/setting/model/blocked_user.dart';
 import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -77,15 +78,16 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: Text(
                           '차단하게 되면 차단한 버디의 계정, 커피 노트, 반응이 노출되지 않아요. 상대방에게는 차단했다는 정보를 알리지 않아요.',
                           style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 12,
-                              height: 16.8 / 12,
-                              letterSpacing: -0.01,
-                              color: ColorStyles.white),
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12.sp,
+                            height: 16.8 / 12,
+                            letterSpacing: -0.01,
+                            color: ColorStyles.white,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -109,7 +111,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                 selector: (context, presenter) => presenter.page,
                 builder: (context, page, child) => page.results.isNotEmpty
                     ? _buildBlockedUserList(users: page.results)
-                    : const Expanded(child: Center(child: Text('차단한 버디가 없어요.', style: TextStyles.title02SemiBold))),
+                    : Expanded(child: Center(child: Text('차단한 버디가 없어요.', style: TextStyles.title02SemiBold))),
               ),
             ],
           ),
@@ -140,7 +142,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
               ),
             ),
             const Spacer(),
-            const Text('버디 계정', style: TextStyles.title02Bold),
+            Text('버디 계정', style: TextStyles.title02Bold),
             const Spacer(),
             const SizedBox(
               height: 24,
@@ -185,11 +187,11 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                       borderRadius: BorderRadius.circular(20),
                       color: ColorStyles.black,
                     ),
-                    child: const Text(
+                    child: Text(
                       '차단 해제',
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
-                        fontSize: 13,
+                        fontSize: 13.sp,
                         height: 16.25 / 13,
                         color: ColorStyles.white,
                       ),

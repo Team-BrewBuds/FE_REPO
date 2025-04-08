@@ -191,7 +191,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
             child: AssetEntityImage(image, fit: BoxFit.cover),
           ),
           if (isSelected) // 선택된 사진 음영표시
-            Container(color: Colors.black.withOpacity(0.3)),
+            Container(color: ColorStyles.black30),
           Positioned(
             // 선택된 사진 순번표시
             top: 8,
@@ -221,8 +221,8 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
                 : Container(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: ColorStyles.white.withOpacity(0.5), width: 1),
-                      color: ColorStyles.black.withOpacity(0.5),
+                      border: Border.all(color: ColorStyles.black50, width: 1),
+                      color: ColorStyles.black50,
                     ),
                     width: 20,
                     height: 20,
@@ -283,7 +283,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
     final result = await showGeneralDialog<ManagementBottomSheetResult>(
       barrierLabel: "Barrier",
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: ColorStyles.black50,
       transitionDuration: const Duration(milliseconds: 300),
       context: context,
       pageBuilder: (_, __, ___) => const ManagementBottomSheet(),

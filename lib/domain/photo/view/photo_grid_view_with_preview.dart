@@ -215,7 +215,7 @@ class _GridPhotoViewWithPreviewState extends State<GridPhotoViewWithPreview>
 class _CircleCropOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(0.7);
+    final paint = Paint()..color = ColorStyles.black70;
     final path = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
 
     // 원형 크롭 영역 만들기

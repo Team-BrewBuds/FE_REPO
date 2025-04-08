@@ -214,7 +214,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const Center(
+            Center(
               child: Text(
                 '글쓰기',
                 style: TextStyles.title02SemiBold,
@@ -227,12 +227,13 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                 onTap: () {
                   showCenterDialog(
                     title: '게시글 작성을 그만두시겠습니까?',
+                    centerTitle: true,
                     content: '지금까지 작성한 내용은 저장되지 않아요.',
                     contentAlign: TextAlign.center,
                     cancelText: '그만두기',
                     doneText: '계속쓰기',
                   ).then((value) {
-                    if (value != null && value) {
+                    if (value != null && !value) {
                       context.pop();
                     }
                   });
@@ -399,8 +400,8 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        spacing: 8,
         children: List<Widget>.generate(itemLength, itemBuilder)
-            .separator(separatorWidget: const SizedBox(width: 8))
             .toList(),
       ),
     );
@@ -433,7 +434,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      color: ColorStyles.black.withOpacity(0.7),
+                      color: ColorStyles.black70,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -464,7 +465,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
   Widget _buildBottomButtons({required bool hasImages, required List<TastedRecordInProfile> tastedRecords}) {
     final hasTastedRecords = tastedRecords.isNotEmpty;
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20, width: 1))),
       child: Row(
         children: [
@@ -484,7 +485,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                   child: SvgPicture.asset('assets/icons/image.svg', width: 24, height: 24),
                 ),
                 const SizedBox(height: 2),
-                const Text('사진', style: TextStyles.captionSmallMedium),
+                Text('사진', style: TextStyles.captionSmallMedium),
               ],
             ),
           ),
@@ -505,7 +506,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                   child: SvgPicture.asset('assets/icons/coffee.svg', width: 24, height: 24),
                 ),
                 const SizedBox(height: 2),
-                const Text('기록', style: TextStyles.captionSmallMedium),
+                Text('기록', style: TextStyles.captionSmallMedium),
               ],
             ),
           ),
@@ -587,7 +588,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                         decoration: const BoxDecoration(
                           border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
                         ),
-                        child: const Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                        child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
                       ),
                       ...List<Widget>.generate(
                         subjectList.length,

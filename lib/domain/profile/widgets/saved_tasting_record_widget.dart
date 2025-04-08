@@ -51,6 +51,7 @@ class SavedTastingRecordWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Row(
+                  spacing: 2,
                   children: flavor
                       .map(
                         (taste) {
@@ -68,7 +69,6 @@ class SavedTastingRecordWidget extends StatelessWidget {
                           );
                         },
                       )
-                      .separator(separatorWidget: const SizedBox(width: 2))
                       .toList(),
                 ),
               ],

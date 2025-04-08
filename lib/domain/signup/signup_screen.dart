@@ -114,7 +114,9 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
                                 },
                               ),
                               const SizedBox(height: 28),
-                              Expanded(child: widget.navigationShell),
+                              Expanded(
+                                child: SingleChildScrollView(child: widget.navigationShell),
+                              ),
                             ],
                           ),
                         ),
@@ -124,7 +126,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
                 );
               }),
         ),
-        bottomNavigationBar: buildBottom(),
+        bottomNavigationBar: SafeArea(child: buildBottom()),
       ),
     );
   }
@@ -184,7 +186,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
 
   Widget buildBottomButton({required bool isSatisfyRequirements, String title = '다음'}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 46.0, left: 16, right: 16),
+      padding: EdgeInsets.only(top: 24, bottom: MediaQuery.of(context).viewInsets.bottom + 24.0, left: 16, right: 16),
       child: AbsorbPointer(
         absorbing: !isSatisfyRequirements,
         child: GestureDetector(

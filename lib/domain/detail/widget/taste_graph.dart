@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TasteGraph extends StatelessWidget {
   final int bodyValue;
@@ -21,7 +22,7 @@ class TasteGraph extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('테이스팅', style: TextStyles.title02SemiBold),
+        Text('테이스팅', style: TextStyles.title02SemiBold),
         const SizedBox(height: 24),
         _buildTasteSlider(minText: '트로피칼', maxText: '무거운', value: bodyValue),
         const SizedBox(height: 20),
@@ -43,7 +44,7 @@ class TasteGraph extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 46,
+            width: 46.sp,
             child: Text(
               minText,
               textAlign: TextAlign.center,
@@ -109,7 +110,7 @@ class TasteGraph extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 46,
+            width: 46.sp,
             child: Text(
               maxText,
               textAlign: TextAlign.center,

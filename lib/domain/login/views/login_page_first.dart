@@ -87,7 +87,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 12,
+              bottom: 0,
               child: Column(
                 children: [
                   GestureDetector(
@@ -110,13 +110,14 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                   GestureDetector(
                     onTap: () {
                       AccountRepository.instance.loginWithGuest();
-                      context.go('/home');
+                      context.go('/home?is_guest=true');
                     },
                     child: Container(
                       decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
-                      child: const Text('둘러보기', style: TextStyles.labelSmallMedium),
+                      child: Text('둘러보기', style: TextStyles.labelSmallMedium),
                     ),
                   ),
+                  const SizedBox(height: 46),
                 ],
               ),
             ),

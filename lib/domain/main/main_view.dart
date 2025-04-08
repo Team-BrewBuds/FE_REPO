@@ -11,6 +11,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notification_center/notification_center.dart';
@@ -382,9 +383,13 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                         decoration: const BoxDecoration(
                           border: Border(bottom: BorderSide(color: ColorStyles.gray10)),
                         ),
-                        child: const Text(
+                        child: Text(
                           '커피노트 작성하기',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, height: 22 / 16),
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            height: 22 / 16,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -419,7 +424,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    const Text('게시글', style: TextStyles.title01SemiBold),
+                                    Text('게시글', style: TextStyles.title01SemiBold),
                                     const SizedBox(height: 4),
                                     Text(
                                       '자유롭게 커피에 대한 것을 공유해보세요 ',
@@ -462,7 +467,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    const Text('시음기록', style: TextStyles.title01SemiBold),
+                                    Text('시음기록', style: TextStyles.title01SemiBold),
                                     const SizedBox(height: 4),
                                     Text(
                                       '어떤 커피를 드셨나요?',
@@ -487,11 +492,11 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                               borderRadius: BorderRadius.circular(12),
                               color: ColorStyles.black,
                             ),
-                            child: const Center(
+                            child: Center(
                               child: Text(
                                 '닫기',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 14.sp,
                                   fontWeight: FontWeight.w500,
                                   height: 16.71 / 14,
                                   letterSpacing: -0.01,
@@ -530,8 +535,8 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
         context: context,
         builder: (context) {
           return CupertinoAlertDialog(
-            title: const Text('토큰 만료', style: TextStyles.title02SemiBold),
-            content: const Text('로그인 토큰 기한이 만료되었습니다.\n로그인 페이지로 이동합니다.', style: TextStyles.bodyRegular),
+            title: Text('토큰 만료', style: TextStyles.title02SemiBold),
+            content: Text('로그인 페이지로 이동합니다.', style: TextStyles.bodyRegular),
             actions: [
               CupertinoDialogAction(
                 isDefaultAction: false,
@@ -540,6 +545,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                   style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.destructiveRed),
                 ),
                 onPressed: () {
+                  context.pop();
                   context.go('/login');
                 },
               ),
@@ -550,6 +556,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                   style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
                 ),
                 onPressed: () {
+                  context.pop();
                   context.go('/login');
                 },
               )

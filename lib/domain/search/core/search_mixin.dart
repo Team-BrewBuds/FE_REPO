@@ -155,9 +155,9 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
   Widget _buildSuggestBody() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 24,
       children: [
         buildTabBar(),
-        const SizedBox(height: 24),
         Expanded(
           child: Selector<Presenter, SuggestState>(
             selector: (context, presenter) => presenter.suggestState,
@@ -223,7 +223,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
 
   Widget _buildSuggestSearchWords({required List<String> suggestSearchWords, required String searchWord}) {
     return ListView.builder(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
       itemCount: suggestSearchWords.length,
       itemBuilder: (context, index) {
         final word = suggestSearchWords[index];
@@ -264,7 +264,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               '검색 결과가 없어요',
               style: TextStyles.title01SemiBold,
             ),

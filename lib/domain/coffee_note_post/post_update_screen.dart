@@ -177,7 +177,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
         child: Stack(
           alignment: Alignment.center,
           children: [
-            const Center(
+            Center(
               child: Text(
                 '게시글 수정',
                 style: TextStyles.title02SemiBold,
@@ -363,8 +363,8 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
       scrollDirection: Axis.horizontal,
       child: Row(
         mainAxisSize: MainAxisSize.min,
+        spacing: 8,
         children: List<Widget>.generate(itemLength, itemBuilder)
-            .separator(separatorWidget: const SizedBox(width: 8))
             .toList(),
       ),
     );
@@ -438,7 +438,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                         decoration: const BoxDecoration(
                           border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
                         ),
-                        child: const Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                        child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
                       ),
                       ...List<Widget>.generate(
                         subjectList.length,

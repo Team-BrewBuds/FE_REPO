@@ -127,7 +127,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
   @override
   Widget buildBottomButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 46),
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
       child: Row(
         children: [
           Expanded(
@@ -142,7 +142,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   color: ColorStyles.gray30,
                 ),
-                child: const Text('뒤로', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+                child: Text('뒤로', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
               ),
             ),
           ),
@@ -196,9 +196,10 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('원두 평가', style: TextStyles.title01SemiBold),
+          Text('원두 평가', style: TextStyles.title01SemiBold),
           const SizedBox(height: 12),
           Row(
+            spacing: 8,
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               5,
@@ -213,7 +214,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                   colorFilter: ColorFilter.mode(index < star ? ColorStyles.red : ColorStyles.gray50, BlendMode.srcIn),
                 ),
               ),
-            ).separator(separatorWidget: const SizedBox(width: 8)).toList(),
+            ).toList(),
           ),
         ],
       ),
@@ -224,7 +225,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('시음 내용', style: TextStyles.title01SemiBold),
+        Text('시음 내용', style: TextStyles.title01SemiBold),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
@@ -267,7 +268,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('해시태그', style: TextStyles.title01SemiBold),
+        Text('해시태그', style: TextStyles.title01SemiBold),
         const SizedBox(height: 20),
         TextFormField(
           focusNode: _hashTagFocusNode,
@@ -308,7 +309,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     final dateString = DateFormat('yyyy-MM-dd').format(tastedAt);
     return Row(
       children: [
-        const Text('시음 날짜', style: TextStyles.title01SemiBold),
+        Text('시음 날짜', style: TextStyles.title01SemiBold),
         const Spacer(),
         GestureDetector(
           onTap: () {
@@ -339,7 +340,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
   Widget _buildPlace({required String place}) {
     return Row(
       children: [
-        const Text('시음 장소', style: TextStyles.title01SemiBold),
+        Text('시음 장소', style: TextStyles.title01SemiBold),
         const Spacer(),
         GestureDetector(
           onTap: () {
@@ -379,14 +380,14 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
   Widget _buildPrivate({required bool isPrivate}) {
     return Row(
       children: [
-        const Text('나만 보기', style: TextStyles.title01SemiBold),
+        Text('나만 보기', style: TextStyles.title01SemiBold),
         const Spacer(),
         SizedBox(
           width: 50,
           height: 30,
           child: CupertinoSwitch(
             value: isPrivate,
-            activeColor: ColorStyles.red,
+            activeTrackColor: ColorStyles.red,
             onChanged: (value) {
               context.read<TastingWritePresenter>().onChangePrivate(value);
             },

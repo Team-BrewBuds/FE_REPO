@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +56,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
         children: [
           const SizedBox(height: 24, width: 24),
           const Spacer(),
-          const Text('커피생활', style: TextStyles.title02Bold),
+          Text('커피생활', style: TextStyles.title02Bold),
           const Spacer(),
           GestureDetector(
             onTap: () => context.pop(),
@@ -101,8 +102,8 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   CoffeeLife.values[index].title,
-                  style: const TextStyle(
-                    fontSize: 13,
+                  style: TextStyle(
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w700,
                     height: 15.6 / 13,
                     letterSpacing: -0.01,
@@ -137,7 +138,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 color: ColorStyles.gray30,
               ),
-              child: const Text('초기화', style: TextStyles.labelMediumMedium),
+              child: Text('초기화', style: TextStyles.labelMediumMedium),
             ),
           ),
           const SizedBox(width: 8),

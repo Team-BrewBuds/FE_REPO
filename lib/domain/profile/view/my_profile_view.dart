@@ -128,7 +128,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
                   color: ColorStyles.gray30,
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                 ),
-                child: const Text(
+                child: Text(
                   '프로필 편집',
                   style: TextStyles.labelSmallMedium,
                   textAlign: TextAlign.center,

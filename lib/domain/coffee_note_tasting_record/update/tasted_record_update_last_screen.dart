@@ -132,7 +132,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
   @override
   Widget buildBottomButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 46),
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
       child: Row(
         children: [
           Expanded(
@@ -147,7 +147,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   color: ColorStyles.gray30,
                 ),
-                child: const Text('뒤로', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+                child: Text('뒤로', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
               ),
             ),
           ),
@@ -163,7 +163,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
                     onTap: () {
                       context.read<TastedRecordUpdatePresenter>().update().then((value) {
                         if (value) {
-                          context.pop(true);
+                          _onSuccessWrite();
                         } else {
                           showSnackBar(message: '시음기록 수정에 실패했습니다.');
                         }
@@ -199,10 +199,11 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('원두 평가', style: TextStyles.title01SemiBold),
+          Text('원두 평가', style: TextStyles.title01SemiBold),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            spacing: 8,
             children: List.generate(
               5,
               (index) => GestureDetector(
@@ -216,7 +217,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
                   colorFilter: ColorFilter.mode(index < star ? ColorStyles.red : ColorStyles.gray50, BlendMode.srcIn),
                 ),
               ),
-            ).separator(separatorWidget: const SizedBox(width: 8)).toList(),
+            ).toList(),
           ),
         ],
       ),
@@ -227,7 +228,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('시음 내용', style: TextStyles.title01SemiBold),
+        Text('시음 내용', style: TextStyles.title01SemiBold),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
@@ -270,7 +271,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('해시태그', style: TextStyles.title01SemiBold),
+        Text('해시태그', style: TextStyles.title01SemiBold),
         const SizedBox(height: 20),
         TextFormField(
           focusNode: _hashTagFocusNode,
@@ -311,7 +312,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
     final dateString = DateFormat('yyyy-MM-dd').format(tastedAt);
     return Row(
       children: [
-        const Text('시음 날짜', style: TextStyles.title01SemiBold),
+        Text('시음 날짜', style: TextStyles.title01SemiBold),
         const Spacer(),
         GestureDetector(
           onTap: () {
@@ -342,7 +343,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
   Widget _buildPlace({required String place}) {
     return Row(
       children: [
-        const Text('시음 장소', style: TextStyles.title01SemiBold),
+        Text('시음 장소', style: TextStyles.title01SemiBold),
         const Spacer(),
         GestureDetector(
           onTap: () {
@@ -382,14 +383,14 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
   Widget _buildPrivate({required bool isPrivate}) {
     return Row(
       children: [
-        const Text('나만 보기', style: TextStyles.title01SemiBold),
+        Text('나만 보기', style: TextStyles.title01SemiBold),
         const Spacer(),
         SizedBox(
           width: 50,
           height: 30,
           child: CupertinoSwitch(
             value: isPrivate,
-            activeColor: ColorStyles.red,
+            activeTrackColor: ColorStyles.red,
             onChanged: (value) {
               context.read<TastedRecordUpdatePresenter>().onChangePrivate(value);
             },

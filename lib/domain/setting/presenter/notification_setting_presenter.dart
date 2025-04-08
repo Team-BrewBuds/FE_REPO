@@ -14,23 +14,22 @@ final class NotificationSettingPresenter extends Presenter {
 
   bool get isLoading => _isLoading;
 
-  initState() {
+  initState() async {
+    _isLoading = true;
+    notifyListeners();
+
     _isGranted = PermissionRepository.instance.notification.isGranted;
     if (_isGranted) {
-      _fetchSettings();
+      await _fetchSettings();
     }
+
+    _isLoading = false;
     notifyListeners();
   }
 
   _fetchSettings() async {
-    _isLoading = true;
-    notifyListeners();
-
     final setting = await _notificationRepository.fetchSettings();
     _notificationSetting = setting;
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   requestPermission() async {
@@ -42,7 +41,7 @@ final class NotificationSettingPresenter extends Presenter {
 
     if (_isGranted != newState) {
       _isGranted = newState;
-      _fetchSettings();
+      await _fetchSettings();
     }
 
     _isLoading = false;

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -7,6 +9,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/taste_bottom_sheet.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -76,7 +79,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   @override
   Widget buildBottomButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 46),
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
       child: Row(
         children: [
           Expanded(
@@ -91,7 +94,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                   borderRadius: BorderRadius.all(Radius.circular(8)),
                   color: ColorStyles.gray30,
                 ),
-                child: const Text('뒤로', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
+                child: Text('뒤로', style: TextStyles.labelMediumMedium, textAlign: TextAlign.center),
               ),
             ),
           ),
@@ -139,7 +142,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('맛', style: TextStyles.title01SemiBold),
+        Text('맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: () {
@@ -156,12 +159,17 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.only(left: 12),
                       child: Row(
+                        spacing: 4,
                         children: tasteList
                             .map(
                               (taste) => Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 decoration: const BoxDecoration(
-                                    color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(20))),
+                                  color: ColorStyles.black,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
+                                ),
                                 child: Text(
                                   taste,
                                   style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
@@ -169,7 +177,6 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                                 ),
                               ),
                             )
-                            .separator(separatorWidget: const SizedBox(width: 4))
                             .toList(),
                       ),
                     ),
@@ -204,14 +211,17 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   }
 
   Widget _buildBodyFeeling({required int body}) {
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('바디감', style: TextStyles.title01SemiBold),
+        Text('바디감', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -222,56 +232,62 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
+              Positioned.fill(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
                     (index) {
                       final value = index + 1;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<TastingWritePresenter>().onChangeBodyValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: body == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: body == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<TastingWritePresenter>().onChangeBodyValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: body == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: body == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: body == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: body == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _body[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: body == value
-                                  ? ColorStyles.red
-                                  : body == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _body[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: body == value
+                                      ? ColorStyles.red
+                                      : body == 0
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -285,14 +301,17 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   }
 
   Widget _buildAcidity({required int acidity}) {
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('산미', style: TextStyles.title01SemiBold),
+        Text('산미', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -303,56 +322,62 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
+              Positioned.fill(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
                     (index) {
                       final value = index + 1;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<TastingWritePresenter>().onChangeAcidityValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: acidity == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: acidity == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<TastingWritePresenter>().onChangeAcidityValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: acidity == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: acidity == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: acidity == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: acidity == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _acidity[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: acidity == value
-                                  ? ColorStyles.red
-                                  : acidity == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _acidity[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: acidity == value
+                                      ? ColorStyles.red
+                                      : acidity == 0
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -366,14 +391,17 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   }
 
   Widget _buildBitterness({required int bitterness}) {
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('쓴맛', style: TextStyles.title01SemiBold),
+        Text('쓴맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -384,59 +412,65 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
+              Positioned.fill(
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
                     (index) {
                       final value = index + 1;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<TastingWritePresenter>().onChangeBitternessValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: bitterness == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: bitterness == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<TastingWritePresenter>().onChangeBitternessValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: bitterness == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: bitterness == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: bitterness == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: bitterness == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _bitterness[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: bitterness == value
-                                  ? ColorStyles.red
-                                  : bitterness == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _bitterness[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: bitterness == value
+                                      ? ColorStyles.red
+                                      : bitterness == 0
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
-                  ).separator(separatorWidget: const Spacer()).toList(),
+                  ),
                 ),
               ),
             ],
@@ -447,14 +481,17 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   }
 
   Widget _buildSweet({required int sweetness}) {
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('단맛', style: TextStyles.title01SemiBold),
+        Text('단맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -465,54 +502,62 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
+              Positioned.fill(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
                     (index) {
                       final value = index + 1;
-                      return Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<TastingWritePresenter>().onChangeSweetnessValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: sweetness == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: sweetness == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<TastingWritePresenter>().onChangeSweetnessValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: sweetness == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: sweetness == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: sweetness == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: sweetness == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _sweet[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: sweetness == value
-                                  ? ColorStyles.red
-                                  : sweetness == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _sweet[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: sweetness == value
+                                      ? ColorStyles.red
+                                      : sweetness == 0
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),

@@ -5,6 +5,7 @@ import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -131,7 +132,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
                 ),
               ),
             ),
-            const Center(child: Text('시음기록', style: TextStyles.title01SemiBold)),
+            Center(child: Text('시음기록', style: TextStyles.title01SemiBold)),
             Positioned(
               right: 0,
               child: Selector<TastedRecordGridPresenter, List<TastedRecordInProfile>>(
@@ -209,9 +210,9 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
               Expanded(
                 child: Text(
                   beanName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    fontSize: 10,
+                    fontSize: 10.sp,
                     height: 12 / 10,
                   ),
                   maxLines: 2,
@@ -223,7 +224,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
           ),
         ),
         if (isSelected) ...[
-          Positioned.fill(child: Container(color: Colors.black.withOpacity(0.3))),
+          Positioned.fill(child: Container(color: ColorStyles.black30)),
           Positioned(
             // 선택된 사진 순번표시
             top: 8,
@@ -256,7 +257,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
   }
 
   _buildEmpty() {
-    return const Center(
+    return Center(
       child: Text('첫 시음기록을 작성해 보세요.', style: TextStyles.title02SemiBold),
     );
   }

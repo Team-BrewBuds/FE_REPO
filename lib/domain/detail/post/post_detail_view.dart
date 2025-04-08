@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
@@ -23,6 +25,7 @@ import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -184,7 +187,7 @@ class _PostDetailViewState extends State<PostDetailView>
               child: SvgPicture.asset('assets/icons/x.svg', fit: BoxFit.cover, height: 24, width: 24),
             ),
             const Spacer(),
-            const Text('게시물', style: TextStyles.title02SemiBold),
+            Text('게시물', style: TextStyles.title02SemiBold),
             const Spacer(),
             Selector<PostDetailPresenter, bool>(
               selector: (context, presenter) => presenter.isMine,
@@ -469,7 +472,7 @@ class _PostDetailViewState extends State<PostDetailView>
   }
 
   Widget buildEmptyComments() {
-    return const SizedBox(
+    return SizedBox(
       height: 270,
       width: double.infinity,
       child: Column(
@@ -477,7 +480,7 @@ class _PostDetailViewState extends State<PostDetailView>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text('아직 댓글이 없어요', style: TextStyles.title02SemiBold),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text('댓글을 남겨보세요.', style: TextStyles.captionSmallMedium),
         ],
       ),
@@ -738,7 +741,7 @@ class _PostDetailViewState extends State<PostDetailView>
                     },
                   ),
                 ),
-                suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
+                suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.h), maxWidth: 63.w),
                 constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
               ),
             ),
@@ -894,7 +897,7 @@ class _PostDetailViewState extends State<PostDetailView>
   Future<void> showEmptyDialog() {
     return showBarrierDialog(
       context: context,
-      barrierColor: ColorStyles.black.withOpacity(0.95),
+      barrierColor: ColorStyles.black90,
       pageBuilder: (context, _, __) {
         return Stack(
           alignment: Alignment.center,
@@ -914,7 +917,7 @@ class _PostDetailViewState extends State<PostDetailView>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
+                        Text(
                           '게시글을 불러오는데 실패했습니다.',
                           style: TextStyles.title02SemiBold,
                           textAlign: TextAlign.center,

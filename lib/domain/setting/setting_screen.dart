@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
@@ -59,6 +58,7 @@ class _SettingScreenState extends State<SettingScreen>
             final title = category.toString();
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 1,
               children: [
                 if (title.isNotEmpty)
                   Container(
@@ -105,7 +105,7 @@ class _SettingScreenState extends State<SettingScreen>
                     ),
                   );
                 }),
-              ].separator(separatorWidget: const SizedBox(height: 1)).toList(),
+              ]
             );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -136,7 +136,7 @@ class _SettingScreenState extends State<SettingScreen>
               ),
             ),
             const Spacer(),
-            const Text('설정', style: TextStyles.title02Bold),
+            Text('설정', style: TextStyles.title02Bold),
             const Spacer(),
             const SizedBox(
               height: 24,

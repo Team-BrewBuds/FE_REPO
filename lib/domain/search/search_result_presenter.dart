@@ -131,6 +131,7 @@ final class SearchResultPresenter extends SearchPresenter {
           subject: PostSubject.values[_currentPostSubjectIndex],
           sortBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
         );
+        print(_pageNo);
         _page = newPage.copyWith(results: _page.results + newPage.results);
         break;
     }

@@ -66,7 +66,7 @@ class ReportScreen extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            const Text('신고하기', style: TextStyles.title02SemiBold),
+            Text('신고하기', style: TextStyles.title02SemiBold),
             const Spacer(),
             const SizedBox(width: 24, height: 24),
           ],
@@ -82,7 +82,7 @@ class ReportScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('신고 이유를 선택해 주세요.', style: TextStyles.title04SemiBold),
+          Text('신고 이유를 선택해 주세요.', style: TextStyles.title04SemiBold),
           const SizedBox(height: 48),
           ...reasonList.map((reason) {
             final isSelected = reason == selectedReason;
@@ -153,7 +153,7 @@ class ReportScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 15),
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: ColorStyles.black.withOpacity(0.9),
+            color: ColorStyles.black90,
             borderRadius: const BorderRadius.all(Radius.circular(5)),
           ),
           child: Center(

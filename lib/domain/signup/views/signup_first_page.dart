@@ -1,5 +1,4 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
@@ -56,7 +55,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('버디님에 대해 알려주세요', style: TextStyles.title04SemiBold),
+        Text('버디님에 대해 알려주세요', style: TextStyles.title04SemiBold),
         const SizedBox(height: 48),
         _buildNicknameTextFormField(),
         _buildYearOfAgeTextFormField(),
@@ -75,7 +74,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('닉네임', style: TextStyles.title01SemiBold),
+            Text('닉네임', style: TextStyles.title01SemiBold),
             const SizedBox(height: 8),
             TextFormField(
               focusNode: _nickNameFocusNode,
@@ -183,7 +182,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('태어난 연도', style: TextStyles.title01SemiBold),
+            Text('태어난 연도', style: TextStyles.title01SemiBold),
             const SizedBox(height: 8),
             TextFormField(
               focusNode: _yearOfAgeFocusNode,
@@ -274,9 +273,10 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('성별', style: TextStyles.title01SemiBold),
+        Text('성별', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         Row(
+          spacing: 8,
           children: Gender.values
               .map(
                 (gender) => Expanded(
@@ -306,7 +306,6 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
                   ),
                 ),
               )
-              .separator(separatorWidget: const SizedBox(width: 8))
               .toList(),
         ),
       ],

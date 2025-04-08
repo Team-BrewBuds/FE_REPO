@@ -15,6 +15,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -151,7 +152,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   @override
   Widget buildBottomButton() {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 46),
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
       child: Selector<TastingWritePresenter, bool>(
         selector: (context, presenter) => presenter.isValidFirstPage,
         builder: (context, isValidFirstPage, child) {
@@ -186,11 +187,12 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text("원두 유형", style: TextStyles.title01SemiBold),
+        Text("원두 유형", style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         Opacity(
           opacity: isOfficial ? 0.4 : 1,
           child: Row(
+            spacing: 8,
             children: CoffeeBeanType.values
                 .map(
                   (type) => Expanded(
@@ -220,7 +222,6 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     ),
                   ),
                 )
-                .separator(separatorWidget: const SizedBox(width: 8))
                 .toList(),
           ),
         ),
@@ -252,7 +253,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('원두 이름', style: TextStyles.title01SemiBold),
+        Text('원두 이름', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: () {
@@ -320,7 +321,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('원산지', style: TextStyles.title01SemiBold),
+        Text('원산지', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         Opacity(
           opacity: isOfficial ? 0.4 : 1,
@@ -352,19 +353,24 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
+                          spacing: 4,
                           children: List<Widget>.generate(
                             countryList.length,
                             (index) => Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                               decoration: const BoxDecoration(
-                                  color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(20))),
+                                color: ColorStyles.black,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(20),
+                                ),
+                              ),
                               child: Text(
                                 countryList[index],
                                 style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ).separator(separatorWidget: const SizedBox(width: 4)).toList(),
+                          ).toList(),
                         ),
                       ),
                     ),
@@ -542,7 +548,12 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   }
 
   Widget _buildProcessing({required List<CoffeeBeanProcessing> currentProcessing}) {
-    const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
+    final textStyle = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 13.sp,
+      height: 15.6 / 13,
+      color: ColorStyles.black,
+    );
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Column(
@@ -732,7 +743,12 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   }
 
   Widget _buildExtraction({CoffeeBeanExtraction? currentExtraction}) {
-    const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
+    final textStyle = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 13.sp,
+      height: 15.6 / 13,
+      color: ColorStyles.black,
+    );
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Column(
@@ -808,10 +824,16 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   }
 
   Widget _buildBeverageType({bool? isIce}) {
-    const textStyle = TextStyle(fontWeight: FontWeight.w400, fontSize: 13, height: 15.6 / 13, color: ColorStyles.black);
+    final textStyle = TextStyle(
+      fontWeight: FontWeight.w400,
+      fontSize: 13.sp,
+      height: 15.6 / 13,
+      color: ColorStyles.black,
+    );
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Row(
+        spacing: 8,
         children: BeverageType.values
             .map(
               (type) {
@@ -848,7 +870,6 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                 );
               },
             )
-            .separator(separatorWidget: const SizedBox(width: 8))
             .toList(),
       ),
     );

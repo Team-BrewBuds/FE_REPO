@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -23,6 +25,7 @@ import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -174,15 +177,18 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                                 Selector<TastedRecordPresenter, TasteReview?>(
                                   selector: (context, presenter) => presenter.tastingReview,
                                   builder: (context, tastingReview, child) => tastingReview != null
-                                      ? TasteGraph(
-                                          bodyValue: tastingReview.body,
-                                          acidityValue: tastingReview.acidity,
-                                          bitternessValue: tastingReview.bitterness,
-                                          sweetnessValue: tastingReview.sweetness,
+                                      ? Container(
+                                          margin: const EdgeInsets.only(top: 32),
+                                          child: TasteGraph(
+                                            bodyValue: tastingReview.body,
+                                            acidityValue: tastingReview.acidity,
+                                            bitternessValue: tastingReview.bitterness,
+                                            sweetnessValue: tastingReview.sweetness,
+                                          ),
                                         )
                                       : const SizedBox.shrink(),
                                 ),
-                              ].separator(separatorWidget: const SizedBox(height: 32)).toList(),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 48),
@@ -239,7 +245,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               ),
             ),
             const Spacer(),
-            const Text('시음기록', style: TextStyles.title02SemiBold),
+            Text('시음기록', style: TextStyles.title02SemiBold),
             const Spacer(),
             Selector<TastedRecordPresenter, bool>(
               selector: (context, presenter) => presenter.isMine,
@@ -414,7 +420,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       },
                     ),
                   ),
-                  suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 63),
+                  suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.h), maxWidth: 63.w),
                   constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
                 ),
               ),
@@ -471,9 +477,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       child: Text(
         title,
         maxLines: null,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.w600,
-          fontSize: 22,
+          fontSize: 22.sp,
           height: 26.25 / 22,
           letterSpacing: -0.02,
         ),
@@ -576,9 +582,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                 '$rating',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     height: 18 / 12,
                     letterSpacing: -0.01,
                     color: ColorStyles.gray70),
@@ -621,7 +627,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                   width: 16,
                 ),
                 const SizedBox(width: 4),
-                const Text('장소', style: TextStyles.labelSmallSemiBold),
+                Text('장소', style: TextStyles.labelSmallSemiBold),
                 const SizedBox(width: 8),
                 Text(location, style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black)),
                 const Spacer(),
@@ -644,7 +650,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   }
 
   Widget buildEmptyComments() {
-    return const SizedBox(
+    return SizedBox(
       height: 270,
       width: double.infinity,
       child: Column(
@@ -652,7 +658,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text('아직 댓글이 없어요', style: TextStyles.title02SemiBold),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text('댓글을 남겨보세요.', style: TextStyles.captionSmallMedium),
         ],
       ),
@@ -985,7 +991,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   Future<void> showEmptyDialog() {
     return showBarrierDialog(
       context: context,
-      barrierColor: ColorStyles.black.withOpacity(0.95),
+      barrierColor: ColorStyles.black90,
       pageBuilder: (context, _, __) {
         return Stack(
           alignment: Alignment.center,
@@ -1005,7 +1011,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text(
+                        Text(
                           '시음기록을 불러오는데 실패했습니다.',
                           style: TextStyles.title02SemiBold,
                           textAlign: TextAlign.center,

@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class SignUpFourthPage extends StatefulWidget {
@@ -23,7 +26,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('평소에 어떤 커피를 즐기세요?', style: TextStyles.title04SemiBold),
+        Text('평소에 어떤 커피를 즐기세요?', style: TextStyles.title04SemiBold),
         const SizedBox(height: 4),
         Text('버디님의 커피 취향에 꼭 맞는 원두를 만나보세요.', style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50)),
         const SizedBox(height: 27),
@@ -51,14 +54,18 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildBodyFeeling(int bodyValue) {
+    final height =  max(52, 52.h).toDouble();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('바디감', style: TextStyles.title01SemiBold),
+        Text('바디감', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -69,56 +76,62 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
+              Positioned.fill(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
                     (index) {
                       final value = index + 1;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<SignUpPresenter>().onChangeBodyValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: bodyValue == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: bodyValue == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<SignUpPresenter>().onChangeBodyValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: bodyValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: bodyValue == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: bodyValue == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: bodyValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _body[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: bodyValue != 0 && bodyValue == value
-                                  ? ColorStyles.red
-                                  : bodyValue == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _body[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: bodyValue != 0 && bodyValue == value
+                                      ? ColorStyles.red
+                                      : bodyValue == 0
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -132,14 +145,18 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildAcidity(int acidityValue) {
+    final height =  max(52, 52.h).toDouble();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('산미', style: TextStyles.title01SemiBold),
+        Text('산미', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -150,56 +167,62 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
+              Positioned.fill(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) {
+                        (index) {
                       final value = index + 1;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<SignUpPresenter>().onChangeAcidityValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: acidityValue == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: acidityValue == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<SignUpPresenter>().onChangeAcidityValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: acidityValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: acidityValue == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: acidityValue == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: acidityValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _acidity[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: acidityValue != 0 && acidityValue == value
-                                  ? ColorStyles.red
-                                  : acidityValue == 0
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _acidity[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: acidityValue != 0 && acidityValue == value
+                                      ? ColorStyles.red
+                                      : acidityValue == 0
                                       ? ColorStyles.gray50
                                       : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),
@@ -213,14 +236,18 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildBitterness(int bitternessValue) {
+    final height =  max(52, 52.h).toDouble();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('쓴맛', style: TextStyles.title01SemiBold),
+        Text('쓴맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -231,59 +258,65 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
+              Positioned.fill(
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) {
+                        (index) {
                       final value = index + 1;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<SignUpPresenter>().onChangeBitternessValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: bitternessValue == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: bitternessValue == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child: GestureDetector(
+                                onTap: () {
+                                  context.read<SignUpPresenter>().onChangeBitternessValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: bitternessValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: bitternessValue == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: bitternessValue == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: bitternessValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _bitterness[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: bitternessValue != 0 && bitternessValue == value
-                                  ? ColorStyles.red
-                                  : bitternessValue == 0
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _bitterness[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: bitternessValue != 0 && bitternessValue == value
+                                      ? ColorStyles.red
+                                      : bitternessValue == 0
                                       ? ColorStyles.gray50
                                       : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
-                  ).separator(separatorWidget: const Spacer()).toList(),
+                  ),
                 ),
               ),
             ],
@@ -294,14 +327,18 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildSweet(int sweetValue) {
+    final height =  max(52, 52.h).toDouble();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text('단맛', style: TextStyles.title01SemiBold),
+        Text('단맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 52,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          height: height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: [
               Positioned(
                 top: 14,
@@ -312,54 +349,62 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   color: const Color(0xFFCFCFCF),
                 ),
               ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
+              Positioned.fill(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                    (index) {
+                        (index) {
                       final value = index + 1;
-                      return Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              context.read<SignUpPresenter>().onChangeSweetnessValue(value);
-                            },
-                            child: Container(
-                              height: 28,
-                              width: 28,
-                              decoration: BoxDecoration(
-                                color: sweetValue == value ? ColorStyles.white : Colors.transparent,
-                                shape: BoxShape.circle,
-                                border: sweetValue == value ? Border.all(color: ColorStyles.red) : null,
-                              ),
-                              child: Center(
+                      return SizedBox(
+                        width: 28,
+                        height: height,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              top: 0,
+                              child:  GestureDetector(
+                                onTap: () {
+                                  context.read<SignUpPresenter>().onChangeSweetnessValue(value);
+                                },
                                 child: Container(
-                                  height: 14,
-                                  width: 14,
+                                  height: 28,
+                                  width: 28,
                                   decoration: BoxDecoration(
-                                    color: sweetValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                    color: sweetValue == value ? ColorStyles.white : Colors.transparent,
                                     shape: BoxShape.circle,
+                                    border: sweetValue == value ? Border.all(color: ColorStyles.red) : null,
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      height: 14,
+                                      width: 14,
+                                      decoration: BoxDecoration(
+                                        color: sweetValue == value ? ColorStyles.red : ColorStyles.gray50,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _sweet[index],
-                            style: TextStyles.captionMediumMedium.copyWith(
-                              color: sweetValue != 0 && sweetValue == value
-                                  ? ColorStyles.red
-                                  : sweetValue == 0
+                            Positioned(
+                              bottom: 0,
+                              child: Text(
+                                _sweet[index],
+                                style: TextStyles.captionMediumMedium.copyWith(
+                                  color: sweetValue != 0 && sweetValue == value
+                                      ? ColorStyles.red
+                                      : sweetValue == 0
                                       ? ColorStyles.gray50
                                       : Colors.transparent,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       );
                     },
                   ),

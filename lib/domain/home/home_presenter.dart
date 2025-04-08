@@ -16,7 +16,7 @@ final class HomePresenter extends Presenter {
   final PostRepository postRepository = PostRepository.instance;
   final TastedRecordRepository tastedRecordRepository = TastedRecordRepository.instance;
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
-  final bool _isGuest;
+  bool _isGuest;
   bool _isLoadingAction = false;
   bool _isLoading = false;
   int _currentTypeIndex = 0;
@@ -54,6 +54,11 @@ final class HomePresenter extends Presenter {
 
   onRefresh() {
     fetchMoreData(isPageChanged: true);
+  }
+
+  login() {
+    _isGuest = false;
+    onRefresh();
   }
 
   fetchMoreData({bool isPageChanged = false}) async {

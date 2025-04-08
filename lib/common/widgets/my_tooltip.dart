@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 
@@ -22,9 +23,9 @@ class MyTooltip extends StatefulWidget {
 }
 
 class _MyTooltipState extends State<MyTooltip> {
-  final tooltipTextStyle = const TextStyle(
+  final tooltipTextStyle = TextStyle(
     fontWeight: FontWeight.w400,
-    fontSize: 12,
+    fontSize: 12.sp,
     height: 1.4,
     letterSpacing: -0.01,
     color: ColorStyles.white,

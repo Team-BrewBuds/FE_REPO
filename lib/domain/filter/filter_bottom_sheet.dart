@@ -1,11 +1,10 @@
-import 'dart:math';
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/cancel_and_confirm_button.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
+import 'package:brew_buds/model/coffee_bean/country.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -99,123 +98,131 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               ),
-              child: Consumer<FilterPresenter>(
-                builder: (context, presenter, _) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TabBar(
-                        controller: tabController,
-                        padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
-                        indicator: const UnderlineTabIndicator(
-                          borderSide: BorderSide(color: ColorStyles.black, width: 2),
-                          insets: EdgeInsets.only(top: 6),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TabBar(
+                      controller: tabController,
+                      padding: const EdgeInsets.only(left: 16, right: 16, top: 24),
+                      indicator: const UnderlineTabIndicator(
+                        borderSide: BorderSide(color: ColorStyles.black, width: 2),
+                        insets: EdgeInsets.only(top: 6),
+                      ),
+                      indicatorSize: TabBarIndicatorSize.label,
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.center,
+                      labelPadding: const EdgeInsets.only(top: 8, left: 8, right: 16),
+                      labelStyle: TextStyles.title01SemiBold,
+                      labelColor: ColorStyles.black,
+                      unselectedLabelStyle: TextStyles.title01SemiBold,
+                      unselectedLabelColor: ColorStyles.gray50,
+                      dividerHeight: 0,
+                      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                      tabs: const [
+                        Tab(text: '원두유형', height: 31),
+                        Tab(text: '원산지', height: 31),
+                        Tab(text: '별점', height: 31),
+                        Tab(text: '디카페인', height: 31),
+                        Tab(text: '로스팅 포인트', height: 31),
+                      ],
+                      onTap: (index) {
+                        Scrollable.ensureVisible(_tabKeys[index].currentContext!);
+                      },
+                    ),
+                    Container(height: 2, color: ColorStyles.gray20),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        key: _scrollViewKey,
+                        controller: scrollController,
+                        child: Column(
+                          children: [
+                            _buildKindFilter(_tabKeys[0]),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildOriginFilter(_tabKeys[1]),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildRatingFilter(_tabKeys[2]),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildDecafFilter(_tabKeys[3]),
+                            Container(height: 8, color: ColorStyles.gray20),
+                            _buildRoastingPointFilter(_tabKeys[4]),
+                          ],
                         ),
-                        indicatorSize: TabBarIndicatorSize.label,
-                        isScrollable: true,
-                        tabAlignment: TabAlignment.center,
-                        labelPadding: const EdgeInsets.only(top: 8, left: 8, right: 16),
-                        labelStyle: TextStyles.title01SemiBold,
-                        labelColor: ColorStyles.black,
-                        unselectedLabelStyle: TextStyles.title01SemiBold,
-                        unselectedLabelColor: ColorStyles.gray50,
-                        dividerHeight: 0,
-                        overlayColor: const MaterialStatePropertyAll(Colors.transparent),
-                        tabs: const [
-                          Tab(text: '원두유형', height: 31),
-                          Tab(text: '원산지', height: 31),
-                          Tab(text: '별점', height: 31),
-                          Tab(text: '디카페인', height: 31),
-                          Tab(text: '로스팅 포인트', height: 31),
-                        ],
-                        onTap: (index) {
-                          Scrollable.ensureVisible(_tabKeys[index].currentContext!);
+                      ),
+                    ),
+                      Selector<FilterPresenter, List<CoffeeBeanFilter>>(
+                        selector: (context, presenter) => presenter.filter,
+                        builder: (context, filterList, child) {
+                          return filterList.isNotEmpty ? Container(
+                            color: ColorStyles.gray20,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                spacing: 4,
+                                children: List.generate(
+                                  filterList.length,
+                                  (index) {
+                                    final filter = filterList[index];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        context.read<FilterPresenter>().removeAtFilter(index);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: ColorStyles.background,
+                                          border: Border.all(color: ColorStyles.red, width: 1),
+                                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          spacing: 2,
+                                          children: [
+                                            Text(
+                                              filter.text,
+                                              style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
+                                            ),
+                                            SvgPicture.asset(
+                                              'assets/icons/x.svg',
+                                              width: 12,
+                                              height: 12,
+                                              fit: BoxFit.cover,
+                                              colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ) : const SizedBox.shrink();
                         },
                       ),
-                      Container(height: 2, color: ColorStyles.gray20),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          key: _scrollViewKey,
-                          controller: scrollController,
-                          child: Column(
-                            children: [
-                              _buildKindFilter(_tabKeys[0], presenter),
-                              Container(height: 8, color: ColorStyles.gray20),
-                              _buildOriginFilter(_tabKeys[1], presenter),
-                              Container(height: 8, color: ColorStyles.gray20),
-                              _buildRatingFilter(_tabKeys[2], presenter),
-                              Container(height: 8, color: ColorStyles.gray20),
-                              _buildDecafFilter(_tabKeys[3], presenter),
-                              Container(height: 8, color: ColorStyles.gray20),
-                              _buildRoastingPointFilter(_tabKeys[4], presenter),
-                            ],
-                          ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 24, bottom: 24, left: 16, right: 16),
+                      child: CancelAndConfirmButton(
+                        onCancel: () {
+                          context.pop();
+                        },
+                        onConfirm: () {
+                          widget.onDone.call(context.read<FilterPresenter>().filter);
+                          context.pop();
+                        },
+                        cancelButtonChild: Text(
+                          '닫기',
+                          style: TextStyles.labelMediumMedium,
+                          textAlign: TextAlign.center,
                         ),
+                        confirmText: '선택하기',
+                        isValid: true,
                       ),
-                      presenter.filter.isNotEmpty
-                          ? SizedBox(
-                              height: 56,
-                              child: ListView.separated(
-                                scrollDirection: Axis.horizontal,
-                                padding: const EdgeInsets.all(16),
-                                itemCount: presenter.filter.length,
-                                itemBuilder: (context, index) {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      presenter.removeAtFilter(index);
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: ColorStyles.background,
-                                        border: Border.all(color: ColorStyles.red, width: 1),
-                                        borderRadius: const BorderRadius.all(Radius.circular(20)),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            presenter.filter[index].text,
-                                            style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
-                                          ),
-                                          const SizedBox(width: 2),
-                                          SvgPicture.asset(
-                                            'assets/icons/x.svg',
-                                            width: 12,
-                                            height: 12,
-                                            fit: BoxFit.cover,
-                                            colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                                separatorBuilder: (context, index) => const SizedBox(width: 4),
-                              ),
-                            )
-                          : Container(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
-                        child: CancelAndConfirmButton(
-                          onCancel: () {
-                            context.pop();
-                          },
-                          onConfirm: () {
-                            widget.onDone.call(presenter.filter);
-                            context.pop();
-                          },
-                          cancelButtonChild: const Text(
-                            '닫기',
-                            style: TextStyles.labelMediumMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                          confirmText: '선택하기',
-                          isValid: true,
-                        ),
-                      ),
-                    ],
-                  );
-                },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -224,45 +231,49 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildKindFilter(GlobalKey key, FilterPresenter presenter) {
+  Widget _buildKindFilter(GlobalKey key) {
     return Padding(
       key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 20,
         children: [
-          const Text(
+          Text(
             '원두유형',
             style: TextStyles.title02SemiBold,
           ),
-          const SizedBox(height: 20),
           Row(
             children: [
               GestureDetector(
                 onTap: () {
-                  presenter.onChangeBeanType(CoffeeBeanType.singleOrigin);
+                  context.read<FilterPresenter>().onChangeBeanType(CoffeeBeanType.singleOrigin);
                 },
                 child: SvgPicture.asset(
-                  presenter.isSelectedSingleOrigin ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
+                  context.select<FilterPresenter, bool>((presenter) => presenter.isSelectedSingleOrigin)
+                      ? 'assets/icons/checked.svg'
+                      : 'assets/icons/uncheck.svg',
                   height: 20,
                   width: 20,
                 ),
               ),
               const SizedBox(width: 12),
-              const Text('싱글오리진', style: TextStyles.labelMediumMedium),
+              Text('싱글오리진', style: TextStyles.labelMediumMedium),
               const SizedBox(width: 80),
               GestureDetector(
                 onTap: () {
-                  presenter.onChangeBeanType(CoffeeBeanType.blend);
+                  context.read<FilterPresenter>().onChangeBeanType(CoffeeBeanType.blend);
                 },
                 child: SvgPicture.asset(
-                  presenter.isSelectedBlend ? 'assets/icons/checked.svg' : 'assets/icons/uncheck.svg',
+                  context.select<FilterPresenter, bool>((presenter) => presenter.isSelectedBlend)
+                      ? 'assets/icons/checked.svg'
+                      : 'assets/icons/uncheck.svg',
                   height: 20,
                   width: 20,
                 ),
               ),
               const SizedBox(width: 12),
-              const Text('블렌드', style: TextStyles.labelMediumMedium),
+              Text('블렌드', style: TextStyles.labelMediumMedium),
             ],
           )
         ],
@@ -270,89 +281,88 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildOriginFilter(GlobalKey key, FilterPresenter presenter) {
+  Widget _buildOriginFilter(GlobalKey key) {
     return Padding(
       key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
+        spacing: 20,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '생산국가',
             style: TextStyles.title02Bold,
           ),
-          const SizedBox(height: 20),
-          Column(
-            children: presenter.continent
-                .map(
-                  (continent) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        continent.toString(),
-                        style: TextStyles.title01SemiBold,
-                      ),
-                      const SizedBox(height: 12),
-                      Column(
-                        children: List<Widget>.generate(
-                          (continent.countries().length / 5).ceil(),
-                          (columnIndex) => Row(
-                            children: List<Widget>.generate(
-                              min(5, continent.countries().length - (columnIndex * 5)),
-                              (rowIndex) => GestureDetector(
-                                onTap: () {
-                                  presenter.onChangeStateOrigin(continent.countries()[columnIndex * 5 + rowIndex]);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                                  decoration: BoxDecoration(
-                                      color:
-                                          presenter.isSelectedOrigin(continent.countries()[columnIndex * 5 + rowIndex])
-                                              ? ColorStyles.background
-                                              : ColorStyles.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: presenter
-                                                .isSelectedOrigin(continent.countries()[columnIndex * 5 + rowIndex])
-                                            ? ColorStyles.red
-                                            : ColorStyles.gray50,
-                                        width: 1,
-                                      )),
-                                  child: Text(
-                                    continent.countries()[columnIndex * 5 + rowIndex].toString(),
-                                    style: TextStyles.captionMediumMedium.copyWith(
-                                      color:
-                                          presenter.isSelectedOrigin(continent.countries()[columnIndex * 5 + rowIndex])
-                                              ? ColorStyles.red
-                                              : ColorStyles.black,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
+          Builder(builder: (context) {
+            return Column(
+              spacing: 16,
+              children: Continent.values
+                  .map(
+                    (continent) => Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 12,
+                      children: [
+                        Text(
+                          continent.toString(),
+                          style: TextStyles.title01SemiBold,
+                        ),
+                        Wrap(
+                          direction: Axis.horizontal,
+                          alignment: WrapAlignment.start,
+                          spacing: 6,
+                          runSpacing: 8,
+                          children: continent
+                              .countries()
+                              .map<Widget>(
+                                (country) => GestureDetector(
+                                  onTap: () {
+                                    context.read<FilterPresenter>().onChangeStateOrigin(country);
+                                  },
+                                  child: Builder(builder: (context) {
+                                    final isSelect = context.select<FilterPresenter, bool>(
+                                      (presenter) => presenter.isSelectedOrigin(country),
+                                    );
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                                      decoration: BoxDecoration(
+                                          color: isSelect ? ColorStyles.background : ColorStyles.white,
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: isSelect ? ColorStyles.red : ColorStyles.gray50,
+                                            width: 1,
+                                          )),
+                                      child: Text(
+                                        country.toString(),
+                                        style: TextStyles.captionMediumMedium.copyWith(
+                                          color: isSelect ? ColorStyles.red : ColorStyles.black,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    );
+                                  }),
                                 ),
-                              ),
-                            ).separator(separatorWidget: const SizedBox(width: 6)).toList(),
-                          ),
-                        ).separator(separatorWidget: const SizedBox(height: 8)).toList(),
-                      )
-                    ],
-                  ),
-                )
-                .separator(separatorWidget: const SizedBox(height: 16))
-                .toList(),
-          ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  )
+                  .toList(),
+            );
+          }),
         ],
       ),
     );
   }
 
-  Widget _buildRatingFilter(GlobalKey key, FilterPresenter presenter) {
+  Widget _buildRatingFilter(GlobalKey key) {
     return Padding(
       key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '별점',
             style: TextStyles.title02SemiBold,
           ),
@@ -361,7 +371,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             margin: const EdgeInsets.all(12),
             child: Column(
               children: [
-                Text(presenter.ratingString, style: TextStyles.title02Bold),
+                Text(
+                  context.select<FilterPresenter, String>((presenter) => presenter.ratingString),
+                  style: TextStyles.title02Bold,
+                ),
                 const SizedBox(height: 36),
                 SfRangeSliderTheme(
                   data: SfRangeSliderThemeData(
@@ -389,9 +402,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     labelFormatterCallback: (dynamic actualValue, String formattedText) {
                       return actualValue == 0.5 || actualValue == 5.0 ? '$actualValue' : '';
                     },
-                    values: presenter.ratingValues,
+                    values: context.select<FilterPresenter, SfRangeValues>((presenter) => presenter.ratingValues),
                     onChanged: (newValues) {
-                      presenter.onChangeRatingValues(values: newValues);
+                      context.read<FilterPresenter>().onChangeRatingValues(values: newValues);
                     },
                   ),
                 ),
@@ -403,54 +416,56 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
     );
   }
 
-  Widget _buildDecafFilter(GlobalKey key, FilterPresenter presenter) {
+  Widget _buildDecafFilter(GlobalKey key) {
     return Container(
       key: key,
       width: double.infinity,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
         children: [
-          const Text(
+          Text(
             '디카페인 여부',
             style: TextStyles.title02SemiBold,
           ),
-          const SizedBox(height: 16),
           GestureDetector(
             onTap: () {
-              presenter.onChangeIsDecaf();
+              context.read<FilterPresenter>().onChangeIsDecaf();
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-              decoration: BoxDecoration(
-                  color: presenter.isDecaf ? ColorStyles.background : ColorStyles.white,
+            child: Builder(builder: (context) {
+              final isDecaf = context.select<FilterPresenter, bool>((presenter) => presenter.isDecaf);
+              return Container(
+                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                decoration: BoxDecoration(
+                  color: isDecaf ? ColorStyles.background : ColorStyles.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: presenter.isDecaf ? ColorStyles.red : ColorStyles.gray50,
+                    color: isDecaf ? ColorStyles.red : ColorStyles.gray50,
                     width: 1,
-                  )),
-              child: Text(
-                '디카페인',
-                style: TextStyles.captionMediumMedium.copyWith(
-                  color: presenter.isDecaf ? ColorStyles.red : ColorStyles.black,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+                child: Text(
+                  '디카페인',
+                  style: TextStyles.captionMediumMedium.copyWith(color: isDecaf ? ColorStyles.red : ColorStyles.black),
+                  textAlign: TextAlign.center,
+                ),
+              );
+            }),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildRoastingPointFilter(GlobalKey key, FilterPresenter presenter) {
+  Widget _buildRoastingPointFilter(GlobalKey key) {
     return Padding(
       key: key,
       padding: const EdgeInsets.only(top: 24, bottom: 32, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             '로스팅 포인트',
             style: TextStyles.title02Bold,
           ),
@@ -459,7 +474,10 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             margin: const EdgeInsets.all(12),
             child: Column(
               children: [
-                Text(presenter.roastingPointString, style: TextStyles.title02Bold),
+                Text(
+                  context.select<FilterPresenter, String>((presenter) => presenter.roastingPointString),
+                  style: TextStyles.title02Bold,
+                ),
                 const SizedBox(height: 36),
                 SfRangeSliderTheme(
                   data: SfRangeSliderThemeData(
@@ -483,10 +501,11 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                     interval: 1,
                     stepSize: 1,
                     showLabels: true,
-                    values: presenter.roastingPointValues,
+                    values:
+                        context.select<FilterPresenter, SfRangeValues>((presenter) => presenter.roastingPointValues),
                     thumbShape: const CircleThumbShape(),
                     labelFormatterCallback: (dynamic num, String label) {
-                      return presenter.toRoastingPointString(num);
+                      return context.read<FilterPresenter>().toRoastingPointString(num);
                     },
                     onChangeStart: (_) {
                       if (tabController.index != 4) {
@@ -494,7 +513,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                       }
                     },
                     onChanged: (newValues) {
-                      presenter.onChangeRoastingPointValues(values: newValues);
+                      context.read<FilterPresenter>().onChangeRoastingPointValues(values: newValues);
                     },
                   ),
                 ),

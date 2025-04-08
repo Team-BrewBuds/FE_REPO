@@ -155,7 +155,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMi
                                           itemCount: page.results.length,
                                         ),
                                       )
-                                    : const Center(
+                                    : Center(
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.center,
                                           mainAxisAlignment: MainAxisAlignment.center,
@@ -164,7 +164,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMi
                                               '아직 댓글이 없어요',
                                               style: TextStyles.title02SemiBold,
                                             ),
-                                            SizedBox(height: 8),
+                                            const SizedBox(height: 8),
                                             Text(
                                               '댓글을 남겨보세요.',
                                               style: TextStyles.captionSmallMedium,
