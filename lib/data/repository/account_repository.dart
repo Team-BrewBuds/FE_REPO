@@ -5,6 +5,7 @@ import 'package:notification_center/notification_center.dart';
 
 class AccountRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  bool _hasNotification = false;
   bool _isGuest = false;
   String _refreshToken = '';
   String _accessToken = '';
@@ -26,6 +27,8 @@ class AccountRepository extends ChangeNotifier {
   int? get idInMemory => _idInMemory;
 
   bool get isGuest => _isGuest;
+
+  bool get hasNotification => _hasNotification;
 
   AccountRepository._();
 
@@ -92,5 +95,15 @@ class AccountRepository extends ChangeNotifier {
 
   loginWithGuest() {
     _isGuest = true;
+  }
+
+  notify() {
+    _hasNotification = true;
+    notifyListeners();
+  }
+
+  readNotification() {
+    _hasNotification = false;
+    notifyListeners();
   }
 }

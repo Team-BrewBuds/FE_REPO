@@ -15,6 +15,7 @@ final class PostFeedWidget extends FeedWidget {
   const PostFeedWidget({
     super.key,
     required super.id,
+    required super.writerId,
     required super.writerThumbnailUrl,
     required super.writerNickName,
     required super.writingTime,

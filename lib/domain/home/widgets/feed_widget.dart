@@ -2,11 +2,13 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 abstract class FeedWidget extends StatelessWidget {
   final int id;
+  final int writerId;
   final String writerThumbnailUrl;
   final String writerNickName;
   final String writingTime;
@@ -25,6 +27,7 @@ abstract class FeedWidget extends StatelessWidget {
   const FeedWidget({
     super.key,
     required this.id,
+    required this.writerId,
     required this.writerThumbnailUrl,
     required this.writerNickName,
     required this.writingTime,
@@ -98,8 +101,10 @@ abstract class FeedWidget extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            FollowButton(onTap: onTapFollowButton, isFollowed: isFollowed),
+            if (AccountRepository.instance.id != writerId)...[
+              const SizedBox(width: 8),
+              FollowButton(onTap: onTapFollowButton, isFollowed: isFollowed),
+            ],
           ],
         ),
       ),

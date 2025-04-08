@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:brew_buds/data/api/notification_api.dart';
+import 'package:brew_buds/data/dto/notification/notification_dto.dart';
 import 'package:brew_buds/data/dto/notification/notification_setting_dto.dart';
+import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -30,7 +34,8 @@ final class NotificationRepository {
     if (token != null && token.isNotEmpty) {
       _token = token;
     }
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
 
     FirebaseMessaging.instance.onTokenRefresh.listen((event) {
       _token = event;
@@ -112,5 +117,38 @@ final class NotificationRepository {
       },
       jsonString,
     );
+  }
+
+  Future<DefaultPage<NotificationModel>> fetchNotificationPage({required int pageNo}) async {
+    final jsonString = await _notificationApi.fetchNotifications(pageNo: pageNo);
+    return compute(
+      (jsonString) {
+        try {
+          final json = jsonDecode(jsonString) as Map<String, dynamic>;
+          return DefaultPage.fromJson(json, (jsonT) {
+            return NotificationDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
+          });
+        } catch (e) {
+          return DefaultPage.initState();
+        }
+      },
+      jsonString,
+    );
+  }
+
+  Future<bool> deleteNotification({required int id}) {
+    return _notificationApi.deleteNotification(id: id).then((_) => true).onError((_, __) => false);
+  }
+
+  Future<bool> deleteAllNotification() {
+    return _notificationApi.deleteAllNotifications().then((_) => true).onError((_, __) => false);
+  }
+
+  Future<bool> readNotification({required int id}) {
+    return _notificationApi.readNotification(id: id).then((_) => true).onError((_, __) => false);
+  }
+
+  Future<bool> readAllNotification() {
+    return _notificationApi.readAllNotifications().then((_) => true).onError((_, __) => false);
   }
 }

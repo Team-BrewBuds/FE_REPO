@@ -17,6 +17,7 @@ class TastingRecordFeedWidget extends FeedWidget {
   const TastingRecordFeedWidget({
     super.key,
     required super.id,
+    required super.writerId,
     required super.writerThumbnailUrl,
     required super.writerNickName,
     required super.writingTime,

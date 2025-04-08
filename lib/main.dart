@@ -3,6 +3,7 @@ import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -34,6 +35,9 @@ void main() async {
   );
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  await checkInitialMessage();
+  setupFCMListeners();
 
   DioClient.instance.initial();
   await AccountRepository.instance.init();
@@ -51,6 +55,30 @@ void main() async {
       ),
     ),
   );
+}
+
+
+Future<void> checkInitialMessage() async {
+  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+  if (initialMessage != null) {
+    AccountRepository.instance.notify();
+  }
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  AccountRepository.instance.notify();
+}
+
+void setupFCMListeners() {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    AccountRepository.instance.notify();
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    AccountRepository.instance.notify();
+  });
 }
 
 class MyApp extends StatefulWidget {

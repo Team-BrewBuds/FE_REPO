@@ -3,7 +3,9 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
@@ -15,6 +17,7 @@ import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
+import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/post/post.dart';
@@ -109,11 +112,25 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 width: 130,
               ),
               const Spacer(),
-              // 알림 미구현
-              // Alarm(
-              //   hasNewAlarm: false,
-              //   onTapped: () {},
-              // ),
+              if (context.select<AccountRepository, bool>((repository) => !repository.isGuest)) ...[
+                ThrottleButton(
+                  onTap: () {
+                    AccountRepository.instance.readNotification();
+                    showNotificationPage(context: context);
+                  },
+                  child: Builder(
+                    builder: (context) {
+                      final hasNotification =
+                          context.select<AccountRepository, bool>((repository) => repository.hasNotification);
+                      return SvgPicture.asset(
+                        hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
+                        width: 24,
+                        height: 24,
+                      );
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -394,6 +411,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
     return PostFeedWidget(
       id: post.id,
+      writerId: post.author.id,
       writerThumbnailUrl: post.author.profileImageUrl,
       writerNickName: post.author.nickname,
       writingTime: post.createdAt,
@@ -455,6 +473,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
     return TastingRecordFeedWidget(
       id: tastingRecord.id,
+      writerId: tastingRecord.author.id,
       writerThumbnailUrl: tastingRecord.author.profileImageUrl,
       writerNickName: tastingRecord.author.nickname,
       writingTime: tastingRecord.createdAt,

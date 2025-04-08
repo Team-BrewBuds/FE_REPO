@@ -138,9 +138,7 @@ final class CommentsPresenter extends Presenter {
     notifyListeners();
   }
 
-  bool isMine(Comment comment) {
-    return comment.author.id == AccountRepository.instance.id;
-  }
+  bool isMine(Comment comment) => comment.author.id == author.id;
 
   cancelReply() {
     _replyComment = null;

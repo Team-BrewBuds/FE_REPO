@@ -2,7 +2,7 @@ import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 
 class ThrottleButton extends StatelessWidget {
-  final Throttle<bool> _throttle;
+  final Throttle<void> _throttle;
   final Function() onTap;
   final Widget child;
 
@@ -12,11 +12,10 @@ class ThrottleButton extends StatelessWidget {
     required this.child,
   }): _throttle = Throttle(
     const Duration(seconds: 3),
-    initialValue: false,
+    initialValue: null,
+    checkEquality: false,
     onChanged: (value) {
-      if (value) {
-        onTap.call();
-      }
+      onTap.call();
     },
   );
 
@@ -24,7 +23,7 @@ class ThrottleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _throttle.setValue(true);
+        _throttle.setValue(null);
       },
       child: child,
     );
