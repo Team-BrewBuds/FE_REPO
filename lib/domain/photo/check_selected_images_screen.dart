@@ -32,13 +32,15 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Expanded(child: _buildAppBar()),
-          AspectRatio(aspectRatio: 1, child: _buildImagesSlider()),
-          Expanded(child: Container(color: Colors.black, child: _buildIndicator())),
-          _buildBottomButtons(),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(child: _buildAppBar()),
+            AspectRatio(aspectRatio: 1, child: _buildImagesSlider()),
+            Expanded(child: Container(color: Colors.black, child: _buildIndicator())),
+            _buildBottomButtons(),
+          ],
+        ),
       ),
     );
   }
@@ -142,7 +144,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
 
   Widget _buildBottomButtons() {
     return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 46),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       height: 145,
       child: Row(
         children: [

@@ -150,21 +150,24 @@ class _LocalSearchViewState extends State<LocalSearchView> {
                 width: MediaQuery.of(context).size.width,
                 height: keyboardVisible ? maxHeight : height,
                 padding: MediaQuery.of(context).viewInsets,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      _buildAppBar(),
-                      const SizedBox(height: 24),
-                      _buildSearchBar(context),
-                      const SizedBox(height: 12),
-                      Expanded(
-                        child: Selector<LocalSearchPresenter, List<Local>>(
-                          selector: (context, presenter) => presenter.page.results,
-                          builder: (context, localList, child) => _buildLocalResults(localList: localList),
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        _buildAppBar(),
+                        const SizedBox(height: 24),
+                        _buildSearchBar(context),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: Selector<LocalSearchPresenter, List<Local>>(
+                            selector: (context, presenter) => presenter.page.results,
+                            builder: (context, localList, child) => _buildLocalResults(localList: localList),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/coffee_bean/country.dart';
@@ -25,30 +24,38 @@ class CountryBottomSheet extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: Container(
+              height: MediaQuery.of(context).size.height - 200,
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(12),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildAppBar(context),
-                  ValueListenableBuilder(
-                    valueListenable: selectedCountry,
-                    builder: (context, selectedCountry, child) => _buildCountry(selectedCountry),
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: selectedCountry,
-                    builder: (context, selectedCountry, child) {
-                      return selectedCountry.isNotEmpty
-                          ? _buildSelectedCountryList(selectedCountry)
-                          : const SizedBox.shrink();
-                    },
-                  ),
-                  _buildBottomButtons(context),
-                ],
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildAppBar(context),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: ValueListenableBuilder(
+                          valueListenable: selectedCountry,
+                          builder: (context, selectedCountry, child) => _buildCountry(selectedCountry),
+                        ),
+                      ),
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedCountry,
+                      builder: (context, selectedCountry, child) {
+                        return selectedCountry.isNotEmpty
+                            ? _buildSelectedCountryList(selectedCountry)
+                            : const SizedBox.shrink();
+                      },
+                    ),
+                    _buildBottomButtons(context),
+                  ],
+                ),
               ),
             ),
           ),
@@ -188,7 +195,7 @@ class CountryBottomSheet extends StatelessWidget {
 
   Widget _buildBottomButtons(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 14, top: 24),
+      padding: EdgeInsets.only(left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 24, top: 24),
       decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFE7E7E7)))),
       child: Row(
         children: [

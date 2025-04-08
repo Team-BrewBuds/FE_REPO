@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
@@ -311,29 +310,30 @@ class _SearchResultViewState extends State<SearchResultView>
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Selector<SearchResultPresenter, FilterBarState>(
-            selector: (context, presenter) => presenter.filterBarState,
-            builder: (context, filterBarState, child) {
-              return Row(
-                spacing: 4,
-                children: [
-                  _buildIcon(
-                    onTap: () {
-                      showSortCriteriaBottomSheet(
-                        sortCriteriaList: filterBarState.currentSortCriteriaList,
-                        currentSortCriteriaIndex: filterBarState.currentSortCriteriaIndex,
-                      );
-                    },
-                    text: filterBarState.currentSortCriteria,
-                    iconPath: 'assets/icons/arrow_up_down.svg',
-                    isLeftIcon: true,
-                  ),
-                  if (filterBarState.currentTabIndex == 0 || filterBarState.currentTabIndex == 2)
-                    ..._buildBeanFilterBar(filters: filterBarState.filters)
-                  else if (filterBarState.currentTabIndex == 3)
-                    _buildPostFilter()
-                ],
-              );
-            },),
+          selector: (context, presenter) => presenter.filterBarState,
+          builder: (context, filterBarState, child) {
+            return Row(
+              spacing: 4,
+              children: [
+                _buildIcon(
+                  onTap: () {
+                    showSortCriteriaBottomSheet(
+                      sortCriteriaList: filterBarState.currentSortCriteriaList,
+                      currentSortCriteriaIndex: filterBarState.currentSortCriteriaIndex,
+                    );
+                  },
+                  text: filterBarState.currentSortCriteria,
+                  iconPath: 'assets/icons/arrow_up_down.svg',
+                  isLeftIcon: true,
+                ),
+                if (filterBarState.currentTabIndex == 0 || filterBarState.currentTabIndex == 2)
+                  ..._buildBeanFilterBar(filters: filterBarState.filters)
+                else if (filterBarState.currentTabIndex == 3)
+                  _buildPostFilter()
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -498,79 +498,83 @@ class _SearchResultViewState extends State<SearchResultView>
                 color: Colors.transparent,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 64),
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                   ),
-                  child: Wrap(
-                    children: [
-                      Container(
-                        height: 59,
-                        decoration: const BoxDecoration(
-                            border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              top: 24,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: Text('게시글 주제', style: TextStyles.title02SemiBold),
-                              ),
-                            ),
-                            Positioned(
-                              top: 21,
-                              right: 16,
-                              child: GestureDetector(
-                                onTap: () {
-                                  context.pop();
-                                },
-                                child: SvgPicture.asset(
-                                  'assets/icons/x.svg',
-                                  height: 24,
-                                  width: 24,
-                                  fit: BoxFit.cover,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Wrap(
+                        children: [
+                          Container(
+                            height: 59,
+                            decoration: const BoxDecoration(
+                                border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  top: 24,
+                                  left: 0,
+                                  right: 0,
+                                  child: Center(
+                                    child: Text('게시글 주제', style: TextStyles.title02SemiBold),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ...List<Widget>.generate(
-                        PostSubject.values.length,
-                        (index) {
-                          final subject = PostSubject.values[index];
-                          return GestureDetector(
-                            onTap: () {
-                              context.read<SearchResultPresenter>().onChangePostSubjectFilter(index);
-                              context.pop();
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 20,
-                                horizontal: 16,
-                              ),
-                              child: Row(
-                                children: [
-                                  Text(
-                                    subject.toString(),
-                                    style: TextStyles.labelMediumMedium.copyWith(
-                                      color: initialIndex == index ? ColorStyles.red : ColorStyles.black,
+                                Positioned(
+                                  top: 21,
+                                  right: 16,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      context.pop();
+                                    },
+                                    child: SvgPicture.asset(
+                                      'assets/icons/x.svg',
+                                      height: 24,
+                                      width: 24,
+                                      fit: BoxFit.cover,
+                                      colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
                                     ),
                                   ),
-                                  const Spacer(),
-                                  initialIndex == index
-                                      ? const Icon(Icons.check, size: 18, color: ColorStyles.red)
-                                      : Container(),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
+                          ),
+                          ...List<Widget>.generate(
+                            PostSubject.values.length,
+                            (index) {
+                              final subject = PostSubject.values[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  context.read<SearchResultPresenter>().onChangePostSubjectFilter(index);
+                                  context.pop();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 20,
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        subject.toString(),
+                                        style: TextStyles.labelMediumMedium.copyWith(
+                                          color: initialIndex == index ? ColorStyles.red : ColorStyles.black,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      initialIndex == index
+                                          ? const Icon(Icons.check, size: 18, color: ColorStyles.red)
+                                          : Container(),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),

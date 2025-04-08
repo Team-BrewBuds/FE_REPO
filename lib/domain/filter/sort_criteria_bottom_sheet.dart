@@ -33,73 +33,78 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 64),
               decoration: const BoxDecoration(
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               ),
-              child: Wrap(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.only(top: 21, left: 16, right: 16, bottom: 14),
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(color: ColorStyles.gray20, width: 1),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 24, height: 24),
-                        const Spacer(),
-                        Text('정렬', style: TextStyles.title02SemiBold),
-                        const Spacer(),
-                        GestureDetector(
-                          onTap: () {
-                            context.pop();
-                          },
-                          child: SvgPicture.asset(
-                            'assets/icons/x.svg',
-                            height: 24,
-                            width: 24,
-                            fit: BoxFit.cover,
-                            colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Wrap(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 21, left: 16, right: 16, bottom: 14),
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(color: ColorStyles.gray20, width: 1),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  ...List<Widget>.generate(
-                    widget.items.length,
-                    (index) {
-                      return GestureDetector(
-                        onTap: () {
-                          widget.items[index].$2();
-                          context.pop();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 16,
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                widget.items[index].$1,
-                                style: TextStyles.labelMediumMedium.copyWith(
-                                  color: widget.currentIndex == index ? ColorStyles.red : ColorStyles.black,
-                                ),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 24, height: 24),
+                            const Spacer(),
+                            Text('정렬', style: TextStyles.title02SemiBold),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                context.pop();
+                              },
+                              child: SvgPicture.asset(
+                                'assets/icons/x.svg',
+                                height: 24,
+                                width: 24,
+                                fit: BoxFit.cover,
+                                colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
                               ),
-                              const Spacer(),
-                              widget.currentIndex == index
-                                  ? const Icon(Icons.check, size: 18, color: ColorStyles.red)
-                                  : const SizedBox.shrink(),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                      ...List<Widget>.generate(
+                        widget.items.length,
+                        (index) {
+                          return GestureDetector(
+                            onTap: () {
+                              widget.items[index].$2();
+                              context.pop();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 20,
+                                horizontal: 16,
+                              ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    widget.items[index].$1,
+                                    style: TextStyles.labelMediumMedium.copyWith(
+                                      color: widget.currentIndex == index ? ColorStyles.red : ColorStyles.black,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  widget.currentIndex == index
+                                      ? const Icon(Icons.check, size: 18, color: ColorStyles.red)
+                                      : const SizedBox.shrink(),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

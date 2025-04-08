@@ -182,16 +182,18 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
               ],
             ),
           ),
-          bottomNavigationBar: Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Selector<PostWritePresenter, BottomButtonState>(
-              selector: (context, presenter) => presenter.bottomsButtonState,
-              builder: (context, bottomsButtonState, _) {
-                return _buildBottomButtons(
-                  hasImages: bottomsButtonState.hasImages,
-                  tastedRecords: bottomsButtonState.tastedRecords,
-                );
-              },
+          bottomNavigationBar: SafeArea(
+            child: Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Selector<PostWritePresenter, BottomButtonState>(
+                selector: (context, presenter) => presenter.bottomsButtonState,
+                builder: (context, bottomsButtonState, _) {
+                  return _buildBottomButtons(
+                    hasImages: bottomsButtonState.hasImages,
+                    tastedRecords: bottomsButtonState.tastedRecords,
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -575,51 +577,56 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                 color: Colors.transparent,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 48),
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 16, bottom: 24),
-                        decoration: const BoxDecoration(
-                          border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
-                        ),
-                        child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
-                      ),
-                      ...List<Widget>.generate(
-                        subjectList.length,
-                        (index) {
-                          final subject = subjectList[index];
-                          return GestureDetector(
-                            onTap: () {
-                              context.pop(subject);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      subject.toString(),
-                                      style: TextStyles.labelMediumMedium.copyWith(
-                                        color: currentSubject == subject ? ColorStyles.red : ColorStyles.black,
-                                      ),
-                                    ),
-                                  ),
-                                  if (currentSubject == subject)
-                                    const Icon(Icons.check, size: 18, color: ColorStyles.red),
-                                ],
-                              ),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(top: 24, bottom: 16),
+                            decoration: const BoxDecoration(
+                              border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
                             ),
-                          );
-                        },
-                      ).separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20)),
-                    ],
+                            child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                          ),
+                          ...List<Widget>.generate(
+                            subjectList.length,
+                            (index) {
+                              final subject = subjectList[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  context.pop(subject);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          subject.toString(),
+                                          style: TextStyles.labelMediumMedium.copyWith(
+                                            color: currentSubject == subject ? ColorStyles.red : ColorStyles.black,
+                                          ),
+                                        ),
+                                      ),
+                                      if (currentSubject == subject)
+                                        const Icon(Icons.check, size: 18, color: ColorStyles.red),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ).separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),

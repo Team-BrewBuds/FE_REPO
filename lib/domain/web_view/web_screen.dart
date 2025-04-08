@@ -202,7 +202,7 @@ class _WebScreenState extends State<WebScreen> {
 
   Widget _buildBottomButtons() {
     return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 25, top: 15),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24, top: 15),
       child: Row(
         children: [
           ValueListenableBuilder(

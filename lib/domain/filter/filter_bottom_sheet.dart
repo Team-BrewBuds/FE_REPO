@@ -93,7 +93,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height - 134,
+              height: MediaQuery.of(context).size.height - 135,
               decoration: const BoxDecoration(
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),

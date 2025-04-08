@@ -176,23 +176,26 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
                 width: MediaQuery.of(context).size.width,
                 height: keyboardVisible ? maxHeight : height,
                 padding: MediaQuery.of(context).viewInsets,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      _buildAppBar(),
-                      const SizedBox(height: 24),
-                      _buildSearchBar(context),
-                      Expanded(
-                        child: Selector<CoffeeBeanSearchPresenter, CoffeeBeanSearchResult>(
-                          selector: (context, presenter) => presenter.result,
-                          builder: (context, result, child) => _buildSearchResults(
-                            result.searchWord,
-                            result.coffeebeans,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        _buildAppBar(),
+                        const SizedBox(height: 24),
+                        _buildSearchBar(context),
+                        Expanded(
+                          child: Selector<CoffeeBeanSearchPresenter, CoffeeBeanSearchResult>(
+                            selector: (context, presenter) => presenter.result,
+                            builder: (context, result, child) => _buildSearchResults(
+                              result.searchWord,
+                              result.coffeebeans,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

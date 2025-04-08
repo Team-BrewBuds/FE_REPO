@@ -43,68 +43,71 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                   top: Radius.circular(12),
                 ),
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 16),
-                      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 24),
-                          const Spacer(),
-                          Text('시음 날짜', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
-                          const Spacer(),
-                          GestureDetector(
-                            onTap: () {
-                              context.pop();
-                            },
-                            child: SvgPicture.asset(
-                              'assets/icons/x.svg',
-                              height: 24,
-                              width: 24,
+              child: SafeArea(
+                top: false,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 24, bottom: 16, left: 16, right: 16),
+                        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 24),
+                            const Spacer(),
+                            Text('시음 날짜', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
+                            const Spacer(),
+                            GestureDetector(
+                              onTap: () {
+                                context.pop();
+                              },
+                              child: SvgPicture.asset(
+                                'assets/icons/x.svg',
+                                height: 24,
+                                width: 24,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 240,
-                      width: double.infinity,
-                      child: CupertinoDatePicker(
-                        mode: CupertinoDatePickerMode.date,
-                        dateOrder: DatePickerDateOrder.ymd,
-                        onDateTimeChanged: (dateTime) {
-                          _dateTime = dateTime;
-                        },
-                        initialDateTime: widget.initialDateTime,
-                        maximumDate: DateTime.now(),
+                      SizedBox(
+                        height: 240,
+                        width: double.infinity,
+                        child: CupertinoDatePicker(
+                          mode: CupertinoDatePickerMode.date,
+                          dateOrder: DatePickerDateOrder.ymd,
+                          onDateTimeChanged: (dateTime) {
+                            _dateTime = dateTime;
+                          },
+                          initialDateTime: widget.initialDateTime,
+                          maximumDate: DateTime.now(),
+                        ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(
-                          left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 14, top: 24),
-                      decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFE7E7E7)))),
-                      child: GestureDetector(
-                        onTap: () {
-                          context.pop(_dateTime);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
-                            color: ColorStyles.black,
-                          ),
-                          child: Text(
-                            '선택',
-                            style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
-                            textAlign: TextAlign.center,
+                      Container(
+                        padding: EdgeInsets.only(
+                            left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 24, top: 24),
+                        decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFE7E7E7)))),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.pop(_dateTime);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(8)),
+                              color: ColorStyles.black,
+                            ),
+                            child: Text(
+                              '선택',
+                              style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

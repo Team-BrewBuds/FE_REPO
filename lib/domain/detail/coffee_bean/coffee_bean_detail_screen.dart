@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
@@ -121,9 +120,11 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                 ),
               ),
             ),
-            bottomNavigationBar: Selector<CoffeeBeanDetailPresenter, bool>(
-              selector: (context, presenter) => presenter.isSaved,
-              builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
+            bottomNavigationBar: SafeArea(
+              child: Selector<CoffeeBeanDetailPresenter, bool>(
+                selector: (context, presenter) => presenter.isSaved,
+                builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
+              ),
             ),
           );
         });

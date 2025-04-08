@@ -69,26 +69,29 @@ class TasteBottomSheet extends StatelessWidget {
                   top: Radius.circular(12),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildAppBar(context),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: ValueListenableBuilder(
-                        valueListenable: tasteListNotifier,
-                        builder: (context, tasteList, child) => _buildTaste(context, tasteList),
+              child: SafeArea(
+                top: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildAppBar(context),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: ValueListenableBuilder(
+                          valueListenable: tasteListNotifier,
+                          builder: (context, tasteList, child) => _buildTaste(context, tasteList),
+                        ),
                       ),
                     ),
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: tasteListNotifier,
-                    builder: (context, tasteList, child) {
-                      return tasteList.isNotEmpty ? _buildSelectedTasteList(tasteList) : const SizedBox.shrink();
-                    },
-                  ),
-                  _buildBottomButtons(context),
-                ],
+                    ValueListenableBuilder(
+                      valueListenable: tasteListNotifier,
+                      builder: (context, tasteList, child) {
+                        return tasteList.isNotEmpty ? _buildSelectedTasteList(tasteList) : const SizedBox.shrink();
+                      },
+                    ),
+                    _buildBottomButtons(context),
+                  ],
+                ),
               ),
             ),
           ),

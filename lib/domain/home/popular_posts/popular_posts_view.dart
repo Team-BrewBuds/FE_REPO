@@ -1,5 +1,4 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';

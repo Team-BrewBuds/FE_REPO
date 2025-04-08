@@ -205,16 +205,18 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     ),
                   );
                 }),
-                bottomNavigationBar: Padding(
-                  padding: MediaQuery.of(context).viewInsets,
-                  child: Selector<TastedRecordPresenter, CommentTextFieldState>(
-                    selector: (context, presenter) => presenter.commentTextFieldState,
-                    builder: (context, state, child) {
-                      return _buildBottomTextField(
-                        prentCommentAuthorNickname: state.prentCommentAuthorNickname,
-                        authorNickname: state.authorNickname,
-                      );
-                    },
+                bottomNavigationBar: SafeArea(
+                  child: Padding(
+                    padding: MediaQuery.of(context).viewInsets,
+                    child: Selector<TastedRecordPresenter, CommentTextFieldState>(
+                      selector: (context, presenter) => presenter.commentTextFieldState,
+                      builder: (context, state, child) {
+                        return _buildBottomTextField(
+                          prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                          authorNickname: state.authorNickname,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -859,12 +861,14 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                 color: Colors.transparent,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 30),
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                   ),
-                  child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                  child: SafeArea(child: Padding(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                  ),),
                 ),
               ),
             ),

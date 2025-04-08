@@ -39,28 +39,30 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(child: _buildCameraPreview()),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  child: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-                      child: _buildTopButtons(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  Positioned.fill(child: _buildCameraPreview()),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+                        child: _buildTopButtons(),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          _buildBottomButton(),
-        ],
+            _buildBottomButton(),
+          ],
+        ),
       ),
     );
   }
@@ -123,7 +125,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
 
   Widget _buildBottomButton() {
     return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 46),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       height: 145,
       child: Center(
         child: GestureDetector(

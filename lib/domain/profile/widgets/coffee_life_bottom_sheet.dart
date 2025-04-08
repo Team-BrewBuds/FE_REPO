@@ -24,20 +24,24 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.only(bottom: 30),
               decoration: const BoxDecoration(
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               ),
-              child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
-                return Column(
-                  children: [
-                    _buildTitle(context),
-                    _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList),
-                    _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
-                  ],
-                );
-              }),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
+                    return Column(
+                      children: [
+                        _buildTitle(context),
+                        _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList),
+                        _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
+                      ],
+                    );
+                  }),
+                ),
+              ),
             ),
           ),
         ),

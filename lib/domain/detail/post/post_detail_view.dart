@@ -152,16 +152,18 @@ class _PostDetailViewState extends State<PostDetailView>
                     ),
                   ),
                 ),
-                bottomNavigationBar: Padding(
-                  padding: MediaQuery.of(context).viewInsets,
-                  child: Selector<PostDetailPresenter, CommentTextFieldState>(
-                    selector: (context, presenter) => presenter.commentTextFieldState,
-                    builder: (context, state, child) {
-                      return _buildBottomTextField(
-                        prentCommentAuthorNickname: state.prentCommentAuthorNickname,
-                        authorNickname: state.authorNickname,
-                      );
-                    },
+                bottomNavigationBar: SafeArea(
+                  child: Padding(
+                    padding: MediaQuery.of(context).viewInsets,
+                    child: Selector<PostDetailPresenter, CommentTextFieldState>(
+                      selector: (context, presenter) => presenter.commentTextFieldState,
+                      builder: (context, state, child) {
+                        return _buildBottomTextField(
+                          prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                          authorNickname: state.authorNickname,
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -230,26 +232,26 @@ class _PostDetailViewState extends State<PostDetailView>
                         });
                         break;
                       case PostDetailAction.block:
-                      showCenterDialog(
-                        title: '이 사용자를 차단하시겠어요?',
-                        content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
-                        cancelText: '취소',
-                        doneText: '차단하기',
-                      ).then((result) {
-                        if (result != null && result) {
-                          context.read<PostDetailPresenter>().onBlock().then((value) {
-                            switch (value) {
-                              case Success<String>():
-                                context.pop(value.data);
-                                break;
-                              case Error<String>():
-                                showSnackBar(message: value.e);
-                                break;
-                            }
-                          });
-                        }
-                      });
-                      break;
+                        showCenterDialog(
+                          title: '이 사용자를 차단하시겠어요?',
+                          content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                          cancelText: '취소',
+                          doneText: '차단하기',
+                        ).then((result) {
+                          if (result != null && result) {
+                            context.read<PostDetailPresenter>().onBlock().then((value) {
+                              switch (value) {
+                                case Success<String>():
+                                  context.pop(value.data);
+                                  break;
+                                case Error<String>():
+                                  showSnackBar(message: value.e);
+                                  break;
+                              }
+                            });
+                          }
+                        });
+                        break;
                       case PostDetailAction.report:
                         final id = context.read<PostDetailPresenter>().id;
                         pushToReportScreen(context, id: id, type: 'post').then((result) {
@@ -670,7 +672,7 @@ class _PostDetailViewState extends State<PostDetailView>
   Widget _buildBottomTextField({String? prentCommentAuthorNickname, required String authorNickname}) {
     final bool hasParent = prentCommentAuthorNickname != null;
     return Container(
-      padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 12),
+      padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 24),
       decoration: const BoxDecoration(
         border: Border(top: BorderSide(color: ColorStyles.gray20)),
         color: ColorStyles.white,
@@ -765,12 +767,17 @@ class _PostDetailViewState extends State<PostDetailView>
                 color: Colors.transparent,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 30),
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                   ),
-                  child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                    ),
+                  ),
                 ),
               ),
             ),

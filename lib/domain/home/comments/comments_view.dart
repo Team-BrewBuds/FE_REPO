@@ -110,79 +110,84 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMi
                 ),
                 width: MediaQuery.of(context).size.width,
                 height: keyboardVisible ? maxHeight : _height,
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 12),
-                    Container(
-                      width: 30,
-                      height: 4,
-                      decoration: const BoxDecoration(
-                        color: ColorStyles.gray70,
-                        borderRadius: BorderRadius.all(Radius.circular(21)),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text('댓글', style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.black)),
-                    const SizedBox(height: 12),
-                    Container(height: 1, color: ColorStyles.gray10),
-                    Expanded(
-                      child: context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading)
-                          ? Container(
-                              color: ColorStyles.gray20,
-                              child: const Center(
-                                child: CupertinoActivityIndicator(
-                                  color: ColorStyles.gray70,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 12),
+                        Container(
+                          width: 30,
+                          height: 4,
+                          decoration: const BoxDecoration(
+                            color: ColorStyles.gray70,
+                            borderRadius: BorderRadius.all(Radius.circular(21)),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('댓글', style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.black)),
+                        const SizedBox(height: 12),
+                        Container(height: 1, color: ColorStyles.gray10),
+                        Expanded(
+                          child: context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading)
+                              ? Container(
+                                  color: ColorStyles.gray20,
+                                  child: const Center(
+                                    child: CupertinoActivityIndicator(
+                                      color: ColorStyles.gray70,
+                                    ),
+                                  ),
+                                )
+                              : Selector<CommentsPresenter, DefaultPage<Comment>>(
+                                  selector: (context, presenter) => presenter.page,
+                                  builder: (context, page, child) {
+                                    return page.results.isNotEmpty
+                                        ? NotificationListener<ScrollNotification>(
+                                            onNotification: (ScrollNotification scroll) {
+                                              if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                                                context.read<CommentsPresenter>().fetchMoreData();
+                                              }
+                                              return false;
+                                            },
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.zero,
+                                              clipBehavior: Clip.hardEdge,
+                                              itemBuilder: (context, index) => _buildComment(page.results[index]),
+                                              itemCount: page.results.length,
+                                            ),
+                                          )
+                                        : Center(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  '아직 댓글이 없어요',
+                                                  style: TextStyles.title02SemiBold,
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  '댓글을 남겨보세요.',
+                                                  style: TextStyles.captionSmallMedium,
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                  },
                                 ),
-                              ),
-                            )
-                          : Selector<CommentsPresenter, DefaultPage<Comment>>(
-                              selector: (context, presenter) => presenter.page,
-                              builder: (context, page, child) {
-                                return page.results.isNotEmpty
-                                    ? NotificationListener<ScrollNotification>(
-                                        onNotification: (ScrollNotification scroll) {
-                                          if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                                            context.read<CommentsPresenter>().fetchMoreData();
-                                          }
-                                          return false;
-                                        },
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          clipBehavior: Clip.hardEdge,
-                                          itemBuilder: (context, index) => _buildComment(page.results[index]),
-                                          itemCount: page.results.length,
-                                        ),
-                                      )
-                                    : Center(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              '아직 댓글이 없어요',
-                                              style: TextStyles.title02SemiBold,
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              '댓글을 남겨보세요.',
-                                              style: TextStyles.captionSmallMedium,
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                              },
-                            ),
+                        ),
+                        Selector<CommentsPresenter, BottomTextFieldState>(
+                          selector: (context, presenter) => presenter.bottomTextFieldState,
+                          builder: (context, state, child) => _buildBottomTextField(
+                            reCommentAuthorNickname: state.reCommentAuthorNickname,
+                            authorNickname: state.authorNickname,
+                          ),
+                        ),
+                      ],
                     ),
-                    Selector<CommentsPresenter, BottomTextFieldState>(
-                      selector: (context, presenter) => presenter.bottomTextFieldState,
-                      builder: (context, state, child) => _buildBottomTextField(
-                        reCommentAuthorNickname: state.reCommentAuthorNickname,
-                        authorNickname: state.authorNickname,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -364,7 +369,7 @@ class _CommentBottomSheetState extends State<CommentBottomSheet> with SnackBarMi
   Widget _buildBottomTextField({String? reCommentAuthorNickname, required String authorNickname}) {
     final bool isReply = reCommentAuthorNickname != null;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 24),
       decoration: const BoxDecoration(border: Border(top: BorderSide(width: 0.5, color: ColorStyles.gray40))),
       child: Container(
         decoration: BoxDecoration(

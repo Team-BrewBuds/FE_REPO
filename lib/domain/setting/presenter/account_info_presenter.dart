@@ -8,6 +8,10 @@ final class AccountInfoPresenter extends Presenter {
   final ProfileRepository _profileRepository = ProfileRepository.instance;
   AccountInfo? _accountInfo;
 
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
+
   String get signUpInfo => '$signUpAt ($signUpPeriod)';
 
   String get signUpAt => _accountInfo?.signUpAt ?? '';
@@ -25,10 +29,16 @@ final class AccountInfoPresenter extends Presenter {
   }
 
   _fetchInfo() async {
+    _isLoading = true;
+    notifyListeners();
+
     final id = _accountRepository.id;
     if (id != null) {
       _accountInfo = await _profileRepository.fetchInfo(id: id);
-      notifyListeners();
+
     }
+
+    _isLoading = false;
+    notifyListeners();
   }
 }

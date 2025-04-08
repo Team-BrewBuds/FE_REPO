@@ -44,9 +44,11 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
             ],
           ),
         ),
-        bottomNavigationBar: Padding(
-          padding: MediaQuery.of(context).viewInsets,
-          child: buildBottomButton(),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: buildBottomButton(),
+          ),
         ),
       ),
     );

@@ -9,7 +9,6 @@ import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
 import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';

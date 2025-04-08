@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/domain/setting/presenter/account_info_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,44 +29,52 @@ class _AccountInfoViewState extends State<AccountInfoView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Selector<AccountInfoPresenter, String>(
-            selector: (context, presenter) => presenter.signUpInfo,
-            builder: (context, signUpInfo, child) => Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-              child: createdAtWidget(createdAt: signUpInfo),
-            ),
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: _buildAppBar(),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Selector<AccountInfoPresenter, String>(
+                selector: (context, presenter) => presenter.signUpInfo,
+                builder: (context, signUpInfo, child) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+                  child: createdAtWidget(createdAt: signUpInfo),
+                ),
+              ),
+              Selector<AccountInfoPresenter, String>(
+                selector: (context, presenter) => presenter.loginKind,
+                builder: (context, loginKind, child) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+                  child: loginKindWidget(kind: loginKind),
+                ),
+              ),
+              Selector<AccountInfoPresenter, String>(
+                selector: (context, presenter) => presenter.gender,
+                builder: (context, gender, child) => Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
+                  child: genderWidget(gender: gender),
+                ),
+              ),
+              Selector<AccountInfoPresenter, String>(
+                selector: (context, presenter) => '${presenter.yearOfBirth}',
+                builder: (context, yearOfBirth, child) => Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: yearOfBirthWidget(yearOfBirth: yearOfBirth),
+                ),
+              ),
+            ],
           ),
-          Selector<AccountInfoPresenter, String>(
-            selector: (context, presenter) => presenter.loginKind,
-            builder: (context, loginKind, child) => Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-              child: loginKindWidget(kind: loginKind),
-            ),
-          ),
-          Selector<AccountInfoPresenter, String>(
-            selector: (context, presenter) => presenter.gender,
-            builder: (context, gender, child) => Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
-              child: genderWidget(gender: gender),
-            ),
-          ),
-          Selector<AccountInfoPresenter, String>(
-            selector: (context, presenter) => '${presenter.yearOfBirth}',
-            builder: (context, yearOfBirth, child) => Padding(
-              padding: const EdgeInsets.all(16),
-              child: yearOfBirthWidget(yearOfBirth: yearOfBirth),
-            ),
-          ),
-        ],
-      ),
+        ),
+        if (context.select<AccountInfoPresenter, bool>(
+              (presenter) => presenter.isLoading,
+        ))
+          const Positioned.fill(child: LoadingBarrier()),
+      ],
     );
   }
 

@@ -323,7 +323,7 @@ class _CameraScreenState extends State<CameraScreen> {
         ),
         Expanded(child: Container(color: Colors.black)),
         Container(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 46),
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
           height: 145,
           child: Row(
             children: [

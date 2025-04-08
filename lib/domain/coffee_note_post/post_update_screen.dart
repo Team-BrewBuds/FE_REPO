@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -425,51 +424,56 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                 color: Colors.transparent,
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 48),
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(top: 16, bottom: 24),
-                        decoration: const BoxDecoration(
-                          border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
-                        ),
-                        child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
-                      ),
-                      ...List<Widget>.generate(
-                        subjectList.length,
-                            (index) {
-                          final subject = subjectList[index];
-                          return GestureDetector(
-                            onTap: () {
-                              context.pop(subject);
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      subject.toString(),
-                                      style: TextStyles.labelMediumMedium.copyWith(
-                                        color: currentSubject == subject ? ColorStyles.red : ColorStyles.black,
-                                      ),
-                                    ),
-                                  ),
-                                  if (currentSubject == subject)
-                                    const Icon(Icons.check, size: 18, color: ColorStyles.red),
-                                ],
-                              ),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.only(top: 16, bottom: 24),
+                            decoration: const BoxDecoration(
+                              border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
                             ),
-                          );
-                        },
-                      ).separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20)),
-                    ],
+                            child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                          ),
+                          ...List<Widget>.generate(
+                            subjectList.length,
+                                (index) {
+                              final subject = subjectList[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  context.pop(subject);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          subject.toString(),
+                                          style: TextStyles.labelMediumMedium.copyWith(
+                                            color: currentSubject == subject ? ColorStyles.red : ColorStyles.black,
+                                          ),
+                                        ),
+                                      ),
+                                      if (currentSubject == subject)
+                                        const Icon(Icons.check, size: 18, color: ColorStyles.red),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ).separator(separatorWidget: Container(height: 1, color: ColorStyles.gray20)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
