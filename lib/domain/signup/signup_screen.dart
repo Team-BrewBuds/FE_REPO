@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -69,7 +70,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
@@ -154,7 +155,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
           children: [
             Positioned(
               left: 0,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: onPop,
                 child: SvgPicture.asset('assets/icons/back.svg', width: 24, height: 24, fit: BoxFit.cover),
               ),
@@ -168,7 +169,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
             ),
             Positioned(
               right: 0,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: onSkip,
                 child: isSkippablePage
                     ? Text(
@@ -189,7 +190,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
       padding: EdgeInsets.only(top: 24, bottom: MediaQuery.of(context).viewInsets.bottom + 24.0, left: 16, right: 16),
       child: AbsorbPointer(
         absorbing: !isSatisfyRequirements,
-        child: GestureDetector(
+        child: ThrottleButton(
           onTap: onNext,
           child: Container(
             height: 47,

@@ -163,11 +163,11 @@ final class PostDetailPresenter extends Presenter {
 
   onTappedCommentLikeButton(Comment targetComment, {Comment? parentComment}) {
     if (targetComment.isLiked) {
-      _commentsRepository.likeComment(id: targetComment.id).then((_) {
+      _commentsRepository.unLikeComment(id: targetComment.id).then((_) {
         reloadComments();
       });
     } else {
-      _commentsRepository.unLikeComment(id: targetComment.id).then((_) {
+      _commentsRepository.likeComment(id: targetComment.id).then((_) {
         reloadComments();
       });
     }

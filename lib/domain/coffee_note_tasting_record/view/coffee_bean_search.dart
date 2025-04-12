@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search_presenter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -226,7 +227,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
               const Spacer(),
               Text('원두', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
               const Spacer(),
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   context.pop();
                 },
@@ -285,7 +286,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
             return searchWord.isNotEmpty
                 ? Padding(
                     padding: const EdgeInsets.only(right: 12, left: 4, top: 12, bottom: 12),
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         textEditingController.value = const TextEditingValue();
                       },
@@ -324,7 +325,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
               itemBuilder: (context, index) {
                 final name = coffeeBeans[index].name ?? '';
                 return name.isNotEmpty
-                    ? GestureDetector(
+                    ? ThrottleButton(
                         onTap: () {
                           context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
                         },
@@ -368,7 +369,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(CoffeeBeanSearchBottomSheetResult.written(name: searchWord));
                         },

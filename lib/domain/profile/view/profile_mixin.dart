@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/expandable_coffee_life.dart';
 import 'package:brew_buds/common/widgets/expandable_text.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
@@ -206,7 +207,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             Text('시음기록', style: TextStyles.captionMediumRegular),
                           ],
                         ),
-                        GestureDetector(
+                        ThrottleButton(
                           onTap: () {
                             pushFollowList(0);
                           },
@@ -218,7 +219,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             ],
                           ),
                         ),
-                        GestureDetector(
+                        ThrottleButton(
                           onTap: () {
                             pushFollowList(1);
                           },
@@ -296,7 +297,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   Widget _buildProfileLink({required String profileLink}) {
     return Row(
       children: [
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             showCupertinoModalPopup(
               barrierColor: ColorStyles.white,
@@ -495,7 +496,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               itemCount: tastingRecords.length,
               itemBuilder: (context, index) {
                 final tastingRecord = tastingRecords[index];
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     showTastingRecordDetail(context: context, id: tastingRecords[index].id).then((value) {
                       if (value != null) {
@@ -524,7 +525,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             itemCount: posts.length,
             itemBuilder: (context, index) {
               final post = posts[index];
-              return GestureDetector(
+              return ThrottleButton(
                 onTap: () {
                   showPostDetail(context: context, id: post.id).then((value) {
                     if (value != null) {
@@ -557,7 +558,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             itemCount: beans.length,
             itemBuilder: (context, index) {
               final bean = beans[index];
-              return GestureDetector(
+              return ThrottleButton(
                 onTap: () {
                   showCoffeeBeanDetail(context: context, id: bean.id);
                 },
@@ -588,7 +589,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               final note = savedNotes[index];
               switch (note) {
                 case NotedPost():
-                  return GestureDetector(
+                  return ThrottleButton(
                     onTap: () {
                       showPostDetail(context: context, id: note.id).then((value) {
                         if (value != null) {
@@ -605,7 +606,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     ),
                   );
                 case NotedTastedRecord():
-                  return GestureDetector(
+                  return ThrottleButton(
                     onTap: () {
                       showTastingRecordDetail(context: context, id: note.id).then((value) {
                         if (value != null) {
@@ -687,7 +688,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         color: isActive ? ColorStyles.red : ColorStyles.black,
       ),
     );
-    return GestureDetector(
+    return ThrottleButton(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.only(

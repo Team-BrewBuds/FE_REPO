@@ -11,7 +11,7 @@ class ThrottleButton extends StatelessWidget {
     required this.onTap,
     required this.child,
   }): _throttle = Throttle(
-    const Duration(seconds: 3),
+    const Duration(milliseconds: 300),
     initialValue: null,
     checkEquality: false,
     onChanged: (value) {

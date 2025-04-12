@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
@@ -53,7 +54,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
               builder: (context, nickName, child) => Text(nickName, style: TextStyles.title02Bold),
             ),
             const Spacer(),
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.push('/profile/setting');
               },
@@ -76,7 +77,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 final id = context.read<ProfilePresenter>().id;
                 final nickname = context.read<ProfilePresenter>().nickName;
@@ -98,7 +99,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 final nickname = context.read<ProfilePresenter>().nickName;
                 final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';

@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -47,7 +48,7 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
                         Row(
                           children: [
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop(false);
                                 },
@@ -67,7 +68,7 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop(true);
                                 },

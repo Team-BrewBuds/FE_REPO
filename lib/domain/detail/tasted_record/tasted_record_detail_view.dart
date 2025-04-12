@@ -11,6 +11,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -94,7 +95,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               showEmptyDialog().then((value) => context.pop());
             });
           }
-          return GestureDetector(
+          return ThrottleButton(
             onTap: () {
               FocusManager.instance.primaryFocus?.unfocus();
             },
@@ -122,7 +123,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                             selector: (context, presenter) => presenter.bottomButtonInfo,
                             builder: (context, bottomButtonInfo, child) => _buildButtons(
                               likeCount: bottomButtonInfo.likeCount,
-                              isLiked: bottomButtonInfo.isSaved,
+                              isLiked: bottomButtonInfo.isLiked,
                               isSaved: bottomButtonInfo.isSaved,
                             ),
                           ),
@@ -235,7 +236,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -251,7 +252,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             const Spacer(),
             Selector<TastedRecordPresenter, bool>(
               selector: (context, presenter) => presenter.isMine,
-              builder: (context, isMine, child) => GestureDetector(
+              builder: (context, isMine, child) => ThrottleButton(
                 onTap: () {
                   showActionBottomSheet(isMine: isMine).then((result) {
                     switch (result) {
@@ -378,7 +379,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                       ),
                       const Spacer(),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.read<TastedRecordPresenter>().cancelReply();
                         },
@@ -498,7 +499,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GestureDetector(
+      child: ThrottleButton(
         onTap: () {
           final id = authorId;
           if (id != null) {
@@ -789,7 +790,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         children: [
           if (canDelete)
             Expanded(
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   onDelete?.call();
                 },
@@ -816,7 +817,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             ),
           if (!isMine)
             Expanded(
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   onReport?.call();
                 },
@@ -883,7 +884,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(TastedRecordDetailAction.update);
           },
@@ -897,7 +898,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             ),
           ),
         ),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(TastedRecordDetailAction.delete);
           },
@@ -913,7 +914,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: GestureDetector(
+          child: ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -940,7 +941,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(TastedRecordDetailAction.report);
           },
@@ -954,7 +955,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             ),
           ),
         ),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(TastedRecordDetailAction.block);
           },
@@ -970,7 +971,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: GestureDetector(
+          child: ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -1024,7 +1025,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         Row(
                           children: [
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },
@@ -1044,7 +1045,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },

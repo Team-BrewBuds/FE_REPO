@@ -1,14 +1,16 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
-import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -39,6 +41,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
+  bool _isDialogShown = false;
 
   bool _canShowAlert = true;
 
@@ -53,6 +56,12 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
         showLoginAlert();
       },
     );
+    NotificationCenter().subscribe(
+      'need_update',
+      (_) {
+        _showForceUpdateDialog();
+      },
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (SharedPreferencesRepository.instance.isFirst) {
         ShowCaseWidget.of(context).startShowCase([_one, _two, _three]);
@@ -63,11 +72,18 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
   @override
   void dispose() {
     NotificationCenter().unsubscribe('force_logout');
+    NotificationCenter().unsubscribe('need_update');
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (AppRepository.instance.isUpdateRequired && !_isDialogShown) {
+        _isDialogShown = true;
+        _showForceUpdateDialog();
+      }
+    });
     final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
     return Scaffold(
       body: widget.child,
@@ -82,7 +98,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                 (index) {
                   final isSelect = currentIndex == index;
                   if (index == 0) {
-                    return GestureDetector(
+                    return ThrottleButton(
                       onTap: () {
                         context.go('/home');
                       },
@@ -131,7 +147,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       ],
                       targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
                       targetPadding: const EdgeInsets.all(8),
-                      child: GestureDetector(
+                      child: ThrottleButton(
                         onTap: () async {
                           if (isGuest) {
                             final result =
@@ -190,7 +206,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       ],
                       targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
                       targetPadding: const EdgeInsets.all(8),
-                      child: GestureDetector(
+                      child: ThrottleButton(
                         onTap: () async {
                           if (isGuest) {
                             final result =
@@ -293,7 +309,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       ],
                       targetBorderRadius: const BorderRadius.all(Radius.circular(8)),
                       targetPadding: const EdgeInsets.all(8),
-                      child: GestureDetector(
+                      child: ThrottleButton(
                         onTap: () async {
                           if (isGuest) {
                             final result =
@@ -393,7 +409,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(CoffeeNote.post);
                         },
@@ -437,7 +453,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(CoffeeNote.tastedRecord);
                         },
@@ -482,7 +498,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 24, right: 42, left: 42, bottom: 16),
-                        child: GestureDetector(
+                        child: ThrottleButton(
                           onTap: () {
                             context.pop();
                           },
@@ -567,5 +583,26 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
 
       _canShowAlert = true;
     }
+  }
+
+  void _showForceUpdateDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('업데이트 필요'),
+          content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context.pop();
+              },
+              child: const Text('업데이트 하기'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

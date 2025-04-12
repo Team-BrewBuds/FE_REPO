@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/presenter/photo_presenter.dart';
@@ -95,7 +96,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
           children: [
             Positioned(
               left: 0,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   context.pop();
                 },
@@ -116,7 +117,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
                 builder: (context, albumTitleState, child) {
                   final currentAlbum = albumTitleState.currentAlbum;
                   return albumTitleState.albumList.isNotEmpty && currentAlbum != null
-                      ? GestureDetector(
+                      ? ThrottleButton(
                           onTap: () async {
                             final result = await Navigator.push<int>(
                               context,
@@ -147,7 +148,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
                   final hasSelectedItem = selectedImages.isNotEmpty;
                   return AbsorbPointer(
                     absorbing: !hasSelectedItem,
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         onDone(context, selectedImages);
                       },
@@ -180,7 +181,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
     required List<AssetEntity> selectedImages,
   }) {
     final isSelected = selectedImages.contains(image);
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         context.read<Presenter>().onSelectedImage(image);
       },
@@ -234,7 +235,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
   }
 
   Widget buildCameraButton() {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () async {
         onTapCameraButton(context);
       },
@@ -265,7 +266,7 @@ mixin PhotoGridMixin<T extends StatefulWidget, Presenter extends PhotoPresenter>
             ),
           ),
           const SizedBox(width: 64),
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               showManagementBottomSheet(context);
             },

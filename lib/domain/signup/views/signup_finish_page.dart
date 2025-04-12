@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -54,7 +55,7 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     context.go('/home');
                   },

@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 
 class CancelAndConfirmButton extends StatelessWidget {
@@ -24,16 +25,14 @@ class CancelAndConfirmButton extends StatelessWidget {
       children: [
         Expanded(
           flex: 1,
-          child: GestureDetector(
+          child: ThrottleButton(
             onTap: () {
               onCancel.call();
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-              decoration: const BoxDecoration(
-                color: ColorStyles.gray30,
-                borderRadius: BorderRadius.all(Radius.circular(8))
-              ),
+              decoration:
+                  const BoxDecoration(color: ColorStyles.gray30, borderRadius: BorderRadius.all(Radius.circular(8))),
               child: cancelButtonChild,
             ),
           ),
@@ -43,7 +42,7 @@ class CancelAndConfirmButton extends StatelessWidget {
           flex: 3,
           child: AbsorbPointer(
             absorbing: !isValid,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 onConfirm.call();
               },
@@ -51,8 +50,7 @@ class CancelAndConfirmButton extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
                 decoration: BoxDecoration(
                     color: isValid ? ColorStyles.black : ColorStyles.gray20,
-                    borderRadius: const BorderRadius.all(Radius.circular(8))
-                ),
+                    borderRadius: const BorderRadius.all(Radius.circular(8))),
                 child: Text(
                   confirmText,
                   style: TextStyles.labelMediumMedium.copyWith(color: isValid ? ColorStyles.white : ColorStyles.gray40),

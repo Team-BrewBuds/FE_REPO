@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/cancel_and_confirm_button.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
@@ -165,7 +166,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                                   filterList.length,
                                   (index) {
                                     final filter = filterList[index];
-                                    return GestureDetector(
+                                    return ThrottleButton(
                                       onTap: () {
                                         context.read<FilterPresenter>().removeAtFilter(index);
                                       },
@@ -245,7 +246,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
           ),
           Row(
             children: [
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   context.read<FilterPresenter>().onChangeBeanType(CoffeeBeanType.singleOrigin);
                 },
@@ -260,7 +261,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
               const SizedBox(width: 12),
               Text('싱글오리진', style: TextStyles.labelMediumMedium),
               const SizedBox(width: 80),
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   context.read<FilterPresenter>().onChangeBeanType(CoffeeBeanType.blend);
                 },
@@ -314,7 +315,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                           children: continent
                               .countries()
                               .map<Widget>(
-                                (country) => GestureDetector(
+                                (country) => ThrottleButton(
                                   onTap: () {
                                     context.read<FilterPresenter>().onChangeStateOrigin(country);
                                   },
@@ -429,7 +430,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
             '디카페인 여부',
             style: TextStyles.title02SemiBold,
           ),
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               context.read<FilterPresenter>().onChangeIsDecaf();
             },

@@ -18,7 +18,7 @@ class Profile with _$Profile {
     required bool? isCertificated,
     required int followingCount,
     required int followerCount,
-    required int postCount,
+    required int tastedRecordCnt,
     required bool? isUserFollowing,
     required bool? isUserBlocking,
   }) = _Profile;

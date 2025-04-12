@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/feed_widget.dart';
 import 'package:flutter/material.dart';
@@ -80,7 +81,7 @@ final class PostFeedWidget extends FeedWidget {
           ),
           SizedBox(height: isOverFlow ? 8 : 0),
           if (isOverFlow)
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 showPostDetail(context: context, id: id).then((result) {
                   if (result != null) {

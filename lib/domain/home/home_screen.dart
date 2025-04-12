@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
@@ -43,7 +45,6 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin {
   late final Throttle paginationThrottle;
   final ScrollController _scrollController = ScrollController();
-  late final ValueNotifier<int> _tabIndexNotifier;
   late final TabController _tabController;
   bool isRefresh = false;
   int currentIndex = 0;
@@ -59,7 +60,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       },
     );
     _tabController = TabController(length: 3, vsync: this);
-    _tabIndexNotifier = ValueNotifier(0);
     _scrollController.addListener(_scrollListener);
     super.initState();
   }
@@ -70,7 +70,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     _scrollController.removeListener(_scrollListener);
     _tabController.dispose();
     _scrollController.dispose();
-    _tabIndexNotifier.dispose();
     super.dispose();
   }
 
@@ -135,106 +134,173 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
           ),
         ),
       ),
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          Builder(builder: (context) {
-            final isPostFeed = context.select<HomePresenter, bool>((presenter) => presenter.isPostFeed);
-            return SliverAppBar(
-              floating: true,
-              titleSpacing: 0,
-              toolbarHeight: isPostFeed ? 116 : kToolbarHeight,
-              title: Column(
-                children: [
-                  TabBar(
-                    controller: _tabController,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    indicator: const UnderlineTabIndicator(
-                      borderSide: BorderSide(width: 2, color: ColorStyles.black),
-                      insets: EdgeInsets.only(top: 4),
-                    ),
-                    labelPadding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-                    tabAlignment: TabAlignment.start,
-                    isScrollable: true,
-                    labelStyle: TextStyles.title02SemiBold,
-                    labelColor: ColorStyles.black,
-                    unselectedLabelStyle: TextStyles.title02SemiBold,
-                    unselectedLabelColor: ColorStyles.gray50,
-                    dividerColor: Colors.white,
-                    overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                    tabs: const [
-                      Tab(text: '전체', height: 31),
-                      Tab(text: '시음기록', height: 31),
-                      Tab(text: '게시글', height: 31),
-                    ],
-                    onTap: (index) {
-                      context.read<HomePresenter>().onChangeTab(index);
-                    },
-                  ),
-                  if (isPostFeed)
-                    buildSubjectFilterBar(
-                      currentSubject:
-                          context.select<HomePresenter, PostSubject>((presenter) => presenter.currentSubject),
-                    ),
-                ],
-              ),
-            );
-          }),
-          Builder(
-            builder: (context) {
-              final feeds = context.select<HomePresenter, List<Feed>>((presenter) => presenter.feeds);
-              return SliverList.separated(
-                itemCount: feeds.length,
-                itemBuilder: (context, index) {
-                  final feed = feeds[index];
-                  switch (feed) {
-                    case PostFeed():
-                      return _buildPostFeed(feed.data, index);
-                    case TastedRecordFeed():
-                      return _buildTastedRecordFeed(feed.data, index);
-                  }
-                },
-                separatorBuilder: (context, index) => index % 12 != 11
-                    ? Container(height: 12, color: ColorStyles.gray20)
-                    : Builder(
-                        builder: (context) {
-                          final pageIndex = (index / 12).toInt();
-                          final page = context.select<HomePresenter, RecommendedPage?>(
-                              (presenter) => presenter.getRecommendedPage(pageIndex));
-                          if (page != null) {
-                            return RecommendedBuddyList(
-                              page: page,
-                              onTappedFollowButton: (int index) {
-                                if (context.read<HomePresenter>().isGuest) {
-                                  showLoginBottomSheet();
-                                } else {
-                                  context.read<HomePresenter>().onTappedRecommendedUserFollowButton(
-                                        page.users[index],
-                                        pageNo: pageIndex,
-                                      );
-                                }
-                              },
-                            );
-                          } else {
-                            return Container(height: 12, color: ColorStyles.gray20);
-                          }
-                        },
+      body: Container(
+        color: ColorStyles.gray20,
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            Builder(builder: (context) {
+              final isPostFeed = context.select<HomePresenter, bool>((presenter) => presenter.isPostFeed);
+              return SliverAppBar(
+                floating: true,
+                titleSpacing: 0,
+                toolbarHeight: isPostFeed ? 116 : kToolbarHeight,
+                title: Column(
+                  children: [
+                    TabBar(
+                      controller: _tabController,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      indicator: const UnderlineTabIndicator(
+                        borderSide: BorderSide(width: 2, color: ColorStyles.black),
+                        insets: EdgeInsets.only(top: 4),
                       ),
+                      labelPadding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                      tabAlignment: TabAlignment.start,
+                      isScrollable: true,
+                      labelStyle: TextStyles.title02SemiBold,
+                      labelColor: ColorStyles.black,
+                      unselectedLabelStyle: TextStyles.title02SemiBold,
+                      unselectedLabelColor: ColorStyles.gray50,
+                      dividerColor: Colors.white,
+                      overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                      tabs: const [
+                        Tab(text: '전체', height: 31),
+                        Tab(text: '시음기록', height: 31),
+                        Tab(text: '게시글', height: 31),
+                      ],
+                      onTap: (index) {
+                        if (_tabController.index == _tabController.previousIndex) {
+                          _scrollController.animateTo(
+                            0,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.ease,
+                          );
+                        } else {
+                          context.read<HomePresenter>().onChangeTab(index);
+                        }
+                      },
+                    ),
+                    if (isPostFeed)
+                      buildSubjectFilterBar(
+                        currentSubject:
+                            context.select<HomePresenter, PostSubject>((presenter) => presenter.currentSubject),
+                      ),
+                  ],
+                ),
               );
-            },
-          ),
-          if (context.select<HomePresenter, bool>((presenter) => presenter.isLoading))
-            SliverFillRemaining(
-              child: Container(
-                color: ColorStyles.gray20,
-                child: const Center(
-                  child: CupertinoActivityIndicator(
-                    color: ColorStyles.gray70,
+            }),
+            CupertinoSliverRefreshControl(
+              refreshTriggerPullDistance: 56,
+              refreshIndicatorExtent: 56,
+              builder: (
+                BuildContext context,
+                RefreshIndicatorMode refreshState,
+                double pulledExtent,
+                double refreshTriggerPullDistance,
+                double refreshIndicatorExtent,
+              ) {
+                switch (refreshState) {
+                  case RefreshIndicatorMode.drag:
+                    final double percentageComplete = clampDouble(
+                      pulledExtent / refreshTriggerPullDistance,
+                      0.0,
+                      1.0,
+                    );
+                    const Curve opacityCurve = Interval(0.0, 0.35, curve: Curves.easeInOut);
+                    return Opacity(
+                      opacity: opacityCurve.transform(percentageComplete),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CupertinoActivityIndicator.partiallyRevealed(
+                              progress: percentageComplete,
+                              color: ColorStyles.gray70,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CupertinoActivityIndicator(color: ColorStyles.gray70),
+                        ),
+                      ),
+                    );
+                  default:
+                    return const SizedBox.shrink();
+                }
+              },
+              onRefresh: () {
+                return context.read<HomePresenter>().onRefresh();
+              },
+            ),
+            Builder(
+              builder: (context) {
+                final feeds = context.select<HomePresenter, List<Feed>>((presenter) => presenter.feeds);
+                return SliverPadding(
+                  padding: const EdgeInsets.only(top: 12),
+                  sliver: SliverList.separated(
+                    itemCount: feeds.length,
+                    itemBuilder: (context, index) {
+                      final feed = feeds[index];
+                      switch (feed) {
+                        case PostFeed():
+                          return _buildPostFeed(feed.data, index);
+                        case TastedRecordFeed():
+                          return _buildTastedRecordFeed(feed.data, index);
+                      }
+                    },
+                    separatorBuilder: (context, index) => index % 12 != 11
+                        ? Container(height: 12, color: ColorStyles.gray20)
+                        : Builder(
+                            builder: (context) {
+                              final pageIndex = (index / 12).toInt();
+                              final page = context.select<HomePresenter, RecommendedPage?>(
+                                  (presenter) => presenter.getRecommendedPage(pageIndex));
+                              if (page != null) {
+                                return RecommendedBuddyList(
+                                  page: page,
+                                  onTappedFollowButton: (int index) {
+                                    if (context.read<HomePresenter>().isGuest) {
+                                      showLoginBottomSheet();
+                                    } else {
+                                      context.read<HomePresenter>().onTappedRecommendedUserFollowButton(
+                                            page.users[index],
+                                            pageNo: pageIndex,
+                                          );
+                                    }
+                                  },
+                                );
+                              } else {
+                                return Container(height: 12, color: ColorStyles.gray20);
+                              }
+                            },
+                          ),
+                  ),
+                );
+              },
+            ),
+            if (context.select<HomePresenter, bool>((presenter) => presenter.isLoading))
+              SliverFillRemaining(
+                child: Container(
+                  color: ColorStyles.gray20,
+                  child: const Center(
+                    child: CupertinoActivityIndicator(
+                      color: ColorStyles.gray70,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -302,7 +368,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
             subjectList.length + 1,
             (index) {
               if (index == 0) {
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     if (isGuest) {
                       showLoginBottomSheet();
@@ -325,7 +391,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 );
               } else {
                 final subject = subjectList[index - 1];
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     context.read<HomePresenter>().onSelectPostSubject(subject);
                   },
@@ -384,7 +450,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
           name: post.tastingRecords[index].beanName,
           tags: post.tastingRecords[index].flavors,
         ),
-        childBuilder: (context, index) => GestureDetector(
+        childBuilder: (context, index) => ThrottleButton(
           onTap: () {
             if (isGuest) {
               showLoginBottomSheet();

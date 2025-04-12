@@ -1,3 +1,6 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -7,8 +10,10 @@ class Alarm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTapped,
+    return ThrottleButton(
+      onTap: () {
+        onTapped?.call();
+      },
       child: SvgPicture.asset('assets/icons/alarm.svg', width: 28, height: 28),
     );
   }

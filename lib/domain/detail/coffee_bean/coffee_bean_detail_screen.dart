@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
@@ -140,7 +141,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -184,7 +185,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
           children: [
             Expanded(
               flex: 1,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   context.read<CoffeeBeanDetailPresenter>().onTapSave().then((_) {
                     showSnackBar(message: isSaved ? '저장된 원두정보를 삭제했어요.' : '원두 정보를 저장했어요.');
@@ -221,7 +222,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             const SizedBox(width: 8),
             Expanded(
               flex: 3,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   showTastingWriteScreen(context).then((value) {
                     if (value != null && value) {
@@ -468,7 +469,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
               min(4, tastedRecords.length),
               (index) {
                 final tastedRecord = tastedRecords[index];
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     showTastingRecordDetail(context: context, id: tastedRecord.id);
                   },
@@ -497,7 +498,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
           ],
           if (count > 4) ...[
             const SizedBox(height: 24),
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 final id = context.read<CoffeeBeanDetailPresenter>().id;
                 final name = context.read<CoffeeBeanDetailPresenter>().name;
@@ -551,7 +552,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
   }
 
   Widget _buildRecommendedCoffeeBean(RecommendedCoffeeBean recommendedCoffeeBean) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         showCoffeeBeanDetail(context: context, id: recommendedCoffeeBean.id);
       },
@@ -624,7 +625,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                         Row(
                           children: [
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },
@@ -644,7 +645,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },

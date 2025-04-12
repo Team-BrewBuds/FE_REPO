@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
@@ -35,7 +36,7 @@ class SNSLogin extends StatelessWidget {
                         const SizedBox(height: 48),
                         Column(
                           children: [
-                            GestureDetector(
+                            ThrottleButton(
                               onTap: () async {
                                 final loginResult = await _login(context, SocialLogin.kakao);
                                 if (context.mounted) {
@@ -88,7 +89,7 @@ class SNSLogin extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 7),
-                            GestureDetector(
+                            ThrottleButton(
                               onTap: () async {
                                 final loginResult = await _login(context, SocialLogin.naver);
                                 if (context.mounted) {
@@ -143,7 +144,7 @@ class SNSLogin extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 7),
-                            GestureDetector(
+                            ThrottleButton(
                               onTap: () async {
                                 final loginResult = await _login(context, SocialLogin.apple);
                                 if (context.mounted) {
@@ -225,7 +226,7 @@ class SNSLogin extends StatelessWidget {
         padding: const EdgeInsets.only(top: 35, left: 16, right: 16, bottom: 12),
         child: Row(
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () => context.pop(),
               child: SvgPicture.asset('assets/icons/back.svg', width: 24, height: 24),
             )

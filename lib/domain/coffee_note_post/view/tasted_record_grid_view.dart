@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_presenter.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -81,7 +82,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
                       itemCount: gridViewState.tastedRecords.length,
                       itemBuilder: (context, index) {
                         final tastedRecord = gridViewState.tastedRecords[index];
-                        return GestureDetector(
+                        return ThrottleButton(
                           onTap: () {
                             context.read<TastedRecordGridPresenter>().onSelected(tastedRecord);
                           },
@@ -120,7 +121,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
           children: [
             Positioned(
               left: 0,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   Navigator.of(context).pop();
                 },
@@ -141,7 +142,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
                   final hasSelectedItem = selectedTastedRecords.isNotEmpty;
                   return AbsorbPointer(
                     absorbing: !hasSelectedItem,
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         Navigator.of(context).pop(selectedTastedRecords);
                       },

@@ -57,7 +57,7 @@ class ProfilePresenter extends Presenter {
 
   ProfileState get profileState => (
         imageUrl: profile?.profileImageUrl ?? '',
-        tastingRecordCount: profile?.postCount ?? 0,
+        tastingRecordCount: profile?.tastedRecordCnt ?? 0,
         followerCount: profile?.followerCount ?? 0,
         followingCount: profile?.followingCount ?? 0,
       );

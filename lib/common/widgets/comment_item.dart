@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -43,7 +44,7 @@ class CommentItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   onTappedProfile.call();
                 },
@@ -93,7 +94,7 @@ class CommentItem extends StatelessWidget {
                     ),
                     if (canReply) ...[
                       const SizedBox(height: 6),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           onTappedReply?.call();
                         },
@@ -107,7 +108,7 @@ class CommentItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   onTappedLikeButton.call();
                 },
@@ -115,15 +116,20 @@ class CommentItem extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 14),
                   child: Column(
                     children: [
-                      SvgPicture.asset(
-                        'assets/icons/like.svg',
-                        colorFilter: ColorFilter.mode(
-                          !isLiked ? ColorStyles.gray50 : ColorStyles.red,
-                          BlendMode.srcIn,
+                      if (isLiked)
+                        SvgPicture.asset(
+                          'assets/icons/like_fill.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                        )
+                      else
+                        SvgPicture.asset(
+                          'assets/icons/like.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
                         ),
-                        height: 18,
-                        width: 18,
-                      ),
                       const SizedBox(height: 2),
                       Text(
                         likeCount,

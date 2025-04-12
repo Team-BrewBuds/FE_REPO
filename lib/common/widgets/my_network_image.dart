@@ -10,42 +10,43 @@ class MyNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return imageUrl.isNotEmpty ? ExtendedImage.network(
-      imageUrl,
-      height: height,
-      width: width,
-      shape: shape,
-      border: border,
-      fit: BoxFit.cover,
-      printError: false,
-      loadStateChanged: (state) {
-        switch (state.extendedImageLoadState) {
-          case LoadState.loading:
-            return null;
-          case LoadState.completed:
-            return null;
-          case LoadState.failed:
-            return Container(
-              height: height,
-              width: width,
-              decoration: BoxDecoration(
-                color: const Color(0xffd9d9d9),
-                shape: shape ?? BoxShape.rectangle,
-                border: border,
-              ),
-            );
-        }
-      },
-    ) : Container(
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        color: const Color(0xffd9d9d9),
-        shape: shape ?? BoxShape.rectangle,
-        border: border,
-      ),
-    );
+    return imageUrl.isNotEmpty
+        ? ExtendedImage.network(
+            imageUrl,
+            height: height,
+            width: width,
+            shape: shape,
+            border: border,
+            fit: BoxFit.cover,
+            printError: false,
+            loadStateChanged: (state) {
+              switch (state.extendedImageLoadState) {
+                case LoadState.loading:
+                  return null;
+                case LoadState.completed:
+                  return null;
+                case LoadState.failed:
+                  return Container(
+                    height: height,
+                    width: width,
+                    decoration: BoxDecoration(
+                      color: const Color(0xffd9d9d9),
+                      shape: shape ?? BoxShape.rectangle,
+                      border: border,
+                    ),
+                  );
+              }
+            },
+          )
+        : Container(
+            height: height,
+            width: width,
+            decoration: BoxDecoration(
+              color: const Color(0xffd9d9d9),
+              shape: shape ?? BoxShape.rectangle,
+              border: border,
+            ),
+          );
   }
 
   const MyNetworkImage({

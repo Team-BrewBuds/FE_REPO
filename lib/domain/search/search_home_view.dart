@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/search/core/search_mixin.dart';
 import 'package:brew_buds/domain/search/search_home_presenter.dart';
@@ -43,7 +44,7 @@ class _SearchHomeViewState extends State<SearchHomeView>
             Expanded(child: buildSearchTextFiled()),
             if (showSuggestPage) ...[
               const SizedBox(width: 8),
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   onTappedCancelButton();
                 },

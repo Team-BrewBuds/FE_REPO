@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
@@ -68,7 +69,7 @@ class _TastedRecordInCoffeeBeanListScreenState extends State<TastedRecordInCoffe
                       itemCount: page.results.length,
                       itemBuilder: (context, index) {
                         final tastedRecord = page.results[index];
-                        return GestureDetector(
+                        return ThrottleButton(
                           onTap: () {
                             showTastingRecordDetail(context: context, id: tastedRecord.id);
                           },
@@ -106,7 +107,7 @@ class _TastedRecordInCoffeeBeanListScreenState extends State<TastedRecordInCoffe
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 Navigator.of(context).pop();
               },

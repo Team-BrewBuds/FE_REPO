@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 
 class ExpandableCoffeeLife extends StatefulWidget {
@@ -17,88 +20,79 @@ class ExpandableCoffeeLife extends StatefulWidget {
 }
 
 class _ExpandableCoffeeLifeState extends State<ExpandableCoffeeLife> {
-  bool _isExpandable = false;
+  final ValueNotifier<bool> _expandedNotifier = ValueNotifier(false);
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 4,
-        children: List.generate(
-          _isExpandable ? widget.coffeeLifeList.length + 1 : widget.maxLength + 1,
-          (index) {
-            if (_isExpandable) {
-              if (index == widget.coffeeLifeList.length) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isExpandable = false;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    child: Center(
-                      child: Text(
-                        '접기',
-                        style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+      child: ValueListenableBuilder(
+          valueListenable: _expandedNotifier,
+          builder: (context, isExpanded, _) {
+            return Row(
+              spacing: 4,
+              children: [
+                if (isExpanded)
+                  ...widget.coffeeLifeList.map(
+                    (e) => Container(
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: ColorStyles.gray20,
+                        border: Border.all(color: ColorStyles.gray20),
+                        borderRadius: const BorderRadius.all(Radius.circular(40)),
+                      ),
+                      child: Center(
+                        child: Text(e, style: TextStyles.captionMediumMedium),
                       ),
                     ),
-                  ),
-                );
-              } else {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: ColorStyles.gray20,
-                    border: Border.all(color: ColorStyles.gray20),
-                    borderRadius: const BorderRadius.all(Radius.circular(40)),
-                  ),
-                  child: Center(
-                    child: Text(widget.coffeeLifeList[index], style: TextStyles.captionMediumMedium),
-                  ),
-                );
-              }
-            } else {
-              if (index == widget.maxLength) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isExpandable = true;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    decoration: BoxDecoration(
-                      color: ColorStyles.white,
-                      border: Border.all(color: ColorStyles.gray70),
-                      borderRadius: const BorderRadius.all(Radius.circular(40)),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '+ ${widget.coffeeLifeList.length - widget.maxLength}',
-                        style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                  )
+                else
+                  ...widget.coffeeLifeList.sublist(0, min(widget.coffeeLifeList.length, widget.maxLength)).map(
+                        (e) => Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                          decoration: BoxDecoration(
+                            color: ColorStyles.gray20,
+                            border: Border.all(color: ColorStyles.gray20),
+                            borderRadius: const BorderRadius.all(Radius.circular(40)),
+                          ),
+                          child: Center(
+                            child: Text(e, style: TextStyles.captionMediumMedium),
+                          ),
+                        ),
                       ),
-                    ),
+                if (widget.coffeeLifeList.length > widget.maxLength)
+                  ThrottleButton(
+                    onTap: () {
+                      _expandedNotifier.value = !_expandedNotifier.value;
+                    },
+                    child: isExpanded
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            child: Center(
+                              child: Text(
+                                '접기',
+                                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                            decoration: BoxDecoration(
+                              color: ColorStyles.white,
+                              border: Border.all(color: ColorStyles.gray70),
+                              borderRadius: const BorderRadius.all(Radius.circular(40)),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '+ ${widget.coffeeLifeList.length - widget.maxLength}',
+                                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                              ),
+                            ),
+                          ),
                   ),
-                );
-              } else {
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                  decoration: BoxDecoration(
-                    color: ColorStyles.gray20,
-                    border: Border.all(color: ColorStyles.gray20),
-                    borderRadius: const BorderRadius.all(Radius.circular(40)),
-                  ),
-                  child: Center(
-                    child: Text(widget.coffeeLifeList[index], style: TextStyles.captionMediumMedium),
-                  ),
-                );
-              }
-            }
-          },
-        ),
-      ),
+              ],
+            );
+          }),
     );
   }
 }

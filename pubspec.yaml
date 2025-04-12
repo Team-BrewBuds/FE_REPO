@@ -58,6 +58,8 @@ dependencies:
   notification_center: ^1.0.2
   geolocator: ^12.0.0
   flutter_screenutil: ^5.9.3
+  version: ^3.0.2
+  firebase_remote_config: ^5.4.3
 
 flutter_native_splash:
   color: "#FFFFFF"

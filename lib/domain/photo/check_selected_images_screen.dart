@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
@@ -52,7 +53,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
       child: Center(
         child: Row(
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 Navigator.pop(context);
               },
@@ -64,7 +65,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
               ),
             ),
             const Spacer(),
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 widget.onNext(context, widget._images);
               },
@@ -149,7 +150,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
       child: Row(
         children: [
           const Spacer(),
-          GestureDetector(
+          ThrottleButton(
             onTap: () async {
               final imageData = widget._images[_currentIndex];
               final data = await Navigator.of(context).push<Uint8List>(

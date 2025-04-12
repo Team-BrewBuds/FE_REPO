@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/photo/model/album.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -18,7 +19,7 @@ class AlbumListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: GestureDetector(
+        leading: ThrottleButton(
           onTap: () {
             context.pop();
           },
@@ -53,7 +54,7 @@ class AlbumListView extends StatelessWidget {
         itemCount: albumList.length,
         itemBuilder: (context, index) {
           final album = albumList[index];
-          return GestureDetector(
+          return ThrottleButton(
             onTap: () async {
               context.pop(index);
             },

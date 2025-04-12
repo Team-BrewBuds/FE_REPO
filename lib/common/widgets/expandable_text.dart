@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 
 class ExpandableText extends StatefulWidget {
@@ -52,7 +53,7 @@ class _ExpandableTextState extends State<ExpandableText> {
                     ? [
                         Text(widget.text, style: widget.style),
                         const SizedBox(height: 2),
-                        GestureDetector(
+                        ThrottleButton(
                           onTap: () {
                             setState(() {
                               _isExpandable = false;
@@ -67,7 +68,7 @@ class _ExpandableTextState extends State<ExpandableText> {
                     : [
                         Text.rich(span, maxLines: 2, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 2),
-                        GestureDetector(
+                        ThrottleButton(
                           onTap: () {
                             setState(() {
                               _isExpandable = true;

@@ -11,6 +11,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_pr
 import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -157,7 +158,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
         builder: (context, isValidFirstPage, child) {
           return AbsorbPointer(
             absorbing: !isValidFirstPage,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => TastingWriteSecondScreen()));
               },
@@ -195,7 +196,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             children: CoffeeBeanType.values
                 .map(
                   (type) => Expanded(
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         if (type == CoffeeBeanType.blend) {
                           _processingController.value = TextEditingValue.empty;
@@ -233,7 +234,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
       opacity: isOfficial ? 0.4 : 1,
       child: Row(
         children: [
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               context.read<TastingWritePresenter>().onChangeIsDecaf(!isDecaf);
             },
@@ -254,7 +255,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
       children: [
         Text('원두 이름', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             _showCoffeeBeanSearchBottomSheet(beanName);
           },
@@ -292,7 +293,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () {
                       _processingController.value = TextEditingValue.empty;
                       _extractionController.value = TextEditingValue.empty;
@@ -324,7 +325,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
         const SizedBox(height: 8),
         Opacity(
           opacity: isOfficial ? 0.4 : 1,
-          child: GestureDetector(
+          child: ThrottleButton(
             onTap: () {
               _showCountryBottomSheet(country: countryList);
             },
@@ -374,7 +375,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                       ),
                     ),
                     const SizedBox(width: 12),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () {
                         context.read<TastingWritePresenter>().onChangeCountry(null);
                       },
@@ -402,7 +403,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
+          ThrottleButton(
             onTap: () => toggleSection(option),
             child: Row(
               children: [
@@ -564,7 +565,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             children: CoffeeBeanProcessing.values.map(
               (processing) {
                 final isSelected = currentProcessing.contains(processing);
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     if (currentProcessing.contains(CoffeeBeanProcessing.writtenByUser)) {
                       _processingController.value = TextEditingValue.empty;
@@ -656,7 +657,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     mainAxisAlignment: MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context
                               .read<TastingWritePresenter>()
@@ -759,7 +760,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             children: CoffeeBeanExtraction.values.map(
               (extraction) {
                 final isSelected = currentExtraction == extraction;
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     if (currentExtraction == CoffeeBeanExtraction.writtenByUser) {
                       _extractionController.value = TextEditingValue.empty;
@@ -842,7 +843,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                         ? BeverageType.ice
                         : BeverageType.hot;
                 return Expanded(
-                  child: GestureDetector(
+                  child: ThrottleButton(
                     onTap: () {
                       context.read<TastingWritePresenter>().onChangeBeverageType(
                             currentType == type

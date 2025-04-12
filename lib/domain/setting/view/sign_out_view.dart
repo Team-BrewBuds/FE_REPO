@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
@@ -67,7 +68,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             Positioned(
               left: 0,
               child: Center(
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     context.pop();
                   },
@@ -113,7 +114,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
           const Spacer(),
           Row(
             children: [
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   setState(() {
                     _isAgreeSignOut = !_isAgreeSignOut;
@@ -137,7 +138,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             ],
           ),
           const SizedBox(height: 32),
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               setState(() {
                 _index = 1;
@@ -173,7 +174,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
           const SizedBox(height: 48),
           ...List.generate(_reason.length, (index) {
             final isSelected = index == _selectedReasonIndex;
-            return GestureDetector(
+            return ThrottleButton(
               onTap: () {
                 setState(() {
                   if (isSelected) {
@@ -207,7 +208,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             );
           }).separator(separatorWidget: const SizedBox(height: 20)),
           const Spacer(),
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -221,7 +222,7 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             ),
           ),
           const SizedBox(height: 32),
-          GestureDetector(
+          ThrottleButton(
             onTap: () async {
               final context = this.context;
               final result = await _showSignOutDialog().then((value) => value ?? false).onError((_, __) => false);

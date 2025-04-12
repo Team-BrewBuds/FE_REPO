@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,7 +37,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> {
           builder: (context, isCertificated, child) => Row(
             children: [
               Expanded(
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     context.read<SignUpPresenter>().onChangeCertificate(true);
                   },
@@ -60,7 +61,7 @@ class _SignUpThirdPageState extends State<SignUpThirdPage> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     context.read<SignUpPresenter>().onChangeCertificate(false);
                   },

@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
@@ -82,27 +85,56 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
           slivers: [
             buildSubjectFilter(),
             CupertinoSliverRefreshControl(
-              onRefresh: () {
-                return context.read<PopularPostsPresenter>().onRefresh();
-              },
+              refreshTriggerPullDistance: 56,
+              refreshIndicatorExtent: 56,
               builder: (
-                BuildContext context,
-                RefreshIndicatorMode refreshState,
-                double pulledExtent,
-                double refreshTriggerPullDistance,
-                double refreshIndicatorExtent,
-              ) {
+                  BuildContext context,
+                  RefreshIndicatorMode refreshState,
+                  double pulledExtent,
+                  double refreshTriggerPullDistance,
+                  double refreshIndicatorExtent,
+                  ) {
                 switch (refreshState) {
+                  case RefreshIndicatorMode.drag:
+                    final double percentageComplete = clampDouble(
+                      pulledExtent / refreshTriggerPullDistance,
+                      0.0,
+                      1.0,
+                    );
+                    const Curve opacityCurve = Interval(0.0, 0.35, curve: Curves.easeInOut);
+                    return Opacity(
+                      opacity: opacityCurve.transform(percentageComplete),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CupertinoActivityIndicator.partiallyRevealed(
+                              progress: percentageComplete,
+                              color: ColorStyles.gray70,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
                   case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
-                    return Container(
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      child: const Center(
-                        child: CupertinoActivityIndicator(),
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CupertinoActivityIndicator(color: ColorStyles.gray70),
+                        ),
                       ),
                     );
                   default:
-                    return Container();
+                    return const SizedBox.shrink();
                 }
+              },
+              onRefresh: () {
+                return context.read<PopularPostsPresenter>().onRefresh();
               },
             ),
             Selector<PopularPostsPresenter, DefaultPage<Post>>(
@@ -112,7 +144,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
                   itemCount: page.results.length,
                   itemBuilder: (context, index) {
                     final popularPost = page.results[index];
-                    return GestureDetector(
+                    return ThrottleButton(
                       onTap: () {
                         showCupertinoModalPopup<String>(
                           barrierColor: ColorStyles.white,
@@ -206,7 +238,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
                   children: List<Widget>.generate(
                     subjectFilterState.postSubjectFilterList.length,
                     (index) {
-                      return GestureDetector(
+                      return ThrottleButton(
                         onTap: () {
                           scrollController.jumpTo(0);
                           context.read<PopularPostsPresenter>().onChangeSubject(index);

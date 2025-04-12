@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> {
               mainAxisSpacing: 6,
               itemBuilder: (context, index) {
                 final coffeeLife = CoffeeLife.values[index];
-                return GestureDetector(
+                return ThrottleButton(
                   onTap: () {
                     context.read<SignUpPresenter>().onSelectCoffeeLife(coffeeLife);
                   },

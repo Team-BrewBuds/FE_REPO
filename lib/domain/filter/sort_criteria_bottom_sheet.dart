@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -56,7 +57,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                             const Spacer(),
                             Text('정렬', style: TextStyles.title02SemiBold),
                             const Spacer(),
-                            GestureDetector(
+                            ThrottleButton(
                               onTap: () {
                                 context.pop();
                               },
@@ -74,7 +75,7 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                       ...List<Widget>.generate(
                         widget.items.length,
                         (index) {
-                          return GestureDetector(
+                          return ThrottleButton(
                             onTap: () {
                               widget.items[index].$2();
                               context.pop();

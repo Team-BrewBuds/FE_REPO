@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
@@ -83,7 +84,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   context.pop();
                 },
@@ -103,7 +104,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                 builder: (context, canEdit, child) {
                   return AbsorbPointer(
                     absorbing: !canEdit,
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         context
                             .read<AccountDetailPresenter>()
@@ -144,7 +145,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
           crossAxisSpacing: 6,
           mainAxisSpacing: 6,
           itemBuilder: (context, index) {
-            return GestureDetector(
+            return ThrottleButton(
               onTap: () {
                 context.read<AccountDetailPresenter>().onSelectCoffeeLife(CoffeeLife.values[index]);
               },
@@ -212,7 +213,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
         Row(
           children: [
             Expanded(
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   context.read<AccountDetailPresenter>().onSelectCertificated(true);
                 },
@@ -236,7 +237,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   context.read<AccountDetailPresenter>().onSelectCertificated(false);
                 },
@@ -331,7 +332,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                         children: [
                           Positioned(
                             top: 0,
-                            child: GestureDetector(
+                            child: ThrottleButton(
                               onTap: () {
                                 context.read<AccountDetailPresenter>().onSelectBodyValue(index + 1);
                               },
@@ -418,7 +419,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                         children: [
                           Positioned(
                             top: 0,
-                            child: GestureDetector(
+                            child: ThrottleButton(
                               onTap: () {
                                 context.read<AccountDetailPresenter>().onSelectAcidityValue(index + 1);
                               },
@@ -505,7 +506,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                         children: [
                           Positioned(
                             top: 0,
-                            child: GestureDetector(
+                            child: ThrottleButton(
                               onTap: () {
                                 context.read<AccountDetailPresenter>().onSelectBitternessValue(index + 1);
                               },
@@ -592,7 +593,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                         children: [
                           Positioned(
                             top: 0,
-                            child: GestureDetector(
+                            child: ThrottleButton(
                               onTap: () {
                                 context.read<AccountDetailPresenter>().onSelectSweetValue(index + 1);
                               },

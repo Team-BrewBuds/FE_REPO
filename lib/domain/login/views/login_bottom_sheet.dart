@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
@@ -43,7 +44,7 @@ class LoginBottomSheet extends StatelessWidget {
                       child: Row(
                         children: [
                           const Spacer(),
-                          GestureDetector(
+                          ThrottleButton(
                             onTap: () {
                               context.pop();
                             },
@@ -64,7 +65,7 @@ class LoginBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24, width: double.infinity),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () async {
                         final loginResult = await _login(context, SocialLogin.kakao);
                         if (context.mounted) {
@@ -119,7 +120,7 @@ class LoginBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 7, width: double.infinity),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () async {
                         final loginResult = await _login(context, SocialLogin.naver);
                         if (context.mounted) {
@@ -172,7 +173,7 @@ class LoginBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 7, width: double.infinity),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () async {
                         final loginResult = await _login(context, SocialLogin.apple);
                         if (context.mounted) {

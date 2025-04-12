@@ -18,7 +18,6 @@ class CustomCameraButton extends StatefulWidget {
 class _CustomCameraButtonState extends State<CustomCameraButton> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late double _scale;
-  late Animation<double> _animation;
 
   @override
   void initState() {

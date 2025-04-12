@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/search/core/search_presenter.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
     return ValueListenableBuilder<bool>(
       valueListenable: showSuggestPage,
       builder: (context, showSuggestPage, child) {
-        return GestureDetector(
+        return ThrottleButton(
           onTap: () {
             textFieldFocusNode.unfocus();
           },
@@ -131,7 +132,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
             return hasWord
                 ? Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 10, right: 12, left: 4),
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         clearTextField();
                       },
@@ -227,7 +228,7 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
       itemCount: suggestSearchWords.length,
       itemBuilder: (context, index) {
         final word = suggestSearchWords[index];
-        return GestureDetector(
+        return ThrottleButton(
           onTap: () {
             onSelectedWord(word);
           },

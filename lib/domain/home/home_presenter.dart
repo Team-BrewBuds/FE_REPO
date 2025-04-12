@@ -49,11 +49,11 @@ final class HomePresenter extends Presenter {
   }
 
   initState() {
-    fetchMoreData();
+    fetchMoreData(isPageChanged: true);
   }
 
-  onRefresh() {
-    fetchMoreData(isPageChanged: true);
+  Future<void> onRefresh() async {
+    await fetchMoreData(isPageChanged: true, isRefresh: true);
   }
 
   login() {
@@ -61,26 +61,26 @@ final class HomePresenter extends Presenter {
     onRefresh();
   }
 
-  fetchMoreData({bool isPageChanged = false}) async {
+  Future<void> fetchMoreData({bool isPageChanged = false, bool isRefresh = false}) async {
     if (isPageChanged) {
       _recommendedUserPage = List.empty(growable: true);
       _feedPage = DefaultPage.initState();
       _pageNo = 1;
-      notifyListeners();
+      if (!isRefresh) {
+        _isLoading = true;
+        notifyListeners();
+      }
     }
 
     if (!_feedPage.hasNext) return;
 
-    _isLoading = true;
-    notifyListeners();
-
-    await fetchFeeds();
-    if (!_isGuest) {
-      await fetchRecommendedUsers();
+    await Future.wait([
+      fetchFeeds(),
+      fetchRecommendedUsers(),
+    ]);
+    if (_isLoading) {
+      _isLoading = false;
     }
-    notifyListeners();
-
-    _isLoading = false;
     notifyListeners();
   }
 
@@ -113,8 +113,10 @@ final class HomePresenter extends Presenter {
       );
       _pageNo++;
     } else {
-      final nextPage =
-          await postRepository.fetchPostPage(subjectFilter: _currentSubject.toJsonValue(), pageNo: _pageNo);
+      final nextPage = await postRepository.fetchPostPage(
+        subjectFilter: _currentSubject.toJsonValue(),
+        pageNo: _pageNo,
+      );
 
       _feedPage = await compute(
         (state) {
@@ -127,6 +129,8 @@ final class HomePresenter extends Presenter {
   }
 
   Future<void> fetchRecommendedUsers() async {
+    if (_isGuest) return;
+
     final newPage = await homeRepository
         .fetchRecommendedUserPage()
         .then((page) => Future<RecommendedPage?>.value(page))

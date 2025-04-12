@@ -19,31 +19,32 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'data/repository/app_repository.dart';
+
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+
+
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
-  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await initializeDateFormatting('ko');
   await dotenv.load(fileName: ".env");
 
-  //카카오 앱키
-  KakaoSdk.init(
-    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
-    javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT'],
-  );
-
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await checkInitialMessage();
-  setupFCMListeners();
+  await AppRepository.instance.checkUpdateRequired();
 
   DioClient.instance.initial();
   await AccountRepository.instance.init();
   await SharedPreferencesRepository.instance.init();
   await PermissionRepository.instance.initPermission();
   await NotificationRepository.instance.init();
+
+  KakaoSdk.init(
+    nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
+    javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT'],
+  );
 
   runApp(
     MultiProvider(
@@ -57,30 +58,6 @@ void main() async {
   );
 }
 
-
-Future<void> checkInitialMessage() async {
-  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-  if (initialMessage != null) {
-    AccountRepository.instance.notify();
-  }
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  AccountRepository.instance.notify();
-}
-
-void setupFCMListeners() {
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    AccountRepository.instance.notify();
-  });
-
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    AccountRepository.instance.notify();
-  });
-}
-
 class MyApp extends StatefulWidget {
   final GoRouter router;
 
@@ -90,7 +67,26 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state == AppLifecycleState.resumed) {
+      await AppRepository.instance.checkUpdateRequired();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
@@ -118,9 +114,35 @@ class _MyAppState extends State<MyApp> {
             backgroundColor: ColorStyles.white,
             scrolledUnderElevation: 0,
           ),
+          textSelectionTheme: const TextSelectionThemeData(
+            selectionColor: Color(0xFFFFA388),
+          ),
           useMaterial3: true,
         ),
       ),
     );
   }
+}
+
+Future<void> checkInitialMessage() async {
+  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+  if (initialMessage != null) {
+    AccountRepository.instance.notify();
+  }
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  AccountRepository.instance.notify();
+}
+
+void setupFCMListeners() {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    AccountRepository.instance.notify();
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    AccountRepository.instance.notify();
+  });
 }

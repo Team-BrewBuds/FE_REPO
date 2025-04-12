@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -71,7 +72,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
     final canUndo = widget._originData == imageData;
     return Row(
       children: [
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop();
           },
@@ -85,7 +86,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
         const Spacer(),
         Visibility(
           visible: !canUndo,
-          child: GestureDetector(
+          child: ThrottleButton(
               onTap: () {
                 undo();
               },
@@ -128,7 +129,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
       height: 145,
       child: Center(
-        child: GestureDetector(
+        child: ThrottleButton(
           onTap: () {
             _saveCroppedImage();
           },

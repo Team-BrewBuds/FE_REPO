@@ -40,7 +40,7 @@ final class TastingWritePresenter extends Presenter {
       _tasteReview.bitterness != 0 &&
       _tasteReview.sweetness != 0;
 
-  bool get isValidLastPage => _tasteReview.star > 0 && _contents.length > 7 && place.isNotEmpty;
+  bool get isValidLastPage => _tasteReview.star > 0 && _contents.length > 7;
 
   bool get isOfficial => _coffeeBean.isOfficial ?? false;
 

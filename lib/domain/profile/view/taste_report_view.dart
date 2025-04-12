@@ -1,4 +1,6 @@
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/taste_report/activity_item.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
@@ -92,54 +94,62 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: CustomScrollView(
-          key: _scrollViewKey,
-          controller: _scrollController,
-          slivers: [
-            SliverToBoxAdapter(
-              child: ExtendedImage.asset(
-                'assets/images/owner.png',
-                height: 150,
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Selector<TasteReportPresenter, ActivityInformationState>(
-                selector: (context, presenter) => presenter.activityInformationState,
-                builder: (context, activityInformationState, child) => _buildActivityInformation(
-                  tastingRecordCount: activityInformationState.tastingReportCount,
-                  postCount: activityInformationState.postCount,
-                  savedNoteCount: activityInformationState.savedNoteCount,
-                  savedBeanCount: activityInformationState.savedBeanCount,
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: _buildAppBar(),
+          body: SafeArea(
+            child: CustomScrollView(
+              key: _scrollViewKey,
+              controller: _scrollController,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: ExtendedImage.asset(
+                    'assets/images/owner.png',
+                    height: 150,
+                  ),
                 ),
-              ),
+                SliverToBoxAdapter(
+                  child: Selector<TasteReportPresenter, ActivityInformationState>(
+                    selector: (context, presenter) => presenter.activityInformationState,
+                    builder: (context, activityInformationState, child) => _buildActivityInformation(
+                      tastingRecordCount: activityInformationState.tastingReportCount,
+                      postCount: activityInformationState.postCount,
+                      savedNoteCount: activityInformationState.savedNoteCount,
+                      savedBeanCount: activityInformationState.savedBeanCount,
+                    ),
+                  ),
+                ),
+                _buildTabBar(),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                _buildActivityCalendar(),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                _buildActivityList(),
+                SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
+                Selector<TasteReportPresenter, RatingDistribution?>(
+                  selector: (context, presenter) => presenter.ratingDistribution,
+                  builder: (context, ratingDistribution, child) =>
+                      _buildRatingGraph(ratingDistribution: ratingDistribution),
+                ),
+                SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
+                Selector<TasteReportPresenter, List<TopFlavor>>(
+                  selector: (context, presenter) => presenter.topFlavor,
+                  builder: (context, topFlavors, child) => _buildFlavor(topFlavors: topFlavors),
+                ),
+                SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
+                Selector<TasteReportPresenter, List<TopCountry>>(
+                  selector: (context, presenter) => presenter.topCountry,
+                  builder: (context, topCountry, child) => _buildCountry(topCountryList: topCountry),
+                ),
+              ],
             ),
-            _buildTabBar(),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            _buildActivityCalendar(),
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-            _buildActivityList(),
-            SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-            Selector<TasteReportPresenter, RatingDistribution?>(
-              selector: (context, presenter) => presenter.ratingDistribution,
-              builder: (context, ratingDistribution, child) =>
-                  _buildRatingGraph(ratingDistribution: ratingDistribution),
-            ),
-            SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-            Selector<TasteReportPresenter, List<TopFlavor>>(
-              selector: (context, presenter) => presenter.topFlavor,
-              builder: (context, topFlavors, child) => _buildFlavor(topFlavors: topFlavors),
-            ),
-            SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
-            Selector<TasteReportPresenter, List<TopCountry>>(
-              selector: (context, presenter) => presenter.topCountry,
-              builder: (context, topCountry, child) => _buildCountry(topCountryList: topCountry),
-            ),
-          ],
+          ),
         ),
-      ),
+        if (context.select<TasteReportPresenter, bool>(
+              (presenter) => presenter.isLoading,
+        ))
+          const Positioned.fill(child: LoadingBarrier()),
+      ],
     );
   }
 
@@ -154,7 +164,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -324,7 +334,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 const Spacer(),
                 Selector<TasteReportPresenter, ActivityTypeState>(
                   selector: (context, presenter) => presenter.activityTypeState,
-                  builder: (context, activityTypeState, child) => GestureDetector(
+                  builder: (context, activityTypeState, child) => ThrottleButton(
                     onTap: () {
                       showActivityBottomSheet(
                         activityTypeList: activityTypeState.activityTypeList,
@@ -387,7 +397,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 ),
                 Row(
                   children: [
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () {
                         context.read<TasteReportPresenter>().movePreviousMonth();
                       },
@@ -396,7 +406,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     const SizedBox(width: 20),
                     Text('${state.focusedDay.year}년 ${state.focusedDay.month}월', style: TextStyles.title01SemiBold),
                     const SizedBox(width: 20),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () {
                         context.read<TasteReportPresenter>().moveNextMonth();
                       },
@@ -404,7 +414,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     ),
                   ],
                 ),
-                GestureDetector(
+                ThrottleButton(
                   onTap: () {
                     context.read<TasteReportPresenter>().goToday();
                   },
@@ -459,7 +469,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           builder: (context, activityListState, child) {
             return Column(
               children: [
-                GestureDetector(
+                ThrottleButton(
                   onTap: () {
                     _toggleExpanded();
                   },
@@ -490,7 +500,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                       final activity = activityListState.items[index];
                       switch (activity) {
                         case PostActivityItem():
-                          return GestureDetector(
+                          return ThrottleButton(
                             onTap: () {
                               showTastingRecordDetail(context: context, id: activity.id);
                             },
@@ -502,7 +512,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                             ),
                           );
                         case TastedRecordActivityItem():
-                          return GestureDetector(
+                          return ThrottleButton(
                             onTap: () {
                               showTastingRecordDetail(context: context, id: activity.id);
                             },
@@ -987,7 +997,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                                 const Spacer(),
                                 Text('활동 보기', style: TextStyles.title02SemiBold),
                                 const Spacer(),
-                                GestureDetector(
+                                ThrottleButton(
                                   onTap: () {
                                     context.pop();
                                   },
@@ -1006,7 +1016,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                             activityTypeList.length,
                             (index) {
                               final type = activityTypeList[index];
-                              return GestureDetector(
+                              return ThrottleButton(
                                 onTap: () => context.pop(index),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),

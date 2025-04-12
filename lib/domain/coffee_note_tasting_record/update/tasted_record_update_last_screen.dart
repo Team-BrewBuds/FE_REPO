@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_update_mixin.dart';
@@ -136,7 +137,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
         children: [
           Expanded(
             flex: 1,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 Navigator.of(context).pop();
               },
@@ -158,7 +159,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
               builder: (context, isValidLastPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidLastPage,
-                  child: GestureDetector(
+                  child: ThrottleButton(
                     onTap: () {
                       context.read<TastedRecordUpdatePresenter>().update().then((value) {
                         if (value) {
@@ -205,7 +206,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
             spacing: 8,
             children: List.generate(
               5,
-              (index) => GestureDetector(
+              (index) => ThrottleButton(
                 onTap: () {
                   context.read<TastedRecordUpdatePresenter>().onChangeStar(index + 1);
                 },
@@ -313,7 +314,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
       children: [
         Text('시음 날짜', style: TextStyles.title01SemiBold),
         const Spacer(),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             showDatePicker(dateTime: DateTime.now());
           },
@@ -344,7 +345,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
       children: [
         Text('시음 장소', style: TextStyles.title01SemiBold),
         const Spacer(),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             _showLocalBeanSearchBottomSheet();
           },
@@ -360,7 +361,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
               ] else ...[
                 Text(place, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray80)),
                 const SizedBox(width: 12),
-                GestureDetector(
+                ThrottleButton(
                   onTap: () {
                     _onChangePlace('');
                   },

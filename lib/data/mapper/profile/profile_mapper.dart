@@ -16,7 +16,7 @@ extension ProfileMapper on ProfileDTO {
       isCertificated: isCertificated,
       followingCount: followingCount,
       followerCount: followerCount,
-      postCount: postCount,
+      tastedRecordCnt: tastedRecordCnt,
       isUserFollowing: isUserFollowing,
       isUserBlocking: isUserBlocking,
     );

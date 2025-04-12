@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -33,7 +34,7 @@ class ManagementBottomSheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(ManagementBottomSheetResult.management);
                         },
@@ -51,7 +52,7 @@ class ManagementBottomSheet extends StatelessWidget {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(ManagementBottomSheetResult.openSetting);
                         },
@@ -64,7 +65,7 @@ class ManagementBottomSheet extends StatelessWidget {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop();
                         },

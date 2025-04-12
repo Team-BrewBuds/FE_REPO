@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:flutter/material.dart';
@@ -62,7 +63,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
           const Spacer(),
           Text('커피생활', style: TextStyles.title02Bold),
           const Spacer(),
-          GestureDetector(
+          ThrottleButton(
             onTap: () => context.pop(),
             child: SvgPicture.asset('assets/icons/x.svg', fit: BoxFit.cover, height: 24, width: 24),
           ),
@@ -81,7 +82,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
       mainAxisSpacing: 6,
       itemCount: CoffeeLife.values.length,
       itemBuilder: (context, index) {
-        return GestureDetector(
+        return ThrottleButton(
           onTap: () {
             context.read<CoffeeLifeBottomSheetPresenter>().onSelectCoffeeLife(CoffeeLife.values[index]);
           },
@@ -132,7 +133,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 24),
       child: Row(
         children: [
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               context.read<CoffeeLifeBottomSheetPresenter>().reset();
             },
@@ -147,7 +148,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 context.pop(context.read<CoffeeLifeBottomSheetPresenter>().selectedCoffeeLifeList);
               },

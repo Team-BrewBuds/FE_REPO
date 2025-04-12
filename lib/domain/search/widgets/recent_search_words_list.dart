@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -35,7 +36,7 @@ class RecentSearchWordsList extends StatelessWidget {
                   children: [
                     Text('최근 검색어', style: TextStyles.title02SemiBold),
                     const Spacer(),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () {
                         _onAllDelete();
                       },
@@ -57,7 +58,7 @@ class RecentSearchWordsList extends StatelessWidget {
                       _itemLength,
                       (index) {
                         final item = _itemBuilder(index);
-                        return GestureDetector(
+                        return ThrottleButton(
                           onTap: () {
                             item.onTap.call();
                           },
@@ -71,7 +72,7 @@ class RecentSearchWordsList extends StatelessWidget {
                               children: [
                                 Text(item.word, style: TextStyles.captionMediumRegular),
                                 const SizedBox(width: 2),
-                                GestureDetector(
+                                ThrottleButton(
                                   onTap: () {
                                     item.onDelete.call();
                                   },

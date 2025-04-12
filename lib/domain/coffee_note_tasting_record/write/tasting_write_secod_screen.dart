@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_last_screen.dart';
@@ -83,7 +84,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
         children: [
           Expanded(
             flex: 1,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 Navigator.of(context).pop();
               },
@@ -105,7 +106,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
               builder: (context, isValidSecondPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidSecondPage,
-                  child: GestureDetector(
+                  child: ThrottleButton(
                     onTap: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(
@@ -143,7 +144,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
       children: [
         Text('맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             _showTasteBottomSheet(taste: tasteList);
           },
@@ -181,7 +182,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () {
                       context.read<TastingWritePresenter>().onChangeTaste([]);
                     },
@@ -247,7 +248,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastingWritePresenter>().onChangeBodyValue(value);
                                 },
@@ -337,7 +338,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastingWritePresenter>().onChangeAcidityValue(value);
                                 },
@@ -427,7 +428,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastingWritePresenter>().onChangeBitternessValue(value);
                                 },
@@ -517,7 +518,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastingWritePresenter>().onChangeSweetnessValue(value);
                                 },

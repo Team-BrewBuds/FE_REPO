@@ -84,26 +84,32 @@ final class EditProfilePresenter extends Presenter {
 
   initState() {
     _nicknameCheckDebouncer = Debouncer(
-      const Duration(seconds: 10),
+      const Duration(milliseconds: 300),
       initialValue: '',
       onChanged: (newNickname) {
-        _checkNickname(newNickname);
+        if (newNickname.length >= 2) {
+          _checkNickname(newNickname);
+        } else {
+          _isDuplicatingNickname = false;
+          notifyListeners();
+        }
       },
     );
   }
 
   _checkNickname(String newNickname) async {
-    if (!_isNicknameChecking && newNickname.length >= 2 && newNickname != _preNickname) {
-      _isNicknameChecking = true;
-      notifyListeners();
+    _isNicknameChecking = true;
+    notifyListeners();
+
+    if (newNickname == _preNickname) {
+      _isDuplicatingNickname = false;
+    } else {
       _isDuplicatingNickname =
           await _profileRepository.isValidNickname(nickname: newNickname).onError((error, stackTrace) => true);
-      _isNicknameChecking = false;
-      notifyListeners();
-    } else if (!_isNicknameChecking && newNickname == _preNickname) {
-      _isDuplicatingNickname = false;
-      notifyListeners();
     }
+
+    _isNicknameChecking = false;
+    notifyListeners();
   }
 
   bool _compareCoffeeLifeList() {

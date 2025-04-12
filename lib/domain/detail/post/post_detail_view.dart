@@ -10,6 +10,7 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/re_comments_list.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -89,7 +90,7 @@ class _PostDetailViewState extends State<PostDetailView>
               showEmptyDialog().then((value) => context.pop());
             });
           }
-          return GestureDetector(
+          return ThrottleButton(
             onTap: () {
               FocusManager.instance.primaryFocus?.unfocus();
             },
@@ -182,7 +183,7 @@ class _PostDetailViewState extends State<PostDetailView>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -193,7 +194,7 @@ class _PostDetailViewState extends State<PostDetailView>
             const Spacer(),
             Selector<PostDetailPresenter, bool>(
               selector: (context, presenter) => presenter.isMine,
-              builder: (context, isMine, child) => GestureDetector(
+              builder: (context, isMine, child) => ThrottleButton(
                 onTap: () {
                   showActionBottomSheet(isMine: isMine).then((result) {
                     switch (result) {
@@ -289,7 +290,7 @@ class _PostDetailViewState extends State<PostDetailView>
     required bool isFollow,
     required bool isMine,
   }) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         if (authorId != null) {
           pushToProfile(context: context, id: authorId);
@@ -368,7 +369,7 @@ class _PostDetailViewState extends State<PostDetailView>
               name: tastingRecords[index].beanName,
               tags: tastingRecords[index].flavors,
             ),
-            childBuilder: (context, index) => GestureDetector(
+            childBuilder: (context, index) => ThrottleButton(
               onTap: () {
                 context.pop();
                 showTastingRecordDetail(context: context, id: tastingRecords[index].id);
@@ -611,7 +612,7 @@ class _PostDetailViewState extends State<PostDetailView>
         children: [
           if (canDelete)
             Expanded(
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   onDelete?.call();
                 },
@@ -638,7 +639,7 @@ class _PostDetailViewState extends State<PostDetailView>
             ),
           if (!isMine)
             Expanded(
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   onReport?.call();
                 },
@@ -703,7 +704,7 @@ class _PostDetailViewState extends State<PostDetailView>
                       style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                     ),
                     const Spacer(),
-                    GestureDetector(
+                    ThrottleButton(
                       onTap: () {
                         context.read<PostDetailPresenter>().cancelReply();
                       },
@@ -792,7 +793,7 @@ class _PostDetailViewState extends State<PostDetailView>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(PostDetailAction.update);
           },
@@ -806,7 +807,7 @@ class _PostDetailViewState extends State<PostDetailView>
             ),
           ),
         ),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(PostDetailAction.delete);
           },
@@ -822,7 +823,7 @@ class _PostDetailViewState extends State<PostDetailView>
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: GestureDetector(
+          child: ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -849,7 +850,7 @@ class _PostDetailViewState extends State<PostDetailView>
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(PostDetailAction.report);
           },
@@ -863,7 +864,7 @@ class _PostDetailViewState extends State<PostDetailView>
             ),
           ),
         ),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             context.pop(PostDetailAction.block);
           },
@@ -879,7 +880,7 @@ class _PostDetailViewState extends State<PostDetailView>
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-          child: GestureDetector(
+          child: ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -933,7 +934,7 @@ class _PostDetailViewState extends State<PostDetailView>
                         Row(
                           children: [
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },
@@ -953,7 +954,7 @@ class _PostDetailViewState extends State<PostDetailView>
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },

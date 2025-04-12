@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -68,7 +69,7 @@ class _SettingScreenState extends State<SettingScreen>
                   ),
                 ...category.items.map((item) {
                   if (item == SettingItem.version) {
-                    return GestureDetector(
+                    return ThrottleButton(
                       onTap: () {},
                       child: Container(
                         padding: const EdgeInsets.all(16.0),
@@ -83,7 +84,7 @@ class _SettingScreenState extends State<SettingScreen>
                       ),
                     );
                   }
-                  return GestureDetector(
+                  return ThrottleButton(
                     onTap: () {
                       onTapped(item);
                     },
@@ -124,7 +125,7 @@ class _SettingScreenState extends State<SettingScreen>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -241,7 +242,7 @@ class _SettingScreenState extends State<SettingScreen>
                   ),
                   child: Column(
                     children: [
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(true);
                         },
@@ -259,7 +260,7 @@ class _SettingScreenState extends State<SettingScreen>
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-                        child: GestureDetector(
+                        child: ThrottleButton(
                           onTap: () {
                             context.pop();
                           },
@@ -310,7 +311,7 @@ class _SettingScreenState extends State<SettingScreen>
                   ),
                   child: Column(
                     children: [
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(true);
                         },
@@ -328,7 +329,7 @@ class _SettingScreenState extends State<SettingScreen>
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-                        child: GestureDetector(
+                        child: ThrottleButton(
                           onTap: () {
                             context.pop();
                           },

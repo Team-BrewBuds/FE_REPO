@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/coffee_bean/country.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -74,7 +75,7 @@ class CountryBottomSheet extends StatelessWidget {
           const Spacer(),
           Text('생산국가', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
           const Spacer(),
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -108,7 +109,7 @@ class CountryBottomSheet extends StatelessWidget {
                     children: continent.countries().map(
                       (country) {
                         final isSelectedCountry = selectedCountry.contains(country.toString());
-                        return GestureDetector(
+                        return ThrottleButton(
                           onTap: () {
                             if (isSelectedCountry) {
                               this.selectedCountry.value = List.from(this.selectedCountry.value)
@@ -171,7 +172,7 @@ class CountryBottomSheet extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(width: 4),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           this.selectedCountry.value = List.from(this.selectedCountry.value)
                             ..remove(country.toString());
@@ -201,7 +202,7 @@ class CountryBottomSheet extends StatelessWidget {
         children: [
           Expanded(
             flex: 1,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 selectedCountry.value = selectedCountry.value..clear();
               },
@@ -218,7 +219,7 @@ class CountryBottomSheet extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             flex: 3,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 context.pop(selectedCountry.value);
               },

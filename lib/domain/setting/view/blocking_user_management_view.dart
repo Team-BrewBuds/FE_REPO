@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/domain/setting/model/blocked_user.dart';
 import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
@@ -91,7 +92,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                         ),
                       ),
                       const SizedBox(width: 16),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           setState(() {
                             _showHelper = false;
@@ -130,7 +131,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -177,7 +178,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                   style: TextStyles.labelMediumMedium,
                 )),
                 const SizedBox(width: 8),
-                GestureDetector(
+                ThrottleButton(
                   onTap: () async {
                     final result = await context.read<BlockingUserManagementPresenter>().unBlock(id: user.id);
                   },

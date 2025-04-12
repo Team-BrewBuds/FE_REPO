@@ -9,6 +9,8 @@ final class OtherProfilePresenter extends ProfilePresenter {
   @override
   final int id;
 
+  bool get canShowTastingReport => (profile?.tastedRecordCnt ?? 0) >= 3;
+
   bool get isFollow => profile?.isUserFollowing ?? false;
 
   OtherProfilePresenter({

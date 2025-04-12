@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -60,7 +61,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
       // **1️⃣ Focus 되면 자동으로 `#` 추가**
       if (_hashTagController.text.isEmpty) {
         _hashTagController.value =
-        const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
+            const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
       }
     } else {
       // **2️⃣ Focus 해제 시 `#`만 남아있다면 모두 삭제**
@@ -131,7 +132,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
         children: [
           Expanded(
             flex: 1,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 Navigator.of(context).pop();
               },
@@ -153,7 +154,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
               builder: (context, isValidLastPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidLastPage,
-                  child: GestureDetector(
+                  child: ThrottleButton(
                     onTap: () async {
                       final result = await context.read<TastingWritePresenter>().write();
                       switch (result) {
@@ -202,7 +203,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               5,
-              (index) => GestureDetector(
+              (index) => ThrottleButton(
                 onTap: () {
                   context.read<TastingWritePresenter>().onChangeStar(index + 1);
                 },
@@ -310,7 +311,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
       children: [
         Text('시음 날짜', style: TextStyles.title01SemiBold),
         const Spacer(),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             showDatePicker(dateTime: DateTime.now());
           },
@@ -341,7 +342,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
       children: [
         Text('시음 장소', style: TextStyles.title01SemiBold),
         const Spacer(),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             _showLocalBeanSearchBottomSheet();
           },
@@ -357,7 +358,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
               ] else ...[
                 Text(place, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray80)),
                 const SizedBox(width: 12),
-                GestureDetector(
+                ThrottleButton(
                   onTap: () {
                     _onChangePlace('');
                   },
@@ -434,7 +435,6 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     context.pop(true);
   }
 }
-
 
 class HashLimiterFormatter extends TextInputFormatter {
   @override

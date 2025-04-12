@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/domain/report/report_presenter.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,7 @@ class ReportScreen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 Navigator.of(context).pop();
               },
@@ -88,7 +89,7 @@ class ReportScreen extends StatelessWidget {
             final isSelected = reason == selectedReason;
             return Row(
               children: [
-                GestureDetector(
+                ThrottleButton(
                   onTap: () {
                     context.read<ReportPresenter>().onSelectReason(reason);
                   },
@@ -117,7 +118,7 @@ class ReportScreen extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
       child: AbsorbPointer(
         absorbing: !canReport,
-        child: GestureDetector(
+        child: ThrottleButton(
           onTap: () {
             context.read<ReportPresenter>().report().then((result) {
               switch (result) {

@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -128,7 +129,7 @@ class _WebScreenState extends State<WebScreen> {
         padding: const EdgeInsets.only(top: 28, bottom: 12, left: 16, right: 16),
         child: Row(
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -210,7 +211,7 @@ class _WebScreenState extends State<WebScreen> {
             builder: (context, canGoBack, _) {
               return AbsorbPointer(
                 absorbing: !canGoBack,
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     controller.goBack();
                   },
@@ -233,7 +234,7 @@ class _WebScreenState extends State<WebScreen> {
             builder: (context, canGoForward, _) {
               return AbsorbPointer(
                 absorbing: !canGoForward,
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     controller.goForward();
                   },
@@ -251,7 +252,7 @@ class _WebScreenState extends State<WebScreen> {
             },
           ),
           const Spacer(),
-          GestureDetector(
+          ThrottleButton(
               onTap: () {
                 controller.reload();
               },

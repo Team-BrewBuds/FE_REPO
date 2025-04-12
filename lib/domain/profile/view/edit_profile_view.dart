@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -92,7 +93,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         _unFocus();
       },
@@ -151,7 +152,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
             Positioned(
               left: 0,
               child: Center(
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     context.pop();
                   },
@@ -173,7 +174,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                     builder: (context, canEdit, _) {
                       return AbsorbPointer(
                         absorbing: !canEdit,
-                        child: GestureDetector(
+                        child: ThrottleButton(
                           onTap: () {
                             context.read<EditProfilePresenter>().onSave().then((value) {
                               switch (value) {
@@ -232,7 +233,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
           Positioned(
             right: 0,
             bottom: 0,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 _showAlbumModal();
               },
@@ -301,12 +302,14 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                     gapPadding: 0,
                   ),
                   suffixIcon: state.isChecking
-                      ? const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: CupertinoActivityIndicator(color: ColorStyles.gray50),
+                      ? Container(
+                          padding: const EdgeInsets.all(16),
+                          width: 40,
+                          height: 40,
+                          child: const Center(child: CupertinoActivityIndicator(color: ColorStyles.black)),
                         )
                       : const SizedBox.shrink(),
-                  suffixIconConstraints: const BoxConstraints(maxHeight: 48, maxWidth: 48),
+                  suffixIconConstraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
                 ),
                 style: TextStyles.labelSmallMedium,
                 cursorColor: ColorStyles.black,
@@ -439,7 +442,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                   gapPadding: 0,
                 ),
                 suffixIcon: linkState.hasLink
-                    ? GestureDetector(
+                    ? ThrottleButton(
                         onTap: () {
                           _clearLink();
                         },
@@ -502,7 +505,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
               ),
             ),
             const SizedBox(width: 8),
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 _showCoffeeLifeBottomSheet(coffeeLifeList: coffeeLifeList);
               },
@@ -558,7 +561,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 ),
               ),
               const SizedBox(width: 8),
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   context.read<EditProfilePresenter>().onChangeSelectedCoffeeLife([]);
                 },

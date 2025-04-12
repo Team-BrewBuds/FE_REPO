@@ -1,4 +1,5 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -46,7 +47,7 @@ class _MyTooltipState extends State<MyTooltip> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         final duration = widget.duration;
         if (duration != null) {
@@ -74,7 +75,9 @@ class _MyTooltipState extends State<MyTooltip> {
         content: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(4)), color: ColorStyles.black.withOpacity(0.9)),
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
+            color: ColorStyles.black90,
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -87,7 +90,7 @@ class _MyTooltipState extends State<MyTooltip> {
               ),
               if (widget.showCancelButton) ...[
                 const SizedBox(width: 8),
-                GestureDetector(
+                ThrottleButton(
                   onTap: () {
                     _superTooltipController.hideTooltip();
                   },

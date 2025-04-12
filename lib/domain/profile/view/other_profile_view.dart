@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/di/navigator.dart';
@@ -52,29 +53,37 @@ class _OtherProfileViewState extends State<OtherProfileView>
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
-              onTap: () {
-                final id = context.read<OtherProfilePresenter>().id;
-                final nickname = context.read<OtherProfilePresenter>().nickName;
-                pushToTasteReport(context: context, id: id, nickname: nickname);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                decoration: const BoxDecoration(
-                  color: ColorStyles.black,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
+            child: Builder(builder: (context) {
+              final canShowTastingReport = context.select<OtherProfilePresenter, bool>(
+                (presenter) => presenter.canShowTastingReport,
+              );
+              return AbsorbPointer(
+                absorbing: !canShowTastingReport,
+                child: ThrottleButton(
+                  onTap: () {
+                    final id = context.read<OtherProfilePresenter>().id;
+                    final nickname = context.read<OtherProfilePresenter>().nickName;
+                    pushToTasteReport(context: context, id: id, nickname: nickname);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: canShowTastingReport ? ColorStyles.black : ColorStyles.gray20,
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    ),
+                    child: Text(
+                      '취향 리포트 보기',
+                      style: TextStyles.labelSmallMedium.copyWith(color: canShowTastingReport ? ColorStyles.white : ColorStyles.gray50),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-                child: Text(
-                  '취향 리포트 보기',
-                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+              );
+            }),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 context.read<OtherProfilePresenter>().onTappedFollowButton();
               },
@@ -112,7 +121,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },
@@ -129,7 +138,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
               builder: (context, nickName, child) => Text(nickName, style: TextStyles.title02Bold),
             ),
             const Spacer(),
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 _showBlockBottomSheet().then((value) {
                   if (value != null && value) {
@@ -188,7 +197,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                   ),
                   child: Column(
                     children: [
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop(true);
                         },
@@ -206,7 +215,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-                        child: GestureDetector(
+                        child: ThrottleButton(
                           onTap: () {
                             context.pop();
                           },
@@ -284,7 +293,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                         Row(
                           children: [
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },
@@ -304,7 +313,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },

@@ -36,6 +36,7 @@ final class TasteReportPresenter extends Presenter {
   final TasteReportRepository _tastedReportRepository = TasteReportRepository.instance;
   final String nickname;
   final int _id;
+  bool _isLoading = false;
   ActivitySummary? _activitySummary;
   RatingDistribution? _ratingDistribution;
   List<TopFlavor> _topFlavors = [];
@@ -44,6 +45,8 @@ final class TasteReportPresenter extends Presenter {
   int _activityTypeIndex = 0;
   DateTime _focusedDay = DateTime.now();
   DateTime _selectedDay = DateTime.now();
+
+  bool get isLoading => _isLoading;
 
   ActivityInformationState get activityInformationState => (
         tastingReportCount: _activitySummary?.tastedRecordCount ?? 0,
@@ -82,15 +85,38 @@ final class TasteReportPresenter extends Presenter {
   }) : _id = id;
 
   initState() async {
-    _activitySummary = await _tastedReportRepository.fetchActivitySummary(id: _id);
-    fetchActivity();
-    _ratingDistribution = await _tastedReportRepository.fetchRatingDistribution(id: _id);
-    _topFlavors = List.from(await _tastedReportRepository.fetchFavoriteFlavor(id: _id));
-    _topCounty = List.from(await _tastedReportRepository.fetchPreferredCountry(id: _id));
+    _isLoading = true;
+    notifyListeners();
+
+    await Future.wait([
+      fetchActivitySummary(),
+      fetchActivity(),
+      fetchRatingDistribution(),
+      fetchTopFlavors(),
+      fetchTopCountry(),
+    ]);
+
+    _isLoading = false;
     notifyListeners();
   }
 
-  fetchActivity() async {
+  Future<void> fetchActivitySummary() async {
+    _activitySummary = await _tastedReportRepository.fetchActivitySummary(id: _id);
+  }
+
+  Future<void> fetchRatingDistribution() async {
+    _ratingDistribution = await _tastedReportRepository.fetchRatingDistribution(id: _id);
+  }
+
+  Future<void> fetchTopFlavors() async {
+    _topFlavors = List.from(await _tastedReportRepository.fetchFavoriteFlavor(id: _id));
+  }
+
+  Future<void> fetchTopCountry() async {
+    _topCounty = List.from(await _tastedReportRepository.fetchPreferredCountry(id: _id));
+  }
+
+  Future<void> fetchActivity() async {
     if (_activityTypeIndex == 0) {
       _activityItems = await _tastedReportRepository.fetchTastedRecordActivityCalendar(
         id: _id,

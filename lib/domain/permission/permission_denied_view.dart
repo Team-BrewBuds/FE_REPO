@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +41,7 @@ class PermissionDeniedView extends StatelessWidget {
               padding: const EdgeInsets.only(left: 16, top: 19, right: 16),
               child: Row(
                 children: [
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () {
                       context.pop();
                     },
@@ -67,7 +68,7 @@ class PermissionDeniedView extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () {
                       openAppSettings();
                     },

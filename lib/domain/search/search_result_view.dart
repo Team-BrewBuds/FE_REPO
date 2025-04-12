@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
@@ -85,7 +86,7 @@ class _SearchResultViewState extends State<SearchResultView>
               visible: !showSuggestPage,
               child: Container(
                 margin: const EdgeInsets.only(right: 8),
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     context.pop();
                   },
@@ -102,7 +103,7 @@ class _SearchResultViewState extends State<SearchResultView>
               visible: showSuggestPage,
               child: Container(
                 margin: const EdgeInsets.only(left: 8),
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     onTappedCancelButton();
                   },
@@ -178,7 +179,7 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildBeanResultItem(CoffeeBeanSearchResultModel model) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         showCoffeeBeanDetail(context: context, id: model.id);
       },
@@ -192,7 +193,7 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildUserResultItem(BuddySearchResultModel model) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         pushToProfile(context: context, id: model.id).then((result) {
           if (result != null) {
@@ -210,7 +211,7 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildTastingRecordResultItem(TastedRecordSearchResultModel model) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         showTastingRecordDetail(context: context, id: model.id).then((result) {
           if (result != null) {
@@ -231,7 +232,7 @@ class _SearchResultViewState extends State<SearchResultView>
   }
 
   Widget _buildPostResultItem(PostSearchResultModel model) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         showPostDetail(context: context, id: model.id).then((result) {
           if (result != null) {
@@ -524,7 +525,7 @@ class _SearchResultViewState extends State<SearchResultView>
                                 Positioned(
                                   top: 21,
                                   right: 16,
-                                  child: GestureDetector(
+                                  child: ThrottleButton(
                                     onTap: () {
                                       context.pop();
                                     },
@@ -544,7 +545,7 @@ class _SearchResultViewState extends State<SearchResultView>
                             PostSubject.values.length,
                             (index) {
                               final subject = PostSubject.values[index];
-                              return GestureDetector(
+                              return ThrottleButton(
                                 onTap: () {
                                   context.read<SearchResultPresenter>().onChangePostSubjectFilter(index);
                                   context.pop();
@@ -612,7 +613,7 @@ class _SearchResultViewState extends State<SearchResultView>
         color: isActive ? ColorStyles.red : ColorStyles.black,
       ),
     );
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         onTap.call();
       },

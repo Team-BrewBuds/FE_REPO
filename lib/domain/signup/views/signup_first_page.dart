@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,7 +161,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
     } else if (hasNickname && isValidNickname) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else if (hasNickname && !isValidNickname) {
-      return GestureDetector(
+      return ThrottleButton(
         onTap: () {
           _clearNickname();
         },
@@ -256,7 +257,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
     } else if (yearOfBirthLength == 4 && isValidYearOfBirth) {
       return SvgPicture.asset('assets/icons/check_fill.svg', height: 24, width: 24);
     } else {
-      return GestureDetector(
+      return ThrottleButton(
         onTap: () {
           _clearYearOfAge();
         },
@@ -280,7 +281,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
           children: Gender.values
               .map(
                 (gender) => Expanded(
-                  child: GestureDetector(
+                  child: ThrottleButton(
                     onTap: () {
                       context.read<SignUpPresenter>().onChangeGender(gender);
                     },

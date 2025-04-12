@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/camera/camera_first_time_view.dart';
 import 'package:brew_buds/domain/camera/widget/custom_camera_button.dart';
@@ -88,7 +89,7 @@ class _CameraScreenState extends State<CameraScreen> {
                                           child: Center(
                                             child: Row(
                                               children: [
-                                                GestureDetector(
+                                                ThrottleButton(
                                                   onTap: () {
                                                     widget.onTapAlbum.call(context);
                                                   },
@@ -144,7 +145,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: Center(
                   child: Row(
                     children: [
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           context.pop();
                         },
@@ -265,7 +266,7 @@ class _CameraScreenState extends State<CameraScreen> {
             child: Center(
               child: Row(
                 children: [
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () {
                       context.pop();
                     },
@@ -277,7 +278,7 @@ class _CameraScreenState extends State<CameraScreen> {
                     ),
                   ),
                   const Spacer(),
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () async {
                       final origin = originData;
                       if (origin != null) {
@@ -328,7 +329,7 @@ class _CameraScreenState extends State<CameraScreen> {
           child: Row(
             children: [
               Expanded(
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     imageData.value = null;
                     originData = null;
@@ -349,7 +350,7 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: GestureDetector(
+                child: ThrottleButton(
                   onTap: () {
                     widget.onDone?.call(context, data);
                   },

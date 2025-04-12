@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -79,7 +80,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
@@ -185,7 +186,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
             ),
             Positioned(
               left: 0,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   showCenterDialog(
                     title: '게시글 수정을 그만두시겠습니까?',
@@ -212,7 +213,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
               child: Selector<PostUpdatePresenter, AppBarState>(
                   selector: (context, presenter) => presenter.appBarState,
                   builder: (context, state, child) {
-                    return GestureDetector(
+                    return ThrottleButton(
                       onTap: () async {
                         if (state.isValid) {
                           final result = await context.read<PostUpdatePresenter>().update();
@@ -251,7 +252,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
   }
 
   Widget _buildSubjectSelector({required PostSubject subject}) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         _showSubjectSelector(currentSubject: subject);
       },
@@ -446,7 +447,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                             subjectList.length,
                                 (index) {
                               final subject = subjectList[index];
-                              return GestureDetector(
+                              return ThrottleButton(
                                 onTap: () {
                                   context.pop(subject);
                                 },

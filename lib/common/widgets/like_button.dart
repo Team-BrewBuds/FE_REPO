@@ -1,35 +1,29 @@
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class LikeButton extends StatelessWidget {
-  final Throttle<bool> _throttle;
   final void Function() onTap;
   final bool isLiked;
   final int likeCount;
 
-  LikeButton({
+  const LikeButton({
     super.key,
     required this.onTap,
     required this.isLiked,
     required this.likeCount,
-  }) : _throttle = Throttle(
-    const Duration(seconds: 3),
-    initialValue: false,
-    onChanged: (value) {
-      if (value) {
-        onTap.call();
-      }
-    },
-  );
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
-        _throttle.setValue(true);
+        onTap.call();
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
@@ -40,6 +34,7 @@ class LikeButton extends StatelessWidget {
                 'assets/icons/like_fill.svg',
                 width: 24,
                 height: 24,
+                colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
               )
             else
               SvgPicture.asset(

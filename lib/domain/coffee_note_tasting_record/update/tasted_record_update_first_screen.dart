@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_update_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_last_screen.dart';
@@ -76,7 +77,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
         builder: (context, isValidSecondPage, child) {
           return AbsorbPointer(
             absorbing: !isValidSecondPage,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 final contents = context.read<TastedRecordUpdatePresenter>().contents;
                 final tag = context.read<TastedRecordUpdatePresenter>().tag.replaceAll(',', '#');
@@ -113,7 +114,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
       children: [
         Text('맛', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
-        GestureDetector(
+        ThrottleButton(
           onTap: () {
             _showTasteBottomSheet(taste: tasteList);
           },
@@ -151,7 +152,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                     ),
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
+                  ThrottleButton(
                     onTap: () {
                       context.read<TastedRecordUpdatePresenter>().onChangeTaste([]);
                     },
@@ -216,7 +217,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastedRecordUpdatePresenter>().onChangeBodyValue(value);
                                 },
@@ -306,7 +307,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastedRecordUpdatePresenter>().onChangeAcidityValue(value);
                                 },
@@ -396,7 +397,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastedRecordUpdatePresenter>().onChangeBitternessValue(value);
                                 },
@@ -486,7 +487,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                           children: [
                             Positioned(
                               top: 0,
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<TastedRecordUpdatePresenter>().onChangeSweetnessValue(value);
                                 },

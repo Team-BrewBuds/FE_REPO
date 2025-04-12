@@ -19,7 +19,7 @@ class FollowListRepository {
   factory FollowListRepository() => instance;
 
   Future<DefaultPage<FollowUser>> fetchFollowerList({required int id, required int page, required String type}) async {
-    final jsonString = await _followApi.fetchMyFollowList(pageNo: page, type: type);
+    final jsonString = await _followApi.fetchFollowList(id: id, pageNo: page, type: type);
     return compute(
       (jsonString) {
         try {

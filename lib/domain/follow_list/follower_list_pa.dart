@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_presenter.dart';
 import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
 import 'package:brew_buds/model/common/default_page.dart';
@@ -100,7 +101,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            GestureDetector(
+                            ThrottleButton(
                               onTap: () {
                                 context.read<FollowerListPresenter>().onTappedFollowButton(user);
                               },
@@ -141,7 +142,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
+            ThrottleButton(
               onTap: () {
                 context.pop();
               },

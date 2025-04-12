@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
@@ -73,7 +74,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
             ),
             Positioned(
               left: 0,
-              child: GestureDetector(
+              child: ThrottleButton(
                 onTap: () {
                   showCancelDialog().then((value) {
                     if (value != null && value) {
@@ -183,7 +184,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                         Row(
                           children: [
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop();
                                 },
@@ -203,7 +204,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: GestureDetector(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.pop(true);
                                 },

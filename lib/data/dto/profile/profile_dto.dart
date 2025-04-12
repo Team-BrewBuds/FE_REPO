@@ -27,8 +27,8 @@ class ProfileDTO {
   final int followingCount;
   @JsonKey(name: 'follower_cnt', defaultValue: 0)
   final int followerCount;
-  @JsonKey(name: 'post_cnt', defaultValue: 0)
-  final int postCount;
+  @JsonKey(name: 'tasted_record_cnt', defaultValue: 0)
+  final int tastedRecordCnt;
   @JsonKey(name: 'is_user_following', defaultValue: false)
   final bool isUserFollowing;
   @JsonKey(name: 'is_user_blocking', defaultValue: false)
@@ -47,7 +47,7 @@ class ProfileDTO {
     this.isCertificated,
     required this.followingCount,
     required this.followerCount,
-    required this.postCount,
+    required this.tastedRecordCnt,
     required this.isUserFollowing,
     required this.isUserBlocking,
   });

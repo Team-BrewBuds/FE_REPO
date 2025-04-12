@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -61,7 +62,7 @@ abstract class FeedWidget extends StatelessWidget {
   }
 
   Widget buildProfile() {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         onTapProfile.call();
       },
@@ -129,7 +130,7 @@ abstract class FeedWidget extends StatelessWidget {
   }
 
   Widget buildLikeButton() {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         onTapLikeButton.call();
       },
@@ -155,7 +156,7 @@ abstract class FeedWidget extends StatelessWidget {
   }
 
   Widget buildCommentButton() {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         onTapCommentsButton.call();
       },
@@ -181,7 +182,7 @@ abstract class FeedWidget extends StatelessWidget {
   }
 
   Widget buildSaveButton() {
-    return GestureDetector(
+    return ThrottleButton(
       onTap: () {
         onTapSaveButton();
       },

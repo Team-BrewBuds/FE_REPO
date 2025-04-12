@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -58,7 +59,7 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                             const Spacer(),
                             Text('시음 날짜', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
                             const Spacer(),
-                            GestureDetector(
+                            ThrottleButton(
                               onTap: () {
                                 context.pop();
                               },
@@ -88,7 +89,7 @@ class _DatePickerBottomSheetState extends State<DatePickerBottomSheet> {
                         padding: EdgeInsets.only(
                             left: 16, right: 16, bottom: MediaQuery.of(context).padding.bottom + 24, top: 24),
                         decoration: const BoxDecoration(border: Border(top: BorderSide(color: Color(0xFFE7E7E7)))),
-                        child: GestureDetector(
+                        child: ThrottleButton(
                           onTap: () {
                             context.pop(_dateTime);
                           },

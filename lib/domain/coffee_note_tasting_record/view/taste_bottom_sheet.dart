@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -110,7 +111,7 @@ class TasteBottomSheet extends StatelessWidget {
           const Spacer(),
           Text('원두에서 어떤 맛이 느껴지시나요?', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
           const Spacer(),
-          GestureDetector(
+          ThrottleButton(
             onTap: () {
               context.pop();
             },
@@ -144,7 +145,7 @@ class TasteBottomSheet extends StatelessWidget {
                     children: kind.valuesToStringList().map(
                       (valueString) {
                         final isSelected = selectedTaste.contains(valueString);
-                        return GestureDetector(
+                        return ThrottleButton(
                           onTap: () {
                             if (isSelected) {
                               tasteListNotifier.value = List.from(tasteListNotifier.value)..remove(valueString);
@@ -209,7 +210,7 @@ class TasteBottomSheet extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(width: 4),
-                      GestureDetector(
+                      ThrottleButton(
                         onTap: () {
                           tasteListNotifier.value = List.from(tasteListNotifier.value)..remove(taste);
                         },
@@ -238,7 +239,7 @@ class TasteBottomSheet extends StatelessWidget {
         children: [
           Expanded(
             flex: 1,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 tasteListNotifier.value = tasteListNotifier.value..clear();
               },
@@ -255,7 +256,7 @@ class TasteBottomSheet extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             flex: 3,
-            child: GestureDetector(
+            child: ThrottleButton(
               onTap: () {
                 context.pop(tasteListNotifier.value);
               },

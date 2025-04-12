@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_presenter.dart';
 import 'package:brew_buds/model/common/local.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -194,7 +195,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
           const SizedBox(height: 24),
           Row(
             children: [
-              GestureDetector(
+              ThrottleButton(
                 onTap: () async {
                   await _locateMe();
                 },
@@ -208,7 +209,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
               const Spacer(),
               Text('위치', style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black)),
               const Spacer(),
-              GestureDetector(
+              ThrottleButton(
                 onTap: () {
                   context.pop();
                 },
@@ -267,7 +268,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
             return searchWord.isNotEmpty
                 ? Padding(
                     padding: const EdgeInsets.only(right: 12, left: 4, top: 12, bottom: 12),
-                    child: GestureDetector(
+                    child: ThrottleButton(
                       onTap: () {
                         textEditingController.value = const TextEditingValue();
                       },
@@ -304,7 +305,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
         itemCount: localList.length,
         itemBuilder: (context, index) {
           final local = localList[index];
-          return GestureDetector(
+          return ThrottleButton(
             onTap: () {
               context.pop(local.name);
             },
