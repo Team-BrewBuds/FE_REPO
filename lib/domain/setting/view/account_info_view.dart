@@ -72,7 +72,7 @@ class _AccountInfoViewState extends State<AccountInfoView> {
           ),
         ),
         if (context.select<AccountInfoPresenter, bool>(
-              (presenter) => presenter.isLoading,
+          (presenter) => presenter.isLoading,
         ))
           const Positioned.fill(child: LoadingBarrier()),
       ],

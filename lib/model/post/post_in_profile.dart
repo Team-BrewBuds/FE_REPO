@@ -1,6 +1,6 @@
 import 'package:brew_buds/model/post/post_subject.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'post_in_profile.freezed.dart';
 

@@ -292,7 +292,6 @@ mixin SearchMixin<T extends StatefulWidget, Presenter extends SearchPresenter>
     context.read<Presenter>().onChangeSearchWord('');
   }
 
-
   showSnackBar({required String message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

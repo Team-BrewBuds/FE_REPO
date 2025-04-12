@@ -54,25 +54,24 @@ class _PhotoGridViewState extends State<PhotoGridView> with PhotoGridMixin<Photo
 
   @override
   Function(BuildContext context) get onTapCameraButton => (context) {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => CameraScreen(
-          previewShape: BoxShape.rectangle,
-          onDone: (context, imageData) {
-            widget.onDone.call(context, [imageData]);
-          },
-          onTapAlbum: (context) {
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(
-                builder: (context) =>
-                    PhotoGridView.build(permissionStatus: permissionStatus, onDone: onDone),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  };
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CameraScreen(
+              previewShape: BoxShape.rectangle,
+              onDone: (context, imageData) {
+                widget.onDone.call(context, [imageData]);
+              },
+              onTapAlbum: (context) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => PhotoGridView.build(permissionStatus: permissionStatus, onDone: onDone),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      };
 
   @override
   Widget buildBody(BuildContext context) {

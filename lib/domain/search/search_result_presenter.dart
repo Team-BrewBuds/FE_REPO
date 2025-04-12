@@ -1,10 +1,10 @@
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
-import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/domain/search/core/search_presenter.dart';
 import 'package:brew_buds/domain/search/models/search_result_model.dart';
+import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
+import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/post/post_subject.dart';
 
 typedef FilterBarState = ({
   int currentTabIndex,
@@ -84,7 +84,7 @@ final class SearchResultPresenter extends SearchPresenter {
   }
 
   fetchMoreData() async {
-    if(!_page.hasNext) return;
+    if (!_page.hasNext) return;
 
     _isLoading = true;
     notifyListeners();

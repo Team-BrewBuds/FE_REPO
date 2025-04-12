@@ -9,7 +9,6 @@ extension LocalMapper on LocalDTO {
       );
 }
 
-
 String _getDistance(String distance) {
   final int distanceInMeters = int.parse(distance);
 

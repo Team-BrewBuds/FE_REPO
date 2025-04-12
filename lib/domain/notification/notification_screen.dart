@@ -1,4 +1,3 @@
-import 'package:animations/animations.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';

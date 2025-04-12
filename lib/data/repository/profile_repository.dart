@@ -22,12 +22,12 @@ import 'package:brew_buds/data/mapper/tasted_record/noted_tasted_record_mapper.d
 import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_profile_mapper.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/profile/account_info.dart';
 import 'package:brew_buds/model/profile/profile.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';

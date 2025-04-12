@@ -34,11 +34,11 @@ final class AccountDetailPresenter extends Presenter {
     }
 
     return (_preIsCertificated != _isCertificated ||
-      _preBodyValue != _bodyValue ||
-      _preAcidityValue != _acidityValue ||
-      _preBitternessValue != _bitternessValue ||
-      _preSweetnessValue != _sweetnessValue ||
-      _compareCoffeeLifeList());
+        _preBodyValue != _bodyValue ||
+        _preAcidityValue != _acidityValue ||
+        _preBitternessValue != _bitternessValue ||
+        _preSweetnessValue != _sweetnessValue ||
+        _compareCoffeeLifeList());
   }
 
   List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
@@ -59,7 +59,8 @@ final class AccountDetailPresenter extends Presenter {
     } else if (_preCoffeeLife?.isEmpty ?? true && selectedCoffeeLifeList.isNotEmpty) {
       return true;
     } else if (_preCoffeeLife?.length == selectedCoffeeLifeList.length) {
-      return _preCoffeeLife?.map((e) => selectedCoffeeLifeList.contains(e)).where((element) => !element).isNotEmpty ?? false;
+      return _preCoffeeLife?.map((e) => selectedCoffeeLifeList.contains(e)).where((element) => !element).isNotEmpty ??
+          false;
     } else {
       return true;
     }

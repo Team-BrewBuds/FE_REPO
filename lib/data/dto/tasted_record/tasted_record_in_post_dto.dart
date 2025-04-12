@@ -4,13 +4,20 @@ part 'tasted_record_in_post_dto.g.dart';
 
 @JsonSerializable(createToJson: false)
 class TastedRecordInPostDTO {
-  @JsonKey(defaultValue: 0)final int id;
-  @JsonKey(name: 'bean_name', defaultValue: '') final String beanName;
-  @JsonKey(name: 'bean_type', defaultValue: '') final String beanType;
-  @JsonKey(name: 'content', defaultValue:'') final String contents;
-  @JsonKey(name: 'star_rating', defaultValue: 0) final double rating;
-  @JsonKey(name: 'flavor', fromJson: _flavorFromJson, defaultValue: []) final List<String> flavors;
-  @JsonKey(name: 'photos', fromJson: _photosFromJson, defaultValue: []) final List<String> imagesUrl;
+  @JsonKey(defaultValue: 0)
+  final int id;
+  @JsonKey(name: 'bean_name', defaultValue: '')
+  final String beanName;
+  @JsonKey(name: 'bean_type', defaultValue: '')
+  final String beanType;
+  @JsonKey(name: 'content', defaultValue: '')
+  final String contents;
+  @JsonKey(name: 'star_rating', defaultValue: 0)
+  final double rating;
+  @JsonKey(name: 'flavor', fromJson: _flavorFromJson, defaultValue: [])
+  final List<String> flavors;
+  @JsonKey(name: 'photos', fromJson: _photosFromJson, defaultValue: [])
+  final List<String> imagesUrl;
 
   factory TastedRecordInPostDTO.fromJson(Map<String, dynamic> json) => _$TastedRecordInPostDTOFromJson(json);
 

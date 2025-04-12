@@ -1,5 +1,4 @@
 import 'package:brew_buds/core/dio_client.dart';
-import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_detail_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 

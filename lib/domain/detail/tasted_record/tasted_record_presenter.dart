@@ -8,7 +8,6 @@ import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
-import 'package:flutter/foundation.dart';
 
 typedef BottomButtonInfo = ({int likeCount, bool isLiked, bool isSaved});
 typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow, bool isMine});

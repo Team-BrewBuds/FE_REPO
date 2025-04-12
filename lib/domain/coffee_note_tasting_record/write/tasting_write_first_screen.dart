@@ -1,17 +1,17 @@
-import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/model/bean_write_option.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_secod_screen.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/view/country_bottom_sheet.dart';
-import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
-import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/bean_write_option.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/view/country_bottom_sheet.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_secod_screen.dart';
+import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -834,43 +834,41 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
       padding: const EdgeInsets.only(top: 24),
       child: Row(
         spacing: 8,
-        children: BeverageType.values
-            .map(
-              (type) {
-                final BeverageType? currentType = isIce == null
-                    ? null
-                    : isIce
-                        ? BeverageType.ice
-                        : BeverageType.hot;
-                return Expanded(
-                  child: ThrottleButton(
-                    onTap: () {
-                      context.read<TastingWritePresenter>().onChangeBeverageType(
-                            currentType == type
-                                ? null
-                                : type == BeverageType.ice
-                                    ? true
-                                    : false,
-                          );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: currentType == type ? ColorStyles.background : Colors.transparent,
-                        border: Border.all(color: currentType == type ? ColorStyles.red : ColorStyles.gray50),
-                        borderRadius: const BorderRadius.all(Radius.circular(8)),
-                      ),
-                      child: Text(
-                        type.toString(),
-                        style: textStyle.copyWith(color: currentType == type ? ColorStyles.red : ColorStyles.black),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
+        children: BeverageType.values.map(
+          (type) {
+            final BeverageType? currentType = isIce == null
+                ? null
+                : isIce
+                    ? BeverageType.ice
+                    : BeverageType.hot;
+            return Expanded(
+              child: ThrottleButton(
+                onTap: () {
+                  context.read<TastingWritePresenter>().onChangeBeverageType(
+                        currentType == type
+                            ? null
+                            : type == BeverageType.ice
+                                ? true
+                                : false,
+                      );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: currentType == type ? ColorStyles.background : Colors.transparent,
+                    border: Border.all(color: currentType == type ? ColorStyles.red : ColorStyles.gray50),
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
                   ),
-                );
-              },
-            )
-            .toList(),
+                  child: Text(
+                    type.toString(),
+                    style: textStyle.copyWith(color: currentType == type ? ColorStyles.red : ColorStyles.black),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            );
+          },
+        ).toList(),
       ),
     );
   }

@@ -89,23 +89,21 @@ class TastingRecordCard extends StatelessWidget {
   Widget _buildTags() {
     return Row(
       spacing: 4,
-      children: tags
-          .map((text) {
-            return Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: ColorStyles.black,
-              ),
-              child: Center(
-                child: Text(
-                  text,
-                  style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white),
-                ),
-              ),
-            );
-          })
-          .toList(),
+      children: tags.map((text) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: ColorStyles.black,
+          ),
+          child: Center(
+            child: Text(
+              text,
+              style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 }

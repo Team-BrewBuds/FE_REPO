@@ -1,7 +1,7 @@
 import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_dto.dart';
 import 'package:brew_buds/data/dto/common/interaction_dto.dart';
-import 'package:brew_buds/data/dto/user/user_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/taste_review_dto.dart';
+import 'package:brew_buds/data/dto/user/user_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'tasted_record_dto.g.dart';

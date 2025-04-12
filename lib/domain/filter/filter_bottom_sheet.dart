@@ -152,57 +152,59 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
                         ),
                       ),
                     ),
-                      Selector<FilterPresenter, List<CoffeeBeanFilter>>(
-                        selector: (context, presenter) => presenter.filter,
-                        builder: (context, filterList, child) {
-                          return filterList.isNotEmpty ? Container(
-                            color: ColorStyles.gray20,
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                spacing: 4,
-                                children: List.generate(
-                                  filterList.length,
-                                  (index) {
-                                    final filter = filterList[index];
-                                    return ThrottleButton(
-                                      onTap: () {
-                                        context.read<FilterPresenter>().removeAtFilter(index);
+                    Selector<FilterPresenter, List<CoffeeBeanFilter>>(
+                      selector: (context, presenter) => presenter.filter,
+                      builder: (context, filterList, child) {
+                        return filterList.isNotEmpty
+                            ? Container(
+                                color: ColorStyles.gray20,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    spacing: 4,
+                                    children: List.generate(
+                                      filterList.length,
+                                      (index) {
+                                        final filter = filterList[index];
+                                        return ThrottleButton(
+                                          onTap: () {
+                                            context.read<FilterPresenter>().removeAtFilter(index);
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: ColorStyles.background,
+                                              border: Border.all(color: ColorStyles.red, width: 1),
+                                              borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              spacing: 2,
+                                              children: [
+                                                Text(
+                                                  filter.text,
+                                                  style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
+                                                ),
+                                                SvgPicture.asset(
+                                                  'assets/icons/x.svg',
+                                                  width: 12,
+                                                  height: 12,
+                                                  fit: BoxFit.cover,
+                                                  colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
                                       },
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: ColorStyles.background,
-                                          border: Border.all(color: ColorStyles.red, width: 1),
-                                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          spacing: 2,
-                                          children: [
-                                            Text(
-                                              filter.text,
-                                              style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red),
-                                            ),
-                                            SvgPicture.asset(
-                                              'assets/icons/x.svg',
-                                              width: 12,
-                                              height: 12,
-                                              fit: BoxFit.cover,
-                                              colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ) : const SizedBox.shrink();
-                        },
-                      ),
+                              )
+                            : const SizedBox.shrink();
+                      },
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 24, bottom: 24, left: 16, right: 16),
                       child: CancelAndConfirmButton(

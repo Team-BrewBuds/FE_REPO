@@ -9,9 +9,9 @@ import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_view.dart';
 import 'package:brew_buds/domain/photo/view/photo_grid_view.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -404,8 +404,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 8,
-        children: List<Widget>.generate(itemLength, itemBuilder)
-            .toList(),
+        children: List<Widget>.generate(itemLength, itemBuilder).toList(),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:photo_manager/photo_manager.dart';
 
 sealed class Photo {
   factory Photo.fromAlbum({required List<AssetEntity> assetEntity}) = PhotoFromAlbum;
+
   factory Photo.takenCamera({required String path}) = PhotoTakenCamera;
 }
 

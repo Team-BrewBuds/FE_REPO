@@ -10,14 +10,14 @@ class ThrottleButton extends StatelessWidget {
     super.key,
     required this.onTap,
     required this.child,
-  }): _throttle = Throttle(
-    const Duration(milliseconds: 300),
-    initialValue: null,
-    checkEquality: false,
-    onChanged: (value) {
-      onTap.call();
-    },
-  );
+  }) : _throttle = Throttle(
+          const Duration(milliseconds: 300),
+          initialValue: null,
+          checkEquality: false,
+          onChanged: (value) {
+            onTap.call();
+          },
+        );
 
   @override
   Widget build(BuildContext context) {

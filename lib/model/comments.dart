@@ -1,6 +1,6 @@
 import 'package:brew_buds/model/common/user.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'comments.freezed.dart';
 

@@ -88,12 +88,12 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
               refreshTriggerPullDistance: 56,
               refreshIndicatorExtent: 56,
               builder: (
-                  BuildContext context,
-                  RefreshIndicatorMode refreshState,
-                  double pulledExtent,
-                  double refreshTriggerPullDistance,
-                  double refreshIndicatorExtent,
-                  ) {
+                BuildContext context,
+                RefreshIndicatorMode refreshState,
+                double pulledExtent,
+                double refreshTriggerPullDistance,
+                double refreshIndicatorExtent,
+              ) {
                 switch (refreshState) {
                   case RefreshIndicatorMode.drag:
                     final double percentageComplete = clampDouble(

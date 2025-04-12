@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/duplicated_nickname_api.dart';
-import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
+import 'package:brew_buds/domain/signup/state/signup_state.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
-import 'package:brew_buds/domain/signup/state/signup_state.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -250,8 +250,7 @@ class SignUpPresenter extends Presenter {
     notifyListeners();
 
     try {
-      final result = await _loginRepository
-          .registerAccount(
+      final result = await _loginRepository.registerAccount(
         accessToken: _accessToken,
         refreshToken: _refreshToken,
         state: _state,

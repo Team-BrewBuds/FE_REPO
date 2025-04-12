@@ -131,7 +131,7 @@ class LoginBottomSheet extends StatelessWidget {
                               context.pop(true);
                             case LoginResult.needSignUp:
                               final result =
-                              await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                  await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
                               if (result && context.mounted) {
                                 final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
                                 if (saveResult) {
@@ -184,7 +184,7 @@ class LoginBottomSheet extends StatelessWidget {
                               context.pop(true);
                             case LoginResult.needSignUp:
                               final result =
-                              await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                  await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
                               if (result && context.mounted) {
                                 final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
                                 if (saveResult) {

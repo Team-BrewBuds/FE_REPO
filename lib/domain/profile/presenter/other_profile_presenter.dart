@@ -1,7 +1,7 @@
 import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/api/follow_api.dart';
-import 'package:brew_buds/model/profile/profile.dart';
 import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
+import 'package:brew_buds/model/profile/profile.dart';
 
 final class OtherProfilePresenter extends ProfilePresenter {
   final FollowApi _followApi = FollowApi();

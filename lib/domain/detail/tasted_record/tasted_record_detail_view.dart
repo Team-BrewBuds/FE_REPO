@@ -866,10 +866,12 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     color: ColorStyles.white,
                     borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
                   ),
-                  child: SafeArea(child: Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
-                  ),),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                    ),
+                  ),
                 ),
               ),
             ),

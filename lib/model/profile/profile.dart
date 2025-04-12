@@ -1,7 +1,7 @@
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'profile.freezed.dart';
 

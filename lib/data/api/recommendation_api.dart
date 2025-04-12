@@ -1,6 +1,4 @@
 import 'package:brew_buds/core/dio_client.dart';
-import 'package:brew_buds/data/dto/coffee_bean/recommended_coffee_bean_dto.dart';
-import 'package:brew_buds/data/dto/recommended/recommended_page_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 

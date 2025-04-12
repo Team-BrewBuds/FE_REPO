@@ -1,7 +1,7 @@
 sealed class Result<T> {
-  factory Result.success(T data) = Success;  // Option
+  factory Result.success(T data) = Success; // Option
 
-  factory Result.error(String e) = Error;  // Option
+  factory Result.error(String e) = Error; // Option
 }
 
 class Success<T> implements Result<T> {

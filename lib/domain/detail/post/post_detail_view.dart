@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/comment_item.dart';
+import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';

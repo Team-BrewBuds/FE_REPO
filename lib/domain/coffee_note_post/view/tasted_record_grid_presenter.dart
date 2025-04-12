@@ -1,8 +1,8 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 
 typedef GridViewState = ({
   List<TastedRecordInProfile> tastedRecords,

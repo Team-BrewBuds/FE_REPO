@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:brew_buds/data/api/taste_report_api.dart';
 import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_in_calendar_dto.dart';
 import 'package:brew_buds/data/dto/common/top_flavor_dto.dart';

@@ -15,7 +15,12 @@ class PreferredBeanTasteDTO {
 
   factory PreferredBeanTasteDTO.fromJson(Map<String, dynamic> json) => _$PreferredBeanTasteDTOFromJson(json);
 
-  factory PreferredBeanTasteDTO.empty() => const PreferredBeanTasteDTO(body: 0, acidity: 0, bitterness: 0, sweetness: 0);
+  factory PreferredBeanTasteDTO.empty() => const PreferredBeanTasteDTO(
+        body: 0,
+        acidity: 0,
+        bitterness: 0,
+        sweetness: 0,
+      );
 
   const PreferredBeanTasteDTO({
     required this.body,

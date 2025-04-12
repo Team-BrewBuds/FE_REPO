@@ -2,12 +2,12 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/profile/model/profile_sort_criteria.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/post/post_in_profile.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
-import 'package:brew_buds/model/profile/profile.dart';
+import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/profile/profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:flutter/foundation.dart';
 
 typedef ProfileState = ({String imageUrl, int tastingRecordCount, int followerCount, int followingCount});
@@ -33,15 +33,16 @@ class ProfilePresenter extends Presenter {
   int _tabIndex = 0;
   int _pageNo = 1;
   bool _isEmpty = false;
+
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
   List<ProfileSortCriteria> get sortCriteriaList => switch (_tabIndex) {
-    0 => ProfileSortCriteria.tastedRecord(),
-    1 => [],
-    2 => ProfileSortCriteria.notedCoffeeBean(),
-    3 => [],
-    int() => throw UnimplementedError(),
-  };
+        0 => ProfileSortCriteria.tastedRecord(),
+        1 => [],
+        2 => ProfileSortCriteria.notedCoffeeBean(),
+        3 => [],
+        int() => throw UnimplementedError(),
+      };
 
   String get currentSortCriteria => sortCriteriaList[_currentSortCriteriaIndex].toString();
 
@@ -172,7 +173,7 @@ class ProfilePresenter extends Presenter {
       } else if (_tabIndex == 1) {
         final nextPage = await repository.fetchPostPage(userId: id);
         _postsPage = await compute(
-              (message) {
+          (message) {
             return message.$2.copyWith(results: message.$1.results + message.$2.results);
           },
           (_postsPage, nextPage),
@@ -180,8 +181,7 @@ class ProfilePresenter extends Presenter {
         _isLoadingData = false;
         notifyListeners();
       } else if (_tabIndex == 2) {
-        final nextPage = await repository
-            .fetchCoffeeBeanPage(
+        final nextPage = await repository.fetchCoffeeBeanPage(
           userId: id,
           pageNo: _pageNo,
           orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
@@ -194,7 +194,7 @@ class ProfilePresenter extends Presenter {
           ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
         );
         _beansPage = await compute(
-              (message) {
+          (message) {
             return message.$2.copyWith(results: message.$1.results + message.$2.results);
           },
           (_beansPage, nextPage),
@@ -206,7 +206,7 @@ class ProfilePresenter extends Presenter {
         final nextPage = await repository.fetchNotePage(userId: id, pageNo: _pageNo);
 
         _savedNotesPage = await compute(
-              (message) {
+          (message) {
             return message.$2.copyWith(results: message.$1.results + message.$2.results);
           },
           (_savedNotesPage, nextPage),

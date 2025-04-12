@@ -179,6 +179,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
       ],
     );
   }
+
   Widget _buildBodyFeeling({required int body}) {
     final height = max(52, 52.h).toDouble();
     return Column(
@@ -206,7 +207,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -250,8 +251,8 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                                   color: body == value
                                       ? ColorStyles.red
                                       : body == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),
@@ -296,7 +297,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -340,8 +341,8 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                                   color: acidity == value
                                       ? ColorStyles.red
                                       : acidity == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),
@@ -386,7 +387,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -430,8 +431,8 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                                   color: bitterness == value
                                       ? ColorStyles.red
                                       : bitterness == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),
@@ -476,7 +477,7 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -520,8 +521,8 @@ class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstS
                                   color: sweetness == value
                                       ? ColorStyles.red
                                       : sweetness == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),

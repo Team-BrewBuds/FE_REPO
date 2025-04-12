@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
@@ -7,10 +8,10 @@ import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/camera/camera_first_time_view.dart';
 import 'package:brew_buds/domain/camera/widget/custom_camera_button.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
+import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:defer_pointer/defer_pointer.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager/photo_manager.dart';

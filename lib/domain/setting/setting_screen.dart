@@ -57,37 +57,17 @@ class _SettingScreenState extends State<SettingScreen>
           itemBuilder: (context, index) {
             final category = SettingCategory.values[index];
             final title = category.toString();
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 1,
-              children: [
-                if (title.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    color: ColorStyles.white,
-                    child: Text(title, style: TextStyles.title01SemiBold),
-                  ),
-                ...category.items.map((item) {
-                  if (item == SettingItem.version) {
-                    return ThrottleButton(
-                      onTap: () {},
-                      child: Container(
-                        padding: const EdgeInsets.all(16.0),
-                        color: ColorStyles.white,
-                        child: Row(
-                          children: [
-                            Text(item.toString(), style: TextStyles.labelMediumMedium),
-                            const Spacer(),
-                            Text(_packageInfo.version, style: TextStyles.labelMediumMedium),
-                          ],
-                        ),
-                      ),
-                    );
-                  }
+            return Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 1, children: [
+              if (title.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  color: ColorStyles.white,
+                  child: Text(title, style: TextStyles.title01SemiBold),
+                ),
+              ...category.items.map((item) {
+                if (item == SettingItem.version) {
                   return ThrottleButton(
-                    onTap: () {
-                      onTapped(item);
-                    },
+                    onTap: () {},
                     child: Container(
                       padding: const EdgeInsets.all(16.0),
                       color: ColorStyles.white,
@@ -95,19 +75,35 @@ class _SettingScreenState extends State<SettingScreen>
                         children: [
                           Text(item.toString(), style: TextStyles.labelMediumMedium),
                           const Spacer(),
-                          SvgPicture.asset(
-                            'assets/icons/arrow.svg',
-                            fit: BoxFit.cover,
-                            height: 24,
-                            width: 24,
-                          ),
+                          Text(_packageInfo.version, style: TextStyles.labelMediumMedium),
                         ],
                       ),
                     ),
                   );
-                }),
-              ]
-            );
+                }
+                return ThrottleButton(
+                  onTap: () {
+                    onTapped(item);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    color: ColorStyles.white,
+                    child: Row(
+                      children: [
+                        Text(item.toString(), style: TextStyles.labelMediumMedium),
+                        const Spacer(),
+                        SvgPicture.asset(
+                          'assets/icons/arrow.svg',
+                          fit: BoxFit.cover,
+                          height: 24,
+                          width: 24,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ]);
           },
           separatorBuilder: (context, index) => const SizedBox(height: 12),
         ),

@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/block_api.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/domain/setting/model/blocked_user.dart';
+import 'package:brew_buds/model/common/default_page.dart';
 
 final class BlockingUserManagementPresenter extends Presenter {
   final BlockApi _blockApi = BlockApi();

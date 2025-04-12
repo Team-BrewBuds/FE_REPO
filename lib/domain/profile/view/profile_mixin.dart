@@ -10,18 +10,18 @@ import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/sort_criteria_bottom_sheet.dart';
-import 'package:brew_buds/domain/web_view/web_screen.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/post/post_in_profile.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
-import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/profile_post_item_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_coffee_bean_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_post_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_tasting_record_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/tasting_record_item_widget.dart';
+import 'package:brew_buds/domain/web_view/web_screen.dart';
+import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
+import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/noted/noted_object.dart';
+import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -381,76 +381,73 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            spacing: 4,
-            children: [
-              _buildIcon(
-                onTap: () {
-                  _showSortCriteriaBottomSheet(
-                    sortCriteriaList: sortCriteriaList,
-                    currentIndex: currentIndex,
-                  );
-                },
-                text: currentSortCriteria,
-                iconPath: 'assets/icons/arrow_up_down.svg',
-                isLeftIcon: true,
-              ),
-              _buildIcon(
-                onTap: () {
-                  _showCoffeeBeanFilterBottomSheet(filters: filters);
-                },
-                text: '필터',
-                iconPath: 'assets/icons/union.svg',
-                isLeftIcon: true,
-                isActive: hasFilter,
-              ),
-              _buildIcon(
-                onTap: () {
-                  _showCoffeeBeanFilterBottomSheet(filters: filters);
-                },
-                text: '원두유형',
-                iconPath: 'assets/icons/down.svg',
-                isLeftIcon: false,
-                isActive: hasBeanTypeFilter,
-              ),
-              _buildIcon(
-                onTap: () {
-                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 1);
-                },
-                text: '생산 국가',
-                iconPath: 'assets/icons/down.svg',
-                isLeftIcon: false,
-                isActive: hasCountryFilter,
-              ),
-              _buildIcon(
-                onTap: () {
-                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 2);
-                },
-                text: '평균 별점',
-                iconPath: 'assets/icons/down.svg',
-                isLeftIcon: false,
-                isActive: hasRatingFilter,
-              ),
-              _buildIcon(
-                onTap: () {
-                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 4);
-                },
-                text: '로스팅 포인트',
-                iconPath: 'assets/icons/down.svg',
-                isLeftIcon: false,
-                isActive: hasRoastingPointFilter,
-              ),
-              _buildIcon(
-                onTap: () {
-                  _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 3);
-                },
-                text: '디카페인',
-                iconPath: 'assets/icons/down.svg',
-                isLeftIcon: false,
-                isActive: hasDecafFilter,
-              ),
-            ]
-          ),
+          child: Row(spacing: 4, children: [
+            _buildIcon(
+              onTap: () {
+                _showSortCriteriaBottomSheet(
+                  sortCriteriaList: sortCriteriaList,
+                  currentIndex: currentIndex,
+                );
+              },
+              text: currentSortCriteria,
+              iconPath: 'assets/icons/arrow_up_down.svg',
+              isLeftIcon: true,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters);
+              },
+              text: '필터',
+              iconPath: 'assets/icons/union.svg',
+              isLeftIcon: true,
+              isActive: hasFilter,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters);
+              },
+              text: '원두유형',
+              iconPath: 'assets/icons/down.svg',
+              isLeftIcon: false,
+              isActive: hasBeanTypeFilter,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 1);
+              },
+              text: '생산 국가',
+              iconPath: 'assets/icons/down.svg',
+              isLeftIcon: false,
+              isActive: hasCountryFilter,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 2);
+              },
+              text: '평균 별점',
+              iconPath: 'assets/icons/down.svg',
+              isLeftIcon: false,
+              isActive: hasRatingFilter,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 4);
+              },
+              text: '로스팅 포인트',
+              iconPath: 'assets/icons/down.svg',
+              isLeftIcon: false,
+              isActive: hasRoastingPointFilter,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 3);
+              },
+              text: '디카페인',
+              iconPath: 'assets/icons/down.svg',
+              isLeftIcon: false,
+              isActive: hasDecafFilter,
+            ),
+          ]),
         ),
       ),
     );

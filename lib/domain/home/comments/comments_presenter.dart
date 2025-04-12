@@ -167,10 +167,9 @@ final class CommentsPresenter extends Presenter {
         }).toList());
       } else {
         return message.$1.copyWith(
-          results: List<Comment>.from(message.$1.results)
-              .map((comment) => comment.id == message.$2.id ? message.$2 : comment)
-              .toList()
-        );
+            results: List<Comment>.from(message.$1.results)
+                .map((comment) => comment.id == message.$2.id ? message.$2 : comment)
+                .toList());
       }
     }, (_page, newComment));
     notifyListeners();

@@ -5,8 +5,8 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
+import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -66,7 +66,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
           ),
         ),
         if (context.select<AccountDetailPresenter, bool>(
-              (presenter) => presenter.isLoading,
+          (presenter) => presenter.isLoading,
         ))
           const Positioned.fill(child: LoadingBarrier()),
       ],
@@ -297,7 +297,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
   }
 
   Widget _buildBodyFeeling({int? bodyValue}) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -323,7 +323,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) => SizedBox(
+                    (index) => SizedBox(
                       width: 28,
                       height: height,
                       child: Stack(
@@ -365,8 +365,8 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                                 color: bodyValue != null && bodyValue == index + 1
                                     ? ColorStyles.red
                                     : (bodyValue == null || bodyValue == 0)
-                                    ? ColorStyles.gray50
-                                    : Colors.transparent,
+                                        ? ColorStyles.gray50
+                                        : Colors.transparent,
                               ),
                             ),
                           ),
@@ -384,7 +384,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
   }
 
   Widget _buildAcidity({int? acidityValue}) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -410,7 +410,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) => SizedBox(
+                    (index) => SizedBox(
                       width: 28,
                       height: height,
                       child: Stack(
@@ -452,8 +452,8 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                                 color: acidityValue != null && acidityValue == index + 1
                                     ? ColorStyles.red
                                     : (acidityValue == null || acidityValue == 0)
-                                    ? ColorStyles.gray50
-                                    : Colors.transparent,
+                                        ? ColorStyles.gray50
+                                        : Colors.transparent,
                               ),
                             ),
                           ),
@@ -471,7 +471,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
   }
 
   Widget _buildBitterness({int? bitternessValue}) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -497,7 +497,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) => SizedBox(
+                    (index) => SizedBox(
                       width: 28,
                       height: height,
                       child: Stack(
@@ -539,8 +539,8 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                                 color: bitternessValue != null && bitternessValue == index + 1
                                     ? ColorStyles.red
                                     : (bitternessValue == null || bitternessValue == 0)
-                                    ? ColorStyles.gray50
-                                    : Colors.transparent,
+                                        ? ColorStyles.gray50
+                                        : Colors.transparent,
                               ),
                             ),
                           ),
@@ -558,7 +558,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
   }
 
   Widget _buildSweet({int? sweetValue}) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

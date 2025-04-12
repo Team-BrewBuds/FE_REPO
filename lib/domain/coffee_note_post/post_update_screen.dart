@@ -68,7 +68,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
       // **1️⃣ Focus 되면 자동으로 `#` 추가**
       if (_tagController.text.isEmpty) {
         _tagController.value =
-        const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
+            const TextEditingValue(text: '#', selection: TextSelection.collapsed(offset: '#'.length));
       }
     } else {
       // **2️⃣ Focus 해제 시 `#`만 남아있다면 모두 삭제**
@@ -364,8 +364,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
       child: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 8,
-        children: List<Widget>.generate(itemLength, itemBuilder)
-            .toList(),
+        children: List<Widget>.generate(itemLength, itemBuilder).toList(),
       ),
     );
   }
@@ -445,7 +444,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                           ),
                           ...List<Widget>.generate(
                             subjectList.length,
-                                (index) {
+                            (index) {
                               final subject = subjectList[index];
                               return ThrottleButton(
                                 onTap: () {
@@ -502,7 +501,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
             padding: const EdgeInsets.symmetric(vertical: 15),
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration:
-            const BoxDecoration(color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(4))),
+                const BoxDecoration(color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(4))),
             child: Center(
               child: Text(
                 message,

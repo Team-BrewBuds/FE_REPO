@@ -97,9 +97,7 @@ final class PostFeedWidget extends FeedWidget {
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 12, width: double.infinity),
             Text(
-              tag.replaceAll(',', '#').startsWith('#')
-                  ? tag.replaceAll(',', '#')
-                  : '#${tag.replaceAll(',', '#')}',
+              tag.replaceAll(',', '#').startsWith('#') ? tag.replaceAll(',', '#') : '#${tag.replaceAll(',', '#')}',
               style: TextStyles.labelSmallMedium.copyWith(
                 color: ColorStyles.red,
               ),

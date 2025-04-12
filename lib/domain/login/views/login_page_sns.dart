@@ -47,8 +47,9 @@ class SNSLogin extends StatelessWidget {
                                       context.go('/home');
                                       break;
                                     case LoginResult.needSignUp:
-                                      final result =
-                                          await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                      final result = await _checkModal(context)
+                                          .then((value) => value ?? false)
+                                          .onError((_, __) => false);
                                       if (result && context.mounted) {
                                         final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
                                         if (saveResult) {
@@ -100,8 +101,9 @@ class SNSLogin extends StatelessWidget {
                                       context.go('/home');
                                       break;
                                     case LoginResult.needSignUp:
-                                      final result =
-                                          await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                      final result = await _checkModal(context)
+                                          .then((value) => value ?? false)
+                                          .onError((_, __) => false);
                                       if (result && context.mounted) {
                                         final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
                                         if (saveResult) {
@@ -155,8 +157,9 @@ class SNSLogin extends StatelessWidget {
                                       context.go('/home');
                                       break;
                                     case LoginResult.needSignUp:
-                                      final result =
-                                          await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
+                                      final result = await _checkModal(context)
+                                          .then((value) => value ?? false)
+                                          .onError((_, __) => false);
                                       if (result && context.mounted) {
                                         final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
                                         if (saveResult) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/search_api.dart';
 import 'package:brew_buds/data/dto/coffee_bean/recommended_coffee_bean_dto.dart';

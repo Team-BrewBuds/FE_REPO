@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'top_country.freezed.dart';
 
@@ -9,5 +9,4 @@ class TopCountry with _$TopCountry {
     required String country,
     required double percent,
   }) = _TopCountry;
-
 }

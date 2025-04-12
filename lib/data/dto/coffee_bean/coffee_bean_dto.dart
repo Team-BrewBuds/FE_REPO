@@ -29,11 +29,21 @@ class CoffeeBeanDTO {
   int? roastPoint;
   @JsonKey(name: 'process', fromJson: _stringFromJson, includeIfNull: false)
   List<String>? process;
-  @JsonKey(name: 'bev_type', includeFromJson: false, includeIfNull: false,)
+  @JsonKey(
+    name: 'bev_type',
+    includeFromJson: false,
+    includeIfNull: false,
+  )
   bool? beverageType;
-  @JsonKey(name: 'roastery', includeIfNull: false,)
+  @JsonKey(
+    name: 'roastery',
+    includeIfNull: false,
+  )
   String? roastery;
-  @JsonKey(name: 'variety', includeIfNull: false,)
+  @JsonKey(
+    name: 'variety',
+    includeIfNull: false,
+  )
   String? variety;
   @JsonKey(name: 'is_user_created', defaultValue: false)
   final bool isUserCreated;

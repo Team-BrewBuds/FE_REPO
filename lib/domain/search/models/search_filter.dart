@@ -1,29 +1,34 @@
+import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
-import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 
 sealed class SearchFilter {
   SearchSortCriteria get sortCriteria;
+
   bool get hasFilter;
 
   factory SearchFilter.coffeeBean({
     SearchSortCriteria? sortCriteria,
     List<CoffeeBeanFilter>? filters,
-  }) => CoffeeBeanSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.avgStar, filters: filters ?? []);
+  }) =>
+      CoffeeBeanSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.avgStar, filters: filters ?? []);
 
   factory SearchFilter.buddy({
     SearchSortCriteria? sortCriteria,
-  }) => BuddySearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.followerCnt);
+  }) =>
+      BuddySearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.followerCnt);
 
   factory SearchFilter.tastedRecord({
     SearchSortCriteria? sortCriteria,
     List<CoffeeBeanFilter>? filters,
-  }) => TastedRecordSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.latest, filters: filters ?? []);
+  }) =>
+      TastedRecordSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.latest, filters: filters ?? []);
 
   factory SearchFilter.post({
     SearchSortCriteria? sortCriteria,
     PostSubject? subject,
-  }) => PostSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.latest, subject: subject);
+  }) =>
+      PostSearchFilter(sortCriteria: sortCriteria ?? SearchSortCriteria.latest, subject: subject);
 }
 
 class CoffeeBeanSearchFilter implements SearchFilter {

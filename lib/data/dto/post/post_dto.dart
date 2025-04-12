@@ -1,7 +1,7 @@
 import 'package:brew_buds/data/dto/common/interaction_dto.dart';
-import 'package:brew_buds/data/dto/user/user_dto.dart';
 import 'package:brew_buds/data/dto/post/post_subject_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_post_dto.dart';
+import 'package:brew_buds/data/dto/user/user_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'post_dto.g.dart';
@@ -30,7 +30,7 @@ class PostDTO {
   final String tag;
   @JsonKey(name: 'photos', fromJson: _photosFromJson, defaultValue: [])
   final List<String> imagesUrl;
-  @JsonKey(name: 'tasted_records',  defaultValue: [])
+  @JsonKey(name: 'tasted_records', defaultValue: [])
   List<TastedRecordInPostDTO> tastingRecords;
   @JsonKey(defaultValue: InteractionDTO.defaultInteraction)
   final InteractionDTO interaction;

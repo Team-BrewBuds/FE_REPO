@@ -102,7 +102,7 @@ abstract class FeedWidget extends StatelessWidget {
                 ],
               ),
             ),
-            if (AccountRepository.instance.id != writerId)...[
+            if (AccountRepository.instance.id != writerId) ...[
               const SizedBox(width: 8),
               FollowButton(onTap: onTapFollowButton, isFollowed: isFollowed),
             ],

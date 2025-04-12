@@ -51,24 +51,22 @@ class SavedTastingRecordWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Row(
                   spacing: 2,
-                  children: flavor
-                      .map(
-                        (taste) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: ColorStyles.gray70, width: 0.8),
-                                borderRadius: BorderRadius.circular(6)),
-                            child: Center(
-                              child: Text(
-                                taste,
-                                style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray70),
-                              ),
-                            ),
-                          );
-                        },
-                      )
-                      .toList(),
+                  children: flavor.map(
+                    (taste) {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(vertical: 3, horizontal: 6),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: ColorStyles.gray70, width: 0.8),
+                            borderRadius: BorderRadius.circular(6)),
+                        child: Center(
+                          child: Text(
+                            taste,
+                            style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray70),
+                          ),
+                        ),
+                      );
+                    },
+                  ).toList(),
                 ),
               ],
             ),

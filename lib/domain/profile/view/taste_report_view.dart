@@ -1,19 +1,19 @@
 import 'package:brew_buds/common/extension/date_time_ext.dart';
-import 'package:brew_buds/common/widgets/loading_barrier.dart';
-import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/model/taste_report/activity_item.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
-import 'package:brew_buds/model/common/top_flavor.dart';
-import 'package:brew_buds/model/taste_report/rating_distribution.dart';
-import 'package:brew_buds/model/taste_report/top_country.dart';
 import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/activity_calendar_builder.dart';
 import 'package:brew_buds/domain/profile/widgets/profile_post_item_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_coffee_bean_widget.dart';
 import 'package:brew_buds/domain/profile/widgets/saved_tasting_record_widget.dart';
+import 'package:brew_buds/model/common/top_flavor.dart';
+import 'package:brew_buds/model/taste_report/activity_item.dart';
+import 'package:brew_buds/model/taste_report/rating_distribution.dart';
+import 'package:brew_buds/model/taste_report/top_country.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -146,7 +146,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           ),
         ),
         if (context.select<TasteReportPresenter, bool>(
-              (presenter) => presenter.isLoading,
+          (presenter) => presenter.isLoading,
         ))
           const Positioned.fill(child: LoadingBarrier()),
       ],

@@ -11,7 +11,6 @@ class CoffeeBeanInCalendarDTO {
   @JsonKey(name: 'image_url', defaultValue: '')
   final String thumbnail;
 
-
   factory CoffeeBeanInCalendarDTO.fromJson(Map<String, dynamic> json) => _$CoffeeBeanInCalendarDTOFromJson(json);
 
   const CoffeeBeanInCalendarDTO({

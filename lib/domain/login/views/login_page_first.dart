@@ -265,8 +265,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
           content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
           actions: [
             TextButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               child: const Text('업데이트 하기'),
             ),
           ],

@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesRepository {
   late final SharedPreferences _prefs;
+
   SharedPreferencesRepository._();
 
   static final SharedPreferencesRepository _instance = SharedPreferencesRepository._();
@@ -16,11 +17,11 @@ class SharedPreferencesRepository {
 
   bool get isFirstTimeLogin => _prefs.getBool('login') ?? true;
 
-  bool get isFirstTimeCamera =>  _prefs.getBool('camera') ?? true;
+  bool get isFirstTimeCamera => _prefs.getBool('camera') ?? true;
 
-  bool get isFirstTimeAlbum =>  _prefs.getBool('album') ?? true;
+  bool get isFirstTimeAlbum => _prefs.getBool('album') ?? true;
 
-  bool get isFirstTimeLocation =>  _prefs.getBool('location') ?? true;
+  bool get isFirstTimeLocation => _prefs.getBool('location') ?? true;
 
   init() async {
     _prefs = await SharedPreferences.getInstance();

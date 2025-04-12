@@ -15,7 +15,6 @@ Future<bool?> showTastedRecordUpdateScreen({required BuildContext context, requi
   );
 }
 
-
 Widget _buildTastingWriteScreen(BuildContext context, TastedRecord tastedRecord) {
   return MultiProvider(
     providers: [

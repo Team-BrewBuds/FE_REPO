@@ -1,6 +1,6 @@
 import 'package:brew_buds/common/extension/date_time_ext.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'tasted_review.freezed.dart';
 

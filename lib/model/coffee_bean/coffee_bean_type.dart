@@ -8,7 +8,7 @@ enum CoffeeBeanType {
 
   @override
   String toString() => switch (this) {
-    CoffeeBeanType.singleOrigin => '싱글오리진',
-    CoffeeBeanType.blend => '블렌드',
-  };
+        CoffeeBeanType.singleOrigin => '싱글오리진',
+        CoffeeBeanType.blend => '블렌드',
+      };
 }

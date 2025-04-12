@@ -13,8 +13,11 @@ class InteractionDTO {
 
   factory InteractionDTO.fromJson(Map<String, dynamic> json) => _$InteractionDTOFromJson(json);
 
-  static InteractionDTO defaultInteraction() =>
-      const InteractionDTO(isSaved: false, isLiked: false, isFollowing: false);
+  static InteractionDTO defaultInteraction() => const InteractionDTO(
+        isSaved: false,
+        isLiked: false,
+        isFollowing: false,
+      );
 
   const InteractionDTO({
     required this.isSaved,

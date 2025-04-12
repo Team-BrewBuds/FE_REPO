@@ -35,7 +35,6 @@ final class AccountInfoPresenter extends Presenter {
     final id = _accountRepository.id;
     if (id != null) {
       _accountInfo = await _profileRepository.fetchInfo(id: id);
-
     }
 
     _isLoading = false;

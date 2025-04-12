@@ -6,9 +6,9 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
+import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 
 typedef AppBarState = ({bool isValid, String? errorMessage});
 typedef ImageListViewState = ({List<Photo> images, List<TastedRecordInProfile> tastedRecords});

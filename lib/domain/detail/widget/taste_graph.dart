@@ -95,14 +95,14 @@ class TasteGraph extends StatelessWidget {
                           ),
                         )
                       else if (value > 1 && value < 5)
-                          Positioned(
-                            left: (barWidth * (value - 1)) + ((value - 2) * 4) - 5,
-                            child: Container(
-                              width: 14,
-                              height: 14,
-                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                            ),
+                        Positioned(
+                          left: (barWidth * (value - 1)) + ((value - 2) * 4) - 5,
+                          child: Container(
+                            width: 14,
+                            height: 14,
+                            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                           ),
+                        ),
                     ],
                   );
                 },

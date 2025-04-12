@@ -1,7 +1,6 @@
-import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'coffee_bean.freezed.dart';
 

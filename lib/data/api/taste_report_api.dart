@@ -1,6 +1,4 @@
 import 'package:brew_buds/core/dio_client.dart';
-import 'package:brew_buds/data/dto/taste_report/activity_summary_dto.dart';
-import 'package:brew_buds/data/dto/taste_report/rating_distribution_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -32,7 +30,7 @@ abstract class TasteReportApi {
   });
 
   @GET('/profiles/pref_report/country/{user_id}/')
-  Future<String> fetchPreferredCountry ({
+  Future<String> fetchPreferredCountry({
     @Path('user_id') required int id,
   });
 

@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'tasted_record_in_post.freezed.dart';

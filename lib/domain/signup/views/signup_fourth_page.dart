@@ -54,7 +54,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildBodyFeeling(int bodyValue) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -145,7 +145,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildAcidity(int acidityValue) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -172,7 +172,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -216,8 +216,8 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                                   color: acidityValue != 0 && acidityValue == value
                                       ? ColorStyles.red
                                       : acidityValue == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),
@@ -236,7 +236,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildBitterness(int bitternessValue) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -263,7 +263,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -307,8 +307,8 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                                   color: bitternessValue != 0 && bitternessValue == value
                                       ? ColorStyles.red
                                       : bitternessValue == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),
@@ -327,7 +327,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
   }
 
   Widget _buildSweet(int sweetValue) {
-    final height =  max(52, 52.h).toDouble();
+    final height = max(52, 52.h).toDouble();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -354,7 +354,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List<Widget>.generate(
                     5,
-                        (index) {
+                    (index) {
                       final value = index + 1;
                       return SizedBox(
                         width: 28,
@@ -365,7 +365,7 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                           children: [
                             Positioned(
                               top: 0,
-                              child:  ThrottleButton(
+                              child: ThrottleButton(
                                 onTap: () {
                                   context.read<SignUpPresenter>().onChangeSweetnessValue(value);
                                 },
@@ -398,8 +398,8 @@ class _SignUpFourthPageState extends State<SignUpFourthPage> {
                                   color: sweetValue != 0 && sweetValue == value
                                       ? ColorStyles.red
                                       : sweetValue == 0
-                                      ? ColorStyles.gray50
-                                      : Colors.transparent,
+                                          ? ColorStyles.gray50
+                                          : Colors.transparent,
                                 ),
                               ),
                             ),

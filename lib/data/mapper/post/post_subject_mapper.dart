@@ -46,13 +46,13 @@ extension PostSubjectEnMapper on PostSubjectEnDTO {
 
 extension PostSubjectToJson on PostSubject {
   String? toJson() => switch (this) {
-    PostSubject.all => null,
-    PostSubject.beans => 'bean',
-    PostSubject.question => 'question',
-    PostSubject.normal => 'normal',
-    PostSubject.caffe => 'cafe',
-    PostSubject.worry => 'worry',
-    PostSubject.information => 'info',
-    PostSubject.gear => 'gear',
-  };
+        PostSubject.all => null,
+        PostSubject.beans => 'bean',
+        PostSubject.question => 'question',
+        PostSubject.normal => 'normal',
+        PostSubject.caffe => 'cafe',
+        PostSubject.worry => 'worry',
+        PostSubject.information => 'info',
+        PostSubject.gear => 'gear',
+      };
 }
