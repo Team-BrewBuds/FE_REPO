@@ -96,16 +96,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             const Spacer(),
                             ThrottleButton(
                               onTap: () {
-                                context.read<NotificationPresenter>().readAll();
-                              },
-                              child: Text(
-                                '전체 읽기',
-                                style: TextStyles.title01SemiBold,
-                              ),
-                            ),
-                            const SizedBox(width: 24),
-                            ThrottleButton(
-                              onTap: () {
                                 context.read<NotificationPresenter>().deleteAll();
                               },
                               child: Text(

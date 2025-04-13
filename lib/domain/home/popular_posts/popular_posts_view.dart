@@ -2,7 +2,6 @@ import 'dart:ui';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
@@ -144,6 +143,15 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
                   itemCount: page.results.length,
                   itemBuilder: (context, index) {
                     final popularPost = page.results[index];
+                    final String? thumbnail;
+                    if (popularPost.imagesUrl.isNotEmpty) {
+                      thumbnail = popularPost.imagesUrl.first;
+                    } else if (popularPost.tastingRecords.isNotEmpty) {
+                      thumbnail = popularPost.tastingRecords.first.thumbnailUrl;
+                    } else {
+                      thumbnail = null;
+                    }
+
                     return ThrottleButton(
                       onTap: () {
                         showCupertinoModalPopup<String>(
@@ -181,17 +189,9 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
                                 writingTime: popularPost.createdAt,
                                 hitsCount: '조회 ${popularPost.viewCount > 9999 ? '9999+' : popularPost.viewCount}',
                                 nickName: popularPost.author.nickname,
-                                imageUrl: popularPost.imagesUrl.firstOrNull,
+                                imageUrl: thumbnail,
                               ),
                             ),
-                            SizedBox(width: popularPost.imagesUrl.isNotEmpty ? 8 : 0),
-                            popularPost.imagesUrl.isNotEmpty
-                                ? MyNetworkImage(
-                                    imageUrl: popularPost.imagesUrl.first,
-                                    height: 80,
-                                    width: 80,
-                                  )
-                                : const SizedBox.shrink(),
                           ],
                         ),
                       ),

@@ -25,14 +25,17 @@ class CommentButton extends StatelessWidget {
         child: Row(
           children: [
             SvgPicture.asset(
-              'assets/icons/like.svg',
+              'assets/icons/message.svg',
               width: 24,
               height: 24,
               colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
             ),
-            Text(
-              '댓글 $commentCount}',
-              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                '댓글 ${commentCount > 999 ? '999+' : commentCount}',
+                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+              ),
             )
           ],
         ),

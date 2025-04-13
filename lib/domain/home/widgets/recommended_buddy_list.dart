@@ -1,5 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/home/widgets/recomanded_buddy.dart';
 import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:flutter/material.dart';
@@ -45,14 +47,19 @@ class RecommendedBuddyList extends StatelessWidget {
                 page.users.length,
                 (index) {
                   final remandedBuddy = page.users[index];
-                  return RecommendedBuddyWidget(
-                    imageUrl: remandedBuddy.profileImageUrl,
-                    nickName: remandedBuddy.nickname,
-                    followCount: remandedBuddy.followerCount,
-                    isFollowed: remandedBuddy.isFollow,
-                    onTappedFollowButton: () {
-                      onTappedFollowButton.call(index);
+                  return ThrottleButton(
+                    onTap: () {
+                      pushToProfile(context: context, id: remandedBuddy.id);
                     },
+                    child: RecommendedBuddyWidget(
+                      imageUrl: remandedBuddy.profileImageUrl,
+                      nickName: remandedBuddy.nickname,
+                      followCount: remandedBuddy.followerCount,
+                      isFollowed: remandedBuddy.isFollow,
+                      onTappedFollowButton: () {
+                        onTappedFollowButton.call(index);
+                      },
+                    ),
                   );
                 },
               ),

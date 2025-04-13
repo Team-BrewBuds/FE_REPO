@@ -53,6 +53,7 @@ class TastingRecordFeedWidget extends FeedWidget {
             imageUrl: thumbnailUri,
             height: width,
             width: width,
+            showGradient: true,
           ),
           rating: rating,
           type: type,

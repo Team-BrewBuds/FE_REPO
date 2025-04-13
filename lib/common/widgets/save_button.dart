@@ -37,9 +37,12 @@ class SaveButton extends StatelessWidget {
                 height: 24,
                 colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
               ),
-            Text(
-              '저장',
-              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                '저장',
+                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+              ),
             )
           ],
         ),

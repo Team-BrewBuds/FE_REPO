@@ -8,28 +8,19 @@ import 'package:flutter/foundation.dart';
 typedef PopularPostSubjectFilterState = ({List<String> postSubjectFilterList, int currentIndex});
 
 final class PopularPostsPresenter extends Presenter {
-  final List<PostSubject> _postSubjectFilterList = [
-    PostSubject.all,
-    PostSubject.normal,
-    PostSubject.caffe,
-    PostSubject.beans,
-    PostSubject.information,
-    PostSubject.question,
-    PostSubject.worry,
-  ];
   final PopularPostsRepository _repository = PopularPostsRepository.instance;
   DefaultPage<Post> _page = DefaultPage.initState();
   int _currentPage = 0;
   int _currentFilterIndex = 0;
 
   PopularPostSubjectFilterState get subjectFilterState => (
-        postSubjectFilterList: _postSubjectFilterList.map((subject) => subject.toString()).toList(),
+        postSubjectFilterList: PostSubject.values.map((subject) => subject.toString()).toList(),
         currentIndex: _currentFilterIndex,
       );
 
   DefaultPage<Post> get page => _page;
 
-  List<String> get postSubjectFilterList => _postSubjectFilterList.map((subject) => subject.toString()).toList();
+  List<String> get postSubjectFilterList => PostSubject.values.map((subject) => subject.toString()).toList();
 
   int get currentFilterIndex => _currentFilterIndex;
 
@@ -37,7 +28,7 @@ final class PopularPostsPresenter extends Presenter {
 
   bool get hasNext => _page.hasNext;
 
-  String get currentSubjectFilter => _postSubjectFilterList[_currentFilterIndex].toString();
+  String get currentSubjectFilter => PostSubject.values[_currentFilterIndex].toString();
 
   Future<void> initState() async {
     _page = DefaultPage.initState();
@@ -56,7 +47,7 @@ final class PopularPostsPresenter extends Presenter {
   Future<void> fetchMoreData() async {
     if (_page.hasNext) {
       final nextPage = await _repository.fetchPopularPostsPage(
-        subject: _postSubjectFilterList[_currentFilterIndex].toJsonValue() ?? '',
+        subject: PostSubject.values[_currentFilterIndex].toJsonValue() ?? '',
         pageNo: _currentPage + 1,
       );
 

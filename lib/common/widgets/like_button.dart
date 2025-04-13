@@ -40,9 +40,12 @@ class LikeButton extends StatelessWidget {
                 height: 24,
                 colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
               ),
-            Text(
-              '좋아요 $likeCount',
-              style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                '좋아요 ${likeCount > 999 ? '999+' : likeCount}',
+                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+              ),
             )
           ],
         ),

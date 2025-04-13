@@ -21,7 +21,6 @@ import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
-import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/feed/feed.dart';
@@ -447,6 +446,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
             imageUrl: post.tastingRecords[index].thumbnailUrl,
             height: width,
             width: width,
+            showGradient: true,
           ),
           rating: '${post.tastingRecords[index].rating}',
           type: post.tastingRecords[index].beanType,
@@ -501,8 +501,8 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         }
       },
       isLiked: post.isLiked,
-      likeCount: '${post.likeCount > 999 ? '999+' : post.likeCount}',
-      commentsCount: '${post.commentsCount > 999 ? '999+' : post.commentsCount}',
+      likeCount: post.likeCount,
+      commentsCount: post.commentsCount,
       isSaved: post.isSaved,
       onTapLikeButton: () {
         if (isGuest) {
@@ -563,8 +563,8 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         }
       },
       isLiked: tastingRecord.isLiked,
-      likeCount: '${tastingRecord.likeCount > 999 ? '999+' : tastingRecord.likeCount}',
-      commentsCount: '${tastingRecord.commentsCount > 999 ? '999+' : tastingRecord.commentsCount}',
+      likeCount: tastingRecord.likeCount,
+      commentsCount: tastingRecord.commentsCount,
       isSaved: tastingRecord.isSaved,
       onTapLikeButton: () {
         if (isGuest) {

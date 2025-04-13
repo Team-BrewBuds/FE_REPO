@@ -363,6 +363,7 @@ class _PostDetailViewState extends State<PostDetailView>
                 imageUrl: tastingRecords[index].thumbnailUrl,
                 height: width,
                 width: width,
+                showGradient: true,
               ),
               rating: '${tastingRecords[index].rating}',
               type: tastingRecords[index].beanType,

@@ -1,11 +1,13 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/comment_button.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
+import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 abstract class FeedWidget extends StatelessWidget {
   final int id;
@@ -18,8 +20,8 @@ abstract class FeedWidget extends StatelessWidget {
   final void Function() onTapProfile;
   final void Function() onTapFollowButton;
   final bool isLiked;
-  final String likeCount;
-  final String commentsCount;
+  final int likeCount;
+  final int commentsCount;
   final bool isSaved;
   final void Function() onTapLikeButton;
   final void Function() onTapCommentsButton;
@@ -119,88 +121,26 @@ abstract class FeedWidget extends StatelessWidget {
       padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 16),
       child: Row(
         children: [
-          buildLikeButton(),
-          const SizedBox(width: 6),
-          buildCommentButton(),
+          LikeButton(
+            onTap: () {
+              onTapLikeButton.call();
+            },
+            isLiked: isLiked,
+            likeCount: likeCount,
+          ),
+          const SizedBox(width: 12),
+          CommentButton(
+            onTap: () {
+              onTapCommentsButton.call();
+            },
+            commentCount: commentsCount,
+          ),
           const Spacer(),
-          buildSaveButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget buildLikeButton() {
-    return ThrottleButton(
-      onTap: () {
-        onTapLikeButton.call();
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            isLiked ? 'assets/icons/like_fill.svg' : 'assets/icons/like.svg',
-            height: 24,
-            width: 24,
-            colorFilter: ColorFilter.mode(
-              isLiked ? ColorStyles.red : ColorStyles.gray70,
-              BlendMode.srcIn,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(likeCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildCommentButton() {
-    return ThrottleButton(
-      onTap: () {
-        onTapCommentsButton.call();
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            'assets/icons/message.svg',
-            height: 24,
-            width: 24,
-            colorFilter: const ColorFilter.mode(
-              ColorStyles.gray70,
-              BlendMode.srcIn,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(commentsCount, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildSaveButton() {
-    return ThrottleButton(
-      onTap: () {
-        onTapSaveButton();
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SvgPicture.asset(
-            isSaved ? 'assets/icons/save_fill.svg' : 'assets/icons/save.svg',
-            height: 24,
-            width: 24,
-            colorFilter: ColorFilter.mode(
-              isSaved ? ColorStyles.red : ColorStyles.gray70,
-              BlendMode.srcIn,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text('저장', style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70)),
+          SaveButton(
+            onTap: () {
+              onTapSaveButton.call();
+            },
+            isSaved: isSaved,
           ),
         ],
       ),
