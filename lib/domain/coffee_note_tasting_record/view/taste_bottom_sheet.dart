@@ -50,7 +50,7 @@ class TasteBottomSheet extends StatelessWidget {
   TasteBottomSheet({
     super.key,
     required List<String> tasteList,
-  }) : tasteListNotifier = ValueNotifier(tasteList);
+  })  : tasteListNotifier = ValueNotifier(tasteList);
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +241,7 @@ class TasteBottomSheet extends StatelessWidget {
             flex: 1,
             child: ThrottleButton(
               onTap: () {
-                tasteListNotifier.value = tasteListNotifier.value..clear();
+                tasteListNotifier.value = List.from([]);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

@@ -186,7 +186,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                             Expanded(
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.pop();
+                                  context.pop(true);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
@@ -195,7 +195,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                                     borderRadius: BorderRadius.all(Radius.circular(8)),
                                   ),
                                   child: Text(
-                                    '닫기',
+                                    '그만두기',
                                     textAlign: TextAlign.center,
                                     style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
                                   ),
@@ -206,7 +206,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                             Expanded(
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.pop(true);
+                                  context.pop();
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
@@ -215,7 +215,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                                     borderRadius: BorderRadius.all(Radius.circular(8)),
                                   ),
                                   child: Text(
-                                    '나가기',
+                                    '계속쓰기',
                                     textAlign: TextAlign.center,
                                     style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
                                   ),

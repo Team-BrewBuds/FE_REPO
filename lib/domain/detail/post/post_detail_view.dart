@@ -190,7 +190,7 @@ class _PostDetailViewState extends State<PostDetailView>
               child: SvgPicture.asset('assets/icons/x.svg', fit: BoxFit.cover, height: 24, width: 24),
             ),
             const Spacer(),
-            Text('게시물', style: TextStyles.title02SemiBold),
+            Text('게시글', style: TextStyles.title02SemiBold),
             const Spacer(),
             Selector<PostDetailPresenter, bool>(
               selector: (context, presenter) => presenter.isMine,

@@ -36,6 +36,8 @@ extension CoffeeBeanToJson on CoffeeBean {
     String? nullableString(String? string) {
       if (string != null && string.isEmpty) {
         return null;
+      } else if (string != null && string == 'null') {
+        return null;
       } else {
         return string;
       }

@@ -75,7 +75,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
       children: [
         ThrottleButton(
           onTap: () {
-            context.pop();
+            Navigator.of(context).pop();
           },
           child: SvgPicture.asset(
             'assets/icons/x.svg',
@@ -165,7 +165,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           imageEditorOption: editorOption,
         );
 
-        context.pop(result);
+        Navigator.of(context).pop(result);
       }
     }
   }

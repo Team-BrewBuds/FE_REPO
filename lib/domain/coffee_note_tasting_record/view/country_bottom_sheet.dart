@@ -8,11 +8,13 @@ import 'package:go_router/go_router.dart';
 
 class CountryBottomSheet extends StatelessWidget {
   final ValueNotifier<List<String>> selectedCountry;
+  final bool isSingleOrigin;
 
   CountryBottomSheet({
     super.key,
     required List<String> initialCountry,
-  }) : selectedCountry = ValueNotifier(initialCountry);
+    required this.isSingleOrigin,
+  })  : selectedCountry = ValueNotifier(initialCountry);
 
   @override
   Widget build(BuildContext context) {
@@ -111,12 +113,20 @@ class CountryBottomSheet extends StatelessWidget {
                         final isSelectedCountry = selectedCountry.contains(country.toString());
                         return ThrottleButton(
                           onTap: () {
-                            if (isSelectedCountry) {
-                              this.selectedCountry.value = List.from(this.selectedCountry.value)
-                                ..remove(country.toString());
+                            if (isSingleOrigin) {
+                              if (isSelectedCountry) {
+                                this.selectedCountry.value = [];
+                              } else {
+                                this.selectedCountry.value = List.from([country.toString()]);
+                              }
                             } else {
-                              this.selectedCountry.value = List.from(this.selectedCountry.value)
-                                ..add(country.toString());
+                              if (isSelectedCountry) {
+                                this.selectedCountry.value = List.from(this.selectedCountry.value)
+                                  ..remove(country.toString());
+                              } else {
+                                this.selectedCountry.value = List.from(this.selectedCountry.value)
+                                  ..add(country.toString());
+                              }
                             }
                           },
                           child: Container(
@@ -204,7 +214,7 @@ class CountryBottomSheet extends StatelessWidget {
             flex: 1,
             child: ThrottleButton(
               onTap: () {
-                selectedCountry.value = selectedCountry.value..clear();
+                selectedCountry.value = List.from([]);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

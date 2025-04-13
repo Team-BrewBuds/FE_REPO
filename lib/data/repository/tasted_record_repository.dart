@@ -177,7 +177,7 @@ class TastedRecordRepository {
     if (tag.isNotEmpty) {
       data['tag'] = tag;
     }
-    data['isprivate'] = isPrivate;
+    data['is_private'] = isPrivate;
     data['bean'] = coffeeBean.toJson();
     data['taste_review'] = tasteReview.toJson();
     if (photos.isNotEmpty) {

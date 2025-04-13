@@ -79,7 +79,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
           const SizedBox(height: 32),
           buildTitle(),
           const SizedBox(height: 8),
-          Selector<TastingWritePresenter, int>(
+          Selector<TastingWritePresenter, double>(
             selector: (context, presenter) => presenter.star,
             builder: (context, star, child) => _buildRating(star: star),
           ),
@@ -190,7 +190,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     );
   }
 
-  Widget _buildRating({required int star}) {
+  Widget _buildRating({required double star}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -203,18 +203,75 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               5,
-              (index) => ThrottleButton(
-                onTap: () {
-                  context.read<TastingWritePresenter>().onChangeStar(index + 1);
-                },
-                child: SvgPicture.asset(
-                  'assets/icons/star_fill.svg',
-                  height: 36,
+              (index) {
+                final currentRating = index + 1;
+                return SizedBox(
                   width: 36,
-                  colorFilter: ColorFilter.mode(index < star ? ColorStyles.red : ColorStyles.gray50, BlendMode.srcIn),
-                ),
-              ),
-            ).toList(),
+                  height: 36,
+                  child: Stack(
+                    children: [
+                      if (currentRating <= star)
+                      Positioned.fill(
+                        child: SvgPicture.asset(
+                          'assets/icons/star_fill.svg',
+                          colorFilter: const ColorFilter.mode(
+                            ColorStyles.red,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      )
+                        else if (index < star) Positioned.fill(
+                        child: SvgPicture.asset(
+                          'assets/icons/star_half.svg',
+                        ),
+                      )
+                      else Positioned.fill(
+                        child: SvgPicture.asset(
+                          'assets/icons/star_fill.svg',
+                          colorFilter: const ColorFilter.mode(
+                            ColorStyles.gray40,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ThrottleButton(
+                                onTap: () {
+                                  context.read<TastingWritePresenter>().onChangeStar(index + 0.5);
+                                },
+                                child: Container(color: Colors.transparent),
+                              ),
+                            ),
+                            Expanded(
+                              child: ThrottleButton(
+                                onTap: () {
+                                  context.read<TastingWritePresenter>().onChangeStar(index + 1);
+                                },
+                                child: Container(color: Colors.transparent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+                return ThrottleButton(
+                  onTap: () {
+                    context.read<TastingWritePresenter>().onChangeStar(index + 1);
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/star_fill.svg',
+                    height: 36,
+                    width: 36,
+                    colorFilter: ColorFilter.mode(index < star ? ColorStyles.red : ColorStyles.gray50, BlendMode.srcIn),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -236,7 +293,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
               isDense: true,
-              hintText: '원두와 시음 경험에 대한 이야기를 자유롭게 나눠주세요.',
+              hintText: '원두에 대한 이야기를 8자 이상 남겨주세요.',
               hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
               contentPadding: const EdgeInsets.all(12),
               enabledBorder: const OutlineInputBorder(

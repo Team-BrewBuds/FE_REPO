@@ -87,13 +87,13 @@ class ReportScreen extends StatelessWidget {
           const SizedBox(height: 48),
           ...reasonList.map((reason) {
             final isSelected = reason == selectedReason;
-            return Row(
-              children: [
-                ThrottleButton(
-                  onTap: () {
-                    context.read<ReportPresenter>().onSelectReason(reason);
-                  },
-                  child: isSelected
+            return ThrottleButton(
+              onTap: () {
+                context.read<ReportPresenter>().onSelectReason(reason);
+              },
+              child: Row(
+                children: [
+                  isSelected
                       ? SvgPicture.asset('assets/icons/check_red_filled.svg', width: 18, height: 18)
                       : Container(
                           width: 18,
@@ -101,11 +101,11 @@ class ReportScreen extends StatelessWidget {
                           decoration:
                               BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ColorStyles.gray50)),
                         ),
-                ),
-                const SizedBox(width: 8),
-                Text(reason, style: TextStyles.labelMediumMedium),
-                const Spacer(),
-              ],
+                  const SizedBox(width: 8),
+                  Text(reason, style: TextStyles.labelMediumMedium),
+                  const Spacer(),
+                ],
+              ),
             );
           }).separator(separatorWidget: const SizedBox(height: 20)),
         ],

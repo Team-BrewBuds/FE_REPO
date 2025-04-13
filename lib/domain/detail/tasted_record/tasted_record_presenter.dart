@@ -162,7 +162,7 @@ final class TastedRecordPresenter extends Presenter {
     final currentTastingRecord = _tastedRecord;
     if (currentTastingRecord != null) {
       _tastedRecordRepository
-          .follow(id: currentTastingRecord.id, isFollow: currentTastingRecord.isAuthorFollowing)
+          .follow(id: currentTastingRecord.author.id, isFollow: currentTastingRecord.isAuthorFollowing)
           .then((value) => _fetchTastedRecord());
     }
   }

@@ -122,10 +122,16 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                   const SizedBox(height: 36),
                   Selector<TastingWritePresenter, List<String>>(
                     selector: (context, presenter) => presenter.originCountry,
-                    builder: (context, originCountry, child) => _buildCountry(
-                      originCountry,
-                      isOfficial: isOfficial,
-                    ),
+                    builder: (context, originCountry, child) {
+                      final isSingleOrigin = context.select<TastingWritePresenter, bool>(
+                        (presenter) => presenter.coffeeBeanType == CoffeeBeanType.singleOrigin,
+                      );
+                      return _buildCountry(
+                        originCountry,
+                        isOfficial: isOfficial,
+                        isSingleOrigin: isSingleOrigin,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -136,10 +142,11 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             selector: (context, presenter) => presenter.coffeeBeanType,
             builder: (context, type, child) {
               final options = getOptions(type);
+              final isOfficial = context.select<TastingWritePresenter, bool>((presenter) => presenter.isOfficial);
               return Column(
                 children: List<Widget>.generate(
                   options.length,
-                  (index) => _buildExpandableItem(options[index]),
+                  (index) => _buildExpandableItem(options[index], isOfficial),
                 ),
               );
             },
@@ -317,7 +324,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     );
   }
 
-  Widget _buildCountry(List<String> countryList, {bool isOfficial = false}) {
+  Widget _buildCountry(List<String> countryList, {bool isOfficial = false, bool isSingleOrigin = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -327,7 +334,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           opacity: isOfficial ? 0.4 : 1,
           child: ThrottleButton(
             onTap: () {
-              _showCountryBottomSheet(country: countryList);
+              _showCountryBottomSheet(country: countryList, isSingleOrigin: isSingleOrigin);
             },
             child: Container(
               padding: const EdgeInsets.all(12),
@@ -395,7 +402,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     );
   }
 
-  Widget _buildExpandableItem(BeanWriteOption option) {
+  Widget _buildExpandableItem(BeanWriteOption option, bool isOfficial) {
     final expanded = isExpanded(option);
     return Container(
       padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
@@ -409,7 +416,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
               children: [
                 Expanded(
                   child: Text(
-                    expanded ? '${option.toString()} (선택)' : '(선택) ${option.toString()}',
+                    '${option.toString()} (선택)',
                     style: TextStyles.labelSmallMedium,
                   ),
                 ),
@@ -425,7 +432,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           if (expanded)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: _buildExpandedOptions(option),
+              child: _buildExpandedOptions(option, isOfficial),
             ),
           SizedBox(height: expanded ? 24 : 12),
           Container(height: 1, color: ColorStyles.gray30),
@@ -434,28 +441,58 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     );
   }
 
-  Widget _buildExpandedOptions(BeanWriteOption option) {
+  Widget _buildExpandedOptions(BeanWriteOption option, bool isOfficial) {
     switch (option) {
       case BeanWriteOption.area:
-        return _buildArea();
+        return AbsorbPointer(
+          absorbing: isOfficial,
+          child: Opacity(
+            opacity: isOfficial ? 0.4 : 1.0,
+            child: _buildArea(),
+          ),
+        );
       case BeanWriteOption.variety:
-        return _buildVariety();
+        return AbsorbPointer(
+          absorbing: isOfficial,
+          child: Opacity(
+            opacity: isOfficial ? 0.4 : 1.0,
+            child: _buildVariety(),
+          ),
+        );
       case BeanWriteOption.processing:
         return Selector<TastingWritePresenter, List<CoffeeBeanProcessing>>(
           selector: (context, presenter) => presenter.currentProcess,
           builder: (context, processing, child) {
-            return _buildProcessing(currentProcessing: processing);
+            return AbsorbPointer(
+              absorbing: isOfficial,
+              child: Opacity(
+                opacity: isOfficial ? 0.4 : 1.0,
+                child: _buildProcessing(currentProcessing: processing),
+              ),
+            );
           },
         );
       case BeanWriteOption.roastingPoint:
         return Selector<TastingWritePresenter, int?>(
           selector: (context, presenter) => presenter.roastingPoint,
           builder: (context, roastingPoint, child) {
-            return _buildRoastingPoint(currentRoastingPoint: roastingPoint);
+            return AbsorbPointer(
+              absorbing: isOfficial,
+              child: Opacity(
+                opacity: isOfficial ? 0.4 : 1.0,
+                child: _buildRoastingPoint(currentRoastingPoint: roastingPoint),
+              ),
+            );
           },
         );
       case BeanWriteOption.roastery:
-        return _buildRoastery();
+        return AbsorbPointer(
+          absorbing: isOfficial,
+          child: Opacity(
+            opacity: isOfficial ? 0.4 : 1.0,
+            child: _buildRoastery(),
+          ),
+        );
       case BeanWriteOption.extraction:
         return Selector<TastingWritePresenter, CoffeeBeanExtraction?>(
           selector: (context, presenter) => presenter.extraction,
@@ -906,12 +943,13 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
     context.read<TastingWritePresenter>().onSelectedCoffeeBeanName(beanName);
   }
 
-  _showCountryBottomSheet({required List<String> country}) async {
+  _showCountryBottomSheet({required List<String> country, required bool isSingleOrigin}) async {
     final result = await showBarrierDialog<List<String>>(
         context: context,
         pageBuilder: (context, _, __) {
           return CountryBottomSheet(
             initialCountry: List.from(country),
+            isSingleOrigin: isSingleOrigin,
           );
         });
 

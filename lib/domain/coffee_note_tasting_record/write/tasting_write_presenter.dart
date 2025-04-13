@@ -73,7 +73,7 @@ final class TastingWritePresenter extends Presenter {
 
   String get place => _tasteReview.place;
 
-  int get star => _tasteReview.star.toInt();
+  double get star => _tasteReview.star;
 
   initState() {}
 
@@ -175,7 +175,10 @@ final class TastingWritePresenter extends Presenter {
 
   onChangeType(CoffeeBeanType? beanType) {
     if (beanType == CoffeeBeanType.singleOrigin) {
-      _coffeeBean = _coffeeBean.copyWith(type: beanType);
+      _coffeeBean = _coffeeBean.copyWith(
+        type: beanType,
+        country: (_coffeeBean.country?.isNotEmpty ?? false) ? _coffeeBean.country!.sublist(0, 1) : [],
+      );
     } else {
       _coffeeBeanProcessingList = List.empty();
       _writtenByUserProcessing = null;
@@ -316,8 +319,8 @@ final class TastingWritePresenter extends Presenter {
     notifyListeners();
   }
 
-  onChangeStar(int star) {
-    _tasteReview = _tasteReview.copyWith(star: star.toDouble());
+  onChangeStar(double star) {
+    _tasteReview = _tasteReview.copyWith(star: star);
     notifyListeners();
   }
 }
