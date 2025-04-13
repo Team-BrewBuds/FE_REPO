@@ -262,13 +262,16 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
       padding: const EdgeInsets.only(top: 32, left: 16, right: 16, bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 8,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16,
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 4,
                   children: [
                     Row(
                       children: [
@@ -287,7 +290,6 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                         )
                       ],
                     ),
-                    const SizedBox(height: 4),
                     Text(
                       name,
                       style: TextStyle(
@@ -303,7 +305,6 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
               MyNetworkImage(imageUrl: imageUrl, height: 80, width: 80),
             ],
           ),
-          const SizedBox(height: 8),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(

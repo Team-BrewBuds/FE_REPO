@@ -63,7 +63,7 @@ class RecentSearchWordsList extends StatelessWidget {
                             item.onTap.call();
                           },
                           child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
                             decoration: BoxDecoration(
                                 border: Border.all(color: ColorStyles.gray70),
                                 borderRadius: const BorderRadius.all(Radius.circular(20))),
@@ -71,7 +71,7 @@ class RecentSearchWordsList extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(item.word, style: TextStyles.captionMediumRegular),
-                                const SizedBox(width: 2),
+                                const SizedBox(width: 6),
                                 ThrottleButton(
                                   onTap: () {
                                     item.onDelete.call();

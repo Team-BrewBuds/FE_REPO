@@ -385,21 +385,21 @@ class _SearchResultViewState extends State<SearchResultView>
       ),
       _buildIcon(
         onTap: () {
-          showFilterBottomSheet(4, filters);
-        },
-        text: '로스팅 포인트',
-        iconPath: 'assets/icons/down.svg',
-        isLeftIcon: false,
-        isActive: hasRoastingPointFilter,
-      ),
-      _buildIcon(
-        onTap: () {
           showFilterBottomSheet(3, filters);
         },
         text: '디카페인',
         iconPath: 'assets/icons/down.svg',
         isLeftIcon: false,
         isActive: hasDecafFilter,
+      ),
+      _buildIcon(
+        onTap: () {
+          showFilterBottomSheet(4, filters);
+        },
+        text: '로스팅 포인트',
+        iconPath: 'assets/icons/down.svg',
+        isLeftIcon: false,
+        isActive: hasRoastingPointFilter,
       ),
     ].toList();
   }

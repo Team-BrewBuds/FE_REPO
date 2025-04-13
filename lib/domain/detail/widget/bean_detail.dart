@@ -79,7 +79,7 @@ class BeanDetail extends StatelessWidget {
   }
 
   Widget? _buildDetailItem({required String title, String? content}) {
-    return content != null
+    return content != null && content != 'null'
         ? Row(
             children: [
               Text(title, style: TextStyles.labelMediumMedium),

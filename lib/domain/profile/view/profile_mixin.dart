@@ -431,21 +431,21 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             ),
             _buildIcon(
               onTap: () {
-                _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 4);
-              },
-              text: '로스팅 포인트',
-              iconPath: 'assets/icons/down.svg',
-              isLeftIcon: false,
-              isActive: hasRoastingPointFilter,
-            ),
-            _buildIcon(
-              onTap: () {
                 _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 3);
               },
               text: '디카페인',
               iconPath: 'assets/icons/down.svg',
               isLeftIcon: false,
               isActive: hasDecafFilter,
+            ),
+            _buildIcon(
+              onTap: () {
+                _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 4);
+              },
+              text: '로스팅 포인트',
+              iconPath: 'assets/icons/down.svg',
+              isLeftIcon: false,
+              isActive: hasRoastingPointFilter,
             ),
           ]),
         ),
