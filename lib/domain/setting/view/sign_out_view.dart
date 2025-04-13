@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
@@ -172,42 +171,48 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
         children: [
           Text('탈퇴하시려는 이유를 선택해 주세요.', style: TextStyles.title04SemiBold),
           const SizedBox(height: 48),
-          ...List.generate(_reason.length, (index) {
-            final isSelected = index == _selectedReasonIndex;
-            return ThrottleButton(
-              onTap: () {
-                setState(() {
-                  if (isSelected) {
-                    _selectedReasonIndex = null;
-                  } else {
-                    _selectedReasonIndex = index;
-                  }
-                });
+          Expanded(
+            child: ListView.separated(
+              itemBuilder: (context, index) {
+                final isSelected = index == _selectedReasonIndex;
+                return ThrottleButton(
+                  onTap: () {
+                    setState(() {
+                      if (isSelected) {
+                        _selectedReasonIndex = null;
+                      } else {
+                        _selectedReasonIndex = index;
+                      }
+                    });
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    child: Row(
+                      children: [
+                        isSelected
+                            ? SvgPicture.asset(
+                                'assets/icons/check_red_filled.svg',
+                                width: 18,
+                                height: 18,
+                              )
+                            : Container(
+                                width: 18,
+                                height: 18,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle, border: Border.all(color: ColorStyles.gray50)),
+                              ),
+                        const SizedBox(width: 8),
+                        Text(_reason[index], style: TextStyles.labelMediumMedium),
+                      ],
+                    ),
+                  ),
+                );
               },
-              child: Container(
-                color: Colors.transparent,
-                child: Row(
-                  children: [
-                    isSelected
-                        ? SvgPicture.asset(
-                            'assets/icons/check_red_filled.svg',
-                            width: 18,
-                            height: 18,
-                          )
-                        : Container(
-                            width: 18,
-                            height: 18,
-                            decoration:
-                                BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ColorStyles.gray50)),
-                          ),
-                    const SizedBox(width: 8),
-                    Text(_reason[index], style: TextStyles.labelMediumMedium),
-                  ],
-                ),
-              ),
-            );
-          }).separator(separatorWidget: const SizedBox(height: 20)),
-          const Spacer(),
+              separatorBuilder: (context, index) => const SizedBox(height: 20),
+              itemCount: _reason.length,
+            ),
+          ),
+          const SizedBox(height: 20),
           ThrottleButton(
             onTap: () {
               context.pop();
@@ -227,16 +232,22 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
               final context = this.context;
               final result = await _showSignOutDialog().then((value) => value ?? false).onError((_, __) => false);
               if (result) {
-                final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
-                if (signOutResult && context.mounted) {
-                  await AccountRepository.instance.logout();
-                  await NotificationRepository.instance.deleteToken();
-                  if (context.mounted) {
-                    context.go('/');
+                final notificationResult =
+                    await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
+                if (notificationResult) {
+                  final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
+                  if (signOutResult) {
+                    await AccountRepository.instance.logout();
+                    if (context.mounted) {
+                      context.go('/');
+                    }
+                    return;
+                  } else {
+                    await NotificationRepository.instance.registerToken(AccountRepository.instance.accessToken);
                   }
-                } else {
-                  showSnackBar(message: '회원탈퇴에 실패했습니다.');
                 }
+                showSnackBar(message: '회원탈퇴에 실패했습니다.');
+                return;
               }
             },
             child: Container(

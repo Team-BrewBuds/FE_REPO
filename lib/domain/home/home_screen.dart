@@ -6,6 +6,7 @@ import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/di/navigator.dart';
@@ -18,7 +19,9 @@ import 'package:brew_buds/domain/home/widgets/recommended_buddy_list.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
+import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
+import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/feed/feed.dart';
@@ -593,15 +596,29 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  showLoginBottomSheet() {
-    return showBarrierDialog<bool>(
+  showLoginBottomSheet() async {
+    final context = this.context;
+    final result = await showBarrierDialog<Result<LoginResult>>(
       context: context,
       pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
-    ).then((result) {
-      final context = this.context;
-      if (result != null && result && context.mounted) {
-        context.read<HomePresenter>().login();
+    );
+
+    if (result != null && context.mounted) {
+      switch (result) {
+        case Success<LoginResult>():
+          switch(result.data) {
+            case LoginResult.login:
+              context.read<HomePresenter>().login();
+              break;
+            case LoginResult.needSignUp:
+              context.push('/login/signup/1');
+              break;
+          }
+          break;
+        case Error<LoginResult>():
+          showSnackBar(message: result.e);
+          break;
       }
-    });
+    }
   }
 }

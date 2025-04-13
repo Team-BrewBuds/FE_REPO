@@ -43,6 +43,7 @@ abstract class NotificationApi {
 
   @POST('/notifications/settings/')
   Future<void> createNotificationSettings({
+    @Header('Authorization') required String token,
     @Body() required Map<String, dynamic> data,
   });
 

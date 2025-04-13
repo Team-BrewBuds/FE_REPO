@@ -28,14 +28,17 @@ class SignUpPresenter extends Presenter {
   final DuplicatedNicknameApi _duplicatedNicknameApi =
       DuplicatedNicknameApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
   late final Debouncer<String> _nicknameCheckDebouncer;
-  late String _accessToken;
-  late String _refreshToken;
-  late int _id;
   SignUpState _state = const SignUpState();
   bool _isChangeNickname = false;
   bool _isDuplicatingNickname = false;
   bool _isNicknameChecking = false;
   bool _isLoading = false;
+
+  String get accessToken => AccountRepository.instance.accessTokenInMemory;
+
+  String get refreshToken => AccountRepository.instance.refreshTokenInMemory;
+
+  int get id => AccountRepository.instance.idInMemory ?? 0;
 
   bool get isLoading => _isLoading;
 
@@ -93,9 +96,6 @@ class SignUpPresenter extends Presenter {
         _checkNickname(newNickname);
       },
     );
-    _accessToken = AccountRepository.instance.accessTokenInMemory;
-    _refreshToken = AccountRepository.instance.refreshTokenInMemory;
-    _id = AccountRepository.instance.idInMemory ?? 0;
     _state = const SignUpState();
     notifyListeners();
   }
@@ -123,7 +123,7 @@ class SignUpPresenter extends Presenter {
     } else if (index == 2) {
       return isValidThirdPage;
     } else {
-      return body != 0 && acidity != 0 && bitterness != 0 && sweetness != 0;
+      return true;
     }
   }
 
@@ -198,7 +198,7 @@ class SignUpPresenter extends Presenter {
       _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(body: newValue));
     } else {
       if (_state.preferredBeanTaste?.body == newValue) {
-        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(body: null));
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(body: 0));
       } else {
         _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(body: newValue));
       }
@@ -211,7 +211,7 @@ class SignUpPresenter extends Presenter {
       _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(acidity: newValue));
     } else {
       if (_state.preferredBeanTaste?.acidity == newValue) {
-        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(acidity: null));
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(acidity: 0));
       } else {
         _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(acidity: newValue));
       }
@@ -224,7 +224,7 @@ class SignUpPresenter extends Presenter {
       _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(bitterness: newValue));
     } else {
       if (_state.preferredBeanTaste?.bitterness == newValue) {
-        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(bitterness: null));
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(bitterness: 0));
       } else {
         _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(bitterness: newValue));
       }
@@ -237,7 +237,7 @@ class SignUpPresenter extends Presenter {
       _state = _state.copyWith(preferredBeanTaste: PreferredBeanTaste(sweetness: newValue));
     } else {
       if (_state.preferredBeanTaste?.sweetness == newValue) {
-        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(sweetness: null));
+        _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(sweetness: 0));
       } else {
         _state = _state.copyWith(preferredBeanTaste: _state.preferredBeanTaste?.copyWith(sweetness: newValue));
       }
@@ -250,15 +250,11 @@ class SignUpPresenter extends Presenter {
     notifyListeners();
 
     try {
-      final result = await _loginRepository.registerAccount(
-        accessToken: _accessToken,
-        refreshToken: _refreshToken,
-        state: _state,
-      );
+      final result = await _loginRepository.registerAccount(state: _state);
 
       if (result) {
-        await NotificationRepository.instance.registerToken(_accessToken);
-        await _accountRepository.login(id: _id, accessToken: _accessToken, refreshToken: _refreshToken);
+        await NotificationRepository.instance.registerToken(accessToken);
+        await _accountRepository.login(id: id, accessToken: accessToken, refreshToken: refreshToken);
 
         _isLoading = false;
         notifyListeners();

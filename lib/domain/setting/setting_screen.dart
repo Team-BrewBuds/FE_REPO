@@ -188,15 +188,18 @@ class _SettingScreenState extends State<SettingScreen>
         final result = await showLogoutBottomSheet().then((value) => value ?? false).onError((_, __) => false);
 
         if (result) {
-          final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
-          if (logoutResult) {
-            await NotificationRepository.instance.deleteToken();
-            if (context.mounted) {
-              context.go('/');
+          final notificationResult = await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
+          if (notificationResult) {
+            final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
+            if (logoutResult) {
+              if (context.mounted) {
+                context.go('/');
+                break;
+              }
             }
-          } else {
-            showSnackBar(message: '로그아웃에 실패했습니다.');
           }
+          showSnackBar(message: '로그아웃에 실패했습니다.');
+          break;
         }
         break;
       case SettingItem.signOut:
@@ -212,7 +215,6 @@ class _SettingScreenState extends State<SettingScreen>
             },
           );
         }
-
         break;
     }
   }

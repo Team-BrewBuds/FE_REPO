@@ -8,6 +8,7 @@ import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -51,83 +52,87 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
 
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 128,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(titleList[_currentIndex], style: TextStyles.title05Bold),
-                  const SizedBox(height: 8),
-                  Text(contentList[_currentIndex], style: TextStyles.labelMediumMedium),
-                  const SizedBox(height: 36),
-                  SizedBox(
-                    height: 240,
-                    width: 240,
-                    child: CarouselSlider.builder(
-                      itemCount: images.length,
-                      itemBuilder: (context, _, index) => ExtendedImage.asset(images[index], fit: BoxFit.cover),
-                      options: CarouselOptions(
-                        aspectRatio: 1,
-                        viewportFraction: 1.0,
-                        enableInfiniteScroll: false,
-                        initialPage: 0,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                      ),
+        child: LayoutBuilder(builder: (context, constraints) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              Positioned(
+                bottom: (constraints.maxHeight / 2) + (240.h / 2) + 36.h,
+                child: Column(
+                  spacing: 8.h,
+                  children: [
+                    Text(titleList[_currentIndex], style: TextStyles.title05Bold),
+                    Text(contentList[_currentIndex], style: TextStyles.labelMediumMedium),
+                  ],
+                ),
+              ),
+              Center(
+                child: SizedBox(
+                  height: 240.h,
+                  width: 240.w,
+                  child: CarouselSlider.builder(
+                    itemCount: images.length,
+                    itemBuilder: (context, _, index) => ExtendedImage.asset(images[index], fit: BoxFit.cover),
+                    options: CarouselOptions(
+                      aspectRatio: 1,
+                      viewportFraction: 1.0,
+                      enableInfiniteScroll: false,
+                      initialPage: 0,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
                     ),
                   ),
-                  Container(height: 53),
-                  Padding(padding: const EdgeInsets.only(top: 8, bottom: 2), child: _buildAnimatedSmoothIndicator()),
-                ],
+                ),
               ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Column(
-                children: [
-                  ThrottleButton(
-                    onTap: () {
-                      context.push('/login');
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: ColorStyles.black),
-                      child: Center(
-                        child: Text(
-                          '로그인/회원가입',
-                          style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+              Positioned(
+                top: (constraints.maxHeight / 2) + (240.h / 2) + 36.h,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 2),
+                  child: _buildAnimatedSmoothIndicator(),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 46.h,
+                child: Column(
+                  children: [
+                    ThrottleButton(
+                      onTap: () {
+                        context.push('/login');
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(8), color: ColorStyles.black),
+                        child: Center(
+                          child: Text(
+                            '로그인/회원가입',
+                            style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  ThrottleButton(
-                    onTap: () {
-                      AccountRepository.instance.loginWithGuest();
-                      context.go('/home?is_guest=true');
-                    },
-                    child: Container(
-                      decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
-                      child: Text('둘러보기', style: TextStyles.labelSmallMedium),
+                    SizedBox(height: 16.h),
+                    ThrottleButton(
+                      onTap: () {
+                        AccountRepository.instance.loginWithGuest();
+                        context.go('/home?is_guest=true');
+                      },
+                      child: Container(
+                        decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
+                        child: Text('둘러보기', style: TextStyles.labelSmallMedium),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 46),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          );
+        }),
       ),
     );
   }

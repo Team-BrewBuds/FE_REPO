@@ -185,7 +185,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
     );
   }
 
-  Widget buildBottomButton({required bool isSatisfyRequirements, String title = '다음'}) {
+  Widget buildBottomButton({required bool isSatisfyRequirements}) {
     return Padding(
       padding: EdgeInsets.only(top: 24, bottom: MediaQuery.of(context).viewInsets.bottom + 24.0, left: 16, right: 16),
       child: AbsorbPointer(
@@ -201,7 +201,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
             ),
             child: Center(
               child: Text(
-                title,
+                widget.navigationShell.currentIndex == 3 ? '가입하기' : '다음',
                 style: TextStyles.labelMediumMedium.copyWith(
                   color: isSatisfyRequirements ? ColorStyles.white : ColorStyles.gray40,
                 ),

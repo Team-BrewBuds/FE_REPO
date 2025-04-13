@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -14,6 +15,9 @@ final class ApiInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final token = AccountRepository.instance.accessToken;
+
+    print(token);
+    print(options.uri);
 
     if (token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -35,6 +39,7 @@ final class ApiInterceptor extends Interceptor {
         _retryRequest(err.requestOptions, AccountRepository.instance.accessToken, handler);
       } else {
         handler.reject(err);
+        await _logout();
       }
     } else {
       _refreshCompleter = Completer<bool>();
@@ -44,7 +49,7 @@ final class ApiInterceptor extends Interceptor {
         _retryRequest(err.requestOptions, AccountRepository.instance.accessToken, handler);
       } else {
         handler.reject(err);
-        await AccountRepository.instance.logout(forceLogout: true);
+        await _logout();
       }
       _refreshCompleter = null;
     }
@@ -84,6 +89,12 @@ final class ApiInterceptor extends Interceptor {
       handler.resolve(response);
     } on DioException catch (e) {
       handler.reject(e);
+    }
+  }
+
+  Future<void> _logout() async {
+    if (await NotificationRepository.instance.deleteToken()) {
+      await AccountRepository.instance.logout(forceLogout: true);
     }
   }
 }

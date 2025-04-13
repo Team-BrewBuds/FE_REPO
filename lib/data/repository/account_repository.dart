@@ -1,4 +1,3 @@
-import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:notification_center/notification_center.dart';
@@ -68,8 +67,11 @@ class AccountRepository extends ChangeNotifier {
   }
 
   Future<void> logout({bool forceLogout = false}) async {
+    if (_id == null && _accessToken.isEmpty && _refreshToken.isEmpty) {
+      return;
+    }
+
     try {
-      await NotificationRepository.instance.deleteToken();
       await _storage.deleteAll();
       _isGuest = false;
       _id = null;
@@ -85,8 +87,10 @@ class AccountRepository extends ChangeNotifier {
   }
 
   Future<void> login({required int id, required String accessToken, required String refreshToken}) async {
-    await saveToken(accessToken: accessToken, refreshToken: refreshToken);
-    await saveId(id: id);
+    await Future.wait([
+      saveToken(accessToken: accessToken, refreshToken: refreshToken),
+      saveId(id: id),
+    ]);
     if (_isGuest) {
       _isGuest = false;
       notifyListeners();

@@ -10,12 +10,14 @@ import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 final class NotificationRepository {
   final NotificationApi _notificationApi = NotificationApi();
+  final _deviceInfo = DeviceInfoPlugin();
   String _token = '';
 
   String get token => _token;
@@ -48,23 +50,24 @@ final class NotificationRepository {
       try {
         await _notificationApi
             .registerDeviceToken(token: 'Bearer $accessToken', data: {'device_token': _token, 'device_type': 'ios'});
-        if (!await _notificationApi.fetchNotificationSettings().then((_) => true).onError((_, __) => false)) {
-          final isGranted = PermissionRepository.instance.notification.isGranted;
-          final data = await compute(
-            (isGranted) => NotificationSettingDTO(
-              like: isGranted,
-              comment: isGranted,
-              follow: isGranted,
-              marketing: isGranted,
-            ).toJson(),
-            isGranted,
-          );
-          await _notificationApi.createNotificationSettings(data: data);
-        }
+        final isGranted = PermissionRepository.instance.notification.isGranted;
+        final data = await compute(
+          (isGranted) => NotificationSettingDTO(
+            like: isGranted,
+            comment: isGranted,
+            follow: isGranted,
+            marketing: isGranted,
+          ).toJson(),
+          isGranted,
+        );
+        await _notificationApi.createNotificationSettings(data: data, token: 'Bearer $accessToken');
         return true;
       } catch (e) {
-        return false;
+        rethrow;
       }
+    } else if (_token.isEmpty &&
+        await _deviceInfo.iosInfo.then((info) => !info.isPhysicalDevice).onError((_, __) => false)) {
+      return true;
     } else {
       return false;
     }
@@ -94,13 +97,6 @@ final class NotificationRepository {
       },
       jsonString,
     );
-  }
-
-  Future<bool> createSettings({required NotificationSetting notificationSetting}) async {
-    return _notificationApi
-        .createNotificationSettings(data: await compute((setting) => setting.toDTO().toJson(), notificationSetting))
-        .then((value) => true)
-        .onError((error, stackTrace) => false);
   }
 
   Future<NotificationSetting?> updateSettings({required NotificationSetting notificationSetting}) async {

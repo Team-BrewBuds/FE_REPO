@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
@@ -67,24 +68,30 @@ class LoginBottomSheet extends StatelessWidget {
                     const SizedBox(height: 24, width: double.infinity),
                     ThrottleButton(
                       onTap: () async {
-                        final loginResult = await _login(context, SocialLogin.kakao);
+                        final result = await context.read<LoginPresenter>().login(SocialLogin.kakao);
                         if (context.mounted) {
-                          switch (loginResult) {
-                            case null:
-                              context.pop(false);
-                              break;
-                            case LoginResult.login:
-                              context.pop(true);
-                              break;
-                            case LoginResult.needSignUp:
-                              final result =
-                                  await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
-                              if (result && context.mounted) {
-                                final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                if (saveResult) {
-                                  context.go('/login/signup/1');
-                                }
+                          switch (result) {
+                            case Success<LoginResult>():
+                              switch (result.data) {
+                                case LoginResult.login:
+                                  context.pop(result);
+                                case LoginResult.needSignUp:
+                                  final checkResult = await _checkModal(context)
+                                      .then((value) => value ?? false)
+                                      .onError((_, __) => false);
+                                  if (checkResult && context.mounted) {
+                                    final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                    if (saveResult) {
+                                      context.pop(result);
+                                    }
+                                  }
                               }
+                            case Error<LoginResult>():
+                              context.pop(result);
+                          }
+
+                          if (context.mounted) {
+                            context.pop(Result.error('알 수 없는 오류로 로그인에 실패했습니다.'));
                           }
                         }
                       },
@@ -122,22 +129,28 @@ class LoginBottomSheet extends StatelessWidget {
                     const SizedBox(height: 7, width: double.infinity),
                     ThrottleButton(
                       onTap: () async {
-                        final loginResult = await _login(context, SocialLogin.naver);
+                        final result = await context.read<LoginPresenter>().login(SocialLogin.naver);
                         if (context.mounted) {
-                          switch (loginResult) {
-                            case null:
-                              context.pop(false);
-                            case LoginResult.login:
-                              context.pop(true);
-                            case LoginResult.needSignUp:
-                              final result =
-                                  await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
-                              if (result && context.mounted) {
-                                final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                if (saveResult) {
-                                  context.go('/login/signup/1');
-                                }
+                          switch (result) {
+                            case Success<LoginResult>():
+                              switch (result.data) {
+                                case LoginResult.login:
+                                  context.pop(result);
+                                case LoginResult.needSignUp:
+                                  final checkResult = await _checkModal(context)
+                                      .then((value) => value ?? false)
+                                      .onError((_, __) => false);
+                                  if (checkResult && context.mounted) {
+                                    final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                    if (saveResult) {
+                                      context.pop(result);
+                                    } else {
+                                      context.pop(Result.error('알 수 없는 오류로 로그인에 실패했습니다.'));
+                                    }
+                                  }
                               }
+                            case Error<LoginResult>():
+                              context.pop(result);
                           }
                         }
                       },
@@ -175,22 +188,30 @@ class LoginBottomSheet extends StatelessWidget {
                     const SizedBox(height: 7, width: double.infinity),
                     ThrottleButton(
                       onTap: () async {
-                        final loginResult = await _login(context, SocialLogin.apple);
+                        final result = await context.read<LoginPresenter>().login(SocialLogin.apple);
                         if (context.mounted) {
-                          switch (loginResult) {
-                            case null:
-                              context.pop(false);
-                            case LoginResult.login:
-                              context.pop(true);
-                            case LoginResult.needSignUp:
-                              final result =
-                                  await _checkModal(context).then((value) => value ?? false).onError((_, __) => false);
-                              if (result && context.mounted) {
-                                final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                if (saveResult) {
-                                  context.go('/login/signup/1');
-                                }
+                          switch (result) {
+                            case Success<LoginResult>():
+                              switch (result.data) {
+                                case LoginResult.login:
+                                  context.pop(result);
+                                case LoginResult.needSignUp:
+                                  final checkResult = await _checkModal(context)
+                                      .then((value) => value ?? false)
+                                      .onError((_, __) => false);
+                                  if (checkResult && context.mounted) {
+                                    final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                    if (saveResult) {
+                                      context.pop(result);
+                                    }
+                                  }
                               }
+                            case Error<LoginResult>():
+                              context.pop(result);
+                          }
+
+                          if (context.mounted) {
+                            context.pop(Result.error('알 수 없는 오류로 로그인에 실패했습니다.'));
                           }
                         }
                       },
@@ -243,10 +264,6 @@ class LoginBottomSheet extends StatelessWidget {
     );
   }
 
-  Future<LoginResult?> _login(BuildContext context, SocialLogin socialLogin) {
-    return context.read<LoginPresenter>().login(socialLogin);
-  }
-
   Future<bool?> _checkModal(BuildContext context) async {
     return showModalBottomSheet<bool>(
       context: context,
@@ -259,29 +276,6 @@ class LoginBottomSheet extends StatelessWidget {
       builder: (BuildContext context) {
         return const TermsOfUseBottomSheet();
       },
-    );
-  }
-
-  showSnackBar(BuildContext context, {required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black90,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
     );
   }
 }

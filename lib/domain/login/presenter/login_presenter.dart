@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
@@ -24,46 +25,48 @@ class LoginPresenter extends Presenter {
 
   SocialLoginResultData get loginResultData => _socialLoginResultData;
 
-  Future<LoginResult?> login(SocialLogin socialLogin) async {
+  Future<Result<LoginResult>> login(SocialLogin socialLogin) async {
     _isLoading = true;
     notifyListeners();
 
-    try {
-      final socialToken = await _loginWithSNS(socialLogin);
-      if (socialToken != null && socialToken.isNotEmpty) {
-        final result = await _registerToken(socialToken, socialLogin.name);
-        if (result != null) {
-          _socialLoginResultData = result;
-          final hasAccount = await _checkUser(accessToken: result.accessToken);
-          if (hasAccount != null && hasAccount) {
-            await _accountRepository.login(
-              id: result.id,
-              accessToken: result.accessToken,
-              refreshToken: result.refreshToken,
-            );
+    final socialToken = await _loginWithSNS(socialLogin);
+    String errorMessage = '';
+    if (socialToken != null && socialToken.isNotEmpty) {
+      final result = await _registerToken(socialToken, socialLogin.name);
+      if (result != null) {
+        _socialLoginResultData = result;
+        final hasAccount = await _checkUser(accessToken: result.accessToken);
+        if (hasAccount != null && hasAccount) {
+          await _accountRepository.login(
+            id: result.id,
+            accessToken: result.accessToken,
+            refreshToken: result.refreshToken,
+          );
 
-            final registered = await NotificationRepository.instance.registerToken(result.accessToken);
-            if (true) {
-              _isLoading = false;
-              notifyListeners();
-              return LoginResult.login;
-            }
-          } else {
+          final registered = await NotificationRepository.instance.registerToken(result.accessToken);
+          if (registered) {
             _isLoading = false;
             notifyListeners();
-            return LoginResult.needSignUp;
+            return Result.success(LoginResult.login);
+          } else {
+            await _accountRepository.logout();
+            errorMessage = '디바이스 정보 등록에 실패했습니다.';
           }
+        } else {
+          _isLoading = false;
+          notifyListeners();
+          return Result.success(LoginResult.needSignUp);
         }
+      } else {
+        errorMessage = '소셜로그인 정보 등록에 실패했습니다.';
       }
-    } catch (e) {
-      _isLoading = false;
-      notifyListeners();
-      return null;
+    } else {
+      errorMessage = '소셜로그인에 실패했습니다.';
     }
 
     _isLoading = false;
     notifyListeners();
-    return null;
+    return Result.error(errorMessage);
   }
 
   Future<String?> _loginWithSNS(SocialLogin socialLogin) async {
@@ -85,7 +88,6 @@ class LoginPresenter extends Presenter {
       } else {
         token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken, onError: (_) => null);
       }
-      // token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken, onError: (_) => null);
       return token;
     } catch (e) {
       return null;

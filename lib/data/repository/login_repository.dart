@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:brew_buds/data/api/sign_up_api.dart';
 import 'package:brew_buds/data/dto/social_login_dto.dart';
 import 'package:brew_buds/data/mapper/sign_up/sign_up_mapper.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -60,8 +61,6 @@ class LoginRepository {
   }
 
   Future<bool> registerAccount({
-    required String accessToken,
-    required String refreshToken,
     required SignUpState state,
   }) async {
     final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
@@ -75,7 +74,7 @@ class LoginRepository {
             options.headers.remove('Authorization');
           }
 
-          options.headers.addAll({'Authorization': 'Bearer $accessToken'});
+          options.headers.addAll({'Authorization': 'Bearer ${AccountRepository.instance.accessTokenInMemory}'});
 
           return handler.next(options);
         },
@@ -90,13 +89,20 @@ class LoginRepository {
           try {
             final resp = await refreshDio.post(
               '${dotenv.get('API_ADDRESS')}profiles/api/token/refresh/',
-              data: {'refresh': refreshToken},
+              data: {'refresh': AccountRepository.instance.refreshTokenInMemory},
             );
 
-            accessToken = resp.data['access'];
+            final newAccessToken = resp.data['access'];
+            final newRefreshToken = resp.data['refresh'];
+
+            AccountRepository.instance.saveTokenAndIdInMemory(
+              id: AccountRepository.instance.id ?? 0,
+              accessToken: newAccessToken,
+              refreshToken: newRefreshToken,
+            );
 
             final options = error.requestOptions;
-            options.headers['Authorization'] = 'Bearer $accessToken';
+            options.headers['Authorization'] = 'Bearer $newAccessToken';
 
             final response = await dio.fetch(options);
 

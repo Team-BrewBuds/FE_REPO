@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
@@ -10,6 +11,7 @@ import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
+import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -150,13 +152,9 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       child: ThrottleButton(
                         onTap: () async {
                           if (isGuest) {
-                            final result =
-                                await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
-                            if (context.mounted) {
-                              if (result) {
-                                context.go('/search');
-                              }
-                            }
+                            showLoginBottomSheet(onLogin: () {
+                              context.go('/search');
+                            });
                           } else {
                             context.go('/search');
                           }
@@ -209,59 +207,11 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       child: ThrottleButton(
                         onTap: () async {
                           if (isGuest) {
-                            final result =
-                                await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
-                            if (context.mounted) {
-                              if (result) {
-                                final coffeeNoteResult = await showCoffeeNoteBottomSheet();
-                                if (context.mounted) {
-                                  switch (coffeeNoteResult) {
-                                    case null:
-                                      break;
-                                    case CoffeeNote.post:
-                                      final writeResult = await showPostWriteScreen(context: context)
-                                          .then((value) => value ?? false)
-                                          .onError((_, __) => false);
-                                      if (writeResult) {
-                                        showSnackBar(message: '게시글 작성을 완료했어요.');
-                                      }
-                                      break;
-                                    case CoffeeNote.tastedRecord:
-                                      final writeResult = await showTastingWriteScreen(context)
-                                          .then((value) => value ?? false)
-                                          .onError((_, __) => false);
-                                      if (writeResult) {
-                                        showSnackBar(message: '게시글 작성을 완료했어요.');
-                                      }
-                                      break;
-                                  }
-                                }
-                              }
-                            }
+                            showLoginBottomSheet(onLogin: () {
+                              showCoffeeNoteBottomSheet();
+                            });
                           } else {
-                            final coffeeNoteResult = await showCoffeeNoteBottomSheet();
-                            if (context.mounted) {
-                              switch (coffeeNoteResult) {
-                                case null:
-                                  break;
-                                case CoffeeNote.post:
-                                  final writeResult = await showPostWriteScreen(context: context)
-                                      .then((value) => value ?? false)
-                                      .onError((_, __) => false);
-                                  if (writeResult) {
-                                    showSnackBar(message: '게시글 작성을 완료했어요.');
-                                  }
-                                  break;
-                                case CoffeeNote.tastedRecord:
-                                  final writeResult = await showTastingWriteScreen(context)
-                                      .then((value) => value ?? false)
-                                      .onError((_, __) => false);
-                                  if (writeResult) {
-                                    showSnackBar(message: '게시글 작성을 완료했어요.');
-                                  }
-                                  break;
-                              }
-                            }
+                            showCoffeeNoteBottomSheet();
                           }
                         },
                         child: _buildBottomNavigationItem(
@@ -312,13 +262,9 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
                       child: ThrottleButton(
                         onTap: () async {
                           if (isGuest) {
-                            final result =
-                                await showLoginBottomSheet().then((value) => value ?? false).onError((_, __) => false);
-                            if (context.mounted) {
-                              if (result) {
-                                context.go('/profile');
-                              }
-                            }
+                            showLoginBottomSheet(onLogin: () {
+                              context.go('/profile');
+                            });
                           } else {
                             context.go('/profile');
                           }
@@ -373,173 +319,220 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
     return 0;
   }
 
-  Future<CoffeeNote?> showCoffeeNoteBottomSheet() {
-    return showBarrierDialog<CoffeeNote>(
+  showCoffeeNoteBottomSheet() async {
+    final context = this.context;
+    final coffeeNoteResult = await showBarrierDialog<CoffeeNote>(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
-        return Stack(
-          children: [
-            Positioned(
-              right: 0,
-              left: 0,
-              bottom: 0,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(bottom: 30),
-                  decoration: const BoxDecoration(
-                    color: ColorStyles.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        return _buildCoffeeNoteBottomSheet(context);
+      },
+    );
+
+    if (context.mounted) {
+      switch (coffeeNoteResult) {
+        case null:
+          break;
+        case CoffeeNote.post:
+          final writeResult = await showPostWriteScreen(context: context)
+              .then((value) => value ?? false)
+              .onError((_, __) => false);
+          if (writeResult) {
+            showSnackBar(message: '게시글 작성을 완료했어요.');
+          }
+          break;
+        case CoffeeNote.tastedRecord:
+          final writeResult = await showTastingWriteScreen(context)
+              .then((value) => value ?? false)
+              .onError((_, __) => false);
+          if (writeResult) {
+            showSnackBar(message: '게시글 작성을 완료했어요.');
+          }
+          break;
+      }
+    }
+  }
+
+  Widget _buildCoffeeNoteBottomSheet(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          right: 0,
+          left: 0,
+          bottom: 0,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(bottom: 30),
+              decoration: const BoxDecoration(
+                color: ColorStyles.white,
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    decoration: const BoxDecoration(
+                      border: Border(bottom: BorderSide(color: ColorStyles.gray10)),
+                    ),
+                    child: Text(
+                      '커피노트 작성하기',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        height: 22 / 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: const BoxDecoration(
-                          border: Border(bottom: BorderSide(color: ColorStyles.gray10)),
-                        ),
-                        child: Text(
-                          '커피노트 작성하기',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            height: 22 / 16,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      ThrottleButton(
-                        onTap: () {
-                          context.pop(CoffeeNote.post);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: const BoxDecoration(
-                              border: Border(bottom: BorderSide(color: ColorStyles.gray10)), color: Colors.transparent),
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 48,
-                                width: 48,
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                  color: ColorStyles.gray10,
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(
-                                    'assets/icons/post_fill.svg',
-                                    height: 28,
-                                    width: 28,
-                                    colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    Text('게시글', style: TextStyles.title01SemiBold),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '자유롭게 커피에 대한 것을 공유해보세요 ',
-                                      style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      ThrottleButton(
-                        onTap: () {
-                          context.pop(CoffeeNote.tastedRecord);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          color: Colors.transparent,
-                          child: Row(
-                            children: [
-                              Container(
-                                height: 48,
-                                width: 48,
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                                  color: ColorStyles.gray10,
-                                ),
-                                child: Center(
-                                  child: SvgPicture.asset(
-                                    'assets/icons/coffee_note_fill.svg',
-                                    height: 28,
-                                    width: 28,
-                                    colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    Text('시음기록', style: TextStyles.title01SemiBold),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '어떤 커피를 드셨나요?',
-                                      style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 24, right: 42, left: 42, bottom: 16),
-                        child: ThrottleButton(
-                          onTap: () {
-                            context.pop();
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: ColorStyles.black,
+                  ThrottleButton(
+                    onTap: () {
+                      context.pop(CoffeeNote.post);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: const BoxDecoration(
+                          border: Border(bottom: BorderSide(color: ColorStyles.gray10)), color: Colors.transparent),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 48,
+                            width: 48,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                              color: ColorStyles.gray10,
                             ),
                             child: Center(
-                              child: Text(
-                                '닫기',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
-                                  height: 16.71 / 14,
-                                  letterSpacing: -0.01,
-                                  color: ColorStyles.white,
-                                ),
-                                textAlign: TextAlign.center,
+                              child: SvgPicture.asset(
+                                'assets/icons/post_fill.svg',
+                                height: 28,
+                                width: 28,
+                                colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
                               ),
                             ),
                           ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('게시글', style: TextStyles.title01SemiBold),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '자유롭게 커피에 대한 것을 공유해보세요 ',
+                                  style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ThrottleButton(
+                    onTap: () {
+                      context.pop(CoffeeNote.tastedRecord);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      color: Colors.transparent,
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 48,
+                            width: 48,
+                            decoration: const BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                              color: ColorStyles.gray10,
+                            ),
+                            child: Center(
+                              child: SvgPicture.asset(
+                                'assets/icons/coffee_note_fill.svg',
+                                height: 28,
+                                width: 28,
+                                colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text('시음기록', style: TextStyles.title01SemiBold),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '어떤 커피를 드셨나요?',
+                                  style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 24, right: 42, left: 42, bottom: 16),
+                    child: ThrottleButton(
+                      onTap: () {
+                        context.pop();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: ColorStyles.black,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '닫기',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              height: 16.71 / 14,
+                              letterSpacing: -0.01,
+                              color: ColorStyles.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+      ],
     );
   }
 
-  Future<bool?> showLoginBottomSheet() {
-    return showBarrierDialog(
+  showLoginBottomSheet({required void Function() onLogin}) async {
+    final context = this.context;
+    final result = await showBarrierDialog<Result<LoginResult>>(
       context: context,
       pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
     );
+
+    if (result != null && context.mounted) {
+      switch (result) {
+        case Success<LoginResult>():
+          switch(result.data) {
+            case LoginResult.login:
+              onLogin.call();
+              break;
+            case LoginResult.needSignUp:
+              context.push('/login/signup/1');
+              break;
+          }
+          break;
+        case Error<LoginResult>():
+          showSnackBar(message: result.e);
+          break;
+      }
+    }
   }
 
   showLoginAlert() async {

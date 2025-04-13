@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
@@ -38,25 +39,26 @@ class SNSLogin extends StatelessWidget {
                           children: [
                             ThrottleButton(
                               onTap: () async {
-                                final loginResult = await _login(context, SocialLogin.kakao);
+                                final result = await context.read<LoginPresenter>().login(SocialLogin.kakao);
                                 if (context.mounted) {
-                                  switch (loginResult) {
-                                    case null:
-                                      break;
-                                    case LoginResult.login:
-                                      context.go('/home');
-                                      break;
-                                    case LoginResult.needSignUp:
-                                      final result = await _checkModal(context)
-                                          .then((value) => value ?? false)
-                                          .onError((_, __) => false);
-                                      if (result && context.mounted) {
-                                        final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                        if (saveResult) {
-                                          context.push('/login/signup/1');
-                                        }
+                                  switch (result) {
+                                    case Success<LoginResult>():
+                                      switch (result.data) {
+                                        case LoginResult.login:
+                                          context.go('/home');
+                                        case LoginResult.needSignUp:
+                                          final result = await _checkModal(context)
+                                              .then((value) => value ?? false)
+                                              .onError((_, __) => false);
+                                          if (result && context.mounted) {
+                                            final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                            if (saveResult) {
+                                              context.push('/login/signup/1');
+                                            }
+                                          }
                                       }
-                                      break;
+                                    case Error<LoginResult>():
+                                      showSnackBar(context, message: result.e);
                                   }
                                 }
                               },
@@ -92,25 +94,26 @@ class SNSLogin extends StatelessWidget {
                             const SizedBox(height: 7),
                             ThrottleButton(
                               onTap: () async {
-                                final loginResult = await _login(context, SocialLogin.naver);
+                                final result = await context.read<LoginPresenter>().login(SocialLogin.naver);
                                 if (context.mounted) {
-                                  switch (loginResult) {
-                                    case null:
-                                      break;
-                                    case LoginResult.login:
-                                      context.go('/home');
-                                      break;
-                                    case LoginResult.needSignUp:
-                                      final result = await _checkModal(context)
-                                          .then((value) => value ?? false)
-                                          .onError((_, __) => false);
-                                      if (result && context.mounted) {
-                                        final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                        if (saveResult) {
-                                          context.push('/login/signup/1');
-                                        }
+                                  switch (result) {
+                                    case Success<LoginResult>():
+                                      switch (result.data) {
+                                        case LoginResult.login:
+                                          context.go('/home');
+                                        case LoginResult.needSignUp:
+                                          final result = await _checkModal(context)
+                                              .then((value) => value ?? false)
+                                              .onError((_, __) => false);
+                                          if (result && context.mounted) {
+                                            final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                            if (saveResult) {
+                                              context.push('/login/signup/1');
+                                            }
+                                          }
                                       }
-                                      break;
+                                    case Error<LoginResult>():
+                                      showSnackBar(context, message: result.e);
                                   }
                                 }
                               },
@@ -148,25 +151,26 @@ class SNSLogin extends StatelessWidget {
                             const SizedBox(height: 7),
                             ThrottleButton(
                               onTap: () async {
-                                final loginResult = await _login(context, SocialLogin.apple);
+                                final result = await context.read<LoginPresenter>().login(SocialLogin.apple);
                                 if (context.mounted) {
-                                  switch (loginResult) {
-                                    case null:
-                                      break;
-                                    case LoginResult.login:
-                                      context.go('/home');
-                                      break;
-                                    case LoginResult.needSignUp:
-                                      final result = await _checkModal(context)
-                                          .then((value) => value ?? false)
-                                          .onError((_, __) => false);
-                                      if (result && context.mounted) {
-                                        final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                        if (saveResult) {
-                                          context.push('/login/signup/1');
-                                        }
+                                  switch (result) {
+                                    case Success<LoginResult>():
+                                      switch (result.data) {
+                                        case LoginResult.login:
+                                          context.go('/home');
+                                        case LoginResult.needSignUp:
+                                          final result = await _checkModal(context)
+                                              .then((value) => value ?? false)
+                                              .onError((_, __) => false);
+                                          if (result && context.mounted) {
+                                            final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
+                                            if (saveResult) {
+                                              context.push('/login/signup/1');
+                                            }
+                                          }
                                       }
-                                      break;
+                                    case Error<LoginResult>():
+                                      showSnackBar(context, message: result.e);
                                   }
                                 }
                               },
@@ -238,10 +242,6 @@ class SNSLogin extends StatelessWidget {
       ),
       toolbarHeight: 67,
     );
-  }
-
-  Future<LoginResult?> _login(BuildContext context, SocialLogin socialLogin) {
-    return context.read<LoginPresenter>().login(socialLogin);
   }
 
   Future<bool?> _checkModal(BuildContext context) async {
