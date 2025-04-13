@@ -73,8 +73,9 @@ class _OtherProfileViewState extends State<OtherProfileView>
                     ),
                     child: Text(
                       '취향 리포트 보기',
-                      style: TextStyles.labelSmallMedium
-                          .copyWith(color: canShowTastingReport ? ColorStyles.white : ColorStyles.gray50),
+                      style: TextStyles.labelSmallMedium.copyWith(
+                        color: canShowTastingReport ? ColorStyles.white : ColorStyles.gray50,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),

@@ -80,8 +80,9 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          '차단하게 되면 차단한 버디의 계정, 커피 노트, 반응이 노출되지 않아요. 상대방에게는 차단했다는 정보를 알리지 않아요.',
+                          child: Text.rich(
+                        TextSpan(
+                          text: '차단하게 되면 차단한 버디의 계정, 커피 노트, 반응이 ',
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 12.sp,
@@ -89,8 +90,23 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                             letterSpacing: -0.01,
                             color: ColorStyles.white,
                           ),
+                          children: [
+                            TextSpan(
+                              text: '노출되지 않으며',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12.sp,
+                                height: 16.8 / 12,
+                                letterSpacing: -0.01,
+                                color: ColorStyles.white,
+                              ),
+                            ),
+                            const TextSpan(
+                              text: ' 상대방에게는 차단했다는 정보를 알리지 않아요.',
+                            ),
+                          ],
                         ),
-                      ),
+                      )),
                       const SizedBox(width: 16),
                       ThrottleButton(
                         onTap: () {
@@ -143,7 +159,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
               ),
             ),
             const Spacer(),
-            Text('버디 계정', style: TextStyles.title02Bold),
+            Text('차단 관리', style: TextStyles.title02Bold),
             const Spacer(),
             const SizedBox(
               height: 24,

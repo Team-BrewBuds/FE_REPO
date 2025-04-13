@@ -293,7 +293,7 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> with SingleTicker
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '생산국가',
+            '원산지',
             style: TextStyles.title02Bold,
           ),
           Builder(builder: (context) {

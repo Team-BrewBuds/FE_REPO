@@ -369,7 +369,7 @@ class _SearchResultViewState extends State<SearchResultView>
         onTap: () {
           showFilterBottomSheet(1, filters);
         },
-        text: '생산 국가',
+        text: '원산지',
         iconPath: 'assets/icons/down.svg',
         isLeftIcon: false,
         isActive: hasCountryFilter,

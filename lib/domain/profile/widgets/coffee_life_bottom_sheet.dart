@@ -25,18 +25,20 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
+              height: MediaQuery.of(context).size.height - 130,
               decoration: const BoxDecoration(
                 color: ColorStyles.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
               ),
               child: SafeArea(
+                top: false,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 24),
                   child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
                     return Column(
                       children: [
                         _buildTitle(context),
-                        _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList),
+                        Expanded(child: _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList)),
                         _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
                       ],
                     );
@@ -61,7 +63,7 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
         children: [
           const SizedBox(height: 24, width: 24),
           const Spacer(),
-          Text('커피생활', style: TextStyles.title02Bold),
+          Text('커피 생활', style: TextStyles.title02Bold),
           const Spacer(),
           ThrottleButton(
             onTap: () => context.pop(),
@@ -75,8 +77,6 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
   Widget _buildCoffeeLife(BuildContext context, {required List<CoffeeLife> coffeeLifeList}) {
     return MasonryGridView.count(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
       crossAxisCount: 2,
       crossAxisSpacing: 6,
       mainAxisSpacing: 6,

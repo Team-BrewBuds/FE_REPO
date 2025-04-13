@@ -13,10 +13,15 @@ class TastingRecordItemWidget extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: MyNetworkImage(
-            imageUrl: imageUri,
-            height: double.infinity,
-            width: double.infinity,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return MyNetworkImage(
+                imageUrl: imageUri,
+                height: constraints.maxHeight,
+                width: constraints.maxWidth,
+                showGradient: true,
+              );
+            }
           ),
         ),
         Positioned(
@@ -26,8 +31,8 @@ class TastingRecordItemWidget extends StatelessWidget {
             children: [
               SvgPicture.asset(
                 'assets/icons/star_fill.svg',
-                height: 18,
-                width: 18,
+                height: 14,
+                width: 14,
                 colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
               ),
               const SizedBox(width: 4),

@@ -41,7 +41,7 @@ class PhotoPresenter extends Presenter {
         selectedImages: _selectedImages,
       );
 
-  AssetEntity? get preview => _selectedImages.firstOrNull;
+  AssetEntity? get preview => _selectedImages.firstOrNull ?? _currentAlbumImages.firstOrNull;
 
   initState() {
     if (_permissionState.isGranted || _permissionState.isLimited) {

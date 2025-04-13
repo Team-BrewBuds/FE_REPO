@@ -85,77 +85,70 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         appBar: buildTitle(),
         body: context.select<Presenter, bool>((presenter) => presenter.isLoading)
             ? const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70))
-            : Selector<Presenter, bool>(
-                selector: (context, presenter) => presenter.isScrollable,
-                builder: (context, isScrollable, child) {
-                  final physics = isScrollable ? const BouncingScrollPhysics() : const NeverScrollableScrollPhysics();
-                  return NestedScrollView(
-                    key: scrollKey,
-                    physics: physics,
-                    headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                      Selector<Presenter, ProfileState>(
-                        selector: (context, presenter) => presenter.profileState,
-                        builder: (context, profileState, child) => _buildProfile(
-                          imageUri: profileState.imageUrl,
-                          tastingRecordCount: profileState.tastingRecordCount,
-                          followerCount: profileState.followerCount,
-                          followingCount: profileState.followingCount,
+            : NestedScrollView(
+          key: scrollKey,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            Selector<Presenter, ProfileState>(
+              selector: (context, presenter) => presenter.profileState,
+              builder: (context, profileState, child) => _buildProfile(
+                imageUri: profileState.imageUrl,
+                tastingRecordCount: profileState.tastingRecordCount,
+                followerCount: profileState.followerCount,
+                followingCount: profileState.followingCount,
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+            Selector<Presenter, ProfileDetailState>(
+              selector: (context, presenter) => presenter.profileDetailState,
+              builder: (context, profileDetailState, child) => _buildDetail(
+                coffeeLife: profileDetailState.coffeeLife,
+                introduction: profileDetailState.introduction,
+                profileLink: profileDetailState.profileLink,
+              ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: buildProfileBottomButtons(),
+            ),
+          ],
+          body: SafeArea(
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (ScrollNotification scroll) {
+                if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                  paginationThrottle.setValue(null);
+                }
+                return false;
+              },
+              child: CustomScrollView(
+                controller: scrollKey.currentState?.innerController,
+                slivers: [
+                  _buildTabBar(),
+                  Selector<Presenter, FilterBarState>(
+                    selector: (context, presenter) => presenter.filterBarState,
+                    builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
+                        ? _buildFilterBar(
+                      sortCriteriaList: filterBarState.sortCriteriaList,
+                      currentIndex: filterBarState.currentIndex,
+                      filters: filterBarState.filters,
+                    )
+                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
+                  ),
+                  if (context.select<Presenter, bool>((presenter) => presenter.isLoadingData))
+                    const SliverFillRemaining(
+                      child: Center(
+                        child: CupertinoActivityIndicator(
+                          color: ColorStyles.gray70,
                         ),
                       ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                      Selector<Presenter, ProfileDetailState>(
-                        selector: (context, presenter) => presenter.profileDetailState,
-                        builder: (context, profileDetailState, child) => _buildDetail(
-                          coffeeLife: profileDetailState.coffeeLife,
-                          introduction: profileDetailState.introduction,
-                          profileLink: profileDetailState.profileLink,
-                        ),
-                      ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                      SliverPadding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        sliver: buildProfileBottomButtons(),
-                      ),
-                    ],
-                    body: SafeArea(
-                      child: NotificationListener<ScrollNotification>(
-                        onNotification: (ScrollNotification scroll) {
-                          if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                            paginationThrottle.setValue(null);
-                          }
-                          return false;
-                        },
-                        child: CustomScrollView(
-                          physics: physics,
-                          controller: scrollKey.currentState?.innerController,
-                          slivers: [
-                            _buildTabBar(),
-                            Selector<Presenter, FilterBarState>(
-                              selector: (context, presenter) => presenter.filterBarState,
-                              builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
-                                  ? _buildFilterBar(
-                                      sortCriteriaList: filterBarState.sortCriteriaList,
-                                      currentIndex: filterBarState.currentIndex,
-                                      filters: filterBarState.filters,
-                                    )
-                                  : const SliverToBoxAdapter(child: SizedBox.shrink()),
-                            ),
-                            if (context.select<Presenter, bool>((presenter) => presenter.isLoadingData))
-                              const SliverFillRemaining(
-                                child: Center(
-                                  child: CupertinoActivityIndicator(
-                                    color: ColorStyles.gray70,
-                                  ),
-                                ),
-                              )
-                            else
-                              buildContentsList(),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
+                    )
+                  else
+                    buildContentsList(),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -192,6 +185,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   height: 80,
                   width: 80,
                   shape: BoxShape.circle,
+                  border: Border.all(color: ColorStyles.gray20, width: 1),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -250,10 +244,10 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   }) {
     final hasDetail = coffeeLife.isNotEmpty || introduction.isNotEmpty || profileLink.isNotEmpty;
     return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: hasDetail
-            ? Column(
+      child: hasDetail
+          ? Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (introduction.isNotEmpty) ...[
@@ -275,22 +269,30 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     const SizedBox(height: 8),
                   ]
                 ],
-              )
-            : Container(
-                padding: const EdgeInsets.only(top: 4, bottom: 4, left: 12, right: 6),
-                decoration: const BoxDecoration(
+              ),
+            )
+          : Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.only(right: 6, left: 12, bottom: 4, top: 4),
+                decoration: BoxDecoration(
                   color: ColorStyles.gray20,
-                  borderRadius: BorderRadius.all(Radius.circular(40)),
+                  borderRadius: BorderRadius.circular(40),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min, // ← 이걸 유지하는 게 핵심!
                   children: [
-                    Text('버디님이 즐기는 커피 생활을 알려주세요', style: TextStyles.captionMediumRegular),
-                    const SizedBox(width: 2),
+                    Text(
+                      '내 커피 생활 소개하기',
+                      style: TextStyles.captionMediumRegular,
+                    ),
+                    const SizedBox(width: 4),
                     SvgPicture.asset('assets/icons/arrow.svg', height: 18, width: 18),
                   ],
                 ),
               ),
-      ),
+            ),
     );
   }
 
@@ -415,7 +417,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               onTap: () {
                 _showCoffeeBeanFilterBottomSheet(filters: filters, initialIndex: 1);
               },
-              text: '생산 국가',
+              text: '원산지',
               iconPath: 'assets/icons/down.svg',
               isLeftIcon: false,
               isActive: hasCountryFilter,

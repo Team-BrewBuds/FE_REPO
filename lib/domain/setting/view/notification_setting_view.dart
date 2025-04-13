@@ -328,6 +328,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
         children: [
           Expanded(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text('기기 알림 설정', style: TextStyles.labelMediumMedium),

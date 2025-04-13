@@ -93,9 +93,9 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('버디님, 브루버즈와 함께하며\n내 커피 취향을 찾으셨나요?', style: TextStyles.title05Bold),
+          Text('브루버즈와 함께하며\n내 커피 취향을 찾으셨나요?', style: TextStyles.title05Bold),
           const SizedBox(height: 16),
-          Text('만약, 버디님이 아직 내 커피 취향을 못 찾았다면\n브루버즈와 다시 함께해봐요!', style: TextStyles.title01SemiBold),
+          Text('아직 버디님의 커피 취향을 못 찾았다면\n브루버즈와 다시 함께해봐요!', style: TextStyles.title01SemiBold),
           const SizedBox(height: 64),
           Text('버디님 탈퇴하기 전 아래 내용을 확인해 주세요.', style: TextStyles.bodyNarrowRegular),
           const SizedBox(height: 12),

@@ -115,6 +115,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
           textSelectionTheme: const TextSelectionThemeData(
             selectionColor: Color(0xFFFFA388),
+            cursorColor: Color(0xFFFFA388),
+            selectionHandleColor: Color(0xFFFF4412),
           ),
           useMaterial3: true,
         ),

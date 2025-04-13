@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_type_mapper.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/profile/model/profile_sort_criteria.dart';
@@ -70,7 +71,8 @@ class ProfilePresenter extends Presenter {
       );
 
   FilterBarState get filterBarState => (
-        canShowFilterBar: _tabIndex == 0 || _tabIndex == 2,
+        canShowFilterBar: (_tabIndex == 0 && _tastingRecordsPage.results.isNotEmpty) ||
+            (_tabIndex == 2 && _beansPage.results.isNotEmpty),
         sortCriteriaList: sortCriteriaList.map((sortCriteria) => sortCriteria.toString()).toList(),
         currentIndex: _currentSortCriteriaIndex,
         filters: _filters,
@@ -89,8 +91,6 @@ class ProfilePresenter extends Presenter {
   }
 
   bool get hasNext => currentPage?.hasNext ?? false;
-
-  bool get isScrollable => currentPage?.results.isNotEmpty ?? false;
 
   ProfilePresenter({required this.repository});
 
@@ -152,7 +152,7 @@ class ProfilePresenter extends Presenter {
           userId: id,
           pageNo: _pageNo,
           orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
+          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toJson(),
           isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
           country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
           roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
@@ -232,12 +232,14 @@ class ProfilePresenter extends Presenter {
 
   onChangeSortCriteriaIndex(int index) {
     _currentSortCriteriaIndex = index;
+    paginate(isPageChanged: true);
     notifyListeners();
   }
 
   onChangeFilter(List<CoffeeBeanFilter> newFilters) {
     _filters.clear();
     _filters.addAll(newFilters);
+    paginate(isPageChanged: true);
     notifyListeners();
   }
 }

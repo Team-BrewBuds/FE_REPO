@@ -361,7 +361,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         ),
         const SizedBox(height: 8),
         SizedBox(
-          height: 175,
+          height: 80,
           child: TextFormField(
             focusNode: _introductionFocusNode,
             controller: _introductionEditingController,
@@ -372,8 +372,8 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
               LengthLimitingTextInputFormatter(150),
             ],
             decoration: InputDecoration(
-              hintText: '버디님을 자유롭게 소개해 주세요..',
-              hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+              hintText: '버디님을 자유롭게 소개해 주세요.',
+              hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50, height: 1.35),
               contentPadding: const EdgeInsets.all(12),
               enabledBorder: const OutlineInputBorder(
                 borderSide: BorderSide(color: ColorStyles.gray50, width: 1),
@@ -522,7 +522,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         ),
         const SizedBox(height: 8),
         Text(
-          '간단한 정보 설정으로 내 커피 생활을 알릴 수 있어요.',
+          '커피 생활은 최대 6개까지 설정할 수 있어요.',
           style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
         ),
       ],
@@ -532,7 +532,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   Widget _buildCoffeeLifeList({required List<CoffeeLife> coffeeLifeList}) {
     return coffeeLifeList.isEmpty
         ? Text(
-            '커피 생활을 어떻게 즐기는지 알려주세요.',
+            '버디님의 커피 생활을 소개해 보세요.',
             style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
           )
         : Row(
@@ -604,6 +604,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                   onNext: (context, imageDataList) {
                     context.pop(imageDataList.firstOrNull);
                   },
+                  shape: BoxShape.circle,
                 ),
               ),
             );

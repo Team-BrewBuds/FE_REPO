@@ -13,14 +13,17 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 class CheckSelectedImagesScreen extends StatefulWidget {
   final List<Uint8List> _images;
   final List<Uint8List> _imagesOrigin;
+  final BoxShape _shape;
   final Function(BuildContext context, List<Uint8List> images) onNext;
 
   CheckSelectedImagesScreen({
     super.key,
     required List<Uint8List> image,
     required this.onNext,
+    BoxShape shape = BoxShape.rectangle,
   })  : _images = image,
-        _imagesOrigin = List.from(image);
+        _imagesOrigin = List.from(image),
+        _shape = shape;
 
   @override
   State<CheckSelectedImagesScreen> createState() => _CheckSelectedImagesScreenState();
@@ -91,10 +94,20 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
     return CarouselSlider.builder(
       itemCount: widget._images.length,
       itemBuilder: (context, _, index) {
-        return AspectRatio(
-          aspectRatio: 1,
-          child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover),
-        );
+        return widget._shape == BoxShape.rectangle
+            ? AspectRatio(
+                aspectRatio: 1,
+                child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover),
+              )
+            : AspectRatio(
+                aspectRatio: 1,
+                child: Stack(
+                  children: [
+                    Positioned.fill(child: ExtendedImage.memory(widget._images[index], fit: BoxFit.cover)),
+                    Positioned.fill(child: CustomPaint(painter: _CircleCropOverlayPainter())),
+                  ],
+                ),
+              );
       },
       options: CarouselOptions(
         aspectRatio: 1,
@@ -158,6 +171,7 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
                   builder: (context) => PhotoEditScreen(
                     imageData: imageData,
                     originData: widget._imagesOrigin[_currentIndex],
+                    shape: widget._shape,
                   ),
                 ),
               );
@@ -182,4 +196,24 @@ class _CheckSelectedImagesScreenState extends State<CheckSelectedImagesScreen> {
       ),
     );
   }
+}
+
+class _CircleCropOverlayPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = ColorStyles.black70;
+    final path = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    // 원형 크롭 영역 만들기
+    path.addOval(Rect.fromCircle(
+      center: Offset(size.width / 2, size.height / 2),
+      radius: size.width * 0.49, // 원 크기 조절
+    ));
+
+    path.fillType = PathFillType.evenOdd; // 내부 원을 투명하게 만듦
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
