@@ -8,7 +8,7 @@ class TastingRecordCard extends StatelessWidget {
   final String rating;
   final String type;
   final String name;
-  final List<String> tags;
+  final List<String> flavors;
 
   const TastingRecordCard({
     super.key,
@@ -16,7 +16,7 @@ class TastingRecordCard extends StatelessWidget {
     required this.rating,
     required this.type,
     required this.name,
-    required this.tags,
+    required this.flavors,
   });
 
   @override
@@ -59,7 +59,7 @@ class TastingRecordCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 10),
-                _buildTags(),
+                _buildFlavors(),
               ],
             ),
           ),
@@ -86,10 +86,10 @@ class TastingRecordCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTags() {
+  Widget _buildFlavors() {
     return Row(
       spacing: 4,
-      children: tags.map((text) {
+      children: flavors.map((text) {
         return Container(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
           decoration: BoxDecoration(

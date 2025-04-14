@@ -6,46 +6,26 @@ import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
+import 'package:brew_buds/model/common/user.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-abstract class FeedWidget extends StatelessWidget {
-  final int id;
-  final int writerId;
-  final String writerThumbnailUrl;
-  final String writerNickName;
-  final String writingTime;
-  final String hits;
-  final bool isFollowed;
-  final void Function() onTapProfile;
-  final void Function() onTapFollowButton;
-  final bool isLiked;
-  final int likeCount;
-  final int commentsCount;
-  final bool isSaved;
-  final void Function() onTapLikeButton;
-  final void Function() onTapCommentsButton;
-  final void Function() onTapSaveButton;
+abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidget {
+  final void Function() onGuest;
+  final bool isGuest;
+  final void Function(bool isPost, int id, User author) onTapComments;
 
   const FeedWidget({
     super.key,
-    required this.id,
-    required this.writerId,
-    required this.writerThumbnailUrl,
-    required this.writerNickName,
-    required this.writingTime,
-    required this.hits,
-    required this.isFollowed,
-    required this.onTapProfile,
-    required this.onTapFollowButton,
-    required this.isLiked,
-    required this.likeCount,
-    required this.commentsCount,
-    required this.isSaved,
-    required this.onTapLikeButton,
-    required this.onTapCommentsButton,
-    required this.onTapSaveButton,
+    required this.isGuest,
+    required this.onGuest,
+    required this.onTapComments,
   });
+
+  onTappedCommentsButton(BuildContext context);
+
+  onTappedProfile(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
@@ -55,18 +35,50 @@ abstract class FeedWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          buildProfile(),
+          Selector<Presenter, AuthorState>(
+            selector: (context, presenter) => presenter.authorState,
+            builder: (context, state, child) => buildProfile(
+              context: context,
+              imageUrl: state.imageUrl,
+              nickname: state.nickname,
+              createdAt: state.createdAt,
+              viewCount: state.viewCount,
+              isFollow: state.isFollow,
+              isMine: state.isMine,
+            ),
+          ),
           buildBody(context),
-          buildBottomButtons(),
+          Selector<Presenter, BottomButtonState>(
+            selector: (context, presenter) => presenter.bottomButtonState,
+            builder: (context, state, child) => buildBottomButtons(
+              context: context,
+              likeCount: state.likeCount,
+              isLiked: state.isLiked,
+              commentsCount: state.commentsCount,
+              isSaved: state.isSaved,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget buildProfile() {
+  Widget buildProfile({
+    required BuildContext context,
+    required String imageUrl,
+    required String nickname,
+    required String createdAt,
+    required int viewCount,
+    required bool isFollow,
+    required bool isMine,
+  }) {
     return ThrottleButton(
       onTap: () {
-        onTapProfile.call();
+        if (isGuest) {
+          onGuest.call();
+        } else {
+          onTappedProfile(context);
+        }
       },
       child: Container(
         height: 36,
@@ -76,7 +88,7 @@ abstract class FeedWidget extends StatelessWidget {
           children: [
             //프로필 사진
             MyNetworkImage(
-              imageUrl: writerThumbnailUrl,
+              imageUrl: imageUrl,
               height: 36,
               width: 36,
               shape: BoxShape.circle,
@@ -89,7 +101,7 @@ abstract class FeedWidget extends StatelessWidget {
                   Expanded(
                     //닉네임
                     child: Text(
-                      writerNickName,
+                      nickname,
                       textAlign: TextAlign.start,
                       style: TextStyles.title01SemiBold,
                     ),
@@ -97,16 +109,25 @@ abstract class FeedWidget extends StatelessWidget {
                   Expanded(
                     child: Text(
                       //작성 시간 및 조회수
-                      '$writingTime・$hits',
+                      '$createdAt・조희 $viewCount',
                       style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
                     ),
                   )
                 ],
               ),
             ),
-            if (AccountRepository.instance.id != writerId) ...[
+            if (!isMine) ...[
               const SizedBox(width: 8),
-              FollowButton(onTap: onTapFollowButton, isFollowed: isFollowed),
+              FollowButton(
+                onTap: () {
+                  if (isGuest) {
+                    onGuest.call();
+                  } else {
+                    context.read<Presenter>().onFollowButtonTap();
+                  }
+                },
+                isFollowed: isFollow,
+              ),
             ],
           ],
         ),
@@ -116,14 +137,24 @@ abstract class FeedWidget extends StatelessWidget {
 
   Widget buildBody(BuildContext context);
 
-  Widget buildBottomButtons() {
+  Widget buildBottomButtons({
+    required BuildContext context,
+    required int likeCount,
+    required bool isLiked,
+    required int commentsCount,
+    required bool isSaved,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 16),
       child: Row(
         children: [
           LikeButton(
             onTap: () {
-              onTapLikeButton.call();
+              if (isGuest) {
+                onGuest.call();
+              } else {
+                context.read<Presenter>().onLikeButtonTap();
+              }
             },
             isLiked: isLiked,
             likeCount: likeCount,
@@ -131,20 +162,39 @@ abstract class FeedWidget extends StatelessWidget {
           const SizedBox(width: 12),
           CommentButton(
             onTap: () {
-              onTapCommentsButton.call();
+              if (isGuest) {
+                onGuest.call();
+              } else {
+                onTappedCommentsButton(context);
+              }
             },
             commentCount: commentsCount,
           ),
           const Spacer(),
           SaveButton(
             onTap: () {
-              onTapSaveButton.call();
+              if (isGuest) {
+                onGuest.call();
+              } else {
+                context.read<Presenter>().onSaveButtonTap();
+              }
             },
             isSaved: isSaved,
           ),
         ],
       ),
     );
+  }
+
+  bool calcOverFlow(BuildContext context, String text, int maxLines) {
+    final width = MediaQuery.of(context).size.width - 32;
+    final TextPainter bodyTextPainter = TextPainter(
+      text: TextSpan(text: text, style: TextStyles.bodyRegular),
+      maxLines: maxLines,
+      textDirection: TextDirection.ltr,
+    )..layout(minWidth: 0, maxWidth: width);
+
+    return bodyTextPainter.didExceedMaxLines;
   }
 
   showSnackBar(BuildContext context, {required String message}) {

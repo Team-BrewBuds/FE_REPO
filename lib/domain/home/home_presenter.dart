@@ -2,7 +2,9 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
-import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
+import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
+import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/recommended/recommended_page.dart';
@@ -17,26 +19,24 @@ final class HomePresenter extends Presenter {
   final TastedRecordRepository tastedRecordRepository = TastedRecordRepository.instance;
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
   bool _isGuest;
-  bool _isLoadingAction = false;
   bool _isLoading = false;
   int _currentTypeIndex = 0;
   PostSubject _currentSubject = PostSubject.all;
   List<RecommendedPage> _recommendedUserPage = [];
   int _currentTab = 0;
   int _pageNo = 1;
-  DefaultPage<Feed> _feedPage = DefaultPage.initState();
+  bool _hasNext = true;
+  List<FeedPresenter> _feedPresenters = [];
+
+  bool get hasNext => _hasNext;
 
   bool get isGuest => _isGuest;
 
-  bool get isLoadingAction => _isLoadingAction;
-
   bool get isLoading => _isLoading;
 
-  List<Feed> get feeds => _feedPage.results;
+  List<FeedPresenter> get feedPresenters => List.unmodifiable(_feedPresenters);
 
-  FeedState get feedState => (isLoading: _isLoading, feeds: _feedPage.results);
-
-  int get itemCount => _feedPage.results.length;
+  int get itemCount => _feedPresenters.length;
 
   List<RecommendedPage> get recommendedUserPage => _recommendedUserPage;
 
@@ -64,7 +64,8 @@ final class HomePresenter extends Presenter {
   Future<void> fetchMoreData({bool isPageChanged = false, bool isRefresh = false}) async {
     if (isPageChanged) {
       _recommendedUserPage = List.empty(growable: true);
-      _feedPage = DefaultPage.initState();
+      _feedPresenters = List.empty(growable: true);
+      _currentTypeIndex = 0;
       _pageNo = 1;
       if (!isRefresh) {
         _isLoading = true;
@@ -72,7 +73,13 @@ final class HomePresenter extends Presenter {
       }
     }
 
-    if (!_feedPage.hasNext) return;
+    if (!hasNext) {
+      if (_currentTab != 0) {
+        return;
+      } else if (_currentTab == 0 && _currentTypeIndex == 2) {
+        return;
+      }
+    }
 
     await Future.wait([
       fetchFeeds(),
@@ -88,14 +95,10 @@ final class HomePresenter extends Presenter {
     if (_currentTab == 0) {
       final nextPage = await homeRepository.fetchFeedPage(feedType: _feedTypeList[_currentTypeIndex], pageNo: _pageNo);
 
-      _feedPage = await compute(
-        (state) {
-          return state.$1.copyWith(results: state.$1.results + state.$2.results);
-        },
-        (_feedPage, nextPage),
-      );
+      _addAllFeeds(nextPage.results);
+      _hasNext = nextPage.hasNext;
 
-      if (!nextPage.hasNext && _currentTypeIndex < 2 && (itemCount / 12).toInt() < _pageNo) {
+      if (!_hasNext && _currentTypeIndex < 2 && (itemCount / 12).toInt() < _pageNo) {
         _currentTypeIndex++;
         _pageNo = 1;
         return await fetchFeeds();
@@ -105,12 +108,8 @@ final class HomePresenter extends Presenter {
     } else if (_currentTab == 1) {
       final nextPage = await tastedRecordRepository.fetchTastedRecordFeedPage(pageNo: _pageNo);
 
-      _feedPage = await compute(
-        (state) {
-          return state.$1.copyWith(results: state.$1.results + state.$2.results);
-        },
-        (_feedPage, nextPage),
-      );
+      _addAllFeeds(nextPage.results);
+      _hasNext = nextPage.hasNext;
       _pageNo++;
     } else {
       final nextPage = await postRepository.fetchPostPage(
@@ -118,14 +117,25 @@ final class HomePresenter extends Presenter {
         pageNo: _pageNo,
       );
 
-      _feedPage = await compute(
-        (state) {
-          return state.$1.copyWith(results: state.$1.results + state.$2.results);
-        },
-        (_feedPage, nextPage),
-      );
+      _addAllFeeds(nextPage.results);
+      _hasNext = nextPage.hasNext;
       _pageNo++;
     }
+  }
+
+  void _addAllFeeds(List<Feed> feeds) {
+    _feedPresenters.addAll(
+      feeds.map(
+        (e) {
+          switch (e) {
+            case PostFeed():
+              return PostFeedPresenter(feed: e);
+            case TastedRecordFeed():
+              return TastedRecordFeedPresenter(feed: e);
+          }
+        },
+      ),
+    );
   }
 
   Future<void> fetchRecommendedUsers() async {
@@ -167,197 +177,6 @@ final class HomePresenter extends Presenter {
     fetchMoreData(isPageChanged: true);
   }
 
-  onTappedLikeAt(int index) async {
-    _isLoadingAction = true;
-    notifyListeners();
-
-    final feed = _feedPage.results[index];
-    switch (feed) {
-      case PostFeed():
-        final result = await homeRepository
-            .like(type: 'post', id: feed.data.id, isLiked: feed.data.isLiked)
-            .then((_) => true)
-            .onError((_, __) => false);
-        if (result) {
-          final newFeeds = await compute(
-            (message) {
-              final previousFeeds = List<Feed>.from(message.$1);
-              previousFeeds[message.$2] = Feed.post(
-                data: message.$3.data.copyWith(
-                  isLiked: !message.$3.data.isLiked,
-                  likeCount: message.$3.data.isLiked ? message.$3.data.likeCount - 1 : message.$3.data.likeCount + 1,
-                ),
-              );
-              return previousFeeds;
-            },
-            (_feedPage.results, index, feed),
-          );
-          _feedPage = await compute(
-            (message) => message.$1.copyWith(results: message.$2),
-            (_feedPage, newFeeds),
-          );
-        }
-      case TastedRecordFeed():
-        final result = await homeRepository
-            .like(type: 'tasted_record', id: feed.data.id, isLiked: feed.data.isLiked)
-            .then((_) => true)
-            .onError((_, __) => false);
-        if (result) {
-          final newFeeds = await compute(
-            (message) {
-              final previousFeeds = List<Feed>.from(message.$1);
-              previousFeeds[message.$2] = Feed.tastedRecord(
-                data: message.$3.data.copyWith(
-                  isLiked: !message.$3.data.isLiked,
-                  likeCount: message.$3.data.isLiked ? message.$3.data.likeCount - 1 : message.$3.data.likeCount + 1,
-                ),
-              );
-              return previousFeeds;
-            },
-            (_feedPage.results, index, feed),
-          );
-          _feedPage = await compute(
-            (message) => message.$1.copyWith(results: message.$2),
-            (_feedPage, newFeeds),
-          );
-        }
-    }
-    _isLoadingAction = false;
-    notifyListeners();
-  }
-
-  onTappedSavedAt(int index) async {
-    _isLoadingAction = true;
-    notifyListeners();
-
-    final feed = _feedPage.results[index];
-    switch (feed) {
-      case PostFeed():
-        final result = await homeRepository
-            .save(type: 'post', id: feed.data.id, isSaved: feed.data.isSaved)
-            .then((_) => true)
-            .onError((_, __) => false);
-        if (result) {
-          final newFeeds = await compute(
-            (message) {
-              final previousFeeds = List<Feed>.from(message.$1);
-              previousFeeds[message.$2] = Feed.post(data: message.$3.data.copyWith(isSaved: !message.$3.data.isSaved));
-              return previousFeeds;
-            },
-            (_feedPage.results, index, feed),
-          );
-          _feedPage = await compute(
-            (message) => message.$1.copyWith(results: message.$2),
-            (_feedPage, newFeeds),
-          );
-        }
-      case TastedRecordFeed():
-        final result = await homeRepository
-            .save(type: 'tasted_record', id: feed.data.id, isSaved: feed.data.isSaved)
-            .then((_) => true)
-            .onError((_, __) => false);
-        if (result) {
-          final newFeeds = await compute(
-            (message) {
-              final previousFeeds = List<Feed>.from(message.$1);
-              previousFeeds[message.$2] = Feed.tastedRecord(
-                data: message.$3.data.copyWith(isSaved: !message.$3.data.isSaved),
-              );
-              return previousFeeds;
-            },
-            (_feedPage.results, index, feed),
-          );
-          _feedPage = await compute(
-            (message) => message.$1.copyWith(results: message.$2),
-            (_feedPage, newFeeds),
-          );
-        }
-    }
-    _isLoadingAction = false;
-    notifyListeners();
-  }
-
-  onTappedFollowAt(int index) async {
-    _isLoadingAction = true;
-    notifyListeners();
-
-    final feed = _feedPage.results[index];
-    switch (feed) {
-      case PostFeed():
-        final result = await homeRepository
-            .follow(id: feed.data.author.id, isFollow: feed.data.isAuthorFollowing)
-            .then((_) => true)
-            .onError((_, __) => false);
-        if (result) {
-          final newFeeds = await compute(
-            (message) {
-              final previousFeeds = List<Feed>.from(message.$1);
-              return previousFeeds.map(
-                (feed) {
-                  switch (feed) {
-                    case PostFeed():
-                      if (feed.data.author.id == message.$2) {
-                        return Feed.post(data: feed.data.copyWith(isAuthorFollowing: !message.$3));
-                      } else {
-                        return feed;
-                      }
-                    case TastedRecordFeed():
-                      if (feed.data.author.id == message.$2) {
-                        return Feed.tastedRecord(data: feed.data.copyWith(isAuthorFollowing: !message.$3));
-                      } else {
-                        return feed;
-                      }
-                  }
-                },
-              ).toList();
-            },
-            (_feedPage.results, feed.data.author.id, feed.data.isAuthorFollowing),
-          );
-          _feedPage = await compute(
-            (message) => message.$1.copyWith(results: message.$2),
-            (_feedPage, newFeeds),
-          );
-        }
-      case TastedRecordFeed():
-        final result = await homeRepository
-            .follow(id: feed.data.author.id, isFollow: feed.data.isAuthorFollowing)
-            .then((_) => true)
-            .onError((_, __) => false);
-        if (result) {
-          final newFeeds = await compute(
-            (message) {
-              final previousFeeds = List<Feed>.from(message.$1);
-              return previousFeeds.map(
-                (feed) {
-                  switch (feed) {
-                    case PostFeed():
-                      if (feed.data.author.id == message.$2) {
-                        return Feed.post(data: feed.data.copyWith(isAuthorFollowing: !message.$3));
-                      } else {
-                        return feed;
-                      }
-                    case TastedRecordFeed():
-                      if (feed.data.author.id == message.$2) {
-                        return Feed.tastedRecord(data: feed.data.copyWith(isAuthorFollowing: !message.$3));
-                      } else {
-                        return feed;
-                      }
-                  }
-                },
-              ).toList();
-            },
-            (_feedPage.results, feed.data.author.id, feed.data.isAuthorFollowing),
-          );
-          _feedPage = await compute(
-            (message) => message.$1.copyWith(results: message.$2),
-            (_feedPage, newFeeds),
-          );
-        }
-    }
-    _isLoadingAction = false;
-    notifyListeners();
-  }
-
   onTappedRecommendedUserFollowButton(RecommendedUser user, {required int pageNo}) async {
     final result =
         await homeRepository.follow(id: user.id, isFollow: user.isFollow).then((_) => true).onError((_, __) => false);
@@ -384,6 +203,4 @@ final class HomePresenter extends Presenter {
 
   RecommendedPage? getRecommendedPage(int index) =>
       index >= _recommendedUserPage.length ? null : _recommendedUserPage[index];
-
-  Feed getFeed(int index) => _feedPage.results[index];
 }

@@ -368,7 +368,7 @@ class _PostDetailViewState extends State<PostDetailView>
               rating: '${tastingRecords[index].rating}',
               type: tastingRecords[index].beanType,
               name: tastingRecords[index].beanName,
-              tags: tastingRecords[index].flavors,
+              flavors: tastingRecords[index].flavors,
             ),
             childBuilder: (context, index) => ThrottleButton(
               onTap: () {

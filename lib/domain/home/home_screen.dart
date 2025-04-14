@@ -2,32 +2,25 @@ import 'dart:ui';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
-import 'package:brew_buds/common/widgets/loading_barrier.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/home/comments/comments_view.dart';
+import 'package:brew_buds/domain/home/feed/post_feed_widget.dart';
+import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
+import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
+import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
+import 'package:brew_buds/domain/home/feed/tasting_record_feed_widget.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
-import 'package:brew_buds/domain/home/widgets/post_feed_widget.dart';
 import 'package:brew_buds/domain/home/widgets/recommended_buddy_list.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
-import 'package:brew_buds/domain/home/widgets/tasting_record_feed_widget.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
-import 'package:brew_buds/model/feed/feed.dart';
-import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/recommended/recommended_page.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_feed.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -87,13 +80,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        buildApp(context),
-        if (context.select<HomePresenter, bool>((presenter) => presenter.isLoadingAction))
-          const Positioned.fill(child: LoadingBarrier(hasOpacity: false)),
-      ],
-    );
+    return buildApp(context);
   }
 
   Widget buildApp(BuildContext context) {
@@ -246,18 +233,44 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
             ),
             Builder(
               builder: (context) {
-                final feeds = context.select<HomePresenter, List<Feed>>((presenter) => presenter.feeds);
+                final feedPresenters = context.select<HomePresenter, List<FeedPresenter>>(
+                  (presenter) => presenter.feedPresenters,
+                );
                 return SliverPadding(
                   padding: const EdgeInsets.only(top: 12),
                   sliver: SliverList.separated(
-                    itemCount: feeds.length,
+                    itemCount: feedPresenters.length,
                     itemBuilder: (context, index) {
-                      final feed = feeds[index];
-                      switch (feed) {
-                        case PostFeed():
-                          return _buildPostFeed(feed.data, index);
-                        case TastedRecordFeed():
-                          return _buildTastedRecordFeed(feed.data, index);
+                      final feedPresenter = feedPresenters[index];
+                      final isGuest = AccountRepository.instance.isGuest;
+                      if (feedPresenter is PostFeedPresenter) {
+                        return ChangeNotifierProvider.value(
+                          value: feedPresenter,
+                          child: PostFeedWidget(
+                            isGuest: isGuest,
+                            onGuest: () {
+                              showLoginBottomSheet();
+                            },
+                            onTapComments: (isPost, id, author) {
+                              showCommentsBottomSheet(isPost: isPost, id: id, author: author);
+                            },
+                          ),
+                        );
+                      } else if (feedPresenter is TastedRecordFeedPresenter) {
+                        return ChangeNotifierProvider.value(
+                          value: feedPresenter,
+                          child: TastedRecordFeedWidget(
+                            isGuest: isGuest,
+                            onGuest: () {
+                              showLoginBottomSheet();
+                            },
+                            onTapComments: (isPost, id, author) {
+                              showCommentsBottomSheet(isPost: isPost, id: id, author: author);
+                            },
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
                       }
                     },
                     separatorBuilder: (context, index) => index % 12 != 11
@@ -418,181 +431,9 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 );
               }
             },
-          ).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPostFeed(Post post, int index) {
-    final width = MediaQuery.of(context).size.width;
-    final Widget? child;
-    final isGuest = context.read<HomePresenter>().isGuest;
-
-    if (post.imagesUrl.isNotEmpty) {
-      child = HorizontalSliderWidget(
-        itemLength: post.imagesUrl.length,
-        itemBuilder: (context, index) => MyNetworkImage(
-          imageUrl: post.imagesUrl[index],
-          height: width,
-          width: width,
-        ),
-      );
-    } else if (post.tastingRecords.isNotEmpty) {
-      child = HorizontalSliderWidget(
-        itemLength: post.tastingRecords.length,
-        itemBuilder: (context, index) => TastingRecordCard(
-          image: MyNetworkImage(
-            imageUrl: post.tastingRecords[index].thumbnailUrl,
-            height: width,
-            width: width,
-            showGradient: true,
-          ),
-          rating: '${post.tastingRecords[index].rating}',
-          type: post.tastingRecords[index].beanType,
-          name: post.tastingRecords[index].beanName,
-          tags: post.tastingRecords[index].flavors,
-        ),
-        childBuilder: (context, index) => ThrottleButton(
-          onTap: () {
-            if (isGuest) {
-              showLoginBottomSheet();
-            } else {
-              showTastingRecordDetail(context: context, id: post.tastingRecords[index].id).then((result) {
-                if (result != null) {
-                  showSnackBar(message: result);
-                }
-              });
-            }
-          },
-          child: Container(
-            color: ColorStyles.white,
-            child: TastingRecordButton(
-              name: post.tastingRecords[index].beanName,
-              bodyText: post.tastingRecords[index].contents,
-            ),
           ),
         ),
-      );
-    } else {
-      child = null;
-    }
-
-    return PostFeedWidget(
-      id: post.id,
-      writerId: post.author.id,
-      writerThumbnailUrl: post.author.profileImageUrl,
-      writerNickName: post.author.nickname,
-      writingTime: post.createdAt,
-      hits: '조회 ${post.viewCount}',
-      isFollowed: post.isAuthorFollowing,
-      onTapProfile: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          pushToProfile(context: context, id: post.author.id);
-        }
-      },
-      onTapFollowButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          context.read<HomePresenter>().onTappedFollowAt(index);
-        }
-      },
-      isLiked: post.isLiked,
-      likeCount: post.likeCount,
-      commentsCount: post.commentsCount,
-      isSaved: post.isSaved,
-      onTapLikeButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          context.read<HomePresenter>().onTappedLikeAt(index);
-        }
-      },
-      onTapCommentsButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          showCommentsBottomSheet(isPost: true, id: post.id, author: post.author);
-        }
-      },
-      onTapSaveButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          context.read<HomePresenter>().onTappedSavedAt(index);
-        }
-      },
-      title: post.title,
-      body: post.contents,
-      subjectText: post.subject.toString(),
-      subjectIcon: SvgPicture.asset(
-        post.subject.iconPath,
-        colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
       ),
-      tag: post.tag,
-      child: child,
-    );
-  }
-
-  Widget _buildTastedRecordFeed(TastedRecordInFeed tastingRecord, int index) {
-    final isGuest = context.read<HomePresenter>().isGuest;
-
-    return TastingRecordFeedWidget(
-      id: tastingRecord.id,
-      writerId: tastingRecord.author.id,
-      writerThumbnailUrl: tastingRecord.author.profileImageUrl,
-      writerNickName: tastingRecord.author.nickname,
-      writingTime: tastingRecord.createdAt,
-      hits: '조회 ${tastingRecord.viewCount}',
-      isFollowed: tastingRecord.isAuthorFollowing,
-      onTapProfile: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          pushToProfile(context: context, id: tastingRecord.author.id);
-        }
-      },
-      onTapFollowButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          context.read<HomePresenter>().onTappedFollowAt(index);
-        }
-      },
-      isLiked: tastingRecord.isLiked,
-      likeCount: tastingRecord.likeCount,
-      commentsCount: tastingRecord.commentsCount,
-      isSaved: tastingRecord.isSaved,
-      onTapLikeButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          context.read<HomePresenter>().onTappedLikeAt(index);
-        }
-      },
-      onTapCommentsButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          showCommentsBottomSheet(isPost: false, id: tastingRecord.id, author: tastingRecord.author);
-        }
-      },
-      onTapSaveButton: () {
-        if (isGuest) {
-          showLoginBottomSheet();
-        } else {
-          context.read<HomePresenter>().onTappedSavedAt(index);
-        }
-      },
-      thumbnailUri: tastingRecord.thumbnailUri,
-      rating: '${tastingRecord.rating}',
-      type: tastingRecord.beanType,
-      name: tastingRecord.beanName,
-      tags: tastingRecord.flavors,
-      body: tastingRecord.contents,
     );
   }
 
@@ -606,7 +447,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     if (result != null && context.mounted) {
       switch (result) {
         case Success<LoginResult>():
-          switch(result.data) {
+          switch (result.data) {
             case LoginResult.login:
               context.read<HomePresenter>().login();
               break;
