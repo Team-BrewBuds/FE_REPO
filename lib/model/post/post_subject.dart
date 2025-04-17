@@ -28,7 +28,7 @@ enum PostSubject {
         PostSubject.caffe => 'assets/icons/subject_caffee.svg',
         PostSubject.worry => 'assets/icons/subject_worry.svg',
         PostSubject.information => 'assets/icons/subject_info.svg',
-        PostSubject.gear => 'assets/icons/gear.svg',
+        PostSubject.gear => 'assets/icons/subject_gear.svg',
       };
 
   String? toJsonValue() => switch (this) {

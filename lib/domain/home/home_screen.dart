@@ -2,25 +2,25 @@ import 'dart:ui';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
-import 'package:brew_buds/domain/home/comments/comments_view.dart';
+import 'package:brew_buds/domain/home/comments/comments_bottom_sheet.dart';
 import 'package:brew_buds/domain/home/feed/post_feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/tasting_record_feed_widget.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
-import 'package:brew_buds/domain/home/widgets/recommended_buddy_list.dart';
+import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
-import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +47,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -165,6 +165,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                             curve: Curves.ease,
                           );
                         } else {
+                          _scrollController.jumpTo(0);
                           context.read<HomePresenter>().onChangeTab(index);
                         }
                       },
@@ -178,55 +179,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 ),
               );
             }),
-            CupertinoSliverRefreshControl(
-              refreshTriggerPullDistance: 56,
-              refreshIndicatorExtent: 56,
-              builder: (
-                BuildContext context,
-                RefreshIndicatorMode refreshState,
-                double pulledExtent,
-                double refreshTriggerPullDistance,
-                double refreshIndicatorExtent,
-              ) {
-                switch (refreshState) {
-                  case RefreshIndicatorMode.drag:
-                    final double percentageComplete = clampDouble(
-                      pulledExtent / refreshTriggerPullDistance,
-                      0.0,
-                      1.0,
-                    );
-                    const Curve opacityCurve = Interval(0.0, 0.35, curve: Curves.easeInOut);
-                    return Opacity(
-                      opacity: opacityCurve.transform(percentageComplete),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CupertinoActivityIndicator.partiallyRevealed(
-                              progress: percentageComplete,
-                              color: ColorStyles.gray70,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CupertinoActivityIndicator(color: ColorStyles.gray70),
-                        ),
-                      ),
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
+            MyRefreshControl(
               onRefresh: () {
                 return context.read<HomePresenter>().onRefresh();
               },
@@ -236,76 +189,89 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 final feedPresenters = context.select<HomePresenter, List<FeedPresenter>>(
                   (presenter) => presenter.feedPresenters,
                 );
-                return SliverPadding(
-                  padding: const EdgeInsets.only(top: 12),
-                  sliver: SliverList.separated(
-                    itemCount: feedPresenters.length,
-                    itemBuilder: (context, index) {
-                      final feedPresenter = feedPresenters[index];
-                      final isGuest = AccountRepository.instance.isGuest;
-                      if (feedPresenter is PostFeedPresenter) {
-                        return ChangeNotifierProvider.value(
-                          value: feedPresenter,
-                          child: PostFeedWidget(
-                            isGuest: isGuest,
-                            onGuest: () {
-                              showLoginBottomSheet();
-                            },
-                            onTapComments: (isPost, id, author) {
-                              showCommentsBottomSheet(isPost: isPost, id: id, author: author);
-                            },
-                          ),
-                        );
-                      } else if (feedPresenter is TastedRecordFeedPresenter) {
-                        return ChangeNotifierProvider.value(
-                          value: feedPresenter,
-                          child: TastedRecordFeedWidget(
-                            isGuest: isGuest,
-                            onGuest: () {
-                              showLoginBottomSheet();
-                            },
-                            onTapComments: (isPost, id, author) {
-                              showCommentsBottomSheet(isPost: isPost, id: id, author: author);
-                            },
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                    separatorBuilder: (context, index) => index % 12 != 11
-                        ? Container(height: 12, color: ColorStyles.gray20)
-                        : Builder(
-                            builder: (context) {
-                              final pageIndex = (index / 12).toInt();
-                              final page = context.select<HomePresenter, RecommendedPage?>(
-                                  (presenter) => presenter.getRecommendedPage(pageIndex));
-                              if (page != null) {
-                                return RecommendedBuddyList(
-                                  page: page,
-                                  onTappedFollowButton: (int index) {
-                                    if (context.read<HomePresenter>().isGuest) {
-                                      showLoginBottomSheet();
-                                    } else {
-                                      context.read<HomePresenter>().onTappedRecommendedUserFollowButton(
-                                            page.users[index],
-                                            pageNo: pageIndex,
-                                          );
-                                    }
-                                  },
+                if (feedPresenters.isEmpty) {
+                  return SliverFillRemaining(
+                    child: Container(
+                      color: ColorStyles.gray20,
+                      child: const Center(
+                        child: CupertinoActivityIndicator(
+                          color: ColorStyles.gray70,
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return SliverPadding(
+                    padding: const EdgeInsets.only(top: 12),
+                    sliver: SliverList.separated(
+                      itemCount: feedPresenters.length,
+                      itemBuilder: (context, index) {
+                        final feedPresenter = feedPresenters[index];
+                        final isGuest = AccountRepository.instance.isGuest;
+                        if (feedPresenter is PostFeedPresenter) {
+                          return ChangeNotifierProvider.value(
+                            value: feedPresenter,
+                            child: PostFeedWidget(
+                              isGuest: isGuest,
+                              onGuest: () {
+                                showLoginBottomSheet();
+                              },
+                              onTapComments: (isPost, id, author) {
+                                showCommentsBottomSheet(
+                                  objectType: ObjectType.post,
+                                  objectId: feedPresenter.feed.data.id,
+                                  objectAuthor: feedPresenter.feed.data.author,
                                 );
-                              } else {
-                                return Container(height: 12, color: ColorStyles.gray20);
-                              }
-                            },
-                          ),
-                  ),
-                );
+                              },
+                            ),
+                          );
+                        } else if (feedPresenter is TastedRecordFeedPresenter) {
+                          return ChangeNotifierProvider.value(
+                            value: feedPresenter,
+                            child: TastedRecordFeedWidget(
+                              isGuest: isGuest,
+                              onGuest: () {
+                                showLoginBottomSheet();
+                              },
+                              onTapComments: (isPost, id, author) {
+                                showCommentsBottomSheet(
+                                  objectType: ObjectType.tastingRecord,
+                                  objectId: feedPresenter.feed.data.id,
+                                  objectAuthor: feedPresenter.feed.data.author,
+                                );
+                              },
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                      separatorBuilder: (context, index) => index % 12 != 11
+                          ? Container(height: 12, color: ColorStyles.gray20)
+                          : Builder(
+                              builder: (context) {
+                                final pageIndex = (index / 12).toInt();
+                                final presenter =
+                                    context.read<HomePresenter>().getRecommendedBuddiesPresenter(pageIndex);
+                                if (presenter != null) {
+                                  return ChangeNotifierProvider.value(
+                                    value: presenter,
+                                    child: const RecommendedBuddiesWidget(),
+                                  );
+                                } else {
+                                  return Container(height: 12, color: ColorStyles.gray20);
+                                }
+                              },
+                            ),
+                    ),
+                  );
+                }
               },
             ),
-            if (context.select<HomePresenter, bool>((presenter) => presenter.isLoading))
-              SliverFillRemaining(
+            if (context.select<HomePresenter, bool>((presenter) => presenter.hasNext))
+              SliverToBoxAdapter(
                 child: Container(
+                  height: 150,
                   color: ColorStyles.gray20,
                   child: const Center(
                     child: CupertinoActivityIndicator(
@@ -320,7 +286,11 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  showCommentsBottomSheet({required bool isPost, required int id, required User author}) {
+  showCommentsBottomSheet({
+    required ObjectType objectType,
+    required int objectId,
+    required User objectAuthor,
+  }) {
     showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
@@ -330,11 +300,14 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       pageBuilder: (_, __, ___) {
         return ChangeNotifierProvider<CommentsPresenter>(
           create: (_) => CommentsPresenter(
-            isPost: isPost,
-            id: id,
-            author: author,
+            objectType: objectType,
+            objectId: objectId,
+            objectAuthor: objectAuthor,
           ),
-          child: CommentBottomSheet(minimumHeight: MediaQuery.of(context).size.height * 0.7),
+          child: CommentsBottomSheet(
+            initialHeight: MediaQuery.of(context).size.height * 0.7,
+            maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - 16,
+          ),
         );
       },
       transitionBuilder: (_, anim, __, child) {
@@ -408,6 +381,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 final subject = subjectList[index - 1];
                 return ThrottleButton(
                   onTap: () {
+                    _scrollController.jumpTo(0);
                     context.read<HomePresenter>().onSelectPostSubject(subject);
                   },
                   child: Container(

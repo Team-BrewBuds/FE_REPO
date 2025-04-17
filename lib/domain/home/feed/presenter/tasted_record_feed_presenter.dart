@@ -4,8 +4,8 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
-import 'package:brew_buds/model/events/tasted_record_like_event.dart';
-import 'package:brew_buds/model/events/tasted_record_save_event.dart';
+import 'package:brew_buds/model/events/comment_event.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/events/user_follow_event.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 
@@ -21,20 +21,20 @@ typedef BodyState = ({
 
 final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository();
-  late final StreamSubscription _tastedRecordLikeSub;
-  late final StreamSubscription _tastedRecordSaveSub;
+  late final StreamSubscription _tastedRecordSub;
+  late final StreamSubscription _commentSub;
 
   TastedRecordFeedPresenter({
     required super.feed,
   }) {
-    _tastedRecordLikeSub = EventBus.instance.on<TastedRecordLikeEvent>().listen(onLikeEvent);
-    _tastedRecordSaveSub = EventBus.instance.on<TastedRecordSaveEvent>().listen(onSaveEvent);
+    _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onEvent);
+    _commentSub = EventBus.instance.on<CommentEvent>().listen(_onCommentEvent);
   }
 
   @override
   dispose() {
-    _tastedRecordLikeSub.cancel();
-    _tastedRecordSaveSub.cancel();
+    _tastedRecordSub.cancel();
+    _commentSub.cancel();
     super.dispose();
   }
 
@@ -77,8 +77,13 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
 
     try {
       await _tastedRecordRepository.follow(id: previousTastedRecord.id, isFollow: isFollow);
-
-      EventBus.instance.fire(UserFollowEvent(previousTastedRecord.author.id, !isFollow));
+      EventBus.instance.fire(
+        UserFollowEvent(
+          senderId: presenterId,
+          userId: previousTastedRecord.author.id,
+          isFollow: !isFollow,
+        ),
+      );
     } catch (_) {
       feed = TastedRecordFeed(data: previousTastedRecord);
       notifyListeners();
@@ -90,11 +95,24 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
     final previousTastedRecord = feed.data;
     final isLiked = previousTastedRecord.isLiked;
     final likeCount = previousTastedRecord.likeCount;
-    feed = TastedRecordFeed(data: previousTastedRecord.copyWith(isLiked: !isLiked, likeCount: isLiked ? likeCount - 1 : likeCount + 1));
+    feed = TastedRecordFeed(
+      data: previousTastedRecord.copyWith(
+        isLiked: !isLiked,
+        likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+      ),
+    );
     notifyListeners();
 
     try {
       await _tastedRecordRepository.like(id: previousTastedRecord.id, isLiked: isLiked);
+      EventBus.instance.fire(
+        TastedRecordLikeEvent(
+          senderId: presenterId,
+          id: feed.data.id,
+          isLiked: !isLiked,
+          likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+        ),
+      );
     } catch (_) {
       feed = TastedRecordFeed(data: previousTastedRecord);
       notifyListeners();
@@ -110,6 +128,7 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
 
     try {
       await _tastedRecordRepository.save(id: previousTastedRecord.id, isSaved: isSaved);
+      EventBus.instance.fire(TastedRecordSaveEvent(senderId: presenterId, id: feed.data.id, isSaved: !isSaved));
     } catch (_) {
       feed = TastedRecordFeed(data: previousTastedRecord);
       notifyListeners();
@@ -118,23 +137,66 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
 
   @override
   onUserFollowEvent(UserFollowEvent event) {
-    if (feed.data.author.id == event.userId) {
+    if (feed.data.author.id == event.userId && feed.data.isAuthorFollowing != event.isFollow) {
       feed = TastedRecordFeed(data: feed.data.copyWith(isAuthorFollowing: event.isFollow));
       notifyListeners();
     }
   }
 
-  onLikeEvent(TastedRecordLikeEvent event) {
-    if (feed.data.id == event.id) {
-      feed = TastedRecordFeed(data: feed.data.copyWith(isLiked: event.isLiked));
-      notifyListeners();
+  _onEvent(TastedRecordEvent event) {
+    if (event.senderId != presenterId) {
+      switch (event) {
+        case TastedRecordLikeEvent():
+          final id = feed.data.id;
+          final isLiked = feed.data.isLiked;
+          final likeCount = feed.data.likeCount;
+          if (id == event.id && (isLiked != event.isLiked || likeCount != event.likeCount)) {
+            feed = TastedRecordFeed(data: feed.data.copyWith(isLiked: event.isLiked, likeCount: event.likeCount));
+            notifyListeners();
+          }
+          break;
+        case TastedRecordSaveEvent():
+          final id = feed.data.id;
+          final isSaved = feed.data.isSaved;
+          if (id == event.id && isSaved != event.isSaved) {
+            feed = TastedRecordFeed(data: feed.data.copyWith(isSaved: event.isSaved));
+            notifyListeners();
+          }
+          break;
+        case TastedRecordUpdateEvent():
+          final tastedRecord = event.tastedRecord;
+          if (tastedRecord.id == feed.data.id) {
+            feed = TastedRecordFeed(
+              data: feed.data.copyWith(
+                rating: tastedRecord.tastingReview.star,
+                beanType: tastedRecord.bean.type?.toString() ?? '',
+                beanName: tastedRecord.bean.name ?? '',
+                flavors: tastedRecord.tastingReview.flavors,
+                contents: tastedRecord.contents,
+                tag: tastedRecord.tag,
+              ),
+            );
+          }
+          notifyListeners();
+          break;
+        default:
+          break;
+      }
     }
   }
 
-  onSaveEvent(TastedRecordSaveEvent event) {
-    if (feed.data.id == event.id) {
-      feed = TastedRecordFeed(data: feed.data.copyWith(isSaved: event.isSaved));
-      notifyListeners();
+  _onCommentEvent(CommentEvent event) {
+    if (event.senderId != presenterId && event.id == feed.data.id) {
+      switch (event) {
+        case OnChangeCommentCountEvent():
+          if (event.objectType == 'tasted_record') {
+            feed = TastedRecordFeed(data: feed.data.copyWith(commentsCount: event.count));
+            notifyListeners();
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 }

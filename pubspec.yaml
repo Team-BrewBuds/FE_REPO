@@ -61,6 +61,8 @@ dependencies:
   version: ^3.0.2
   firebase_remote_config: ^5.4.3
   device_info_plus: ^11.3.3
+  uuid: ^4.5.1
+  flutter_keyboard_visibility: ^6.0.0
 
 flutter_native_splash:
   color: "#FFFFFF"

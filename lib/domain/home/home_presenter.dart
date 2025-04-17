@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
@@ -5,11 +8,12 @@ import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
+import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presetner.dart';
+import 'package:brew_buds/model/events/post_event.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/feed/feed.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/recommended/recommended_page.dart';
-import 'package:brew_buds/model/recommended/recommended_user.dart';
-import 'package:flutter/foundation.dart';
 
 typedef FeedState = ({bool isLoading, List<Feed> feeds});
 
@@ -18,11 +22,13 @@ final class HomePresenter extends Presenter {
   final PostRepository postRepository = PostRepository.instance;
   final TastedRecordRepository tastedRecordRepository = TastedRecordRepository.instance;
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
+  late final StreamSubscription _postSub;
+  late final StreamSubscription _tastedRecordSub;
   bool _isGuest;
   bool _isLoading = false;
   int _currentTypeIndex = 0;
   PostSubject _currentSubject = PostSubject.all;
-  List<RecommendedPage> _recommendedUserPage = [];
+  List<RecommendedBuddiesPresenter> _recommendedBuddiesPresenter = [];
   int _currentTab = 0;
   int _pageNo = 1;
   bool _hasNext = true;
@@ -36,15 +42,15 @@ final class HomePresenter extends Presenter {
 
   List<FeedPresenter> get feedPresenters => List.unmodifiable(_feedPresenters);
 
-  int get itemCount => _feedPresenters.length;
-
-  List<RecommendedPage> get recommendedUserPage => _recommendedUserPage;
+  List<RecommendedBuddiesPresenter> get recommendedUserPage => List.unmodifiable(_recommendedBuddiesPresenter);
 
   PostSubject get currentSubject => _currentSubject;
 
   bool get isPostFeed => _currentTab == 2;
 
   HomePresenter({required bool isGuest}) : _isGuest = isGuest {
+    _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
+    _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onTastedRecordEvent);
     initState();
   }
 
@@ -52,8 +58,49 @@ final class HomePresenter extends Presenter {
     fetchMoreData(isPageChanged: true);
   }
 
+  @override
+  dispose() {
+    _postSub.cancel();
+    _tastedRecordSub.cancel();
+    super.dispose();
+  }
+
   Future<void> onRefresh() async {
     await fetchMoreData(isPageChanged: true, isRefresh: true);
+  }
+
+  _onPostEvent(PostEvent event) {
+    switch (event) {
+      case PostDeleteEvent():
+        _feedPresenters.removeWhere((presenter) {
+          if (presenter is PostFeedPresenter) {
+            return presenter.feed.data.id == event.id;
+          } else {
+            return false;
+          }
+        });
+        notifyListeners();
+        break;
+      default:
+        break;
+    }
+  }
+
+  _onTastedRecordEvent(TastedRecordEvent event) {
+    switch (event) {
+      case TastedRecordDeleteEvent():
+        _feedPresenters.removeWhere((presenter) {
+          if (presenter is TastedRecordFeedPresenter) {
+            return presenter.feed.data.id == event.id;
+          } else {
+            return false;
+          }
+        });
+        notifyListeners();
+        break;
+      default:
+        break;
+    }
   }
 
   login() {
@@ -63,31 +110,34 @@ final class HomePresenter extends Presenter {
 
   Future<void> fetchMoreData({bool isPageChanged = false, bool isRefresh = false}) async {
     if (isPageChanged) {
-      _recommendedUserPage = List.empty(growable: true);
+      _recommendedBuddiesPresenter = List.empty(growable: true);
       _feedPresenters = List.empty(growable: true);
       _currentTypeIndex = 0;
       _pageNo = 1;
+      _hasNext = true;
+      _isLoading = false;
       if (!isRefresh) {
-        _isLoading = true;
         notifyListeners();
       }
     }
 
+    if (_isLoading) return;
+
     if (!hasNext) {
-      if (_currentTab != 0) {
-        return;
-      } else if (_currentTab == 0 && _currentTypeIndex == 2) {
-        return;
-      }
+      if (_currentTab != 0 || (_currentTab == 0 && _currentTypeIndex == 2)) return;
+    }
+
+    _isLoading = true;
+    if (!isRefresh) {
+      notifyListeners();
     }
 
     await Future.wait([
       fetchFeeds(),
       fetchRecommendedUsers(),
     ]);
-    if (_isLoading) {
-      _isLoading = false;
-    }
+
+    _isLoading = false;
     notifyListeners();
   }
 
@@ -98,7 +148,7 @@ final class HomePresenter extends Presenter {
       _addAllFeeds(nextPage.results);
       _hasNext = nextPage.hasNext;
 
-      if (!_hasNext && _currentTypeIndex < 2 && (itemCount / 12).toInt() < _pageNo) {
+      if (!_hasNext && _currentTypeIndex < 2 && (feedPresenters.length / 12).toInt() < _pageNo) {
         _currentTypeIndex++;
         _pageNo = 1;
         return await fetchFeeds();
@@ -146,10 +196,7 @@ final class HomePresenter extends Presenter {
         .then((page) => Future<RecommendedPage?>.value(page))
         .onError((_, __) => null);
     if (newPage != null) {
-      _recommendedUserPage = await compute(
-        (state) => List.from(state.$1)..add(state.$2),
-        (_recommendedUserPage, newPage),
-      );
+      _recommendedBuddiesPresenter.add(RecommendedBuddiesPresenter(page: newPage));
     }
   }
 
@@ -177,30 +224,6 @@ final class HomePresenter extends Presenter {
     fetchMoreData(isPageChanged: true);
   }
 
-  onTappedRecommendedUserFollowButton(RecommendedUser user, {required int pageNo}) async {
-    final result =
-        await homeRepository.follow(id: user.id, isFollow: user.isFollow).then((_) => true).onError((_, __) => false);
-
-    if (result) {
-      final newUser = await compute(
-        (message) => message.copyWith(
-          isFollow: !message.isFollow,
-          followerCount: message.isFollow ? message.followerCount - 1 : message.followerCount + 1,
-        ),
-        user,
-      );
-      _recommendedUserPage[pageNo] = await compute(
-        (message) => message.$1.copyWith(
-          users: message.$1.users.map((user) => user.id == message.$2.id ? message.$2 : user).toList(),
-        ),
-        (_recommendedUserPage[pageNo], newUser),
-      );
-      notifyListeners();
-    } else {
-      return null;
-    }
-  }
-
-  RecommendedPage? getRecommendedPage(int index) =>
-      index >= _recommendedUserPage.length ? null : _recommendedUserPage[index];
+  RecommendedBuddiesPresenter? getRecommendedBuddiesPresenter(int index) =>
+      _recommendedBuddiesPresenter.elementAtOrNull(index);
 }

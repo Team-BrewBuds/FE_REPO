@@ -1,55 +1,69 @@
 import 'dart:async';
 
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
-import 'package:brew_buds/model/comments.dart';
-import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
 import 'package:brew_buds/model/common/user.dart';
+import 'package:brew_buds/model/events/comment_event.dart';
 import 'package:flutter/foundation.dart';
 
 typedef BottomTextFieldState = ({String? reCommentAuthorNickname, String authorNickname});
 
-enum _FeedType {
+enum ObjectType {
   post,
   tastingRecord;
 
   @override
-  String toString() => switch (this) { _FeedType.post => 'post', _FeedType.tastingRecord => 'tasted_record' };
+  String toString() => switch (this) {
+        ObjectType.post => 'post',
+        ObjectType.tastingRecord => 'tasted_record',
+      };
 }
 
 final class CommentsPresenter extends Presenter {
-  final _FeedType _type;
-  final int _id;
-  final User author;
   final CommentsRepository _repository = CommentsRepository.instance;
+  final ObjectType _objectType;
+  final int _objectId;
+  final User _objectAuthor;
   bool _isLoading = false;
-  int _currentPage = 0;
-  Comment? _replyComment;
-  DefaultPage<Comment> _page = DefaultPage.initState();
+  List<CommentPresenter> _commentPresenters = [];
+  int _currentPage = 1;
+  bool _hasNext = true;
+  int _totalCount = 0;
+  CommentPresenter? _replyCommentPresenter;
 
   CommentsPresenter({
-    required bool isPost,
-    required int id,
-    required this.author,
-  })  : _type = isPost ? _FeedType.post : _FeedType.tastingRecord,
-        _id = id;
+    required ObjectType objectType,
+    required int objectId,
+    required User objectAuthor,
+  })  : _objectType = objectType,
+        _objectId = objectId,
+        _objectAuthor = objectAuthor;
 
   bool get isLoading => _isLoading;
 
-  DefaultPage<Comment> get page => _page;
+  bool get hasNext => _hasNext;
+
+  int get totalCount => _totalCount;
+
+  List<CommentPresenter> get commentPresenters => List.unmodifiable(_commentPresenters);
+
+  bool get isReplyMode => _replyCommentPresenter != null;
 
   BottomTextFieldState get bottomTextFieldState => (
-        reCommentAuthorNickname: _replyComment?.author.nickname,
-        authorNickname: author.nickname,
+        reCommentAuthorNickname: _replyCommentPresenter?.nickName,
+        authorNickname: _objectAuthor.nickname,
       );
 
-  refresh() async {
-    _currentPage = 0;
-    _replyComment = null;
-    _page = DefaultPage.initState();
+  Future<void> onRefresh() async {
+    if (_isLoading) return;
+
+    _currentPage = 1;
+    _replyCommentPresenter = null;
+    _commentPresenters = List.empty(growable: true);
     _isLoading = true;
-    notifyListeners();
+    _hasNext = true;
 
     await fetchMoreData();
 
@@ -68,21 +82,20 @@ final class CommentsPresenter extends Presenter {
   }
 
   fetchMoreData() async {
-    if (_page.hasNext) {
+    if (hasNext) {
       final newPage = await _repository.fetchCommentsPage(
-        feedType: _type.toString(),
-        id: _id,
-        pageNo: _currentPage + 1,
+        feedType: _objectType.toString(),
+        id: _objectId,
+        pageNo: _currentPage,
       );
-      _page = await compute(
-        (message) {
-          return message.$2.copyWith(
-            results: message.$1.results +
-                message.$2.results.where((element) => !message.$1.results.contains(element)).toList(),
-          );
-        },
-        (_page, newPage),
+
+      _commentPresenters.addAll(
+        newPage.results.map(
+          (e) => CommentPresenter(objectId: _objectId, objectAuthorId: _objectAuthor.id, comment: e),
+        ),
       );
+      _updateCommentCount(newPage.count);
+      _hasNext = newPage.hasNext;
       _currentPage += 1;
       notifyListeners();
     }
@@ -90,90 +103,82 @@ final class CommentsPresenter extends Presenter {
 
   Future<void> createNewComment({required String content}) async {
     try {
-      final parentId = _replyComment?.id;
-      await _repository.createNewComment(feedType: _type.toString(), id: _id, content: content, parentId: parentId);
-      if (parentId != null) {
-        final newParentComment = await _repository.fetchComment(id: parentId);
-        _page = await compute(
-          (message) => message.$1.copyWith(
-            results: List<Comment>.from(message.$1.results).map((e) => e.id == message.$2.id ? message.$2 : e).toList(),
+      final newComment = await _repository.createNewComment(
+        feedType: _objectType.toString(),
+        id: _objectId,
+        content: content,
+        parentId: _replyCommentPresenter?.id,
+      );
+
+      final parentPresenter = _replyCommentPresenter;
+
+      if (parentPresenter != null) {
+        EventBus.instance.fire(
+          CreateReCommentEvent(
+            senderId: presenterId,
+            id: parentPresenter.id,
+            newReComment: newComment,
           ),
-          (_page, newParentComment),
+        );
+        cancelReply();
+      } else {
+        _commentPresenters.insert(
+          0,
+          CommentPresenter(
+            objectId: _objectId,
+            objectAuthorId: _objectAuthor.id,
+            comment: newComment,
+          ),
         );
         notifyListeners();
-      } else {
-        refresh();
       }
+      _updateCommentCount(totalCount + 1);
     } catch (_) {
-      rethrow;
+      if (_replyCommentPresenter != null) {
+        throw ErrorDescription('대댓글 작성에 실패했어요.');
+      } else {
+        throw ErrorDescription('댓글 작성에 실패했어요.');
+      }
     }
   }
 
-  deleteComment({required Comment comment}) {
-    _repository.deleteComment(id: comment.id).then((_) => refresh());
-  }
-
-  onTappedLikeButton({required Comment comment}) {
-    if (comment.isLiked) {
-      _unLikeComment(comment: comment);
-    } else {
-      _likeComment(comment: comment);
-    }
-  }
-
-  _likeComment({required Comment comment}) {
-    _repository
-        .likeComment(id: comment.id)
-        .then((_) => _updateComments(newComment: comment.copyWith(isLiked: true, likeCount: comment.likeCount + 1)));
-  }
-
-  _unLikeComment({required Comment comment}) {
-    _repository
-        .unLikeComment(id: comment.id)
-        .then((_) => _updateComments(newComment: comment.copyWith(isLiked: false, likeCount: comment.likeCount - 1)));
-  }
-
-  onTappedReply(Comment comment) {
-    _replyComment = comment;
+  onTapDeleteCommentAt(int index) async {
+    final removedComment = _commentPresenters.removeAt(index);
     notifyListeners();
+
+    try {
+      await _repository.deleteComment(id: removedComment.id);
+    } catch (e) {
+      _commentPresenters.insert(index, removedComment);
+      notifyListeners();
+      return;
+    }
   }
 
-  bool isWriter(Comment comment) => (comment.author.id == author.id);
-
-  bool isMine(Comment comment) => (comment.author.id == AccountRepository.instance.id);
+  onTappedReplyAt(int index) {
+    final presenter = _commentPresenters.elementAtOrNull(index);
+    if (presenter != null) {
+      _replyCommentPresenter = presenter;
+      notifyListeners();
+    }
+  }
 
   cancelReply() {
-    _replyComment = null;
+    _replyCommentPresenter = null;
     notifyListeners();
   }
 
-  bool canDelete(int id) {
-    return AccountRepository.instance.id == author.id || AccountRepository.instance.id == id;
-  }
-
-  _updateComments({required Comment newComment}) async {
-    _page = await compute((message) {
-      final parentId = message.$2.parentId;
-      if (parentId != null) {
-        return message.$1.copyWith(
-            results: List<Comment>.from(message.$1.results).map((comment) {
-          if (comment.id == parentId) {
-            return comment.copyWith(
-              reComments: List<Comment>.from(comment.reComments)
-                  .map((reComment) => reComment.id == message.$2.id ? message.$2 : reComment)
-                  .toList(),
-            );
-          } else {
-            return comment;
-          }
-        }).toList());
-      } else {
-        return message.$1.copyWith(
-            results: List<Comment>.from(message.$1.results)
-                .map((comment) => comment.id == message.$2.id ? message.$2 : comment)
-                .toList());
-      }
-    }, (_page, newComment));
-    notifyListeners();
+  _updateCommentCount(int count) {
+    if (_totalCount != count) {
+      _totalCount = count;
+      EventBus.instance.fire(
+        OnChangeCommentCountEvent(
+            senderId: presenterId,
+            id: _objectId,
+            count: count,
+            objectType: _objectType == ObjectType.post ? 'post' : 'tasted_record'),
+      );
+      notifyListeners();
+    }
   }
 }

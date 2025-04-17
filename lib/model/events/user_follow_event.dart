@@ -1,5 +1,11 @@
 class UserFollowEvent {
+  final String senderId;
   final int userId;
   final bool isFollow;
-  UserFollowEvent(this.userId, this.isFollow);
+
+  const UserFollowEvent({
+    required this.senderId,
+    required this.userId,
+    required this.isFollow,
+  });
 }

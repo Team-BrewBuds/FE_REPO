@@ -2,14 +2,12 @@ import 'dart:ui';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
-import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_post.dart';
+import 'package:brew_buds/domain/home/popular_posts/popular_post_presenter.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/post/post.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,22 +21,21 @@ class PopularPostsView extends StatefulWidget {
 }
 
 class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<PopularPostsView> {
-  late final Throttle<bool> pageNationThrottle;
+  late final Throttle<void> pageNationThrottle;
   late final ScrollController scrollController;
 
   @override
   void initState() {
-    scrollController = ScrollController()
-      ..addListener(() {
-        _scrollListener();
-      });
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      _scrollListener();
+    });
     pageNationThrottle = Throttle(
-      const Duration(seconds: 3),
-      initialValue: false,
-      onChanged: (value) {
-        if (value) {
-          _fetchMoreData();
-        }
+      const Duration(milliseconds: 300),
+      initialValue: null,
+      checkEquality: false,
+      onChanged: (_) {
+        _fetchMoreData();
       },
     );
     super.initState();
@@ -59,7 +56,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
 
   _scrollListener() {
     if (scrollController.position.pixels > scrollController.position.maxScrollExtent * 0.7) {
-      pageNationThrottle.setValue(true);
+      pageNationThrottle.setValue(null);
     }
   }
 
@@ -83,135 +80,80 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
           controller: scrollController,
           slivers: [
             buildSubjectFilter(),
-            CupertinoSliverRefreshControl(
-              refreshTriggerPullDistance: 56,
-              refreshIndicatorExtent: 56,
-              builder: (
-                BuildContext context,
-                RefreshIndicatorMode refreshState,
-                double pulledExtent,
-                double refreshTriggerPullDistance,
-                double refreshIndicatorExtent,
-              ) {
-                switch (refreshState) {
-                  case RefreshIndicatorMode.drag:
-                    final double percentageComplete = clampDouble(
-                      pulledExtent / refreshTriggerPullDistance,
-                      0.0,
-                      1.0,
-                    );
-                    const Curve opacityCurve = Interval(0.0, 0.35, curve: Curves.easeInOut);
-                    return Opacity(
-                      opacity: opacityCurve.transform(percentageComplete),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CupertinoActivityIndicator.partiallyRevealed(
-                              progress: percentageComplete,
-                              color: ColorStyles.gray70,
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  case RefreshIndicatorMode.armed || RefreshIndicatorMode.refresh:
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CupertinoActivityIndicator(color: ColorStyles.gray70),
-                        ),
-                      ),
-                    );
-                  default:
-                    return const SizedBox.shrink();
-                }
-              },
+            MyRefreshControl(
               onRefresh: () {
                 return context.read<PopularPostsPresenter>().onRefresh();
               },
             ),
-            Selector<PopularPostsPresenter, DefaultPage<Post>>(
-              selector: (context, presenter) => presenter.page,
-              builder: (context, page, child) {
+            Builder(
+              builder: (context) {
+                final presenters = context.select<PopularPostsPresenter, List<PopularPostPresenter>>(
+                  (presenter) => presenter.presenters,
+                );
                 return SliverList.separated(
-                  itemCount: page.results.length,
+                  itemCount: presenters.length,
                   itemBuilder: (context, index) {
-                    final popularPost = page.results[index];
-                    final String? thumbnail;
-                    if (popularPost.imagesUrl.isNotEmpty) {
-                      thumbnail = popularPost.imagesUrl.first;
-                    } else if (popularPost.tastingRecords.isNotEmpty) {
-                      thumbnail = popularPost.tastingRecords.first.thumbnailUrl;
-                    } else {
-                      thumbnail = null;
-                    }
-
-                    return ThrottleButton(
-                      onTap: () {
-                        showCupertinoModalPopup<String>(
-                          barrierColor: ColorStyles.white,
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (context) {
-                            return ChangeNotifierProvider<PostDetailPresenter>(
-                              create: (_) => PostDetailPresenter(id: popularPost.id),
-                              child: const PostDetailView(),
-                            );
-                          },
-                        ).then((result) {
-                          if (result != null) {
-                            showSnackBar(message: result);
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 20),
-                        color: ColorStyles.white,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: PopularPostWidget(
-                                title: popularPost.title,
-                                bodyText: popularPost.contents,
-                                likeCount: '${popularPost.likeCount > 999 ? '999+' : popularPost.likeCount}',
-                                isLiked: popularPost.isLiked,
-                                commentsCount:
-                                    '${popularPost.commentsCount > 999 ? '999+' : popularPost.commentsCount}',
-                                hasComment: false,
-                                tag: popularPost.subject.toString(),
-                                writingTime: popularPost.createdAt,
-                                hitsCount: '조회 ${popularPost.viewCount > 9999 ? '9999+' : popularPost.viewCount}',
-                                nickName: popularPost.author.nickname,
-                                imageUrl: thumbnail,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    final presenter = presenters[index];
+                    return ChangeNotifierProvider.value(
+                      value: presenter,
+                      child: const PopularPostWidget(),
                     );
                   },
                   separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray20),
                 );
               },
             ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 200,
-                width: double.infinity,
-                child: Center(
-                  child: Text(
-                    '주간 인기글을 모두 읽었어요',
-                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.gray60),
-                  ),
-                ),
-              ),
+            Builder(
+              builder: (context) {
+                final isLoading = context.select<PopularPostsPresenter, bool>((presenter) => presenter.isLoading);
+                final hasNext = context.select<PopularPostsPresenter, bool>((presenter) => presenter.hasNext);
+                final isEmpty = context.select<PopularPostsPresenter, bool>(
+                  (presenter) => presenter.presenters.isEmpty,
+                );
+                if (isLoading) {
+                  return const SliverFillRemaining(
+                    child: Center(
+                      child: CupertinoActivityIndicator(
+                        color: ColorStyles.gray70,
+                      ),
+                    ),
+                  );
+                } else if (!isLoading && !isEmpty && hasNext) {
+                  return const SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 200,
+                      width: double.infinity,
+                      child: Center(
+                        child: CupertinoActivityIndicator(
+                          color: ColorStyles.gray70,
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (!isLoading && !isEmpty && !hasNext) {
+                  return SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 200,
+                      width: double.infinity,
+                      child: Center(
+                        child: Text(
+                          '주간 인기글을 모두 읽었어요',
+                          style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.gray60),
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        '주간 인기글을 모두 읽었어요',
+                        style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.gray60),
+                      ),
+                    ),
+                  );
+                }
+              },
             ),
           ],
         ),
@@ -231,41 +173,42 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Selector<PopularPostsPresenter, PopularPostSubjectFilterState>(
-              selector: (context, presenter) => presenter.subjectFilterState,
-              builder: (context, subjectFilterState, child) {
-                return Row(
-                  spacing: 6,
-                  children: List<Widget>.generate(
-                    subjectFilterState.postSubjectFilterList.length,
-                    (index) {
-                      return ThrottleButton(
-                        onTap: () {
-                          scrollController.jumpTo(0);
-                          context.read<PopularPostsPresenter>().onChangeSubject(index);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                          decoration: index == subjectFilterState.currentIndex
-                              ? const BoxDecoration(
-                                  color: ColorStyles.black,
-                                  borderRadius: BorderRadius.all(Radius.circular(20)),
-                                )
-                              : BoxDecoration(
-                                  border: Border.all(color: ColorStyles.gray70),
-                                  borderRadius: const BorderRadius.all(Radius.circular(20)),
-                                ),
-                          child: Text(
-                            subjectFilterState.postSubjectFilterList[index],
-                            style: TextStyles.labelMediumMedium.copyWith(
-                              color: index == subjectFilterState.currentIndex ? ColorStyles.white : ColorStyles.gray70,
-                            ),
+            selector: (context, presenter) => presenter.subjectFilterState,
+            builder: (context, subjectFilterState, child) {
+              return Row(
+                spacing: 6,
+                children: List<Widget>.generate(
+                  subjectFilterState.postSubjectFilterList.length,
+                  (index) {
+                    return ThrottleButton(
+                      onTap: () {
+                        scrollController.jumpTo(0);
+                        context.read<PopularPostsPresenter>().onChangeSubject(index);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                        decoration: index == subjectFilterState.currentIndex
+                            ? const BoxDecoration(
+                                color: ColorStyles.black,
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              )
+                            : BoxDecoration(
+                                border: Border.all(color: ColorStyles.gray70),
+                                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                              ),
+                        child: Text(
+                          subjectFilterState.postSubjectFilterList[index],
+                          style: TextStyles.labelMediumMedium.copyWith(
+                            color: index == subjectFilterState.currentIndex ? ColorStyles.white : ColorStyles.gray70,
                           ),
                         ),
-                      );
-                    },
-                  ).toList(),
-                );
-              }),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
