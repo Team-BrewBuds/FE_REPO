@@ -80,11 +80,12 @@ class _SortCriteriaBottomSheetState extends State<SortCriteriaBottomSheet> {
                               widget.items[index].$2();
                               context.pop();
                             },
-                            child: Padding(
+                            child: Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 20,
                                 horizontal: 16,
                               ),
+                              color: ColorStyles.white,
                               child: Row(
                                 children: [
                                   Text(

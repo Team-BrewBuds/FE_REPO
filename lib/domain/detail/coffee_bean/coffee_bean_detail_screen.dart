@@ -389,7 +389,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
     return Row(
       children: [
         SizedBox(
-          width: 83,
+          width: 90.w,
           child: Row(
             children: [
               SizedBox(

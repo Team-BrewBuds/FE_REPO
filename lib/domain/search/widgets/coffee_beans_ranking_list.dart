@@ -1,17 +1,16 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/domain/detail/show_detail.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
 import 'package:flutter/material.dart';
 
 class CoffeeBeansRankingList extends StatelessWidget {
-  final List<String> _coffeeBeansRank;
-  final String _updatedAt;
+  final List<CoffeeBeanSimple> _coffeeBeansRank;
 
   const CoffeeBeansRankingList({
     super.key,
-    required List<String> coffeeBeansRank,
-    required String updatedAt,
-  })  : _coffeeBeansRank = coffeeBeansRank,
-        _updatedAt = updatedAt;
+    required List<CoffeeBeanSimple> coffeeBeansRank,
+  }) : _coffeeBeansRank = coffeeBeansRank;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +22,6 @@ class CoffeeBeansRankingList extends StatelessWidget {
           Row(
             children: [
               Text('원두 랭킹', style: TextStyles.title02SemiBold),
-              const SizedBox(width: 6),
-              Text(
-                _updatedAt,
-                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
-              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -37,29 +31,39 @@ class CoffeeBeansRankingList extends StatelessWidget {
                 child: Column(
                   children: List<Widget>.generate(
                     5,
-                    (index) => Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: const BoxDecoration(
-                        border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 0.5)),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${index + 1}',
-                            style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
+                    (index) {
+                      final coffeeBean = _coffeeBeansRank.elementAtOrNull(index);
+                      return GestureDetector(
+                        onTap: () {
+                          if (coffeeBean != null) {
+                            showCoffeeBeanDetail(context: context, id: coffeeBean.id);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 0.5)),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              index < _coffeeBeansRank.length ? _coffeeBeansRank[index] : '-',
-                              style: TextStyles.captionMediumMedium,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                          child: Row(
+                            children: [
+                              Text(
+                                '${index + 1}',
+                                style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  coffeeBean?.name ?? '-',
+                                  style: TextStyles.captionMediumMedium,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -68,29 +72,39 @@ class CoffeeBeansRankingList extends StatelessWidget {
                 child: Column(
                   children: List<Widget>.generate(
                     5,
-                    (index) => Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: const BoxDecoration(
-                        border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 0.5)),
-                      ),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${index + 6}',
-                            style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
+                    (index) {
+                      final coffeeBean = _coffeeBeansRank.elementAtOrNull(index + 5);
+                      return GestureDetector(
+                        onTap: () {
+                          if (coffeeBean != null) {
+                            showCoffeeBeanDetail(context: context, id: coffeeBean.id);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: const BoxDecoration(
+                            border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 0.5)),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              index + 5 < _coffeeBeansRank.length ? _coffeeBeansRank[index + 5] : '-',
-                              style: TextStyles.captionMediumMedium,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                          child: Row(
+                            children: [
+                              Text(
+                                '${index + 6}',
+                                style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.red),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  coffeeBean?.name ?? '-',
+                                  style: TextStyles.captionMediumMedium,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

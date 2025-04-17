@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:brew_buds/data/api/beans_api.dart';
 import 'package:brew_buds/data/api/recommendation_api.dart';
 import 'package:brew_buds/data/api/search_api.dart';
 import 'package:brew_buds/data/dto/coffee_bean/recommended_coffee_bean_dto.dart';
@@ -7,12 +8,14 @@ import 'package:brew_buds/data/dto/search/search_bean_dto.dart';
 import 'package:brew_buds/data/dto/search/search_post_dto.dart';
 import 'package:brew_buds/data/dto/search/search_tasting_record_dto.dart';
 import 'package:brew_buds/data/dto/search/search_user_dto.dart';
+import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_simple_mapper.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_type_mapper.dart';
 import 'package:brew_buds/data/mapper/recommended/recommended_coffee_bean_mapper.dart';
 import 'package:brew_buds/data/mapper/search/search_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/search/models/search_result_model.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
+import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
@@ -20,6 +23,7 @@ import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:flutter/foundation.dart';
 
 final class SearchRepository {
+  final BeansApi _beansApi = BeansApi();
   final SearchApi _searchApi = SearchApi();
   final RecommendationApi _recommendedApi = RecommendationApi();
 
@@ -206,5 +210,9 @@ final class SearchRepository {
       },
       jsonString,
     );
+  }
+
+  Future<List<CoffeeBeanSimple>> fetchCoffeeBeanRanking() {
+    return _beansApi.fetchCoffeeBeanRanking().then((dtoList) => dtoList.map((dto) => dto.toDomain()).toList());
   }
 }

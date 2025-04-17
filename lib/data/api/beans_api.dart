@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/dio_client.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_simple_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -35,6 +36,9 @@ abstract class BeansApi {
   Future<String> fetchTastedRecordsForCoffeeBean({
     @Path('id') required int id,
   });
+
+  @GET('beans/ranking/')
+  Future<List<CoffeeBeanSimpleDTO>> fetchCoffeeBeanRanking();
 
   factory BeansApi() => _BeansApi(DioClient.instance.dio);
 }

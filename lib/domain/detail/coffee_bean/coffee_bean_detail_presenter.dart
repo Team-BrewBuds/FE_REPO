@@ -100,10 +100,14 @@ final class CoffeeBeanDetailPresenter extends Presenter {
   }
 
   fetchTastedRecords() async {
-    if (_page.hasNext) {
-      final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
-      notifyListeners();
+    try {
+      if (_page.hasNext) {
+        final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
+        _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
+        notifyListeners();
+      }
+    } catch (e) {
+      return;
     }
   }
 
