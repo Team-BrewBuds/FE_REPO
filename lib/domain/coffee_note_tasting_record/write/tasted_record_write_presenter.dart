@@ -13,10 +13,10 @@ import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 
-final class TastingWritePresenter extends Presenter {
+final class TastedRecordWritePresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
   final PhotoApi photoApi = PhotoApi();
-  List<Uint8List> imageData = [];
+  final List<Uint8List> _imageData = [];
   TasteReview _tasteReview = TasteReview.empty();
   CoffeeBean _coffeeBean = CoffeeBean.empty();
   List<CoffeeBeanProcessing> _coffeeBeanProcessingList = [];
@@ -25,7 +25,8 @@ final class TastingWritePresenter extends Presenter {
   String? _writtenByUserExtraction;
   String _contents = '';
   String _hashTag = '';
-  bool _isPrivate = false;
+
+  List<Uint8List> get imageData => List.unmodifiable(_imageData);
 
   List<CoffeeBeanProcessing> get currentProcess => _coffeeBeanProcessingList;
 
@@ -69,13 +70,15 @@ final class TastingWritePresenter extends Presenter {
 
   String get tastedAt => _tasteReview.tastedAt;
 
-  bool get isPrivate => _isPrivate;
-
   String get place => _tasteReview.place;
 
   double get star => _tasteReview.star;
 
-  initState() {}
+  updateImages(List<Uint8List> images) {
+    _imageData.clear();
+    _imageData.addAll(images);
+    notifyListeners();
+  }
 
   secondPageInitState() {
     _tasteReview = TasteReview.empty();
@@ -86,7 +89,6 @@ final class TastingWritePresenter extends Presenter {
     _contents = '';
     _hashTag = '';
     _tasteReview = _tasteReview.copyWith(star: 0, place: '', tastedAt: DateTime.now().toDefaultString());
-    _isPrivate = false;
     notifyListeners();
   }
 
@@ -118,7 +120,7 @@ final class TastingWritePresenter extends Presenter {
     return _tastedRecordRepository
         .create(
           content: _contents,
-          isPrivate: isPrivate,
+          isPrivate: false,
           tag: _hashTag,
           coffeeBean: _coffeeBean,
           tasteReview: _tasteReview,
@@ -129,21 +131,13 @@ final class TastingWritePresenter extends Presenter {
   }
 
   Future<List<int>> _uploadImages() async {
-    final List<Uint8List> compressedImageDataList = [];
-    for (final imageData in imageData) {
-      compressedImageDataList.add(await compressList(imageData));
-    }
+    final compressedImageDataList = await Future.wait(imageData.map((data) => compressList(data)));
     return photoApi.createPhotos(imageDataList: compressedImageDataList).then(
       (jsonString) {
         final jsonList = jsonDecode(jsonString) as List<dynamic>;
         return jsonList.map((json) => json['id'] as int).toList();
       },
     ).onError((error, stackTrace) => []);
-  }
-
-  setImageData(List<Uint8List> imageData) {
-    this.imageData = List.from(imageData);
-    notifyListeners();
   }
 
   onDeleteBeanName() {
@@ -311,11 +305,6 @@ final class TastingWritePresenter extends Presenter {
 
   onChangePlace(String place) {
     _tasteReview = _tasteReview.copyWith(place: place);
-    notifyListeners();
-  }
-
-  onChangePrivate(bool isPrivate) {
-    _isPrivate = isPrivate;
     notifyListeners();
   }
 

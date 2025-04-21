@@ -41,7 +41,6 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
   late final StreamSubscription<bool> _keyboardSubscription;
   late double _height;
   bool _longAnimation = false;
-  bool _scrollStartedAtTop = false;
 
   double get maximumHeight;
 
@@ -50,8 +49,6 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
   double get initialHeight;
 
   bool get hasTextField;
-
-  String get title;
 
   bool get isAtTop => _scrollController.hasClients && _scrollController.offset <= 0;
 
@@ -89,30 +86,13 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  bool onScrollNotification(ScrollNotification notification) {
-    if (notification is ScrollStartNotification) {
-      _scrollStartedAtTop = _scrollController.offset <= 0;
-    }
-    if (notification is ScrollEndNotification) {
-      if (_height < minimumHeight * 0.5) {
-        context.pop();
-      } else {
-        final target =
-            (_height - minimumHeight).abs() < (_height - maximumHeight).abs() ? minimumHeight : maximumHeight;
+  bool onScrollNotification(ScrollNotification notification);
 
-        setState(() {
-          _height = target;
-          _longAnimation = true;
-        });
-      }
-    }
-
-    return false;
-  }
-
-  Widget buildContents(BuildContext context);
+  List<Widget> buildContents(BuildContext context);
 
   Widget buildBottomWidget(BuildContext context);
+
+  Widget buildTitle(context);
 
   @override
   Widget build(BuildContext context) {
@@ -188,37 +168,14 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
                           borderRadius: BorderRadius.all(Radius.circular(21)),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 12),
-                        child: Text(title, style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.black)),
-                      ),
-                      Container(height: 1, color: ColorStyles.gray10),
+                      buildTitle(context),
                       Expanded(
                         child: NotificationListener<ScrollNotification>(
                           onNotification: onScrollNotification,
                           child: CustomScrollView(
                             controller: _scrollController,
-                            physics: HybridBounceClampingScrollPhysics(
-                              parent: const BouncingScrollPhysics(),
-                              shouldHandleBySheet: (metrics, offset) {
-                                final bool isPullingDown = offset > 0;
-                                if (isPullingDown) {
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                }
-                                if (_scrollStartedAtTop && isPullingDown) {
-                                  setState(() {
-                                    _height = (_height - offset);
-                                    _longAnimation = true;
-                                  });
-                                  return true;
-                                } else {
-                                  return false;
-                                }
-                              },
-                            ),
-                            slivers: [
-                              buildContents(context),
-                            ],
+                            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                            slivers: buildContents(context),
                           ),
                         ),
                       ),

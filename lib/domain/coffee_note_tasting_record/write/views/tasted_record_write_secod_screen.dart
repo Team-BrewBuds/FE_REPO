@@ -4,24 +4,25 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/taste_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_last_screen.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class TastingWriteSecondScreen extends StatefulWidget {
-  const TastingWriteSecondScreen({super.key});
+class TastedRecordWriteSecondScreen extends StatefulWidget {
+  const TastedRecordWriteSecondScreen({super.key});
 
   @override
-  State<TastingWriteSecondScreen> createState() => _TastingWriteSecondScreenState();
+  State<TastedRecordWriteSecondScreen> createState() => _TastedRecordWriteSecondScreenState();
 }
 
-class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
-    with TastingWriteMixin<TastingWriteSecondScreen> {
+class _TastedRecordWriteSecondScreenState extends State<TastedRecordWriteSecondScreen>
+    with TastedRecordWriteMixin<TastedRecordWriteSecondScreen> {
   final List<String> _body = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
   final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
@@ -34,7 +35,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<TastingWritePresenter>().secondPageInitState();
+      context.read<TastedRecordWritePresenter>().secondPageInitState();
     });
   }
 
@@ -47,27 +48,27 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
           const SizedBox(height: 32),
           buildTitle(),
           const SizedBox(height: 8),
-          Selector<TastingWritePresenter, List<String>>(
+          Selector<TastedRecordWritePresenter, List<String>>(
             selector: (context, presenter) => presenter.taste,
             builder: (context, tasteList, child) => _buildTaste(tasteList: tasteList),
           ),
           const SizedBox(height: 16),
-          Selector<TastingWritePresenter, int>(
+          Selector<TastedRecordWritePresenter, int>(
             selector: (context, presenter) => presenter.bodyValue,
             builder: (context, value, child) => _buildBodyFeeling(body: value),
           ),
           const SizedBox(height: 16),
-          Selector<TastingWritePresenter, int>(
+          Selector<TastedRecordWritePresenter, int>(
             selector: (context, presenter) => presenter.acidityValue,
             builder: (context, value, child) => _buildAcidity(acidity: value),
           ),
           const SizedBox(height: 16),
-          Selector<TastingWritePresenter, int>(
+          Selector<TastedRecordWritePresenter, int>(
             selector: (context, presenter) => presenter.bitternessValue,
             builder: (context, value, child) => _buildBitterness(bitterness: value),
           ),
           const SizedBox(height: 16),
-          Selector<TastingWritePresenter, int>(
+          Selector<TastedRecordWritePresenter, int>(
             selector: (context, presenter) => presenter.sweetnessValue,
             builder: (context, value, child) => _buildSweet(sweetness: value),
           ),
@@ -86,7 +87,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
             flex: 1,
             child: ThrottleButton(
               onTap: () {
-                Navigator.of(context).pop();
+                context.read<TastedRecordWriteFlowPresenter>().back();
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -101,18 +102,14 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
           const SizedBox(width: 8),
           Expanded(
             flex: 3,
-            child: Selector<TastingWritePresenter, bool>(
+            child: Selector<TastedRecordWritePresenter, bool>(
               selector: (context, presenter) => presenter.isValidSecondPage,
               builder: (context, isValidSecondPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidSecondPage,
                   child: ThrottleButton(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const TastingWriteLastScreen(),
-                        ),
-                      );
+                      context.read<TastedRecordWriteFlowPresenter>().goTo(TastedRecordWriteFlow.writeLastStep());
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -184,7 +181,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                   const SizedBox(width: 8),
                   ThrottleButton(
                     onTap: () {
-                      context.read<TastingWritePresenter>().onChangeTaste([]);
+                      context.read<TastedRecordWritePresenter>().onChangeTaste([]);
                     },
                     child: SvgPicture.asset(
                       'assets/icons/x_round.svg',
@@ -250,7 +247,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                               top: 0,
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.read<TastingWritePresenter>().onChangeBodyValue(value);
+                                  context.read<TastedRecordWritePresenter>().onChangeBodyValue(value);
                                 },
                                 child: Container(
                                   height: 28,
@@ -340,7 +337,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                               top: 0,
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.read<TastingWritePresenter>().onChangeAcidityValue(value);
+                                  context.read<TastedRecordWritePresenter>().onChangeAcidityValue(value);
                                 },
                                 child: Container(
                                   height: 28,
@@ -430,7 +427,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                               top: 0,
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.read<TastingWritePresenter>().onChangeBitternessValue(value);
+                                  context.read<TastedRecordWritePresenter>().onChangeBitternessValue(value);
                                 },
                                 child: Container(
                                   height: 28,
@@ -520,7 +517,7 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
                               top: 0,
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.read<TastingWritePresenter>().onChangeSweetnessValue(value);
+                                  context.read<TastedRecordWritePresenter>().onChangeSweetnessValue(value);
                                 },
                                 child: Container(
                                   height: 28,
@@ -583,6 +580,6 @@ class _TastingWriteSecondScreenState extends State<TastingWriteSecondScreen>
   }
 
   _onChangeTaste(List<String> taste) {
-    context.read<TastingWritePresenter>().onChangeTaste(taste);
+    context.read<TastedRecordWritePresenter>().onChangeTaste(taste);
   }
 }

@@ -111,7 +111,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
                                     color: user.isFollowing ? ColorStyles.gray30 : ColorStyles.red,
                                     borderRadius: const BorderRadius.all(Radius.circular(20))),
                                 child: Text(
-                                  user.isFollowing ? '팔로우 취소' : '맞팔로우',
+                                  user.isFollowing ? '팔로우 취소' : '팔로우',
                                   style: TextStyles.labelSmallMedium
                                       .copyWith(color: user.isFollowing ? ColorStyles.black : ColorStyles.white),
                                   textAlign: TextAlign.center,

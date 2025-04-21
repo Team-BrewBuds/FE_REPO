@@ -1,4 +1,3 @@
-import 'package:brew_buds/core/event_bus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 

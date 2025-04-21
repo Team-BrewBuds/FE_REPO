@@ -1,6 +1,8 @@
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 
 final class TastedRecordUpdatePresenter extends Presenter {
@@ -41,17 +43,19 @@ final class TastedRecordUpdatePresenter extends Presenter {
 
   String get tastedAt => _tastedRecord.tastingReview.tastedAt;
 
-  bool get isPrivate => _tastedRecord.isPrivate;
-
   String get place => _tastedRecord.tastingReview.place;
 
   int get star => _tastedRecord.tastingReview.star.toInt();
 
-  Future<bool> update() {
-    return _tastedRecordRepository
-        .update(id: _tastedRecord.id, tastedRecord: _tastedRecord)
-        .then((value) => true)
-        .onError((error, stackTrace) => false);
+  Future<bool> update() async {
+    try {
+      final result = await _tastedRecordRepository
+          .update(id: _tastedRecord.id, tastedRecord: _tastedRecord);
+      EventBus.instance.fire(TastedRecordUpdateEvent(senderId: presenterId, tastedRecord: result));
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   onChangeTaste(List<String> taste) {

@@ -16,9 +16,13 @@ class PermissionRepository {
 
   Future<void> initPermission() async {
     camera = await Permission.camera.request();
-    photos = await Permission.photos.request();
     location = await Permission.location.request();
+    photos = await Permission.photos.request();
     notification = await Permission.notification.request();
+  }
+
+  Future<void> requestPhotos() async {
+    photos = await Permission.photos.request();
   }
 
   Future<void> requestNotification() async {

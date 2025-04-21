@@ -21,7 +21,7 @@ typedef FilterBarState = ({
 });
 
 class ProfilePresenter extends Presenter {
-  final ProfileRepository repository;
+  final ProfileRepository repository = ProfileRepository.instance;
   Profile? profile;
   DefaultPage<TastedRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
   DefaultPage<PostInProfile> _postsPage = DefaultPage.initState();
@@ -91,8 +91,6 @@ class ProfilePresenter extends Presenter {
   }
 
   bool get hasNext => currentPage?.hasNext ?? false;
-
-  ProfilePresenter({required this.repository});
 
   initState() async {
     _isLoading = true;

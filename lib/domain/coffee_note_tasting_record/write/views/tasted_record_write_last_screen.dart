@@ -4,27 +4,28 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/date_picker_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_view.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 
-class TastingWriteLastScreen extends StatefulWidget {
-  const TastingWriteLastScreen({super.key});
+class TastedRecordWriteLastScreen extends StatefulWidget {
+  const TastedRecordWriteLastScreen({super.key});
 
   @override
-  State<TastingWriteLastScreen> createState() => _TastingWriteLastScreenState();
+  State<TastedRecordWriteLastScreen> createState() => _TastedRecordWriteLastScreenState();
 }
 
-class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
-    with TastingWriteMixin<TastingWriteLastScreen>, SnackBarMixin<TastingWriteLastScreen> {
+class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScreen>
+    with TastedRecordWriteMixin<TastedRecordWriteLastScreen>, SnackBarMixin<TastedRecordWriteLastScreen> {
   final TextEditingController _contentsController = TextEditingController();
   final TextEditingController _hashTagController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -40,7 +41,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     });
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<TastingWritePresenter>().lastPageInitState();
+      context.read<TastedRecordWritePresenter>().lastPageInitState();
     });
   }
 
@@ -79,7 +80,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
           const SizedBox(height: 32),
           buildTitle(),
           const SizedBox(height: 8),
-          Selector<TastingWritePresenter, double>(
+          Selector<TastedRecordWritePresenter, double>(
             selector: (context, presenter) => presenter.star,
             builder: (context, star, child) => _buildRating(star: star),
           ),
@@ -96,7 +97,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray40))),
-                  child: Selector<TastingWritePresenter, DateTime>(
+                  child: Selector<TastedRecordWritePresenter, DateTime>(
                     selector: (context, presenter) => DateTime.parse(presenter.tastedAt),
                     builder: (context, tastedAt, child) => _buildDate(tastedAt: tastedAt),
                   ),
@@ -104,16 +105,9 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray40))),
-                  child: Selector<TastingWritePresenter, String>(
+                  child: Selector<TastedRecordWritePresenter, String>(
                     selector: (context, presenter) => presenter.place,
                     builder: (context, place, child) => _buildPlace(place: place),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Selector<TastingWritePresenter, bool>(
-                    selector: (context, presenter) => presenter.isPrivate,
-                    builder: (context, isPrivate, child) => _buildPrivate(isPrivate: isPrivate),
                   ),
                 ),
               ],
@@ -134,7 +128,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
             flex: 1,
             child: ThrottleButton(
               onTap: () {
-                Navigator.of(context).pop();
+                context.read<TastedRecordWriteFlowPresenter>().back();
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -149,16 +143,17 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
           const SizedBox(width: 8),
           Expanded(
             flex: 3,
-            child: Selector<TastingWritePresenter, bool>(
+            child: Selector<TastedRecordWritePresenter, bool>(
               selector: (context, presenter) => presenter.isValidLastPage,
               builder: (context, isValidLastPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidLastPage,
                   child: ThrottleButton(
                     onTap: () async {
-                      final result = await context.read<TastingWritePresenter>().write();
+                      final result = await context.read<TastedRecordWritePresenter>().write();
                       switch (result) {
                         case Success<String>():
+                          NotificationCenter().notify<String>('show_message', data: '시음기록 작성을 완료했어요.');
                           _onSuccessWrite();
                           break;
                         case Error<String>():
@@ -211,36 +206,38 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                   child: Stack(
                     children: [
                       if (currentRating <= star)
-                      Positioned.fill(
-                        child: SvgPicture.asset(
-                          'assets/icons/star_fill.svg',
-                          colorFilter: const ColorFilter.mode(
-                            ColorStyles.red,
-                            BlendMode.srcIn,
+                        Positioned.fill(
+                          child: SvgPicture.asset(
+                            'assets/icons/star_fill.svg',
+                            colorFilter: const ColorFilter.mode(
+                              ColorStyles.red,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        )
+                      else if (index < star)
+                        Positioned.fill(
+                          child: SvgPicture.asset(
+                            'assets/icons/star_half.svg',
+                          ),
+                        )
+                      else
+                        Positioned.fill(
+                          child: SvgPicture.asset(
+                            'assets/icons/star_fill.svg',
+                            colorFilter: const ColorFilter.mode(
+                              ColorStyles.gray40,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
-                      )
-                        else if (index < star) Positioned.fill(
-                        child: SvgPicture.asset(
-                          'assets/icons/star_half.svg',
-                        ),
-                      )
-                      else Positioned.fill(
-                        child: SvgPicture.asset(
-                          'assets/icons/star_fill.svg',
-                          colorFilter: const ColorFilter.mode(
-                            ColorStyles.gray40,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
                       Positioned.fill(
                         child: Row(
                           children: [
                             Expanded(
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.read<TastingWritePresenter>().onChangeStar(index + 0.5);
+                                  context.read<TastedRecordWritePresenter>().onChangeStar(index + 0.5);
                                 },
                                 child: Container(color: Colors.transparent),
                               ),
@@ -248,7 +245,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                             Expanded(
                               child: ThrottleButton(
                                 onTap: () {
-                                  context.read<TastingWritePresenter>().onChangeStar(index + 1);
+                                  context.read<TastedRecordWritePresenter>().onChangeStar(index + 1);
                                 },
                                 child: Container(color: Colors.transparent),
                               ),
@@ -257,17 +254,6 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
                         ),
                       ),
                     ],
-                  ),
-                );
-                return ThrottleButton(
-                  onTap: () {
-                    context.read<TastingWritePresenter>().onChangeStar(index + 1);
-                  },
-                  child: SvgPicture.asset(
-                    'assets/icons/star_fill.svg',
-                    height: 36,
-                    width: 36,
-                    colorFilter: ColorFilter.mode(index < star ? ColorStyles.red : ColorStyles.gray50, BlendMode.srcIn),
                   ),
                 );
               },
@@ -313,7 +299,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
             cursorHeight: 16,
             cursorWidth: 1,
             onChanged: (newContent) {
-              context.read<TastingWritePresenter>().onChangeContents(newContent);
+              context.read<TastedRecordWritePresenter>().onChangeContents(newContent);
             },
           ),
         ),
@@ -355,7 +341,7 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
           cursorHeight: 16,
           cursorWidth: 1,
           onChanged: (newHashTag) {
-            context.read<TastingWritePresenter>().onChangeHashTag(newHashTag);
+            context.read<TastedRecordWritePresenter>().onChangeHashTag(newHashTag);
           },
         ),
       ],
@@ -434,26 +420,6 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
     );
   }
 
-  Widget _buildPrivate({required bool isPrivate}) {
-    return Row(
-      children: [
-        Text('나만 보기', style: TextStyles.title01SemiBold),
-        const Spacer(),
-        SizedBox(
-          width: 50,
-          height: 30,
-          child: CupertinoSwitch(
-            value: isPrivate,
-            activeTrackColor: ColorStyles.red,
-            onChanged: (value) {
-              context.read<TastingWritePresenter>().onChangePrivate(value);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   showDatePicker({required DateTime dateTime}) async {
     final result = await showBarrierDialog<DateTime>(
       context: context,
@@ -481,15 +447,15 @@ class _TastingWriteLastScreenState extends State<TastingWriteLastScreen>
   }
 
   _onChangePlace(String place) {
-    context.read<TastingWritePresenter>().onChangePlace(place);
+    context.read<TastedRecordWritePresenter>().onChangePlace(place);
   }
 
   _onChangeTastedTime(DateTime dateTime) {
-    context.read<TastingWritePresenter>().onChangeTastedAt(dateTime);
+    context.read<TastedRecordWritePresenter>().onChangeTastedAt(dateTime);
   }
 
   _onSuccessWrite() {
-    context.pop(true);
+    context.pop();
   }
 }
 

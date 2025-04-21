@@ -7,7 +7,6 @@ import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/domain/photo/check_selected_images_screen.dart';
-import 'package:brew_buds/domain/photo/view/photo_grid_view_with_preview.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/coffee_life_bottom_sheet.dart';
@@ -587,38 +586,18 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   }
 
   _showAlbumModal() async {
-    final result = await showCupertinoModalPopup<Uint8List>(
-      barrierColor: ColorStyles.white,
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        return GridPhotoViewWithPreview.build(
-          permissionStatus: PermissionRepository.instance.photos,
-          previewShape: BoxShape.circle,
-          canMultiSelect: false,
-          onDone: (context, images) async {
-            final result = await Navigator.of(context).push<Uint8List>(
-              MaterialPageRoute(
-                builder: (context) => CheckSelectedImagesScreen(
-                  image: images,
-                  onNext: (context, imageDataList) {
-                    context.pop(imageDataList.firstOrNull);
-                  },
-                  shape: BoxShape.circle,
-                ),
-              ),
-            );
-            if (result != null && context.mounted) {
-              context.pop(result);
-            }
-          },
-        );
-      },
-    );
-
-    if (result != null) {
-      _onChangeImageData(result);
-    }
+    // final result = await showCupertinoModalPopup<Uint8List>(
+    //   barrierColor: ColorStyles.white,
+    //   barrierDismissible: false,
+    //   context: context,
+    //   builder: (context) {
+    //
+    //   },
+    // );
+    //
+    // if (result != null) {
+    //   _onChangeImageData(result);
+    // }
   }
 
   _onChangeImageData(Uint8List imageData) {

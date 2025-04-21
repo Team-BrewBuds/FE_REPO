@@ -4,9 +4,9 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_builder.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_screen.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
@@ -224,11 +224,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
               flex: 3,
               child: ThrottleButton(
                 onTap: () {
-                  showTastingWriteScreen(context).then((value) {
-                    if (value != null && value) {
-                      showSnackBar(message: '시음기록 작성을 완료했어요.');
-                    }
-                  });
+                  ScreenNavigator.showTastedRecordWriteScreen(context);
                 },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -309,7 +305,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             scrollDirection: Axis.horizontal,
             child: Row(
               spacing: 4,
-              children: flavors
+              children: flavors.sublist(0, min(flavors.length, 4))
                   .map(
                     (flavor) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),

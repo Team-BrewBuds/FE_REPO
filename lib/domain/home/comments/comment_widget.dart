@@ -2,7 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
 import 'package:brew_buds/domain/home/comments/re_comment_presenter.dart';
 import 'package:brew_buds/domain/home/comments/re_comment_widget.dart';
@@ -173,7 +173,7 @@ class CommentWidget extends StatelessWidget {
             children: [
               ThrottleButton(
                 onTap: () {
-                  pushToProfile(context: context, id: context.read<CommentPresenter>().authorId);
+                  ScreenNavigator.pushToProfile(context: context, id: context.read<CommentPresenter>().authorId);
                 },
                 child: Builder(builder: (context) {
                   final imageUrl = context.select<CommentPresenter, String>((presenter) => presenter.profileImageUrl);

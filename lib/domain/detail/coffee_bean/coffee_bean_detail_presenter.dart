@@ -129,7 +129,7 @@ final class CoffeeBeanDetailPresenter extends Presenter {
     } else if (roastingPoint == 2) {
       return '라이트 미디엄';
     } else if (roastingPoint == 3) {
-      return '미디';
+      return '미디엄';
     } else if (roastingPoint == 4) {
       return '미디엄 다크';
     } else if (roastingPoint == 5) {

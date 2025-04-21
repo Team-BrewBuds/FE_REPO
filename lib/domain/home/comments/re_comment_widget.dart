@@ -2,8 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/home/comments/re_comment_presenter.dart';
 import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:flutter/material.dart';
@@ -105,7 +104,7 @@ class ReCommentWidget extends StatelessWidget {
               ThrottleButton(
                 onTap: () {
                   final id = context.read<ReCommentPresenter>().authorId;
-                  pushToProfile(context: context, id: id);
+                  ScreenNavigator.pushToProfile(context: context, id: id);
                 },
                 child: Builder(builder: (context) {
                   final imageUrl = context.select<ReCommentPresenter, String>((presenter) => presenter.profileImageUrl);

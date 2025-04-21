@@ -4,9 +4,11 @@ import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/camera/camera_first_time_view.dart';
 import 'package:brew_buds/domain/camera/widget/custom_camera_button.dart';
+import 'package:brew_buds/domain/photo/core/circle_crop_overlay_painter.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:defer_pointer/defer_pointer.dart';
@@ -14,7 +16,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -56,79 +57,78 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: isFirstNotifier,
-        builder: (context, isFirst, _) {
-          return isFirst
-              ? CameraFirstTimeView(
-                  onNext: () async {
-                    await SharedPreferencesRepository.instance.useCamera();
-                    isFirstNotifier.value = false;
-                  },
-                )
-              : Scaffold(
-                  backgroundColor: Colors.black,
-                  body: ValueListenableBuilder(
-                    valueListenable: imageData,
-                    builder: (context, imageData, _) {
-                      final data = imageData;
-                      return DeferredPointerHandler(
-                        link: _deferredPointerLink,
-                        child: data != null
-                            ? _buildPreviewView(data: data)
-                            : Column(
-                                children: [
-                                  Expanded(child: _buildCameraPreview()),
-                                  FutureBuilder(
-                                      future: fetchAlbumThumbnail(),
-                                      builder: (context, snapShot) {
-                                        final thumbnail = snapShot.data;
-                                        return Container(
-                                          height: 145,
-                                          width: double.infinity,
-                                          color: Colors.transparent,
-                                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                                          child: Center(
-                                            child: Row(
-                                              children: [
-                                                ThrottleButton(
-                                                  onTap: () {
-                                                    widget.onTapAlbum.call(context);
-                                                  },
-                                                  child: thumbnail != null
-                                                      ? Container(
-                                                          width: 36,
-                                                          height: 36,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(8),
-                                                          ),
-                                                          clipBehavior: Clip.hardEdge,
-                                                          child: AssetEntityImage(
-                                                            thumbnail,
-                                                            isOriginal: false,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        )
-                                                      : SvgPicture.asset(
-                                                          'assets/icons/image.svg',
-                                                          height: 36,
-                                                          width: 36,
-                                                          colorFilter: const ColorFilter.mode(
-                                                              ColorStyles.white, BlendMode.srcIn),
-                                                        ),
+      valueListenable: isFirstNotifier,
+      builder: (context, isFirst, _) {
+        final thumbnail = PhotoRepository.instance.albumList.firstOrNull?.images.firstOrNull;
+        return isFirst
+            ? CameraFirstTimeView(
+                onNext: () async {
+                  await SharedPreferencesRepository.instance.useCamera();
+                  isFirstNotifier.value = false;
+                },
+              )
+            : Scaffold(
+                backgroundColor: Colors.black,
+                body: ValueListenableBuilder(
+                  valueListenable: imageData,
+                  builder: (context, imageData, _) {
+                    final data = imageData;
+                    return DeferredPointerHandler(
+                      link: _deferredPointerLink,
+                      child: data != null
+                          ? _buildPreviewView(data: data)
+                          : Column(
+                              children: [
+                                Expanded(child: _buildCameraPreview()),
+                                Container(
+                                  height: 145,
+                                  width: double.infinity,
+                                  color: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                                  child: Center(
+                                    child: Row(
+                                      children: [
+                                        ThrottleButton(
+                                          onTap: () {
+                                            widget.onTapAlbum.call(context);
+                                          },
+                                          child: thumbnail != null
+                                              ? Container(
+                                                  width: 36,
+                                                  height: 36,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  clipBehavior: Clip.hardEdge,
+                                                  child: AssetEntityImage(
+                                                    thumbnail,
+                                                    isOriginal: false,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                )
+                                              : SvgPicture.asset(
+                                                  'assets/icons/image.svg',
+                                                  height: 36,
+                                                  width: 36,
+                                                  colorFilter: const ColorFilter.mode(
+                                                    ColorStyles.white,
+                                                    BlendMode.srcIn,
+                                                  ),
                                                 ),
-                                                const Spacer(),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      })
-                                ],
-                              ),
-                      );
-                    },
-                  ),
-                );
-        });
+                                        ),
+                                        const Spacer(),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                    );
+                  },
+                ),
+              );
+      },
+    );
   }
 
   Widget _buildCameraPreview() {
@@ -319,7 +319,7 @@ class _CameraScreenState extends State<CameraScreen> {
               : Stack(
                   children: [
                     Positioned.fill(child: ExtendedImage.memory(data, fit: BoxFit.cover)),
-                    Positioned.fill(child: CustomPaint(painter: _CircleCropOverlayPainter())),
+                    Positioned.fill(child: CustomPaint(painter: CircleCropOverlayPainter())),
                   ],
                 ),
         ),
@@ -375,35 +375,4 @@ class _CameraScreenState extends State<CameraScreen> {
       ],
     );
   }
-
-  Future<AssetEntity?> fetchAlbumThumbnail() async {
-    final List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(type: RequestType.image);
-    for (final album in albums) {
-      if (album.isAll) {
-        final images = await album.getAssetListPaged(page: 0, size: 1);
-        return images.firstOrNull;
-      }
-    }
-    return null;
-  }
-}
-
-class _CircleCropOverlayPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = ColorStyles.black70;
-    final path = Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-
-    // 원형 크롭 영역 만들기
-    path.addOval(Rect.fromCircle(
-      center: Offset(size.width / 2, size.height / 2),
-      radius: size.width * 0.49, // 원 크기 조절
-    ));
-
-    path.fillType = PathFillType.evenOdd; // 내부 원을 투명하게 만듦
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

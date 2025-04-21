@@ -1,4 +1,4 @@
-import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:animations/animations.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
 import 'package:brew_buds/domain/home/home_screen.dart';
@@ -35,6 +35,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:uuid/v4.dart';
 
 GoRouter createRouter(bool hasToken) {
   return GoRouter(
@@ -114,21 +115,44 @@ GoRouter createRouter(bool hasToken) {
         ],
       ),
       ShellRoute(
-        builder: (context, state, child) => ShowCaseWidget(
-          onComplete: (_, __) {
-            SharedPreferencesRepository.instance.completeTutorial();
-          },
-          builder: (context) => MainView(child: child),
-        ),
+        pageBuilder: (context, state, child) {
+          final hideBottomBar = (state.fullPath?.split('/').length ?? 0) > 2;
+          return CustomTransitionPage(
+            child: ShowCaseWidget(
+              onComplete: (_, __) {
+                SharedPreferencesRepository.instance.completeTutorial();
+              },
+              builder: (context) => MainView(isHideBottomBar: hideBottomBar, child: child),
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeThroughTransition(
+                animation: animation,
+                secondaryAnimation: secondaryAnimation,
+                child: child,
+              );
+            },
+            name: const UuidV4().generate(),
+          );
+        },
         routes: [
           GoRoute(
             path: '/home',
-            builder: (context, state) => ChangeNotifierProvider<HomePresenter>(
-              create: (_) {
-                final isGuest = (state.uri.queryParameters['is_guest'] ?? 'false') == 'false' ? false : true;
-                return HomePresenter(isGuest: isGuest);
+            pageBuilder: (context, state) => CustomTransitionPage(
+              child: ChangeNotifierProvider<HomePresenter>(
+                create: (_) {
+                  final isGuest = (state.uri.queryParameters['is_guest'] ?? 'false') == 'false' ? false : true;
+                  return HomePresenter(isGuest: isGuest);
+                },
+                child: const HomeView(),
+              ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeThroughTransition(
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  child: child,
+                );
               },
-              child: const HomeView(),
+              name: const UuidV4().generate(),
             ),
             routes: [
               GoRoute(
@@ -142,38 +166,36 @@ GoRouter createRouter(bool hasToken) {
           ),
           GoRoute(
             path: '/search',
-            builder: (context, state) => ChangeNotifierProvider<SearchPresenter>(
-              create: (_) => SearchPresenter(),
-              child: const SearchScreen(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              child: ChangeNotifierProvider<SearchPresenter>(
+                create: (_) => SearchPresenter(),
+                child: const SearchScreen(),
+              ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeThroughTransition(
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  child: child,
+                );
+              },
             ),
+            name: const UuidV4().generate(),
           ),
-          // GoRoute(
-          //   path: '/search',
-          //   builder: (context, state) => ChangeNotifierProvider<SearchHomePresenter>(
-          //     create: (_) => SearchHomePresenter(currentTabIndex: 0, searchWord: ''),
-          //     child: const SearchHomeView(),
-          //   ),
-          //   routes: [
-          //     GoRoute(
-          //       path: 'result',
-          //       builder: (context, state) {
-          //         final data = state.extra as SearchResultInitState?;
-          //         return ChangeNotifierProvider<SearchResultPresenter>(
-          //           create: (_) => SearchResultPresenter(
-          //             currentTabIndex: data?.tabIndex ?? 0,
-          //             searchWord: data?.searchWord ?? '',
-          //           ),
-          //           child: SearchResultView(currentTabIndex: data?.tabIndex ?? 0, initialText: data?.searchWord ?? ''),
-          //         );
-          //       },
-          //     ),
-          //   ],
-          // ),
           GoRoute(
             path: '/profile',
-            builder: (context, state) => ChangeNotifierProvider<ProfilePresenter>(
-              create: (_) => ProfilePresenter(repository: ProfileRepository.instance),
-              child: const MyProfileView(),
+            pageBuilder: (context, state) => CustomTransitionPage(
+              child: ChangeNotifierProvider<ProfilePresenter>(
+                create: (_) => ProfilePresenter(),
+                child: const MyProfileView(),
+              ),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                return FadeThroughTransition(
+                  animation: animation,
+                  secondaryAnimation: secondaryAnimation,
+                  child: child,
+                );
+              },
+              name: const UuidV4().generate(),
             ),
             routes: [
               GoRoute(

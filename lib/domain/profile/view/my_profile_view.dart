@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/domain/profile/view/profile_mixin.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
@@ -81,7 +81,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
               onTap: () {
                 final id = context.read<ProfilePresenter>().id;
                 final nickname = context.read<ProfilePresenter>().nickName;
-                pushToTasteReport(context: context, id: id, nickname: nickname);
+                ScreenNavigator.pushToTasteReport(context: context, id: id, nickname: nickname);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -146,7 +146,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
   pushFollowList(int index) {
     final profile = context.read<ProfilePresenter>().profile;
     if (profile != null) {
-      pushToFollowListPA(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
+      ScreenNavigator.pushToFollowListPA(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
     }
   }
 

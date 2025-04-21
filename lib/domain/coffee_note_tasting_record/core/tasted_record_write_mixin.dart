@@ -4,14 +4,14 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
+mixin TastedRecordWriteMixin<T extends StatefulWidget> on State<T> {
   int get currentStep;
 
   int get minStep => 1;
@@ -80,11 +80,14 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
               left: 0,
               child: ThrottleButton(
                 onTap: () {
-                  showCancelDialog().then((value) {
-                    if (value != null && value) {
-                      context.pop(false);
-                    }
-                  });
+                  final context = this.context;
+                  showCancelDialog().then(
+                    (value) {
+                      if (value != null && value && context.mounted) {
+                        context.pop();
+                      }
+                    },
+                  );
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',
@@ -119,7 +122,7 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
       children: [
         Expanded(child: Text(title, style: TextStyles.title04SemiBold)),
         const SizedBox(width: 40),
-        Selector<TastingWritePresenter, List<Uint8List>>(
+        Selector<TastedRecordWritePresenter, List<Uint8List>>(
           selector: (context, presenter) => presenter.imageData,
           builder: (context, imageData, child) {
             final thumbnail = imageData.firstOrNull;
@@ -233,6 +236,29 @@ mixin TastingWriteMixin<T extends StatefulWidget> on State<T> {
           ],
         );
       },
+    );
+  }
+
+  showSnackBar({required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black90,
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
     );
   }
 }

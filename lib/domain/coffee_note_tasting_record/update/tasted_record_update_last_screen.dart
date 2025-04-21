@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 
 class TastedRecordUpdateLastScreen extends StatefulWidget {
@@ -114,13 +115,6 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
                     builder: (context, place, child) => _buildPlace(place: place),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Selector<TastedRecordUpdatePresenter, bool>(
-                    selector: (context, presenter) => presenter.isPrivate,
-                    builder: (context, isPrivate, child) => _buildPrivate(isPrivate: isPrivate),
-                  ),
-                ),
               ],
             ),
           ),
@@ -163,9 +157,10 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
                     onTap: () {
                       context.read<TastedRecordUpdatePresenter>().update().then((value) {
                         if (value) {
+                          NotificationCenter().notify<String>('show_message', data: '시음기록 수정을 완료했어요.');
                           _onSuccessWrite();
                         } else {
-                          showSnackBar(message: '시음기록 수정에 실패했습니다.');
+                          showSnackBar(message: '시음기록 수정을 실패했어요.');
                         }
                       });
                     },
@@ -379,27 +374,6 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
       ],
     );
   }
-
-  Widget _buildPrivate({required bool isPrivate}) {
-    return Row(
-      children: [
-        Text('나만 보기', style: TextStyles.title01SemiBold),
-        const Spacer(),
-        SizedBox(
-          width: 50,
-          height: 30,
-          child: CupertinoSwitch(
-            value: isPrivate,
-            activeTrackColor: ColorStyles.red,
-            onChanged: (value) {
-              context.read<TastedRecordUpdatePresenter>().onChangePrivate(value);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   showDatePicker({required DateTime dateTime}) async {
     final result = await showBarrierDialog<DateTime>(
       context: context,
@@ -435,7 +409,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
   }
 
   _onSuccessWrite() {
-    context.pop(true);
+    context.pop();
   }
 }
 

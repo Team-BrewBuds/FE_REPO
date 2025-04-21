@@ -2,7 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/feed/feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
@@ -82,6 +82,6 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
   @override
   onTappedProfile(BuildContext context) {
     final author = context.read<TastedRecordFeedPresenter>().feed.data.author;
-    pushToProfile(context: context, id: author.id);
+    ScreenNavigator.pushToProfile(context: context, id: author.id);
   }
 }

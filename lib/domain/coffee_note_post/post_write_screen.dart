@@ -5,10 +5,9 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/domain/coffee_note_post/post_photo_navigator.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_view.dart';
-import 'package:brew_buds/domain/photo/view/photo_grid_view.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
@@ -18,21 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
-
-Future<bool?> showPostWriteScreen({required BuildContext context}) {
-  return showCupertinoModalPopup<bool>(
-    barrierColor: ColorStyles.white,
-    barrierDismissible: false,
-    context: context,
-    builder: (context) {
-      return ChangeNotifierProvider(
-        create: (context) => PostWritePresenter(),
-        child: const PostWriteScreen(),
-      );
-    },
-  );
-}
 
 typedef SelectedItemsState = ({List<Photo> photos, List<TastedRecordInProfile> tastedRecords});
 
@@ -96,10 +82,11 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: SafeArea(
-        child: Scaffold(
-          appBar: _buildAppBar(),
-          body: SingleChildScrollView(
+      child: Scaffold(
+        appBar: _buildAppBar(),
+        body: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -141,6 +128,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                                   fit: BoxFit.cover,
                                   border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
                                   borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                  printError: false,
                                 ),
                               PhotoWithData() => ExtendedImage.memory(
                                   photo.data,
@@ -183,18 +171,18 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
               ],
             ),
           ),
-          bottomNavigationBar: SafeArea(
-            child: Padding(
-              padding: MediaQuery.of(context).viewInsets,
-              child: Selector<PostWritePresenter, BottomButtonState>(
-                selector: (context, presenter) => presenter.bottomsButtonState,
-                builder: (context, bottomsButtonState, _) {
-                  return _buildBottomButtons(
-                    hasImages: bottomsButtonState.hasImages,
-                    tastedRecords: bottomsButtonState.tastedRecords,
-                  );
-                },
-              ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: MediaQuery.of(context).viewInsets,
+            child: Selector<PostWritePresenter, BottomButtonState>(
+              selector: (context, presenter) => presenter.bottomsButtonState,
+              builder: (context, bottomsButtonState, _) {
+                return _buildBottomButtons(
+                  hasImages: bottomsButtonState.hasImages,
+                  tastedRecords: bottomsButtonState.tastedRecords,
+                );
+              },
             ),
           ),
         ),
@@ -208,6 +196,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       leadingWidth: 0,
       titleSpacing: 0,
       toolbarHeight: 50,
+      backgroundColor: ColorStyles.white,
       title: Container(
         height: 49,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -228,6 +217,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
               left: 0,
               child: ThrottleButton(
                 onTap: () {
+                  final context = this.context;
                   showCenterDialog(
                     title: '게시글 작성을 그만두시겠습니까?',
                     centerTitle: true,
@@ -236,7 +226,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                     cancelText: '그만두기',
                     doneText: '계속쓰기',
                   ).then((value) {
-                    if (value != null && !value) {
+                    if (value != null && !value && context.mounted) {
                       context.pop();
                     }
                   });
@@ -260,7 +250,8 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                           if (context.mounted) {
                             switch (result) {
                               case Success<String>():
-                                context.pop(true);
+                                NotificationCenter().notify<String>('show_message', data: '게시글 작성을 완료했어요.');
+                                context.pop();
                               case Error<String>():
                                 _showErrorSnackBar(errorMessage: result.e);
                             }
@@ -519,15 +510,12 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
   }
 
   _fetchImagesAtAlbum() async {
-    Navigator.of(context).push<Uint8List>(
-      MaterialPageRoute(
-        builder: (context) => PhotoGridView.build(
-          permissionStatus: PermissionRepository.instance.photos,
-          onDone: (context, selectedImages) {
-            _addImages(selectedImages);
-            Navigator.of(context).pop();
-          },
-        ),
+    Navigator.of(context).push(
+      PostPhotoNavigator.buildRoute(
+        onDone: (context, images) {
+          _addImages(images);
+          context.pop();
+        },
       ),
     );
   }

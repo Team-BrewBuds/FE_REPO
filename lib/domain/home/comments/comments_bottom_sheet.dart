@@ -1,8 +1,7 @@
-import 'dart:async';
-
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -42,9 +41,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
   double get initialHeight => widget.initialHeight;
 
   @override
-  String get title => '댓글';
-
-  @override
   void initState() {
     _textEditingController = TextEditingController();
     _textEditingFocusNode = FocusNode();
@@ -79,7 +75,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
     if (notification.metrics.pixels > notification.metrics.maxScrollExtent * 0.7) {
       paginationThrottle.setValue(null);
     }
-    return super.onScrollNotification(notification);
+    return false;
   }
 
   @override
@@ -94,63 +90,66 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
   }
 
   @override
-  buildContents(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        final isLoading = context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading);
-        return isLoading
-            ? SliverFillRemaining(
-                child: Container(
-                  color: ColorStyles.gray20,
-                  child: const Center(
-                    child: CupertinoActivityIndicator(
-                      color: ColorStyles.gray70,
+  List<Widget> buildContents(BuildContext context) {
+    return [
+      MyRefreshControl(onRefresh: () => context.read<CommentsPresenter>().onRefresh()),
+      Builder(
+        builder: (context) {
+          final isLoading = context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading);
+          return isLoading
+              ? SliverFillRemaining(
+                  child: Container(
+                    color: ColorStyles.gray20,
+                    child: const Center(
+                      child: CupertinoActivityIndicator(
+                        color: ColorStyles.gray70,
+                      ),
                     ),
                   ),
-                ),
-              )
-            : Selector<CommentsPresenter, List<CommentPresenter>>(
-                selector: (context, presenter) => presenter.commentPresenters,
-                builder: (context, commentPresenters, child) {
-                  return commentPresenters.isNotEmpty
-                      ? SliverList.builder(
-                          itemCount: commentPresenters.length,
-                          itemBuilder: (context, index) {
-                            final presenter = commentPresenters[index];
-                            return ChangeNotifierProvider.value(
-                              value: presenter,
-                              child: CommentWidget(
-                                onTapReply: () {
-                                  _textEditingFocusNode.requestFocus();
-                                  context.read<CommentsPresenter>().onTappedReplyAt(index);
-                                },
+                )
+              : Selector<CommentsPresenter, List<CommentPresenter>>(
+                  selector: (context, presenter) => presenter.commentPresenters,
+                  builder: (context, commentPresenters, child) {
+                    return commentPresenters.isNotEmpty
+                        ? SliverList.builder(
+                            itemCount: commentPresenters.length,
+                            itemBuilder: (context, index) {
+                              final presenter = commentPresenters[index];
+                              return ChangeNotifierProvider.value(
+                                value: presenter,
+                                child: CommentWidget(
+                                  onTapReply: () {
+                                    _textEditingFocusNode.requestFocus();
+                                    context.read<CommentsPresenter>().onTappedReplyAt(index);
+                                  },
+                                ),
+                              );
+                            },
+                          )
+                        : SliverFillRemaining(
+                            child: Center(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                spacing: 8,
+                                children: [
+                                  Text(
+                                    '아직 댓글이 없어요',
+                                    style: TextStyles.title02SemiBold,
+                                  ),
+                                  Text(
+                                    '댓글을 남겨보세요.',
+                                    style: TextStyles.captionSmallMedium,
+                                  ),
+                                ],
                               ),
-                            );
-                          },
-                        )
-                      : SliverFillRemaining(
-                          child: Center(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              spacing: 8,
-                              children: [
-                                Text(
-                                  '아직 댓글이 없어요',
-                                  style: TextStyles.title02SemiBold,
-                                ),
-                                Text(
-                                  '댓글을 남겨보세요.',
-                                  style: TextStyles.captionSmallMedium,
-                                ),
-                              ],
                             ),
-                          ),
-                        );
-                },
-              );
-      },
-    );
+                          );
+                  },
+                );
+        },
+      ),
+    ];
   }
 
   Widget _buildBottomTextField({String? reCommentAuthorNickname, required String authorNickname}) {
@@ -222,7 +221,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
                     child: FutureButton(
-                      onTap: () => context.read<CommentsPresenter>().createNewComment(content: _textEditingController.text),
+                      onTap: () =>
+                          context.read<CommentsPresenter>().createNewComment(content: _textEditingController.text),
                       onError: () {
                         onFailure();
                       },
@@ -263,4 +263,18 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
 
   @override
   double get minimumHeight => widget.initialHeight;
+
+  @override
+  Widget buildTitle(context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.only(top: 8, bottom: 12),
+      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+      child: Text(
+        '댓글',
+        style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.black),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
 }

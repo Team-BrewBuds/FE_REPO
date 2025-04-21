@@ -13,9 +13,9 @@ import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
@@ -203,7 +203,7 @@ class _PostDetailViewState extends State<PostDetailView>
                       case PostDetailAction.update:
                         final post = context.read<PostDetailPresenter>().post;
                         if (post != null) {
-                          showPostUpdateScreen(context: context, post: post).then((value) {
+                          ScreenNavigator.showPostUpdateScreen(context: context, post: post).then((value) {
                             if (value != null && value && context.mounted) {
                               context.read<PostDetailPresenter>().onRefresh();
                               showSnackBar(message: '게시글 수정을 완료했어요.');
@@ -293,7 +293,7 @@ class _PostDetailViewState extends State<PostDetailView>
     return ThrottleButton(
       onTap: () {
         if (authorId != null) {
-          pushToProfile(context: context, id: authorId);
+          ScreenNavigator.pushToProfile(context: context, id: authorId);
         }
       },
       child: Container(
@@ -522,7 +522,7 @@ class _PostDetailViewState extends State<PostDetailView>
                       likeCount: '${comment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                       canReply: true,
                       onTappedProfile: () {
-                        pushToProfile(context: context, id: comment.author.id);
+                        ScreenNavigator.pushToProfile(context: context, id: comment.author.id);
                       },
                       onTappedReply: () {
                         context.read<PostDetailPresenter>().onTappedReply(comment);
@@ -565,7 +565,7 @@ class _PostDetailViewState extends State<PostDetailView>
                             likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                             onTappedProfile: () {
                               context.pop();
-                              pushToProfile(context: context, id: reComment.author.id);
+                              ScreenNavigator.pushToProfile(context: context, id: reComment.author.id);
                             },
                             onTappedLikeButton: () {
                               context

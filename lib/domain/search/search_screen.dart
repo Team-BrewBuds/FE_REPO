@@ -2,7 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
@@ -519,10 +519,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   Widget _buildUserResultItem(BuddySearchResultModel model) {
     return ThrottleButton(
       onTap: () {
-        pushToProfile(context: context, id: model.id).then((result) {
-          if (result != null) {
-            showSnackBar(message: result);
-          }
+        ScreenNavigator.pushToProfile(context: context, id: model.id).then((result) {
         });
       },
       child: BuddyResultsItem(

@@ -3,7 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/feed/feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
@@ -186,6 +186,6 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
   @override
   onTappedProfile(BuildContext context) {
     final author = context.read<PostFeedPresenter>().feed.data.author;
-    pushToProfile(context: context, id: author.id);
+    ScreenNavigator.pushToProfile(context: context, id: author.id);
   }
 }

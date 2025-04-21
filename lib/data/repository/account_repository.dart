@@ -37,7 +37,7 @@ class AccountRepository extends ChangeNotifier {
 
   factory AccountRepository() => instance;
 
-  init() async {
+  Future<void> init() async {
     _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
     _id = int.tryParse(await _storage.read(key: 'id') ?? '');

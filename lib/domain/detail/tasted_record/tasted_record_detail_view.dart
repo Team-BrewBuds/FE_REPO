@@ -14,10 +14,9 @@ import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/di/navigator.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_update_builder.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
@@ -261,12 +260,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       case TastedRecordDetailAction.update:
                         final tastedRecord = context.read<TastedRecordPresenter>().tastedRecord;
                         if (tastedRecord != null) {
-                          showTastedRecordUpdateScreen(context: context, tastedRecord: tastedRecord).then((value) {
-                            if (value != null && value && context.mounted) {
-                              context.read<TastedRecordPresenter>().onRefresh();
-                              showSnackBar(message: '게시글 수정을 완료했어요.');
-                            }
-                          });
+                          ScreenNavigator.showTastedRecordUpdateScreen(context: context, tastedRecord: tastedRecord);
                         }
                         break;
                       case TastedRecordDetailAction.delete:
@@ -503,7 +497,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         onTap: () {
           final id = authorId;
           if (id != null) {
-            pushToProfile(context: context, id: id);
+            ScreenNavigator.pushToProfile(context: context, id: id);
           }
         },
         child: Row(
@@ -699,7 +693,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       canReply: true,
                       onTappedProfile: () {
                         context.pop();
-                        pushToProfile(context: context, id: comment.author.id);
+                        ScreenNavigator.pushToProfile(context: context, id: comment.author.id);
                       },
                       onTappedReply: () {
                         context.read<TastedRecordPresenter>().onTappedReply(comment);
@@ -740,7 +734,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                             likeCount: '${reComment.likeCount > 9999 ? '9999+' : comment.likeCount}',
                             onTappedProfile: () {
                               context.pop();
-                              pushToProfile(context: context, id: reComment.author.id);
+                              ScreenNavigator.pushToProfile(context: context, id: reComment.author.id);
                             },
                             onTappedLikeButton: () {
                               context.read<TastedRecordPresenter>().onTappedCommentLikeButton(

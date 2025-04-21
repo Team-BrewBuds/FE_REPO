@@ -26,7 +26,7 @@ enum CoffeeBeanProcessing {
       case CoffeeBeanProcessing.mountainWater:
         return '마운틴 워터';
       case CoffeeBeanProcessing.writtenByUser:
-        return '직적 입력';
+        return '직접 입력';
     }
   }
 

@@ -31,18 +31,22 @@ final class NotificationRepository {
   factory NotificationRepository() => instance;
 
   Future<void> init() async {
-    await FirebaseMessaging.instance.getAPNSToken();
-    final token = await FirebaseMessaging.instance.getToken().onError((error, stackTrace) => null);
-    if (token != null && token.isNotEmpty) {
-      _token = token;
-    }
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+    try {
+      await FirebaseMessaging.instance.getAPNSToken();
+      final token = await FirebaseMessaging.instance.getToken().onError((error, stackTrace) => null);
+      if (token != null && token.isNotEmpty) {
+        _token = token;
+      }
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
 
-    FirebaseMessaging.instance.onTokenRefresh.listen((event) {
-      _token = event;
-      registerToken(AccountRepository.instance.accessToken);
-    });
+      FirebaseMessaging.instance.onTokenRefresh.listen((event) {
+        _token = event;
+        registerToken(AccountRepository.instance.accessToken);
+      });
+    } catch (e) {
+      return;
+    }
   }
 
   Future<bool> registerToken(String accessToken) async {

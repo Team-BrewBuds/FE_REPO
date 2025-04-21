@@ -3,6 +3,7 @@ import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
@@ -25,20 +26,29 @@ void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
-
-  await initializeDateFormatting('ko');
   await dotenv.load(fileName: ".env");
+  await PermissionRepository.instance.initPermission();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await AppRepository.instance.checkUpdateRequired();
+  // await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+  //
+  // await initializeDateFormatting('ko');
+  //
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   DioClient.instance.initial();
-  await AccountRepository.instance.init();
-  await SharedPreferencesRepository.instance.init();
-  await PermissionRepository.instance.initPermission();
-  await NotificationRepository.instance.init();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Future.wait([
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values),
+    initializeDateFormatting('ko'),
+    AccountRepository.instance.init(),
+    SharedPreferencesRepository.instance.init(),
+    NotificationRepository.instance.init(),
+    PhotoRepository.instance.initState(),
+  ]);
+
+  await AppRepository.instance.checkUpdateRequired();
 
   KakaoSdk.init(
     nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],

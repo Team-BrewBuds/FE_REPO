@@ -14,7 +14,6 @@ final class OtherProfilePresenter extends ProfilePresenter {
   bool get isFollow => profile?.isUserFollowing ?? false;
 
   OtherProfilePresenter({
-    required super.repository,
     required this.id,
   });
 

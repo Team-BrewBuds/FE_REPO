@@ -1,9 +1,12 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search_presenter.dart';
+import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,20 +37,24 @@ final class ResultsOfWritten implements CoffeeBeanSearchBottomSheetResult {
 
 class CoffeeBeanSearchBottomSheet extends StatefulWidget {
   final String initialText;
+  final double initialHeight;
   final double maxHeight;
 
   const CoffeeBeanSearchBottomSheet._({
+    required this.initialHeight,
     required this.maxHeight,
     this.initialText = '',
   });
 
   static Widget build({
+    required double initialHeight,
     required double maxHeight,
     String initialText = '',
   }) =>
       ChangeNotifierProvider(
         create: (context) => CoffeeBeanSearchPresenter(),
         builder: (context, child) => CoffeeBeanSearchBottomSheet._(
+          initialHeight: initialHeight,
           maxHeight: maxHeight,
           initialText: initialText,
         ),
@@ -57,10 +64,10 @@ class CoffeeBeanSearchBottomSheet extends StatefulWidget {
   State<CoffeeBeanSearchBottomSheet> createState() => _CoffeeBeanSearchBottomSheetState();
 }
 
-class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomSheet> {
-  late final Debouncer<String> searchDebouncer;
+class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomSheet>
+    with ResizableBottomSheetMixin<CoffeeBeanSearchBottomSheet> {
   late final Throttle paginationThrottle;
-  late final ValueNotifier<String> searchWord;
+  late final ValueNotifier<String> searchWordNotifier;
   late double height;
   late final maxHeight;
   late final TextEditingController textEditingController;
@@ -69,19 +76,9 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
   @override
   void initState() {
     textEditingController = TextEditingController(text: widget.initialText);
-    textEditingController.addListener(() {
-      _onChangeNewWord(textEditingController.text);
-    });
-    searchWord = ValueNotifier(widget.initialText);
+    searchWordNotifier = ValueNotifier(widget.initialText);
     maxHeight = widget.maxHeight;
-    height = widget.maxHeight;
-    searchDebouncer = Debouncer(
-      const Duration(milliseconds: 500),
-      initialValue: widget.initialText,
-      onChanged: (newWord) {
-        _onChangeNewWordDebounce(newWord);
-      },
-    );
+    height = widget.initialHeight;
     paginationThrottle = Throttle(
       const Duration(seconds: 3),
       initialValue: null,
@@ -100,13 +97,9 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
 
   @override
   void dispose() {
-    textEditingController.removeListener(() {
-      _onChangeNewWord(textEditingController.text);
-    });
-    searchDebouncer.cancel();
     paginationThrottle.cancel();
     textEditingController.dispose();
-    searchWord.dispose();
+    searchWordNotifier.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -115,112 +108,33 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
     context.read<CoffeeBeanSearchPresenter>().fetchMoreData();
   }
 
-  _onChangeNewWord(String newWord) {
-    searchDebouncer.setValue(newWord);
-    searchWord.value = newWord;
-  }
+  @override
+  bool get hasTextField => false;
 
-  _onChangeNewWordDebounce(String newWord) {
-    context.read<CoffeeBeanSearchPresenter>().search(newWord);
+  @override
+  double get initialHeight => widget.initialHeight;
+
+  @override
+  double get maximumHeight => widget.maxHeight;
+
+  @override
+  double get minimumHeight => widget.initialHeight;
+
+  @override
+  bool onScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.pixels > notification.metrics.maxScrollExtent * 0.7) {
+      paginationThrottle.setValue(null);
+    }
+    return false;
   }
 
   @override
-  Widget build(BuildContext context) {
-    final bool keyboardVisible = MediaQuery.of(context).viewInsets.vertical > 0;
-    return Stack(
-      children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              onTap: () {
-                if (focusNode.hasFocus) {
-                  focusNode.unfocus();
-                }
-              },
-              onVerticalDragEnd: (details) {
-                if (!keyboardVisible) {
-                  if (height > maxHeight * 0.85) {
-                    setState(() {
-                      height = maxHeight;
-                    });
-                  } else if (height > maxHeight * 0.3) {
-                    setState(() {
-                      height = maxHeight * 0.5;
-                    });
-                  } else {
-                    context.pop();
-                  }
-                }
-              },
-              onVerticalDragUpdate: (details) {
-                final double? delta = details.primaryDelta;
-                setState(() {
-                  if (delta != null && !keyboardVisible) {
-                    height -= delta;
-                  }
-                });
-              },
-              child: AnimatedContainer(
-                curve: Curves.bounceOut,
-                duration: const Duration(milliseconds: 100),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: ColorStyles.gray40)),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                ),
-                width: MediaQuery.of(context).size.width,
-                height: keyboardVisible ? maxHeight : height,
-                padding: MediaQuery.of(context).viewInsets,
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        _buildAppBar(),
-                        const SizedBox(height: 24),
-                        _buildSearchBar(context),
-                        Expanded(
-                          child: Selector<CoffeeBeanSearchPresenter, CoffeeBeanSearchResult>(
-                            selector: (context, presenter) => presenter.result,
-                            builder: (context, result, child) => _buildSearchResults(
-                              result.searchWord,
-                              result.coffeebeans,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Container(
-      padding: const EdgeInsets.only(top: 16.0),
+  Widget buildTitle(context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
       child: Column(
+        spacing: 24,
         children: [
-          Container(
-            width: 30,
-            height: 5,
-            decoration: const BoxDecoration(
-              color: Color(0xFFC7C7CC),
-              borderRadius: BorderRadius.all(Radius.circular(2.5)),
-            ),
-          ),
-          const SizedBox(height: 24),
           Row(
             children: [
               const SizedBox(width: 24),
@@ -239,6 +153,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
               ),
             ],
           ),
+          _buildSearchBar(context),
         ],
       ),
     );
@@ -254,7 +169,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
       ],
       decoration: InputDecoration(
         isDense: true,
-        hintText: '원두 추출방식을 입력해주세요.',
+        hintText: '원두 이름을 입력해 주세요.',
         hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
         contentPadding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 4),
         filled: true,
@@ -281,7 +196,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
         ),
         suffixIconConstraints: const BoxConstraints(maxWidth: 36, maxHeight: 44),
         suffixIcon: ValueListenableBuilder<String>(
-          valueListenable: searchWord,
+          valueListenable: searchWordNotifier,
           builder: (context, searchWord, child) {
             return searchWord.isNotEmpty
                 ? Padding(
@@ -289,6 +204,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
                     child: ThrottleButton(
                       onTap: () {
                         textEditingController.value = const TextEditingValue();
+                        searchWordNotifier.value = '';
                       },
                       child: SvgPicture.asset(
                         'assets/icons/x_round.svg',
@@ -307,84 +223,11 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
       cursorErrorColor: ColorStyles.black,
       cursorHeight: 16,
       cursorWidth: 1,
+      onChanged: (text) {
+        searchWordNotifier.value = text;
+        context.read<CoffeeBeanSearchPresenter>().onChangeSearchWord(text);
+      },
     );
-  }
-
-  Widget _buildSearchResults(String searchWord, List<CoffeeBean> coffeeBeans) {
-    return coffeeBeans.isNotEmpty
-        ? NotificationListener<ScrollNotification>(
-            onNotification: (ScrollNotification scroll) {
-              if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                paginationThrottle.setValue(null);
-              }
-              return false;
-            },
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: coffeeBeans.length,
-              itemBuilder: (context, index) {
-                final name = coffeeBeans[index].name ?? '';
-                return name.isNotEmpty
-                    ? ThrottleButton(
-                        onTap: () {
-                          context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: RichText(
-                            text: TextSpan(
-                              style: TextStyles.title01SemiBold.copyWith(
-                                color: ColorStyles.black,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              children: _getSpans(
-                                name,
-                                searchWord,
-                                TextStyles.title01SemiBold.copyWith(
-                                  color: ColorStyles.red,
-                                ),
-                              ),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink();
-              },
-            ),
-          )
-        : Column(
-            children: [
-              if (searchWord.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          searchWord,
-                          style: TextStyles.title01SemiBold,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      ThrottleButton(
-                        onTap: () {
-                          context.pop(CoffeeBeanSearchBottomSheetResult.written(name: searchWord));
-                        },
-                        child: SvgPicture.asset(
-                          'assets/icons/plus_round.svg',
-                          height: 24,
-                          width: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              const Spacer(),
-            ],
-          );
   }
 
   List<TextSpan> _getSpans(String text, String matchWord, TextStyle textStyle) {
@@ -416,5 +259,120 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
     } while (spanBoundary < text.length);
 
     return spans;
+  }
+
+  @override
+  Widget buildBottomWidget(BuildContext context) => const SizedBox.shrink();
+
+  @override
+  List<Widget> buildContents(BuildContext context) {
+    // final isLoading = context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading);
+    return [
+        Selector<CoffeeBeanSearchPresenter, CoffeeBeanSearchState>(
+          selector: (context, presenter) => presenter.coffeeBeanSearchState,
+          builder: (context, state, _) {
+            if (state.isLoading && state.coffeebeans.isEmpty) {
+              return const SliverFillRemaining(
+                child: Center(
+                  child: CupertinoActivityIndicator(
+                    color: ColorStyles.gray70,
+                  ),
+                ),
+              );
+            } else if (state.coffeebeans.isNotEmpty) {
+              final coffeeBeans = state.coffeebeans;
+              return SliverList.builder(
+                itemCount: coffeeBeans.length,
+                itemBuilder: (context, index) {
+                  final name = coffeeBeans[index].name ?? '';
+                  return name.isNotEmpty
+                      ? ThrottleButton(
+                    onTap: () {
+                      context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyles.title01SemiBold.copyWith(
+                            color: ColorStyles.black,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          children: _getSpans(
+                            name,
+                            searchWordNotifier.value,
+                            TextStyles.title01SemiBold.copyWith(
+                              color: ColorStyles.red,
+                            ),
+                          ),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  )
+                      : const SizedBox.shrink();
+                },
+              );
+            } else {
+              return ValueListenableBuilder(
+                valueListenable: searchWordNotifier,
+                builder: (context, searchWord, _) {
+                  return searchWord.isNotEmpty
+                      ? SliverToBoxAdapter(
+                          child: ThrottleButton(
+                            onTap: () {
+                              context.pop(CoffeeBeanSearchBottomSheetResult.written(name: searchWordNotifier.value));
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                              color: ColorStyles.white,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      searchWord,
+                                      style: TextStyles.title01SemiBold,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  SvgPicture.asset(
+                                    'assets/icons/plus_round.svg',
+                                    height: 24,
+                                    width: 24,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : const SliverToBoxAdapter();
+                },
+              );
+            }
+          },
+        ),
+      Selector<CoffeeBeanSearchPresenter, bool>(
+        selector: (context, presenter) => presenter.hasNext,
+        builder: (context, hasNext, _) {
+          if (hasNext) {
+            return const SliverToBoxAdapter(
+              child: SizedBox(
+                height: 200,
+                width: double.infinity,
+                child: Center(
+                  child: CupertinoActivityIndicator(
+                    color: ColorStyles.gray70,
+                  ),
+                ),
+              ),
+            );
+          } else {
+            return const SliverToBoxAdapter();
+          }
+        },
+      ),
+    ];
   }
 }

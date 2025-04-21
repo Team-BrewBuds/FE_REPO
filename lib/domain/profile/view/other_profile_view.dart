@@ -2,8 +2,8 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/di/navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/other_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/view/profile_mixin.dart';
 import 'package:flutter/material.dart';
@@ -63,7 +63,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                   onTap: () {
                     final id = context.read<OtherProfilePresenter>().id;
                     final nickname = context.read<OtherProfilePresenter>().nickName;
-                    pushToTasteReport(context: context, id: id, nickname: nickname);
+                    ScreenNavigator.pushToTasteReport(context: context, id: id, nickname: nickname);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -171,7 +171,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
   pushFollowList(int index) {
     final profile = context.read<OtherProfilePresenter>().profile;
     if (profile != null) {
-      pushToFollowListPB(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
+      ScreenNavigator.pushToFollowListPB(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
     }
   }
 
@@ -209,7 +209,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
                               const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
                           child: Center(
                             child: Text(
-                              '차단 하기',
+                              '차단하기',
                               style: TextStyles.title02SemiBold,
                             ),
                           ),
@@ -266,7 +266,7 @@ class _OtherProfileViewState extends State<OtherProfileView>
   Future<void> showEmptyDialog() {
     return showBarrierDialog(
       context: context,
-      barrierColor: ColorStyles.black.withOpacity(0.95),
+      barrierColor: ColorStyles.black90,
       pageBuilder: (context, _, __) {
         return Stack(
           alignment: Alignment.center,

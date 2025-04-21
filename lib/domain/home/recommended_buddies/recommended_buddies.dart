@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/di/navigator.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presetner.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddy.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddy_presenter.dart';
@@ -60,7 +60,7 @@ class RecommendedBuddiesWidget extends StatelessWidget {
                         value: presenter,
                         child: ThrottleButton(
                           onTap: () {
-                            pushToProfile(context: context, id: presenter.user.id);
+                            ScreenNavigator.pushToProfile(context: context, id: presenter.user.id);
                           },
                           child: const RecommendedBuddyWidget(),
                         ),

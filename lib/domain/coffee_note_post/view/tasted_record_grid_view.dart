@@ -1,10 +1,11 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_presenter.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
-import 'package:extended_image/extended_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,7 +32,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -39,9 +40,6 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
       },
     );
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<TastedRecordGridPresenter>().initState();
-    });
   }
 
   @override
@@ -62,43 +60,50 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
       body: SafeArea(
         child: Selector<TastedRecordGridPresenter, GridViewState>(
           selector: (context, presenter) => presenter.gridViewState,
-          builder: (context, gridViewState, child) => gridViewState.tastedRecords.isNotEmpty
-              ? NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scroll) {
-                    if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                      paginationThrottle.setValue(null);
-                    }
-                    return false;
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(1),
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 2,
-                        crossAxisSpacing: 2,
-                        childAspectRatio: 0.75,
-                      ),
-                      itemCount: gridViewState.tastedRecords.length,
-                      itemBuilder: (context, index) {
-                        final tastedRecord = gridViewState.tastedRecords[index];
-                        return ThrottleButton(
-                          onTap: () {
-                            context.read<TastedRecordGridPresenter>().onSelected(tastedRecord);
-                          },
-                          child: _buildGridItem(
-                            imageUrl: tastedRecord.imageUrl,
-                            rating: tastedRecord.rating,
-                            beanName: tastedRecord.beanName,
-                            selectedItemLength: gridViewState.selectedTastedRecords.length,
-                            selectedIndex: gridViewState.selectedTastedRecords.indexOf(tastedRecord),
-                          ),
-                        );
+          builder: (context, gridViewState, child) {
+            if (context.select<TastedRecordGridPresenter, bool>(
+                (presenter) => presenter.isLoading && gridViewState.tastedRecords.isEmpty)) {
+              return const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70));
+            } else {
+              return gridViewState.tastedRecords.isNotEmpty
+                  ? NotificationListener<ScrollNotification>(
+                      onNotification: (ScrollNotification scroll) {
+                        if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                          paginationThrottle.setValue(null);
+                        }
+                        return false;
                       },
-                    ),
-                  ),
-                )
-              : _buildEmpty(),
+                      child: Padding(
+                        padding: const EdgeInsets.all(1),
+                        child: GridView.builder(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 2,
+                            crossAxisSpacing: 2,
+                            childAspectRatio: 0.75,
+                          ),
+                          itemCount: gridViewState.tastedRecords.length,
+                          itemBuilder: (context, index) {
+                            final tastedRecord = gridViewState.tastedRecords[index];
+                            return ThrottleButton(
+                              onTap: () {
+                                context.read<TastedRecordGridPresenter>().onSelected(tastedRecord);
+                              },
+                              child: _buildGridItem(
+                                imageUrl: tastedRecord.imageUrl,
+                                rating: tastedRecord.rating,
+                                beanName: tastedRecord.beanName,
+                                selectedItemLength: gridViewState.selectedTastedRecords.length,
+                                selectedIndex: gridViewState.selectedTastedRecords.indexOf(tastedRecord),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                  : _buildEmpty();
+            }
+          },
         ),
       ),
     );
@@ -188,7 +193,17 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
                 aspectRatio: 1,
                 child: Stack(
                   children: [
-                    Positioned.fill(child: ExtendedImage.network(imageUrl, fit: BoxFit.cover)),
+                    Positioned.fill(
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return MyNetworkImage(
+                            imageUrl: imageUrl,
+                            height: constraints.maxHeight,
+                            width: constraints.maxWidth,
+                          );
+                        },
+                      ),
+                    ),
                     Positioned(
                       left: 6,
                       bottom: 6,

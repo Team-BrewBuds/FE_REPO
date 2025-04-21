@@ -2,14 +2,15 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasting_write_mixin.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/bean_write_option.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/country_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_presenter.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasting_write_secod_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
@@ -19,15 +20,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class TastingWriteFirstScreen extends StatefulWidget {
-  const TastingWriteFirstScreen({super.key});
+class TastedRecordWriteFirstScreen extends StatefulWidget {
+  const TastedRecordWriteFirstScreen({super.key});
 
   @override
-  State<TastingWriteFirstScreen> createState() => _TastingWriteFirstScreenState();
+  State<TastedRecordWriteFirstScreen> createState() => _TastedRecordWriteFirstScreenState();
 }
 
-class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
-    with TastingWriteMixin<TastingWriteFirstScreen> {
+class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScreen>
+    with TastedRecordWriteMixin<TastedRecordWriteFirstScreen> {
   final TextEditingController _areaController = TextEditingController();
   final FocusNode _areaFocusNode = FocusNode();
   final TextEditingController _varietyController = TextEditingController();
@@ -93,18 +94,18 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           const SizedBox(height: 32),
           buildTitle(),
           const SizedBox(height: 20),
-          Selector<TastingWritePresenter, String>(
+          Selector<TastedRecordWritePresenter, String>(
             selector: (context, presenter) => presenter.name,
             builder: (context, name, child) => _buildBeanName(name),
           ),
           const SizedBox(height: 36),
-          Selector<TastingWritePresenter, bool>(
+          Selector<TastedRecordWritePresenter, bool>(
             selector: (context, presenter) => presenter.isOfficial,
             builder: (context, isOfficial, child) => AbsorbPointer(
               absorbing: isOfficial,
               child: Column(
                 children: [
-                  Selector<TastingWritePresenter, CoffeeBeanType?>(
+                  Selector<TastedRecordWritePresenter, CoffeeBeanType?>(
                     selector: (context, presenter) => presenter.coffeeBeanType,
                     builder: (context, type, child) => _buildCoffeeTypeSelector(
                       currentType: type,
@@ -112,7 +113,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Selector<TastingWritePresenter, bool>(
+                  Selector<TastedRecordWritePresenter, bool>(
                     selector: (context, presenter) => presenter.isDecaf ?? false,
                     builder: (context, isDecaf, child) => _buildDecafCheckbox(
                       isDecaf: isDecaf,
@@ -120,10 +121,10 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     ),
                   ),
                   const SizedBox(height: 36),
-                  Selector<TastingWritePresenter, List<String>>(
+                  Selector<TastedRecordWritePresenter, List<String>>(
                     selector: (context, presenter) => presenter.originCountry,
                     builder: (context, originCountry, child) {
-                      final isSingleOrigin = context.select<TastingWritePresenter, bool>(
+                      final isSingleOrigin = context.select<TastedRecordWritePresenter, bool>(
                         (presenter) => presenter.coffeeBeanType == CoffeeBeanType.singleOrigin,
                       );
                       return _buildCountry(
@@ -138,11 +139,11 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             ),
           ),
           const SizedBox(height: 20),
-          Selector<TastingWritePresenter, CoffeeBeanType?>(
+          Selector<TastedRecordWritePresenter, CoffeeBeanType?>(
             selector: (context, presenter) => presenter.coffeeBeanType,
             builder: (context, type, child) {
               final options = getOptions(type);
-              final isOfficial = context.select<TastingWritePresenter, bool>((presenter) => presenter.isOfficial);
+              final isOfficial = context.select<TastedRecordWritePresenter, bool>((presenter) => presenter.isOfficial);
               return Column(
                 children: List<Widget>.generate(
                   options.length,
@@ -160,14 +161,14 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   Widget buildBottomButton() {
     return Padding(
       padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
-      child: Selector<TastingWritePresenter, bool>(
+      child: Selector<TastedRecordWritePresenter, bool>(
         selector: (context, presenter) => presenter.isValidFirstPage,
         builder: (context, isValidFirstPage, child) {
           return AbsorbPointer(
             absorbing: !isValidFirstPage,
             child: ThrottleButton(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => TastingWriteSecondScreen()));
+                context.read<TastedRecordWriteFlowPresenter>().goTo(TastedRecordWriteFlow.writeSecondStep());
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -208,7 +209,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                         if (type == CoffeeBeanType.blend) {
                           _processingController.value = TextEditingValue.empty;
                         }
-                        context.read<TastingWritePresenter>().onChangeType(currentType == type ? null : type);
+                        context.read<TastedRecordWritePresenter>().onChangeType(currentType == type ? null : type);
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -243,7 +244,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
         children: [
           ThrottleButton(
             onTap: () {
-              context.read<TastingWritePresenter>().onChangeIsDecaf(!isDecaf);
+              context.read<TastedRecordWritePresenter>().onChangeIsDecaf(!isDecaf);
             },
             child: SvgPicture.asset('assets/icons/${isDecaf ? 'checked' : 'unChecked'}.svg', width: 18, height: 18),
           ),
@@ -307,7 +308,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                       _varietyController.value = TextEditingValue.empty;
                       _areaController.value = TextEditingValue.empty;
                       _roasteryController.value = TextEditingValue.empty;
-                      context.read<TastingWritePresenter>().onDeleteBeanName();
+                      context.read<TastedRecordWritePresenter>().onDeleteBeanName();
                     },
                     child: SvgPicture.asset(
                       'assets/icons/x_round.svg',
@@ -384,7 +385,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     const SizedBox(width: 12),
                     ThrottleButton(
                       onTap: () {
-                        context.read<TastingWritePresenter>().onChangeCountry(null);
+                        context.read<TastedRecordWritePresenter>().onChangeCountry(null);
                       },
                       child: SvgPicture.asset(
                         'assets/icons/x_round.svg',
@@ -460,7 +461,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           ),
         );
       case BeanWriteOption.processing:
-        return Selector<TastingWritePresenter, List<CoffeeBeanProcessing>>(
+        return Selector<TastedRecordWritePresenter, List<CoffeeBeanProcessing>>(
           selector: (context, presenter) => presenter.currentProcess,
           builder: (context, processing, child) {
             return AbsorbPointer(
@@ -473,7 +474,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           },
         );
       case BeanWriteOption.roastingPoint:
-        return Selector<TastingWritePresenter, int?>(
+        return Selector<TastedRecordWritePresenter, int?>(
           selector: (context, presenter) => presenter.roastingPoint,
           builder: (context, roastingPoint, child) {
             return AbsorbPointer(
@@ -494,14 +495,14 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
           ),
         );
       case BeanWriteOption.extraction:
-        return Selector<TastingWritePresenter, CoffeeBeanExtraction?>(
+        return Selector<TastedRecordWritePresenter, CoffeeBeanExtraction?>(
           selector: (context, presenter) => presenter.extraction,
           builder: (context, extraction, child) {
             return _buildExtraction(currentExtraction: extraction);
           },
         );
       case BeanWriteOption.beverageType:
-        return Selector<TastingWritePresenter, bool?>(
+        return Selector<TastedRecordWritePresenter, bool?>(
           selector: (context, presenter) => presenter.isIce,
           builder: (context, isIce, child) {
             return _buildBeverageType(isIce: isIce);
@@ -541,7 +542,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
         cursorHeight: 16,
         cursorWidth: 1,
         onChanged: (area) {
-          context.read<TastingWritePresenter>().onChangeRegion(area);
+          context.read<TastedRecordWritePresenter>().onChangeRegion(area);
         },
       ),
     );
@@ -578,7 +579,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
         cursorHeight: 16,
         cursorWidth: 1,
         onChanged: (variety) {
-          context.read<TastingWritePresenter>().onChangeVariety(variety);
+          context.read<TastedRecordWritePresenter>().onChangeVariety(variety);
         },
       ),
     );
@@ -607,7 +608,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     if (currentProcessing.contains(CoffeeBeanProcessing.writtenByUser)) {
                       _processingController.value = TextEditingValue.empty;
                     }
-                    context.read<TastingWritePresenter>().onSelectProcess(processing);
+                    context.read<TastedRecordWritePresenter>().onSelectProcess(processing);
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -657,7 +658,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
               cursorHeight: 16,
               cursorWidth: 1,
               onChanged: (processing) {
-                context.read<TastingWritePresenter>().onChangeProcessText(processing);
+                context.read<TastedRecordWritePresenter>().onChangeProcessText(processing);
               },
             ),
           ],
@@ -697,7 +698,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                       ThrottleButton(
                         onTap: () {
                           context
-                              .read<TastingWritePresenter>()
+                              .read<TastedRecordWritePresenter>()
                               .onChangeRoastingPoint(currentRoastingPoint == index ? null : index);
                         },
                         child: Container(
@@ -773,7 +774,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
         cursorHeight: 16,
         cursorWidth: 1,
         onChanged: (roastery) {
-          context.read<TastingWritePresenter>().onChangeRoastery(roastery);
+          context.read<TastedRecordWritePresenter>().onChangeRoastery(roastery);
         },
       ),
     );
@@ -802,7 +803,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
                     if (currentExtraction == CoffeeBeanExtraction.writtenByUser) {
                       _extractionController.value = TextEditingValue.empty;
                     }
-                    context.read<TastingWritePresenter>().onChangeExtraction(extraction);
+                    context.read<TastedRecordWritePresenter>().onChangeExtraction(extraction);
                   },
                   child: Container(
                     padding: const EdgeInsets.all(8),
@@ -851,7 +852,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
               cursorHeight: 16,
               cursorWidth: 1,
               onChanged: (extraction) {
-                context.read<TastingWritePresenter>().onChangeExtractionText(extraction);
+                context.read<TastedRecordWritePresenter>().onChangeExtractionText(extraction);
               },
             ),
           ],
@@ -881,7 +882,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
             return Expanded(
               child: ThrottleButton(
                 onTap: () {
-                  context.read<TastingWritePresenter>().onChangeBeverageType(
+                  context.read<TastedRecordWritePresenter>().onChangeBeverageType(
                         currentType == type
                             ? null
                             : type == BeverageType.ice
@@ -916,6 +917,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
       pageBuilder: (context, _, __) {
         return CoffeeBeanSearchBottomSheet.build(
           initialText: name,
+          initialHeight: MediaQuery.of(context).size.height * 0.7,
           maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top,
         );
       },
@@ -936,11 +938,11 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   }
 
   _onSelectCoffeeBean(CoffeeBean coffeeBean) {
-    context.read<TastingWritePresenter>().onSelectedCoffeeBean(coffeeBean);
+    context.read<TastedRecordWritePresenter>().onSelectedCoffeeBean(coffeeBean);
   }
 
   _onCreateCoffeeBean(String beanName) {
-    context.read<TastingWritePresenter>().onSelectedCoffeeBeanName(beanName);
+    context.read<TastedRecordWritePresenter>().onSelectedCoffeeBeanName(beanName);
   }
 
   _showCountryBottomSheet({required List<String> country, required bool isSingleOrigin}) async {
@@ -959,7 +961,7 @@ class _TastingWriteFirstScreenState extends State<TastingWriteFirstScreen>
   }
 
   _onChangeCountry(List<String> country) {
-    context.read<TastingWritePresenter>().onChangeCountry(country);
+    context.read<TastedRecordWritePresenter>().onChangeCountry(country);
   }
 
   _setCoffeeBeanValue(CoffeeBean coffeeBean) {

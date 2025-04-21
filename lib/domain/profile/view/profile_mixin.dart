@@ -161,7 +161,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   }) {
     String countToString(int count) {
       if (count == 0) {
-        return '000';
+        return '0';
       } else if (count >= 1000 && count < 1000000) {
         return '${count / 1000}.${count / 100}K';
       } else if (count >= 1000000 && count < 1000000000) {

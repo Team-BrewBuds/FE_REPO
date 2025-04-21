@@ -23,7 +23,7 @@ class SharedPreferencesRepository {
 
   bool get isFirstTimeLocation => _prefs.getBool('location') ?? true;
 
-  init() async {
+  Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
 

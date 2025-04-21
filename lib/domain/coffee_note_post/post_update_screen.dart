@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 
 class PostUpdateScreen extends StatefulWidget {
@@ -188,6 +189,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
               left: 0,
               child: ThrottleButton(
                 onTap: () {
+                  final context = this.context;
                   showCenterDialog(
                     title: '게시글 수정을 그만두시겠습니까?',
                     centerTitle: true,
@@ -196,7 +198,8 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                     cancelText: '닫기',
                     doneText: '나가기',
                   ).then((value) {
-                    if (value != null && value) {
+                    if (value != null && value && context.mounted) {
+                      NotificationCenter().notify<String>('show_message', data: '게시글 수정을 완료했어요.');
                       context.pop();
                     }
                   });
