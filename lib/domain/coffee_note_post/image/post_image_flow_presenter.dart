@@ -1,18 +1,18 @@
 import 'package:brew_buds/core/presenter.dart';
 
-enum PostPhotoFlow { album, camera }
+enum PostImageFlow { album, camera }
 
-final class PostPhotoFlowPresenter extends Presenter {
-  List<PostPhotoFlow> _steps = [PostPhotoFlow.album]; // 초기 상태
+final class PostImageFlowPresenter extends Presenter {
+  List<PostImageFlow> _steps = [PostImageFlow.album]; // 초기 상태
 
-  List<PostPhotoFlow> get steps => List.unmodifiable(_steps);
+  List<PostImageFlow> get steps => List.unmodifiable(_steps);
 
-  void goTo(PostPhotoFlow step) {
+  void goTo(PostImageFlow step) {
     _steps.add(step);
     notifyListeners();
   }
 
-  void replace(PostPhotoFlow step) {
+  void replace(PostImageFlow step) {
     if (_steps.isNotEmpty) {
       _steps.removeLast();
     }

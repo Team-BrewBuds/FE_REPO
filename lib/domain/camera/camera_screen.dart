@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
@@ -18,14 +19,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
-class CameraScreen extends StatefulWidget {
+class CameraScreen<T> extends StatefulWidget {
   final BoxShape _previewShape;
-  final Function(BuildContext context, Uint8List imageData)? onDone;
+  final Future<T> Function(BuildContext context, Uint8List imageData) onDone;
   final Function(BuildContext context) onTapAlbum;
 
   const CameraScreen({
     super.key,
-    this.onDone,
+    required this.onDone,
     required this.onTapAlbum,
     BoxShape previewShape = BoxShape.rectangle,
   }) : _previewShape = previewShape;
@@ -221,7 +222,16 @@ class _CameraScreenState extends State<CameraScreen> {
                 ),
               ),
             ),
-            const AspectRatio(aspectRatio: 1, child: SizedBox.shrink()),
+            AspectRatio(
+              aspectRatio: 1,
+              child: Stack(
+                children: [
+                  const Positioned.fill(child: SizedBox.shrink()),
+                  if (widget._previewShape == BoxShape.circle)
+                    Positioned.fill(child: CustomPaint(painter: CircleCropOverlayPainter())),
+                ],
+              ),
+            ),
             Expanded(
               child: Container(
                 color: ColorStyles.black30,
@@ -351,10 +361,8 @@ class _CameraScreenState extends State<CameraScreen> {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: ThrottleButton(
-                  onTap: () {
-                    widget.onDone?.call(context, data);
-                  },
+                child: FutureButton(
+                  onTap: () => widget.onDone.call(context, data),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                     decoration: const BoxDecoration(

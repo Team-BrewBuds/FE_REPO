@@ -178,7 +178,7 @@ final class AccountDetailPresenter extends Presenter {
       );
       await _repository.updateProfile(data: profileUpdateModel.toJson());
       EventBus.instance.fire(
-        ProfileUpdateEvent(
+        ProfileDataUpdateEvent(
           senderId: presenterId,
           userId: AccountRepository.instance.id ?? 0,
           profileUpdateModel: profileUpdateModel,

@@ -1,13 +1,13 @@
 import 'package:brew_buds/domain/camera/camera_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_edit_view.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_view.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_first_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_last_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_secod_screen.dart';
-import 'package:brew_buds/domain/photo/presenter/photo_presenter_with_preview.dart';
-import 'package:brew_buds/domain/photo/view/photo_screen_with_preview.dart';
-import 'package:brew_buds/domain/photo/view/selected_photo_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,7 +19,7 @@ class TastedRecordWriteNavigator extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TastedRecordWriteFlowPresenter()),
-        ChangeNotifierProvider(create: (_) => PhotoPresenterWithPreView()),
+        ChangeNotifierProvider(create: (_) => TastedRecordImagePresenter()),
         ChangeNotifierProvider(create: (_) => TastedRecordWritePresenter()),
       ],
       child: _TastedRecordWriteNavigatorFlowStack(),
@@ -37,8 +37,7 @@ class _TastedRecordWriteNavigatorFlowStack extends StatelessWidget {
             for (final step in flow.steps)
               switch (step) {
                 AlbumSelectStep() => MaterialPage(
-                    child: PhotoScreenWithPreview(
-                      previewShape: BoxShape.rectangle,
+                    child: TastedRecordImageView(
                       previewHeight: MediaQuery.of(context).size.width,
                       onTapCamera: () {
                         context.read<TastedRecordWriteFlowPresenter>().replace(
@@ -48,7 +47,7 @@ class _TastedRecordWriteNavigatorFlowStack extends StatelessWidget {
                     ),
                   ),
                 AlbumEditStep() => MaterialPage(
-                    child: SelectedPhotoScreen.buildWithPresenter(
+                    child: TastedRecordImageEditView.buildWithPresenter(
                       images: step.selectedImages,
                       onPop: () {
                         context.read<TastedRecordWriteFlowPresenter>().back();
@@ -62,12 +61,12 @@ class _TastedRecordWriteNavigatorFlowStack extends StatelessWidget {
                 ImageSelectWithCamera() => MaterialPage(
                     child: CameraScreen(
                       previewShape: BoxShape.rectangle,
-                      onDone: (_, image) {
+                      onDone: (_, image) async {
                         context.read<TastedRecordWritePresenter>().updateImages([image]);
                         context.read<TastedRecordWriteFlowPresenter>().goTo(TastedRecordWriteFlow.writeFirstStep());
                       },
                       onTapAlbum: (_) {
-                        context.read<PhotoPresenterWithPreView>().reset();
+                        context.read<TastedRecordImagePresenter>().reset();
                         context.read<TastedRecordWriteFlowPresenter>().replace(TastedRecordWriteFlow.albumSelect());
                       },
                     ),

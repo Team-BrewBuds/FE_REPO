@@ -5,7 +5,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/photo/core/circle_crop_overlay_painter.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
-import 'package:brew_buds/domain/photo/presenter/selected_photo_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_edit_presenter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +13,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-class SelectedPhotoScreen extends StatelessWidget {
+class TastedRecordImageEditView extends StatelessWidget {
   final void Function() onPop;
   final void Function(List<Uint8List> images) onNext;
   final ValueNotifier<int> _indexNotifier = ValueNotifier(0);
   final BoxShape _shape;
 
-  SelectedPhotoScreen({
+  TastedRecordImageEditView({
     super.key,
     required BoxShape shape,
     required this.onPop,
@@ -32,9 +32,9 @@ class SelectedPhotoScreen extends StatelessWidget {
     required Function(List<Uint8List> images) onNext,
     BoxShape shape = BoxShape.rectangle,
   }) {
-    return ChangeNotifierProvider<SelectedPhotoPresenter>(
-      create: (context) => SelectedPhotoPresenter(images: images),
-      child: SelectedPhotoScreen(shape: shape, onPop: onPop, onNext: onNext),
+    return ChangeNotifierProvider<TastedRecordImageEditPresenter>(
+      create: (context) => TastedRecordImageEditPresenter(images: images),
+      child: TastedRecordImageEditView(shape: shape, onPop: onPop, onNext: onNext),
     );
   }
 
@@ -58,19 +58,19 @@ class SelectedPhotoScreen extends StatelessWidget {
                     aspectRatio: 1,
                     child: Builder(
                       builder: (context) {
-                        final images = context.select<SelectedPhotoPresenter, List<Uint8List>>(
+                        final images = context.select<TastedRecordImageEditPresenter, List<Uint8List>>(
                           (presenter) => presenter.images,
                         );
                         return _buildImagesSlider(images: images);
                       },
                     ),
                   ),
-                  if (context.select<SelectedPhotoPresenter, bool>((presenter) => presenter.images.length > 1)) ...[
+                  if (context.select<TastedRecordImageEditPresenter, bool>((presenter) => presenter.images.length > 1)) ...[
                     ValueListenableBuilder(
                       valueListenable: _indexNotifier,
                       builder: (context, index, _) {
                         final length =
-                            context.select<SelectedPhotoPresenter, int>((presenter) => presenter.images.length);
+                            context.select<TastedRecordImageEditPresenter, int>((presenter) => presenter.images.length);
                         return Container(
                             color: Colors.black, child: _buildIndicator(length: length, currentIndex: index));
                       },
@@ -107,7 +107,7 @@ class SelectedPhotoScreen extends StatelessWidget {
             const Spacer(),
             ThrottleButton(
               onTap: () {
-                onNext.call(context.read<SelectedPhotoPresenter>().images);
+                onNext.call(context.read<TastedRecordImageEditPresenter>().images);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -193,8 +193,8 @@ class SelectedPhotoScreen extends StatelessWidget {
           ThrottleButton(
             onTap: () async {
               final currentContext = context;
-              final originImage = currentContext.read<SelectedPhotoPresenter>().originImages[_indexNotifier.value];
-              final image = currentContext.read<SelectedPhotoPresenter>().images[_indexNotifier.value];
+              final originImage = currentContext.read<TastedRecordImageEditPresenter>().originImages[_indexNotifier.value];
+              final image = currentContext.read<TastedRecordImageEditPresenter>().images[_indexNotifier.value];
 
               final result = await Navigator.of(currentContext).push<Uint8List>(
                 MaterialPageRoute(
@@ -203,7 +203,7 @@ class SelectedPhotoScreen extends StatelessWidget {
               );
 
               if (result != null && currentContext.mounted) {
-                currentContext.read<SelectedPhotoPresenter>().onEditedImage(
+                currentContext.read<TastedRecordImageEditPresenter>().onEditedImage(
                       index: _indexNotifier.value,
                       imageData: result,
                     );

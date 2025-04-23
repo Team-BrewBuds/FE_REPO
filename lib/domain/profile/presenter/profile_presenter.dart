@@ -96,6 +96,12 @@ class ProfilePresenter extends Presenter {
     notifyListeners();
   }
 
+  @override
+  dispose() {
+    _profileUpdateSub.cancel();
+    super.dispose();
+  }
+
   Future<void> refresh() async {
     _isLoading = true;
     notifyListeners();
@@ -109,32 +115,42 @@ class ProfilePresenter extends Presenter {
   }
 
   onProfileUpdateEvent(ProfileUpdateEvent event) {
-    if (event.senderId != presenterId && id == event.userId && profile != null) {
-      final updatedNickname = event.profileUpdateModel.nickname;
-      final updatedIntroduction = event.profileUpdateModel.userDetail.introduction;
-      final updatedIsCertificated = event.profileUpdateModel.userDetail.isCertificated;
-      final updatedProfileLink = event.profileUpdateModel.userDetail.profileLink;
-      final updatedCoffeeLife = event.profileUpdateModel.userDetail.coffeeLife;
-      final updatedPreferredBeanTaste = event.profileUpdateModel.userDetail.preferredBeanTaste;
-      if (updatedNickname != null) {
-        profile = profile?.copyWith(nickname: updatedNickname);
-      }
-      if (updatedIntroduction != null) {
-        profile = profile?.copyWith(introduction: updatedIntroduction);
-      }
-      if (updatedIsCertificated != null) {
-        profile = profile?.copyWith(isCertificated: updatedIsCertificated);
-      }
-      if (updatedProfileLink != null) {
-        profile = profile?.copyWith(profileLink: updatedProfileLink);
-      }
-      if (updatedCoffeeLife != null) {
-        profile = profile?.copyWith(coffeeLife: List.from(updatedCoffeeLife));
-      }
-      if (updatedPreferredBeanTaste != null) {
-        profile = profile?.copyWith(preferredBeanTaste: updatedPreferredBeanTaste.copyWith());
-      }
-      notifyListeners();
+    switch (event) {
+      case ProfileDataUpdateEvent():
+        if (event.senderId != presenterId && id == event.userId && profile != null) {
+          final updatedNickname = event.profileUpdateModel.nickname;
+          final updatedIntroduction = event.profileUpdateModel.userDetail.introduction;
+          final updatedIsCertificated = event.profileUpdateModel.userDetail.isCertificated;
+          final updatedProfileLink = event.profileUpdateModel.userDetail.profileLink;
+          final updatedCoffeeLife = event.profileUpdateModel.userDetail.coffeeLife;
+          final updatedPreferredBeanTaste = event.profileUpdateModel.userDetail.preferredBeanTaste;
+          if (updatedNickname != null) {
+            profile = profile?.copyWith(nickname: updatedNickname);
+          }
+          if (updatedIntroduction != null) {
+            profile = profile?.copyWith(introduction: updatedIntroduction);
+          }
+          if (updatedIsCertificated != null) {
+            profile = profile?.copyWith(isCertificated: updatedIsCertificated);
+          }
+          if (updatedProfileLink != null) {
+            profile = profile?.copyWith(profileLink: updatedProfileLink);
+          }
+          if (updatedCoffeeLife != null) {
+            profile = profile?.copyWith(coffeeLife: List.from(updatedCoffeeLife));
+          }
+          if (updatedPreferredBeanTaste != null) {
+            profile = profile?.copyWith(preferredBeanTaste: updatedPreferredBeanTaste.copyWith());
+          }
+          notifyListeners();
+          break;
+        }
+      case ProfileImageUpdateEvent():
+        if (event.senderId != presenterId && id == event.userId && profile != null) {
+          profile = profile?.copyWith(profileImageUrl: event.imageUrl);
+          notifyListeners();
+        }
+        break;
     }
   }
 

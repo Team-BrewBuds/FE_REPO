@@ -6,15 +6,14 @@ import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
-import 'package:brew_buds/domain/photo/view/photo_first_time_view.dart';
-import 'package:brew_buds/domain/photo/presenter/photo_presenter_with_preview.dart';
+import 'package:brew_buds/domain/photo/photo_first_time_view.dart';
 import 'package:brew_buds/domain/photo/widget/asset_album_list_view.dart';
 import 'package:brew_buds/domain/photo/widget/management_bottom_sheet.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,34 +24,31 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:provider/provider.dart';
 
-class PhotoScreenWithPreview extends StatefulWidget {
-  final BoxShape previewShape;
+class TastedRecordImageView extends StatefulWidget {
   final double previewHeight;
   final void Function() onTapCamera;
 
-  const PhotoScreenWithPreview({
+  const TastedRecordImageView({
     super.key,
-    required this.previewShape,
     required this.previewHeight,
     required this.onTapCamera,
   });
 
   static Widget buildWithPresenter({
-    required BoxShape previewShape,
     required double previewHeight,
     required void Function() onTapCamera,
   }) {
-    return ChangeNotifierProvider<PhotoPresenterWithPreView>(
-      create: (context) => PhotoPresenterWithPreView(),
-      child: PhotoScreenWithPreview(previewShape: previewShape, previewHeight: previewHeight, onTapCamera: onTapCamera),
+    return ChangeNotifierProvider<TastedRecordImagePresenter>(
+      create: (context) => TastedRecordImagePresenter(),
+      child: TastedRecordImageView(previewHeight: previewHeight, onTapCamera: onTapCamera),
     );
   }
 
   @override
-  State<PhotoScreenWithPreview> createState() => _PhotoScreenWithPreviewState();
+  State<TastedRecordImageView> createState() => _TastedRecordImageViewState();
 }
 
-class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with TickerProviderStateMixin {
+class _TastedRecordImageViewState extends State<TastedRecordImageView> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isLoadingNotifier = ValueNotifier(false);
   late final AnimationController _previewController;
@@ -65,15 +61,13 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
 
   PermissionStatus get permissionStatus => PermissionRepository.instance.photos;
 
-  BoxShape get previewShape => widget.previewShape;
-
   @override
   void initState() {
     isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeAlbum);
     _previewController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
-      value: 1.0, // 초기 상태: 프리뷰 fully visible
+      value: 1.0,
     );
 
     super.initState();
@@ -150,7 +144,7 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
             const Spacer(),
             Builder(
               builder: (context) {
-                final hasSelectedItem = context.select<PhotoPresenterWithPreView, bool>(
+                final hasSelectedItem = context.select<TastedRecordImagePresenter, bool>(
                   (presenter) => presenter.selectedPhotoIndexList.isNotEmpty,
                 );
                 return AbsorbPointer(
@@ -159,7 +153,7 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
                     onTap: () async {
                       final currentContext = context;
                       _isLoadingNotifier.value = true;
-                      final images = await currentContext.read<PhotoPresenterWithPreView>().getSelectedPhotoData();
+                      final images = await currentContext.read<TastedRecordImagePresenter>().getSelectedPhotoData();
                       _isLoadingNotifier.value = false;
                       if (currentContext.mounted) {
                         currentContext
@@ -194,10 +188,10 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
     final width = MediaQuery.of(context).size.width;
     return Builder(
       builder: (context) {
-        final currentAlbum = context.select<PhotoPresenterWithPreView, AssetAlbum?>(
+        final currentAlbum = context.select<TastedRecordImagePresenter, AssetAlbum?>(
           (presenter) => presenter.selectedAlbum,
         );
-        final preview = context.select<PhotoPresenterWithPreView, AssetEntity?>(
+        final preview = context.select<TastedRecordImagePresenter, AssetEntity?>(
           (presenter) => presenter.preView,
         );
         return GestureDetector(
@@ -347,15 +341,15 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
                                 final image = currentAlbum?.images.elementAtOrNull(index - 1);
                                 if (image != null) {
                                   return Builder(builder: (context) {
-                                    final isSingleSelect = context.select<PhotoPresenterWithPreView, bool>(
+                                    final isSingleSelect = context.select<TastedRecordImagePresenter, bool>(
                                       (presenter) => presenter.selectedPhotoIndexList.length == 1,
                                     );
-                                    final selectedAt = context.select<PhotoPresenterWithPreView, int>(
+                                    final selectedAt = context.select<TastedRecordImagePresenter, int>(
                                       (presenter) => presenter.getOrderOfSelected(index - 1),
                                     );
                                     return ThrottleButton(
                                       onTap: () {
-                                        context.read<PhotoPresenterWithPreView>().onSelectPhotoAt(index - 1);
+                                        context.read<TastedRecordImagePresenter>().onSelectPhotoAt(index - 1);
                                         _previewController.animateTo(1.0);
                                       },
                                       child: buildImage(
@@ -399,7 +393,7 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
                 ),
               );
               if (result != null && context.mounted) {
-                context.read<PhotoPresenterWithPreView>().onChangeAlbum(result);
+                context.read<TastedRecordImagePresenter>().onChangeAlbum(result);
               }
             },
             child: Row(
@@ -545,7 +539,7 @@ class _PhotoScreenWithPreviewState extends State<PhotoScreenWithPreview> with Ti
       switch (result) {
         case ManagementBottomSheetResult.management:
           _isLoadingNotifier.value = true;
-          await context.read<PhotoPresenterWithPreView>().onTapReSelectPhoto();
+          await context.read<TastedRecordImagePresenter>().onTapReSelectPhoto();
         case ManagementBottomSheetResult.openSetting:
           _isLoadingNotifier.value = true;
           await openAppSettings();

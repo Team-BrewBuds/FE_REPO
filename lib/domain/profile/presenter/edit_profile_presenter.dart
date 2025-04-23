@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:brew_buds/core/event_bus.dart';
-import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
@@ -17,14 +17,13 @@ typedef NicknameState = ({bool isValid, bool isDuplicating, bool isChecking, boo
 typedef LinkState = ({bool isValid, bool isStartWithHttpOrHttps, bool hasLink});
 
 final class EditProfilePresenter extends Presenter {
-  final PhotoApi _photoApi = PhotoApi();
   late final Debouncer<String> _nicknameCheckDebouncer;
+  late final StreamSubscription _profileUpdateSub;
   final ProfileRepository _profileRepository = ProfileRepository.instance;
   final List<CoffeeLife> _preCoffeeLife;
   final String _preNickname;
   final String _preIntroduction;
   final String _preLink;
-
   String _imageUrl;
   List<CoffeeLife> _selectedCoffeeLifeList;
   String _nickname;
@@ -32,13 +31,11 @@ final class EditProfilePresenter extends Presenter {
   bool _isNicknameChecking = false;
   String _introduction;
   String _link;
-  Uint8List? _imageData;
 
   bool get canEdit =>
       (_preNickname != _nickname ||
           _preLink != _link ||
           _preIntroduction != _introduction ||
-          _imageData != null ||
           _compareCoffeeLifeList()) &&
       !_isNicknameChecking &&
       !_isDuplicatingNickname &&
@@ -47,9 +44,7 @@ final class EditProfilePresenter extends Presenter {
       _isValidUrl() &&
       _isStartWithHttpOrHttps();
 
-  String get imageUri => _imageUrl;
-
-  ProfileImageState get profileImageState => (imageUrl: _imageUrl, imageData: _imageData);
+  String get imageUrl => _imageUrl;
 
   List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
 
@@ -85,6 +80,7 @@ final class EditProfilePresenter extends Presenter {
         _preIntroduction = introduction,
         _link = link,
         _preLink = link {
+    _profileUpdateSub = EventBus.instance.on<ProfileUpdateEvent>().listen(onProfileUpdateEvent);
     _nicknameCheckDebouncer = Debouncer(
       const Duration(milliseconds: 300),
       initialValue: '',
@@ -97,6 +93,24 @@ final class EditProfilePresenter extends Presenter {
         }
       },
     );
+  }
+
+  @override
+  dispose() {
+    _profileUpdateSub.cancel();
+    super.dispose();
+  }
+
+  onProfileUpdateEvent(ProfileUpdateEvent event) {
+    switch (event) {
+      case ProfileImageUpdateEvent():
+        if (event.senderId != presenterId && AccountRepository.instance.id == event.userId) {
+          _imageUrl = event.imageUrl;
+          notifyListeners();
+        }
+      default:
+        return;
+    }
   }
 
   _checkNickname(String newNickname) async {
@@ -144,16 +158,6 @@ final class EditProfilePresenter extends Presenter {
     }
   }
 
-  onChangeImageData(Uint8List imageData) {
-    _imageData = imageData;
-    notifyListeners();
-  }
-
-  onChangeImageUri(String imageUri) {
-    _imageUrl = imageUri;
-    notifyListeners();
-  }
-
   onChangeNickname(String nickname) {
     _nickname = nickname;
     _nicknameCheckDebouncer.setValue(nickname);
@@ -176,15 +180,6 @@ final class EditProfilePresenter extends Presenter {
   }
 
   Future<Result<String>> onSave() async {
-    final imageData = _imageData;
-    if (imageData != null) {
-      try {
-        await _photoApi.createProfilePhoto(imageData: await compressList(imageData));
-      } catch (e) {
-        return Result.error('프로필 이미지를 업로드에 실패했어요.');
-      }
-    }
-
     final ProfileUpdateModel profileUpdateModel = ProfileUpdateModel(
       nickname: _preNickname != _nickname ? _nickname : null,
       introduction: _preIntroduction != _introduction ? _introduction : null,
@@ -195,7 +190,7 @@ final class EditProfilePresenter extends Presenter {
     try {
       await _profileRepository.updateProfile(data: profileUpdateModel.toJson());
       EventBus.instance.fire(
-        ProfileUpdateEvent(
+        ProfileDataUpdateEvent(
           senderId: presenterId,
           userId: AccountRepository.instance.id ?? 0,
           profileUpdateModel: profileUpdateModel,

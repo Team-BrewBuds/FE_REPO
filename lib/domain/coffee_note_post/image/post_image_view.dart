@@ -7,8 +7,8 @@ import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
-import 'package:brew_buds/domain/photo/view/photo_first_time_view.dart';
-import 'package:brew_buds/domain/photo/presenter/photo_grid_presenter.dart';
+import 'package:brew_buds/domain/photo/photo_first_time_view.dart';
+import 'package:brew_buds/domain/coffee_note_post/image/post_image_presenter.dart';
 import 'package:brew_buds/domain/photo/widget/asset_album_list_view.dart';
 import 'package:brew_buds/domain/photo/widget/management_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -20,22 +20,22 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 import 'package:provider/provider.dart';
 
-class PhotoGridView extends StatefulWidget {
+class PostImageView extends StatefulWidget {
   final Function(List<Uint8List> selectedImages) onDone;
   final Function() onTapCamera;
 
-  const PhotoGridView({super.key, required this.onDone, required this.onTapCamera});
+  const PostImageView({super.key, required this.onDone, required this.onTapCamera});
 
   @override
-  State<PhotoGridView> createState() => _PhotoGridViewState();
+  State<PostImageView> createState() => _PostImageViewState();
 
   static Widget build({
     required Function(List<Uint8List> selectedImages) onDone,
     required Function() onTapCamera,
   }) {
-    return ChangeNotifierProvider<PhotoGridPresenter>(
-      create: (context) => PhotoGridPresenter(),
-      child: PhotoGridView(
+    return ChangeNotifierProvider<PostImagePresenter>(
+      create: (context) => PostImagePresenter(),
+      child: PostImageView(
         onDone: onDone,
         onTapCamera: onTapCamera,
       ),
@@ -43,7 +43,7 @@ class PhotoGridView extends StatefulWidget {
   }
 }
 
-class _PhotoGridViewState extends State<PhotoGridView> {
+class _PostImageViewState extends State<PostImageView> {
   late final ValueNotifier<bool> isFirstNotifier;
 
   PermissionStatus get permissionStatus => PermissionRepository.instance.photos;
@@ -122,7 +122,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
                 ),
               ),
             ),
-            Selector<PhotoGridPresenter, AssetAlbum?>(
+            Selector<PostImagePresenter, AssetAlbum?>(
               selector: (context, presenter) => presenter.selectedAlbum,
               builder: (context, selectedAlbum, child) {
                 final currentAlbum = selectedAlbum;
@@ -137,7 +137,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
                       ),
                     );
                     if (result != null && context.mounted) {
-                      context.read<PhotoGridPresenter>().onChangeAlbum(result);
+                      context.read<PostImagePresenter>().onChangeAlbum(result);
                     }
                   },
                   child: Row(
@@ -152,7 +152,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
             ),
             Positioned(
               right: 0,
-              child: Selector<PhotoGridPresenter, bool>(
+              child: Selector<PostImagePresenter, bool>(
                 selector: (context, presenter) => presenter.isSelect,
                 builder: (context, isSelect, child) {
                   return AbsorbPointer(
@@ -160,7 +160,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
                     child: ThrottleButton(
                       onTap: () async {
                         final currentContext = context;
-                        final images = await currentContext.read<PhotoGridPresenter>().getSelectedPhotoData();
+                        final images = await currentContext.read<PostImagePresenter>().getSelectedPhotoData();
                         widget.onDone.call(images.whereType<Uint8List>().toList());
                       },
                       child: Container(
@@ -307,7 +307,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
     if (context.mounted) {
       switch (result) {
         case ManagementBottomSheetResult.management:
-          context.read<PhotoGridPresenter>().onTapReSelectPhoto();
+          context.read<PostImagePresenter>().onTapReSelectPhoto();
         case ManagementBottomSheetResult.openSetting:
           openAppSettings();
           break;
@@ -327,7 +327,7 @@ class _PhotoGridViewState extends State<PhotoGridView> {
         Expanded(
           child: Builder(
             builder: (context) {
-              final images = context.select<PhotoGridPresenter, List<AssetEntity>>(
+              final images = context.select<PostImagePresenter, List<AssetEntity>>(
                 (presenter) => presenter.selectedAlbum?.images ?? [],
               );
               return GridView.builder(
@@ -345,15 +345,15 @@ class _PhotoGridViewState extends State<PhotoGridView> {
                     if (image != null) {
                       return Builder(
                         builder: (context) {
-                          final isSingleSelect = context.select<PhotoGridPresenter, bool>(
+                          final isSingleSelect = context.select<PostImagePresenter, bool>(
                             (presenter) => presenter.selectedPhotoIndexList.length == 1,
                           );
-                          final selectedAt = context.select<PhotoGridPresenter, int>(
+                          final selectedAt = context.select<PostImagePresenter, int>(
                             (presenter) => presenter.getOrderOfSelected(index - 1),
                           );
                           return ThrottleButton(
                             onTap: () {
-                              context.read<PhotoGridPresenter>().onSelectPhotoAt(index - 1);
+                              context.read<PostImagePresenter>().onSelectPhotoAt(index - 1);
                             },
                             child: buildImage(
                               image: image,

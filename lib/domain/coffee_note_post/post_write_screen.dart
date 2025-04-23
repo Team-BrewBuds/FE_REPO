@@ -5,14 +5,13 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/coffee_note_post/post_photo_navigator.dart';
+import 'package:brew_buds/domain/coffee_note_post/image/post_image_navigator.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_view.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -511,7 +510,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
 
   _fetchImagesAtAlbum() async {
     Navigator.of(context).push(
-      PostPhotoNavigator.buildRoute(
+      PostImageNavigator.buildRoute(
         onDone: (context, images) {
           _addImages(images);
           context.pop();

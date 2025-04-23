@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
@@ -6,11 +7,11 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/domain/profile/image_edit/profile_image_navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/coffee_life_bottom_sheet.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -101,12 +102,9 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Selector<EditProfilePresenter, ProfileImageState>(
-                    selector: (context, presenter) => presenter.profileImageState,
-                    builder: (context, state, child) => _buildProfileImage(
-                      imageUri: state.imageUrl,
-                      imageData: state.imageData,
-                    ),
+                  Selector<EditProfilePresenter, String>(
+                    selector: (context, presenter) => presenter.imageUrl,
+                    builder: (context, imageUrl, child) => _buildProfileImage(imageUrl: imageUrl),
                   ),
                   const SizedBox(height: 16),
                   _buildNickname(),
@@ -203,48 +201,47 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     );
   }
 
-  Widget _buildProfileImage({required String imageUri, Uint8List? imageData}) {
-    return SizedBox(
-      width: 98,
-      height: 98,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: imageData != null
-                ? ExtendedImage.memory(
-                    imageData,
-                    fit: BoxFit.cover,
-                    width: 98,
-                    height: 98,
-                    shape: BoxShape.circle,
-                    border: Border.all(width: 1, color: const Color(0xff888888)),
-                  )
-                : MyNetworkImage(
-                    imageUrl: imageUri,
-                    height: 98,
-                    width: 98,
-                    shape: BoxShape.circle,
-                    border: Border.all(width: 1, color: const Color(0xff888888)),
-                  ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: ThrottleButton(
-              onTap: () {},
+  Widget _buildProfileImage({required String imageUrl}) {
+    return OpenContainer(
+      openElevation: 0,
+      openColor: Colors.transparent,
+      closedElevation: 0,
+      closedColor: Colors.transparent,
+      openBuilder: (context, _) => ProfileImageNavigator.buildWithPresenter(imageUrl: imageUrl),
+      closedBuilder: (context, _) => SizedBox(
+        width: 98,
+        height: 98,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: MyNetworkImage(
+                imageUrl: imageUrl,
+                height: 98,
+                width: 98,
+                shape: BoxShape.circle,
+                border: Border.all(width: 1, color: const Color(0xff888888)),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
               child: Container(
-                height: 28.17,
-                width: 28.17,
+                height: 28,
+                width: 28,
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: const Color(0xffd9d9d9),
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: const Color(0xff888888)),
                 ),
-                child: const Icon(Icons.camera_alt_rounded, color: ColorStyles.black, size: 19),
+                child: const FittedBox(
+                  fit: BoxFit.cover,
+                  child: Icon(Icons.camera_alt_rounded, color: ColorStyles.black),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

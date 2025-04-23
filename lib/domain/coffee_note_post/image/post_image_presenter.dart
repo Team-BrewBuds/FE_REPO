@@ -3,10 +3,8 @@ import 'dart:typed_data';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
-import 'package:photo_manager/photo_manager.dart';
 
-final class PhotoPresenterWithPreView extends Presenter {
-  final int maximumSelectCount;
+final class PostImagePresenter extends Presenter {
   final PhotoRepository _photoRepository = PhotoRepository.instance;
   final List<int> _selectedPhotoIndexList = List.empty(growable: true);
   final List<AssetAlbum> _albumList = List.empty(growable: true);
@@ -18,11 +16,9 @@ final class PhotoPresenterWithPreView extends Presenter {
 
   AssetAlbum? get selectedAlbum => _albumList.elementAtOrNull(_selectedAlbumIndex);
 
-  AssetEntity? get preView => selectedAlbum?.images.elementAtOrNull(_selectedPhotoIndexList.lastOrNull ?? 0);
+  bool get isSelect => selectedPhotoIndexList.isNotEmpty;
 
-  PhotoPresenterWithPreView({
-    this.maximumSelectCount = 10,
-  }) {
+  PostImagePresenter() {
     initState();
   }
 
@@ -31,22 +27,11 @@ final class PhotoPresenterWithPreView extends Presenter {
     notifyListeners();
   }
 
-  reset() {
-    _selectedPhotoIndexList.clear();
-    _selectedAlbumIndex = 0;
-    notifyListeners();
-  }
-
   onSelectPhotoAt(int index) {
-    if (maximumSelectCount == 1) {
-      _selectedPhotoIndexList.clear();
-      _selectedPhotoIndexList.add(index);
+    if (_selectedPhotoIndexList.contains(index)) {
+      _selectedPhotoIndexList.remove(index);
     } else {
-      if (_selectedPhotoIndexList.contains(index)) {
-        _selectedPhotoIndexList.remove(index);
-      } else {
-        _selectedPhotoIndexList.add(index);
-      }
+      _selectedPhotoIndexList.add(index);
     }
     notifyListeners();
   }
