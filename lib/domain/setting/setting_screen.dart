@@ -50,7 +50,7 @@ class _SettingScreenState extends State<SettingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      backgroundColor: ColorStyles.gray20,
+      backgroundColor: ColorStyles.white,
       body: SafeArea(
         child: ListView.separated(
           itemCount: SettingCategory.values.length,
@@ -105,7 +105,7 @@ class _SettingScreenState extends State<SettingScreen>
               }),
             ]);
           },
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
         ),
       ),
     );

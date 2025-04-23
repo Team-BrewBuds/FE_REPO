@@ -90,35 +90,8 @@ class ProfileRepository {
   }
 
   Future<void> updateProfile({
-    String? nickname,
-    String? introduction,
-    String? profileLink,
-    List<CoffeeLife>? coffeeLife,
-    PreferredBeanTaste? preferredBeanTaste,
-    bool? isCertificated,
+    required Map<String, dynamic> data,
   }) {
-    final Map<String, dynamic> data = {};
-    if (nickname != null) {
-      data['nickname'] = nickname;
-    }
-    final Map<String, dynamic> userDetail = {};
-    writeNotNull(String key, dynamic value) {
-      if (value != null) {
-        userDetail[key] = value;
-      }
-    }
-
-    writeNotNull('introduction', introduction);
-    writeNotNull('profile_link', profileLink);
-    if (coffeeLife != null) {
-      writeNotNull('coffee_life', _coffeeLifeToJson(coffeeLife));
-    }
-    writeNotNull('preferred_bean_taste', preferredBeanTaste?.toJson());
-    writeNotNull('is_certificated', isCertificated);
-    if (userDetail.isNotEmpty) {
-      data['user_detail'] = userDetail;
-    }
-
     return _profileApi.updateMyProfile(body: data);
   }
 

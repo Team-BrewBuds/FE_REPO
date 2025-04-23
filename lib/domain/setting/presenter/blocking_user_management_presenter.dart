@@ -7,41 +7,60 @@ import 'package:brew_buds/model/common/default_page.dart';
 
 final class BlockingUserManagementPresenter extends Presenter {
   final BlockApi _blockApi = BlockApi();
+  final List<BlockedUser> _users = List.empty(growable: true);
+  bool _hasNext = true;
+  bool _isLoading = false;
 
-  DefaultPage<BlockedUser> _page = DefaultPage.initState();
+  List<BlockedUser> get users => List.unmodifiable(_users);
 
-  DefaultPage<BlockedUser> get page => _page;
+  bool get isLoading => _isLoading;
 
-  initState() async {
+  BlockingUserManagementPresenter() {
     fetchMoreData();
   }
 
   refresh() {
-    _page = DefaultPage.initState();
+    _users.clear();
+    _hasNext = true;
+
     fetchMoreData();
   }
 
   fetchMoreData() async {
-    if (!_page.hasNext) return;
+    if (!_hasNext) return;
 
-    final jsonString = await _blockApi.fetchBlockList();
-    final decodedJson = jsonDecode(jsonString);
-    final newPage = DefaultPage<BlockedUser>.fromJson(
-      decodedJson,
-      (jsonT) => BlockedUser.fromJson(jsonT as Map<String, dynamic>),
-    );
+    try {
+      _isLoading = true;
+      notifyListeners();
 
-    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
-    notifyListeners();
+      final json = jsonDecode(await _blockApi.fetchBlockList()) as Map<String, dynamic>;
+      final nextPage = DefaultPage<BlockedUser>.fromJson(
+        json,
+        (jsonT) => BlockedUser.fromJson(jsonT as Map<String, dynamic>),
+      );
+      _users.addAll(nextPage.results);
+      _hasNext = nextPage.hasNext;
+    } catch (e) {
+      return;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
-  Future<bool> unBlock({required int id}) {
-    return _blockApi.unBlock(id: id).then(
-      (_) {
-        refresh();
-        return true;
-      },
-      onError: (_, __) => false,
-    );
+  Future<bool> unBlockAt(int index) async {
+    if (index < 0 || index >= _users.length) return false;
+
+    final BlockedUser user = _users.removeAt(index);
+    notifyListeners();
+
+    try {
+      await _blockApi.unBlock(id: user.id);
+      return true;
+    } catch (e) {
+      _users.insert(index, user);
+      notifyListeners();
+      return false;
+    }
   }
 }

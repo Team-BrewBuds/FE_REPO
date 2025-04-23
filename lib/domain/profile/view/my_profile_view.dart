@@ -1,22 +1,14 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/domain/profile/view/profile_mixin.dart';
-import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-typedef EditProfileData = ({
-  String nickname,
-  String introduction,
-  String link,
-  String imageUrl,
-  List<CoffeeLife> coffeeLife,
-});
 
 class MyProfileView extends StatefulWidget {
   const MyProfileView({super.key});
@@ -54,10 +46,8 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
               builder: (context, nickName, child) => Text(nickName, style: TextStyles.title02Bold),
             ),
             const Spacer(),
-            ThrottleButton(
-              onTap: () {
-                context.push('/profile/setting');
-              },
+            FutureButton(
+              onTap: () => context.push('/profile/setting'),
               child: SvgPicture.asset(
                 'assets/icons/setting.svg',
                 fit: BoxFit.cover,
@@ -77,11 +67,11 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
       child: Row(
         children: [
           Expanded(
-            child: ThrottleButton(
+            child: FutureButton(
               onTap: () {
                 final id = context.read<ProfilePresenter>().id;
                 final nickname = context.read<ProfilePresenter>().nickName;
-                ScreenNavigator.pushToTasteReport(context: context, id: id, nickname: nickname);
+                return ScreenNavigator.pushToTasteReport(context: context, id: id, nickname: nickname);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -99,28 +89,21 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: ThrottleButton(
+            child: FutureButton(
               onTap: () {
                 final nickname = context.read<ProfilePresenter>().nickName;
                 final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';
                 final profileLink = context.read<ProfilePresenter>().profile?.profileLink ?? '';
                 final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageUrl ?? '';
                 final coffeeLife = context.read<ProfilePresenter>().profile?.coffeeLife ?? [];
-                final EditProfileData data = (
+
+                return ScreenNavigator.showProfileEditScreen(
+                  context: context,
+                  selectedCoffeeLifeList: coffeeLife,
+                  imageUrl: profileImageURI,
                   nickname: nickname,
                   introduction: introduction,
                   link: profileLink,
-                  imageUrl: profileImageURI,
-                  coffeeLife: coffeeLife,
-                );
-                context.push<String>('/profile/edit', extra: data).then(
-                  (result) {
-                    final context = this.context;
-                    if (result != null && result.isNotEmpty && context.mounted) {
-                      context.read<ProfilePresenter>().refresh();
-                      showSnackBar(message: result);
-                    }
-                  },
                 );
               },
               child: Container(
@@ -143,13 +126,17 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
   }
 
   @override
-  pushFollowList(int index) {
+  Future<void> pushFollowList(int index) {
     final profile = context.read<ProfilePresenter>().profile;
     if (profile != null) {
-      ScreenNavigator.pushToFollowListPA(context: context, id: profile.id, nickName: profile.nickname, initialIndex: index);
+      return ScreenNavigator.pushToFollowListPA(
+        context: context,
+        id: profile.id,
+        nickName: profile.nickname,
+        initialIndex: index,
+      );
+    } else {
+      return Future.error(Error());
     }
   }
-
-  @override
-  onTappedSettingDetailButton() {}
 }

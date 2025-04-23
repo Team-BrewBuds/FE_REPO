@@ -1,7 +1,11 @@
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/domain/profile/model/profile_update_model.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
+import 'package:brew_buds/model/events/profile_update_event.dart';
 
 final class AccountDetailPresenter extends Presenter {
   final ProfileRepository _repository = ProfileRepository.instance;
@@ -155,17 +159,36 @@ final class AccountDetailPresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<void> onSave() {
-    return _repository.updateProfile(
+  Future<void> onSave() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final ProfileUpdateModel profileUpdateModel = ProfileUpdateModel(
         coffeeLife: _compareCoffeeLifeList() ? selectedCoffeeLifeList : null,
         preferredBeanTaste: _compareBeanTaste()
             ? PreferredBeanTaste(
-                body: _bodyValue ?? 0,
-                acidity: _acidityValue ?? 0,
-                sweetness: _sweetnessValue ?? 0,
-                bitterness: _bitternessValue ?? 0,
-              )
+          body: _bodyValue ?? 0,
+          acidity: _acidityValue ?? 0,
+          sweetness: _sweetnessValue ?? 0,
+          bitterness: _bitternessValue ?? 0,
+        )
             : null,
-        isCertificated: _preIsCertificated != _isCertificated ? _isCertificated : null);
+        isCertificated: _preIsCertificated != _isCertificated ? _isCertificated : null,
+      );
+      await _repository.updateProfile(data: profileUpdateModel.toJson());
+      EventBus.instance.fire(
+        ProfileUpdateEvent(
+          senderId: presenterId,
+          userId: AccountRepository.instance.id ?? 0,
+          profileUpdateModel: profileUpdateModel,
+        ),
+      );
+    } catch (e) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

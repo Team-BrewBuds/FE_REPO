@@ -1,15 +1,14 @@
+import 'dart:async';
+
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_type_mapper.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/profile/model/profile_sort_criteria.dart';
-import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/noted/noted_object.dart';
-import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/events/profile_update_event.dart';
+import 'package:brew_buds/model/profile/item_in_profile.dart';
 import 'package:brew_buds/model/profile/profile.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
-import 'package:flutter/foundation.dart';
 
 typedef ProfileState = ({String imageUrl, int tastingRecordCount, int followerCount, int followingCount});
 typedef ProfileDetailState = ({List<String> coffeeLife, String introduction, String profileLink});
@@ -22,18 +21,21 @@ typedef FilterBarState = ({
 
 class ProfilePresenter extends Presenter {
   final ProfileRepository repository = ProfileRepository.instance;
+  late final StreamSubscription _profileUpdateSub;
+  final int _id;
   Profile? profile;
-  DefaultPage<TastedRecordInProfile> _tastingRecordsPage = DefaultPage.initState();
-  DefaultPage<PostInProfile> _postsPage = DefaultPage.initState();
-  DefaultPage<BeanInProfile> _beansPage = DefaultPage.initState();
-  DefaultPage<NotedObject> _savedNotesPage = DefaultPage.initState();
+  final List<ItemInProfile> _profileItem = List.empty(growable: true);
   bool _isLoading = false;
   bool _isLoadingData = false;
   int _currentSortCriteriaIndex = 0;
   final List<CoffeeBeanFilter> _filters = [];
   int _tabIndex = 0;
   int _pageNo = 1;
-  bool _isEmpty = false;
+  bool _hasNext = true;
+
+  ProfilePresenter({required int id}) : _id = id {
+    _profileUpdateSub = EventBus.instance.on<ProfileUpdateEvent>().listen(onProfileUpdateEvent);
+  }
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
 
@@ -51,11 +53,11 @@ class ProfilePresenter extends Presenter {
 
   bool get isLoadingData => _isLoadingData;
 
-  bool get isEmpty => _isEmpty;
-
-  int get id => profile?.id ?? 0;
+  int get id => _id;
 
   String get nickName => profile?.nickname ?? '';
+
+  int get currentTabIndex => _tabIndex;
 
   ProfileState get profileState => (
         imageUrl: profile?.profileImageUrl ?? '',
@@ -71,148 +73,141 @@ class ProfilePresenter extends Presenter {
       );
 
   FilterBarState get filterBarState => (
-        canShowFilterBar: (_tabIndex == 0 && _tastingRecordsPage.results.isNotEmpty) ||
-            (_tabIndex == 2 && _beansPage.results.isNotEmpty),
+        canShowFilterBar: (_tabIndex == 0 && _profileItem.isNotEmpty) ||
+            (_tabIndex == 2 && _profileItem.isNotEmpty),
         sortCriteriaList: sortCriteriaList.map((sortCriteria) => sortCriteria.toString()).toList(),
         currentIndex: _currentSortCriteriaIndex,
         filters: _filters,
       );
 
-  DefaultPage? get currentPage {
-    if (_tabIndex == 0) {
-      return _tastingRecordsPage;
-    } else if (_tabIndex == 1) {
-      return _postsPage;
-    } else if (_tabIndex == 2) {
-      return _beansPage;
-    } else {
-      return _savedNotesPage;
-    }
-  }
+  List<ItemInProfile> get items => List.unmodifiable(_profileItem);
 
-  bool get hasNext => currentPage?.hasNext ?? false;
+  bool get hasNext => _hasNext;
 
-  initState() async {
+  Future<void> initState() async {
     _isLoading = true;
     notifyListeners();
 
-    profile = await fetchProfile().then((value) => Future<Profile?>.value(value)).onError((error, stackTrace) => null);
-    if (profile?.id != null) {
-      paginate(isPageChanged: true);
-    } else {
-      _isEmpty = true;
-    }
+    await Future.wait([
+      fetchProfile(),
+      paginate(isPageChanged: true),
+    ]);
     _isLoading = false;
     notifyListeners();
   }
 
-  refresh() async {
+  Future<void> refresh() async {
     _isLoading = true;
     notifyListeners();
 
-    profile = await fetchProfile();
-    if (profile?.id != null) {
-      paginate(isPageChanged: true);
-    } else {
-      _isEmpty = true;
-    }
+    await Future.wait([
+      fetchProfile(),
+      paginate(isPageChanged: true),
+    ]);
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<Profile> fetchProfile() => repository.fetchMyProfile();
+  onProfileUpdateEvent(ProfileUpdateEvent event) {
+    if (event.senderId != presenterId && id == event.userId && profile != null) {
+      final updatedNickname = event.profileUpdateModel.nickname;
+      final updatedIntroduction = event.profileUpdateModel.userDetail.introduction;
+      final updatedIsCertificated = event.profileUpdateModel.userDetail.isCertificated;
+      final updatedProfileLink = event.profileUpdateModel.userDetail.profileLink;
+      final updatedCoffeeLife = event.profileUpdateModel.userDetail.coffeeLife;
+      final updatedPreferredBeanTaste = event.profileUpdateModel.userDetail.preferredBeanTaste;
+      if (updatedNickname != null) {
+        profile = profile?.copyWith(nickname: updatedNickname);
+      }
+      if (updatedIntroduction != null) {
+        profile = profile?.copyWith(introduction: updatedIntroduction);
+      }
+      if (updatedIsCertificated != null) {
+        profile = profile?.copyWith(isCertificated: updatedIsCertificated);
+      }
+      if (updatedProfileLink != null) {
+        profile = profile?.copyWith(profileLink: updatedProfileLink);
+      }
+      if (updatedCoffeeLife != null) {
+        profile = profile?.copyWith(coffeeLife: List.from(updatedCoffeeLife));
+      }
+      if (updatedPreferredBeanTaste != null) {
+        profile = profile?.copyWith(preferredBeanTaste: updatedPreferredBeanTaste.copyWith());
+      }
+      notifyListeners();
+    }
+  }
 
-  paginate({bool isPageChanged = false}) {
+  Future<void> fetchProfile() async {
+    profile = await repository.fetchMyProfile();
+  }
+
+  Future<void> paginate({bool isPageChanged = false}) async {
     if (isPageChanged) {
+      _profileItem.clear();
       _pageNo = 1;
-      _tastingRecordsPage = DefaultPage.initState();
-      _postsPage = DefaultPage.initState();
-      _beansPage = DefaultPage.initState();
-      _savedNotesPage = DefaultPage.initState();
+      _hasNext = true;
       notifyListeners();
     }
 
     if (hasNext) {
-      _fetchPage();
+      await _fetchPage();
     }
   }
 
-  _fetchPage() async {
-    final id = profile?.id;
-    if (id != null) {
-      if (currentPage?.results.isEmpty ?? true) {
-        _isLoadingData = true;
-        notifyListeners();
-      }
+  Future<void> _fetchPage() async {
+    _isLoadingData = true;
+    notifyListeners();
 
-      if (_tabIndex == 0) {
-        final nextPage = await repository.fetchTastedRecordPage(
-          userId: id,
-          pageNo: _pageNo,
-          orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toJson(),
-          isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
-          country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
-          roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
-          roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
-          ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
-          ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
-        );
-
-        _tastingRecordsPage = await compute(
-          (message) {
-            return message.$2.copyWith(results: message.$1.results + message.$2.results);
-          },
-          (_tastingRecordsPage, nextPage),
-        );
-        _pageNo++;
-        _isLoadingData = false;
-        notifyListeners();
-      } else if (_tabIndex == 1) {
-        final nextPage = await repository.fetchPostPage(userId: id);
-        _postsPage = await compute(
-          (message) {
-            return message.$2.copyWith(results: message.$1.results + message.$2.results);
-          },
-          (_postsPage, nextPage),
-        );
-        _isLoadingData = false;
-        notifyListeners();
-      } else if (_tabIndex == 2) {
-        final nextPage = await repository.fetchCoffeeBeanPage(
-          userId: id,
-          pageNo: _pageNo,
-          orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
-          beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
-          isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
-          country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
-          roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
-          roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
-          ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
-          ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
-        );
-        _beansPage = await compute(
-          (message) {
-            return message.$2.copyWith(results: message.$1.results + message.$2.results);
-          },
-          (_beansPage, nextPage),
-        );
-        _pageNo++;
-        _isLoadingData = false;
-        notifyListeners();
-      } else {
-        final nextPage = await repository.fetchNotePage(userId: id, pageNo: _pageNo);
-
-        _savedNotesPage = await compute(
-          (message) {
-            return message.$2.copyWith(results: message.$1.results + message.$2.results);
-          },
-          (_savedNotesPage, nextPage),
-        );
-        _pageNo++;
-        _isLoadingData = false;
-        notifyListeners();
-      }
+    if (_tabIndex == 0) {
+      final nextPage = await repository.fetchTastedRecordPage(
+        userId: _id,
+        pageNo: _pageNo,
+        orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toJson(),
+        isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
+        country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
+        roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
+        roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
+        ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
+        ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
+      );
+      _profileItem.addAll(nextPage.results.map((e) => TastedRecordInProfileItem(data: e)));
+      _hasNext = nextPage.hasNext;
+      _pageNo++;
+      _isLoadingData = false;
+      notifyListeners();
+    } else if (_tabIndex == 1) {
+      final nextPage = await repository.fetchPostPage(userId: _id);
+      _profileItem.addAll(nextPage.results.map((e) => PostInProfileItem(data: e)));
+      _hasNext = nextPage.hasNext;
+      _isLoadingData = false;
+      notifyListeners();
+    } else if (_tabIndex == 2) {
+      final nextPage = await repository.fetchCoffeeBeanPage(
+        userId: _id,
+        pageNo: _pageNo,
+        orderBy: sortCriteriaList[_currentSortCriteriaIndex].toJson(),
+        beanType: _filters.whereType<BeanTypeFilter>().firstOrNull?.type.toString(),
+        isDecaf: _filters.whereType<DecafFilter>().firstOrNull?.isDecaf,
+        country: _filters.whereType<CountryFilter>().map((e) => e.country.toString()).join(','),
+        roastingPointMin: _filters.whereType<RoastingPointFilter>().firstOrNull?.start,
+        roastingPointMax: _filters.whereType<RoastingPointFilter>().firstOrNull?.end,
+        ratingMin: _filters.whereType<RatingFilter>().firstOrNull?.start,
+        ratingMax: _filters.whereType<RatingFilter>().firstOrNull?.end,
+      );
+      _profileItem.addAll(nextPage.results.map((e) => SavedBeanInProfileItem(data: e)));
+      _hasNext = nextPage.hasNext;
+      _pageNo++;
+      _isLoadingData = false;
+      notifyListeners();
+    } else {
+      final nextPage = await repository.fetchNotePage(userId: _id, pageNo: _pageNo);
+      _profileItem.addAll(nextPage.results.map((e) => SavedNoteInProfileItem(data: e)));
+      _hasNext = nextPage.hasNext;
+      _pageNo++;
+      _isLoadingData = false;
+      notifyListeners();
     }
   }
 

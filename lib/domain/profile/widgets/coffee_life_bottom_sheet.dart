@@ -32,18 +32,15 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
               ),
               child: SafeArea(
                 top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
-                    return Column(
-                      children: [
-                        _buildTitle(context),
-                        Expanded(child: _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList)),
-                        _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
-                      ],
-                    );
-                  }),
-                ),
+                child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
+                  return Column(
+                    children: [
+                      _buildTitle(context),
+                      Expanded(child: _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList)),
+                      _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
+                    ],
+                  );
+                }),
               ),
             ),
           ),

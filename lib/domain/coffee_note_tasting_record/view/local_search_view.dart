@@ -64,10 +64,6 @@ class _LocalSearchViewState extends State<LocalSearchView> {
     );
 
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<LocalSearchPresenter>().initState();
-    });
   }
 
   @override
@@ -163,7 +159,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
                         const SizedBox(height: 12),
                         Expanded(
                           child: Selector<LocalSearchPresenter, List<Local>>(
-                            selector: (context, presenter) => presenter.page.results,
+                            selector: (context, presenter) => presenter.localList,
                             builder: (context, localList, child) => _buildLocalResults(localList: localList),
                           ),
                         ),

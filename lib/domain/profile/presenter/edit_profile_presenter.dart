@@ -1,11 +1,15 @@
 import 'dart:typed_data';
 
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
+import 'package:brew_buds/domain/profile/model/profile_update_model.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:brew_buds/model/events/profile_update_event.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 
 typedef ProfileImageState = ({String imageUrl, Uint8List? imageData});
@@ -80,9 +84,7 @@ final class EditProfilePresenter extends Presenter {
         _introduction = introduction,
         _preIntroduction = introduction,
         _link = link,
-        _preLink = link;
-
-  initState() {
+        _preLink = link {
     _nicknameCheckDebouncer = Debouncer(
       const Duration(milliseconds: 300),
       initialValue: '',
@@ -176,22 +178,32 @@ final class EditProfilePresenter extends Presenter {
   Future<Result<String>> onSave() async {
     final imageData = _imageData;
     if (imageData != null) {
-      final imageResult = await _photoApi
-          .createProfilePhoto(imageData: await compressList(imageData))
-          .onError((error, stackTrace) => '');
-      if (imageResult.isEmpty) {
-        return Result.error('프로필 이미지 등록 실패.');
+      try {
+        await _photoApi.createProfilePhoto(imageData: await compressList(imageData));
+      } catch (e) {
+        return Result.error('프로필 이미지를 업로드에 실패했어요.');
       }
     }
 
-    return _profileRepository
-        .updateProfile(
-          nickname: _preNickname != _nickname ? _nickname : null,
-          introduction: _preIntroduction != _introduction ? _introduction : null,
-          profileLink: _preLink != _link ? _link : null,
-          coffeeLife: _compareCoffeeLifeList() ? _selectedCoffeeLifeList : null,
-        )
-        .then((value) => Result.success('프로필 수성 성공.'))
-        .onError((error, stackTrace) => Result.error('프로필 수정 실패.'));
+    final ProfileUpdateModel profileUpdateModel = ProfileUpdateModel(
+      nickname: _preNickname != _nickname ? _nickname : null,
+      introduction: _preIntroduction != _introduction ? _introduction : null,
+      profileLink: _preLink != _link ? _link : null,
+      coffeeLife: _compareCoffeeLifeList() ? _selectedCoffeeLifeList : null,
+    );
+
+    try {
+      await _profileRepository.updateProfile(data: profileUpdateModel.toJson());
+      EventBus.instance.fire(
+        ProfileUpdateEvent(
+          senderId: presenterId,
+          userId: AccountRepository.instance.id ?? 0,
+          profileUpdateModel: profileUpdateModel,
+        ),
+      );
+      return Result.success('프로필을 수정했어요.');
+    } catch (e) {
+      return Result.error('프로필 수정에 실패했어요.');
+    }
   }
 }

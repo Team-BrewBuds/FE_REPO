@@ -1,37 +1,33 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/follow_list_repository.dart';
-import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
-import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/domain/follow_list/follow_user_presenter.dart';
 
 final class FollowerListPBPresenter extends Presenter {
   final FollowListRepository _followListRepository = FollowListRepository.instance;
   final int id;
   final String nickName;
-
-  DefaultPage<FollowUser> _page = DefaultPage.initState();
-  int _currentTab = 0;
+  final List<FollowUserPresenter> _users = [];
+  bool _hasNext = true;
+  int _currentTab;
   int _pageNo = 1;
 
-  bool get hasNext => _page.hasNext;
+  bool get hasNext => _hasNext;
 
-  DefaultPage<FollowUser> get page => _page;
+  List<FollowUserPresenter> get users => List.unmodifiable(_users);
 
   FollowerListPBPresenter({
     required this.id,
     required this.nickName,
-  });
-
-  init(int index) {
-    _currentTab = index;
-    _pageNo = 1;
-    _page = DefaultPage.initState();
+    int currentTab = 0
+  }) : _currentTab = currentTab {
     moreData();
   }
 
   moreData({bool changedTab = false}) {
     if (changedTab) {
+      _users.clear();
       _pageNo = 1;
-      _page = DefaultPage.initState();
+      _hasNext = true;
       notifyListeners();
     }
 
@@ -47,36 +43,21 @@ final class FollowerListPBPresenter extends Presenter {
     moreData(changedTab: true);
   }
 
-  _fetchFollowings() {
+  _fetchFollowings() async {
     if (!hasNext) return;
-    _followListRepository.fetchFollowerList(id: id, page: _pageNo, type: 'following').then((newPage) {
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
-      _pageNo += 1;
-      notifyListeners();
-    });
+    final nextPage = await _followListRepository.fetchFollowerList(id: id, page: _pageNo, type: 'following');
+    _users.addAll(nextPage.results.map((user) => FollowUserPresenter(user: user)));
+    _hasNext = nextPage.hasNext;
+    _pageNo++;
+    notifyListeners();
   }
 
-  _fetchFollowers() {
+  _fetchFollowers() async {
     if (!hasNext) return;
-    _followListRepository.fetchFollowerList(id: id, page: _pageNo, type: 'follower').then((newPage) {
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
-      _pageNo += 1;
-      notifyListeners();
-    });
-  }
-
-  onTappedFollowButton(FollowUser user) {
-    _followListRepository.follow(id: user.id, isFollow: user.isFollowing).then(
-      (_) {
-        _page = _page.copyWith(
-          results: _page.results
-              .map(
-                (e) => e.id == user.id ? user.copyWith(isFollowing: !user.isFollowing) : e,
-              )
-              .toList(),
-        );
-        notifyListeners();
-      },
-    );
+    final nextPage = await _followListRepository.fetchFollowerList(id: id, page: _pageNo, type: 'follower');
+    _users.addAll(nextPage.results.map((user) => FollowUserPresenter(user: user)));
+    _hasNext = nextPage.hasNext;
+    _pageNo++;
+    notifyListeners();
   }
 }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -104,13 +105,16 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                 builder: (context, canEdit, child) {
                   return AbsorbPointer(
                     absorbing: !canEdit,
-                    child: ThrottleButton(
+                    child: FutureButton(
                       onTap: () {
-                        context
-                            .read<AccountDetailPresenter>()
-                            .onSave()
-                            .then((_) => context.pop('맞춤정보 저장을 완료했어요.'))
-                            .onError((error, stackTrace) => showSnackBar(message: '맞춤정보 저장에 실패했어요.'));
+                        return context.read<AccountDetailPresenter>().onSave();
+                      },
+                      onError: () {
+                        showSnackBar(message: '맞춤정보 저장에 실패했어요.');
+                      },
+                      onComplete: (_) {
+                        showSnackBar(message: '맞춤정보 저장을 완료했어요.');
+                        context.pop();
                       },
                       child: Text(
                         '저장',

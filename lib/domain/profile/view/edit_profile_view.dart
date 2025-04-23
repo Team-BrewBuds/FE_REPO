@@ -1,12 +1,11 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:brew_buds/domain/photo/check_selected_images_screen.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/coffee_life_bottom_sheet.dart';
@@ -52,14 +51,8 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     _nicknameFocusNode = FocusNode();
     _introductionFocusNode = FocusNode();
     _linkFocusNode = FocusNode();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<EditProfilePresenter>().initState();
-      _linkEditingController.addListener(() {
-        context.read<EditProfilePresenter>().onChangeLink(_linkEditingController.text);
-      });
-      _linkFocusNode.addListener(() {
-        _handleFocusChange();
-      });
+    _linkFocusNode.addListener(() {
+      _handleFocusChange();
     });
     super.initState();
   }
@@ -68,9 +61,6 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   void dispose() {
     _nicknameEditingController.dispose();
     _introductionEditingController.dispose();
-    _linkEditingController.removeListener(() {
-      context.read<EditProfilePresenter>().onChangeLink(_linkEditingController.text);
-    });
     _linkEditingController.dispose();
     _nicknameFocusNode.dispose();
     _introductionFocusNode.dispose();
@@ -84,8 +74,14 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   void _handleFocusChange() {
     if (_linkFocusNode.hasFocus) {
       if (_linkEditingController.text.isEmpty) {
-        _linkEditingController.value =
-            const TextEditingValue(text: 'https://', selection: TextSelection.collapsed(offset: 'https://'.length));
+        _linkEditingController.value = const TextEditingValue(
+          text: 'https://',
+          selection: TextSelection.collapsed(offset: 'https://'.length),
+        );
+      }
+    } else {
+      if (_linkEditingController.text == 'https://') {
+        _clearLink();
       }
     }
   }
@@ -173,25 +169,27 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                     builder: (context, canEdit, _) {
                       return AbsorbPointer(
                         absorbing: !canEdit,
-                        child: ThrottleButton(
-                          onTap: () {
-                            context.read<EditProfilePresenter>().onSave().then((value) {
-                              switch (value) {
-                                case Success<String>():
-                                  context.pop(value.data);
-                                  break;
-                                case Error<String>():
-                                  showSnackBar(message: value.e);
-                                  break;
-                              }
-                            });
+                        child: FutureButton<Result<String>>(
+                          onTap: () => context.read<EditProfilePresenter>().onSave(),
+                          onError: () {
+                            showSnackBar(message: '프로필 수정에 실패했어요.');
+                          },
+                          onComplete: (result) {
+                            switch (result) {
+                              case Success<String>():
+                                showSnackBar(message: result.data);
+                                context.pop();
+                              case Error<String>():
+                                showSnackBar(message: result.e);
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8, right: 8),
                             child: Text(
                               '저장',
-                              style: TextStyles.title02SemiBold
-                                  .copyWith(color: canEdit ? ColorStyles.red : ColorStyles.gray30),
+                              style: TextStyles.title02SemiBold.copyWith(
+                                color: canEdit ? ColorStyles.red : ColorStyles.gray30,
+                              ),
                             ),
                           ),
                         ),
@@ -233,9 +231,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
             right: 0,
             bottom: 0,
             child: ThrottleButton(
-              onTap: () {
-                _showAlbumModal();
-              },
+              onTap: () {},
               child: Container(
                 height: 28.17,
                 width: 28.17,
@@ -585,27 +581,9 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     }
   }
 
-  _showAlbumModal() async {
-    // final result = await showCupertinoModalPopup<Uint8List>(
-    //   barrierColor: ColorStyles.white,
-    //   barrierDismissible: false,
-    //   context: context,
-    //   builder: (context) {
-    //
-    //   },
-    // );
-    //
-    // if (result != null) {
-    //   _onChangeImageData(result);
-    // }
-  }
-
-  _onChangeImageData(Uint8List imageData) {
-    context.read<EditProfilePresenter>().onChangeImageData(imageData);
-  }
-
   _clearLink() {
     _linkEditingController.value = TextEditingValue.empty;
+    context.read<EditProfilePresenter>().onChangeLink('');
   }
 }
 

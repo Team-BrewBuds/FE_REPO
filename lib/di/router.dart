@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
 import 'package:brew_buds/domain/home/home_screen.dart';
@@ -185,7 +186,7 @@ GoRouter createRouter(bool hasToken) {
             path: '/profile',
             pageBuilder: (context, state) => CustomTransitionPage(
               child: ChangeNotifierProvider<ProfilePresenter>(
-                create: (_) => ProfilePresenter(),
+                create: (_) => ProfilePresenter(id: AccountRepository.instance.id ?? 0),
                 child: const MyProfileView(),
               ),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -198,26 +199,6 @@ GoRouter createRouter(bool hasToken) {
               name: const UuidV4().generate(),
             ),
             routes: [
-              GoRoute(
-                path: 'edit',
-                builder: (context, state) {
-                  final EditProfileData data = state.extra as EditProfileData;
-                  return ChangeNotifierProvider<EditProfilePresenter>(
-                    create: (_) => EditProfilePresenter(
-                      selectedCoffeeLifeList: data.coffeeLife,
-                      imageUrl: data.imageUrl,
-                      nickname: data.nickname,
-                      introduction: data.introduction,
-                      link: data.link,
-                    ),
-                    child: EditProfileView(
-                      nickname: data.nickname,
-                      introduction: data.introduction,
-                      link: data.link,
-                    ),
-                  );
-                },
-              ),
               GoRoute(
                 path: 'setting',
                 builder: (context, state) => const SettingScreen(),

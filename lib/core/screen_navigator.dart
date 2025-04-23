@@ -10,10 +10,13 @@ import 'package:brew_buds/domain/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_presenter.dart';
-import 'package:brew_buds/domain/profile/presenter/other_profile_presenter.dart';
+import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
+import 'package:brew_buds/domain/profile/presenter/modal_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart';
-import 'package:brew_buds/domain/profile/view/other_profile_view.dart';
+import 'package:brew_buds/domain/profile/view/edit_profile_view.dart';
+import 'package:brew_buds/domain/profile/view/profile_view.dart';
 import 'package:brew_buds/domain/profile/view/taste_report_view.dart';
+import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,9 +28,9 @@ final class ScreenNavigator {
     return Navigator.of(context, rootNavigator: true).push(
       PageRouteBuilder(
         fullscreenDialog: true,
-        pageBuilder: (_, __, ___) => ChangeNotifierProvider<OtherProfilePresenter>(
-          create: (_) => OtherProfilePresenter(id: id),
-          child: const OtherProfileView(),
+        pageBuilder: (_, __, ___) => ChangeNotifierProvider<ModalProfilePresenter>(
+          create: (_) => ModalProfilePresenter(id: id),
+          child: const ProfileView(),
         ),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(
@@ -102,7 +105,7 @@ final class ScreenNavigator {
     );
   }
 
-  static Future<void> pushToTasteReport<T>({required BuildContext context, required String nickname, required int id}) {
+  static Future<void> pushToTasteReport({required BuildContext context, required String nickname, required int id}) {
     return Navigator.of(context, rootNavigator: true).push(
       PageRouteBuilder(
         fullscreenDialog: true,
@@ -116,6 +119,47 @@ final class ScreenNavigator {
           final tween = Tween(begin: begin, end: end).chain(
             CurveTween(curve: Curves.easeInOut),
           );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  static Future<void> showProfileEditScreen({
+    required BuildContext context,
+    required List<CoffeeLife> selectedCoffeeLifeList,
+    required String imageUrl,
+    required String nickname,
+    required String introduction,
+    required String link,
+  }) {
+    return Navigator.of(context, rootNavigator: true).push(
+      PageRouteBuilder(
+        fullscreenDialog: true,
+        pageBuilder: (_, __, ___) => ChangeNotifierProvider<EditProfilePresenter>(
+          create: (_) => EditProfilePresenter(
+            selectedCoffeeLifeList: selectedCoffeeLifeList,
+            imageUrl: imageUrl,
+            nickname: nickname,
+            introduction: introduction,
+            link: link,
+          ),
+          child: EditProfileView(
+            nickname: nickname,
+            introduction: introduction,
+            link: link,
+          ),
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -218,17 +262,6 @@ final class ScreenNavigator {
           );
         },
       ),
-    );
-    return showCupertinoModalPopup<bool>(
-      barrierColor: ColorStyles.white,
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        return ChangeNotifierProvider(
-          create: (context) => PostWritePresenter(),
-          child: const PostWriteScreen(),
-        );
-      },
     );
   }
 }
