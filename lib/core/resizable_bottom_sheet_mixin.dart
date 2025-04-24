@@ -209,16 +209,19 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
             bottom: _height < minimumHeight
                 ? MediaQuery.of(context).viewInsets.bottom - (minimumHeight - _height)
                 : MediaQuery.of(context).viewInsets.bottom, // 키보드 위에 표시
-            child: NotificationListener<SizeChangedLayoutNotification>(
-              onNotification: (notification) {
-                _updateBottomWidgetHeight();
-                return true;
-              },
-              child: SizeChangedLayoutNotifier(
-                child: Material(
-                  key: _bottomWidgetKey,
-                  color: ColorStyles.white,
-                  child: buildBottomWidget(context),
+            child: SafeArea(
+              top: false,
+              child: NotificationListener<SizeChangedLayoutNotification>(
+                onNotification: (notification) {
+                  _updateBottomWidgetHeight();
+                  return true;
+                },
+                child: SizeChangedLayoutNotifier(
+                  child: Material(
+                    key: _bottomWidgetKey,
+                    color: ColorStyles.white,
+                    child: buildBottomWidget(context),
+                  ),
                 ),
               ),
             ),

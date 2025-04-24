@@ -6,20 +6,19 @@ import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/domain/home/comments/re_comment_presenter.dart';
 import 'package:brew_buds/model/comments.dart';
+import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
 
 final class CommentPresenter extends Presenter {
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   late final StreamSubscription _eventSub;
-  final int objectId;
-  final int objectAuthorId;
   Comment _comment;
   List<ReCommentPresenter> _reCommentPresenters;
   bool _isExpanded = false;
 
   int get id => _comment.id;
 
-  int get authorId => _comment.author.id;
+  User get author => _comment.author;
 
   bool get isExpanded => _isExpanded;
 
@@ -28,10 +27,6 @@ final class CommentPresenter extends Presenter {
   String get nickName => _comment.author.nickname;
 
   String get createdAt => _comment.createdAt;
-
-  bool get isWriter => _comment.author.id == objectAuthorId;
-
-  bool get isMyObject => objectAuthorId == AccountRepository.instance.id;
 
   bool get isMyComment => _comment.author.id == AccountRepository.instance.id;
 
@@ -44,19 +39,9 @@ final class CommentPresenter extends Presenter {
   List<ReCommentPresenter> get reCommentPresenters => List.unmodifiable(_reCommentPresenters);
 
   CommentPresenter({
-    required this.objectId,
-    required this.objectAuthorId,
     required Comment comment,
   })  : _comment = comment,
-        _reCommentPresenters = List.from(
-          comment.reComments.map(
-            (e) => ReCommentPresenter(
-              isWriter: comment.author.id == objectAuthorId,
-              isMyObject: objectAuthorId == AccountRepository.instance.id,
-              comment: e,
-            ),
-          ),
-        ) {
+        _reCommentPresenters = List.from(comment.reComments.map((e) => ReCommentPresenter(comment: e))) {
     _eventSub = EventBus.instance.on<CommentEvent>().listen(_onEvent);
   }
 
@@ -79,16 +64,8 @@ final class CommentPresenter extends Presenter {
           notifyListeners();
           break;
         case CreateReCommentEvent():
-          _reCommentPresenters.add(
-            ReCommentPresenter(
-              isWriter: isWriter,
-              isMyObject: isMyObject,
-              comment: event.newReComment,
-            ),
-          );
+          _reCommentPresenters.add(ReCommentPresenter(comment: event.newReComment));
           notifyListeners();
-          break;
-        case CommentUpdateEvent():
           updateComment();
           break;
         default:
@@ -101,15 +78,7 @@ final class CommentPresenter extends Presenter {
     try {
       final newComment = await _commentsRepository.fetchComment(id: _comment.id);
       _comment = newComment.copyWith();
-      _reCommentPresenters = newComment.reComments
-          .map(
-            (e) => ReCommentPresenter(
-              isWriter: e.author.id == objectAuthorId,
-              isMyObject: e.author.id == AccountRepository.instance.id,
-              comment: e,
-            ),
-          )
-          .toList();
+      _reCommentPresenters = newComment.reComments.map((e) => ReCommentPresenter(comment: e)).toList();
       notifyListeners();
     } catch (e) {
       return;

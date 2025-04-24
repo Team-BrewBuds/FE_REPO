@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
@@ -7,8 +5,8 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/home/comments/comments_bottom_sheet.dart';
+import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/home/feed/post_feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
@@ -297,19 +295,13 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       barrierColor: ColorStyles.black50,
       transitionDuration: const Duration(milliseconds: 300),
       context: context,
-      pageBuilder: (_, __, ___) {
-        return ChangeNotifierProvider<CommentsPresenter>(
-          create: (_) => CommentsPresenter(
-            objectType: objectType,
-            objectId: objectId,
-            objectAuthor: objectAuthor,
-          ),
-          child: CommentsBottomSheet(
-            initialHeight: MediaQuery.of(context).size.height * 0.7,
-            maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - 16,
-          ),
-        );
-      },
+      pageBuilder: (_, __, ___) => CommentsBottomSheet.buildWithPresenter(
+        maxHeight: MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - 16,
+        initialHeight: MediaQuery.of(context).size.height * 0.7,
+        objectType: objectType,
+        objectId: objectId,
+        objectAuthor: objectAuthor,
+      ),
       transitionBuilder: (_, anim, __, child) {
         return SlideTransition(
           position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),

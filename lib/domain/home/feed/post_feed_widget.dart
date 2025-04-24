@@ -145,7 +145,7 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
                   onGuest.call();
                 } else {
                   final id = context.read<PostFeedPresenter>().feed.data.id;
-                  showPostDetail(context: context, id: id);
+                  ScreenNavigator.showPostDetail(context: context, id: id);
                 }
               },
               child: Text(

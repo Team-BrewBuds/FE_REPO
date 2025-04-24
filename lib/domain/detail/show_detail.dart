@@ -8,20 +8,6 @@ import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.da
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 
-Future<String?> showPostDetail({required BuildContext context, required int id}) {
-  return showCupertinoModalPopup<String>(
-    barrierColor: ColorStyles.white,
-    barrierDismissible: false,
-    context: context,
-    builder: (context) {
-      return ChangeNotifierProvider<PostDetailPresenter>(
-        create: (_) => PostDetailPresenter(id: id),
-        child: const PostDetailView(),
-      );
-    },
-  );
-}
-
 Future<String?> showTastingRecordDetail({required BuildContext context, required int id}) {
   return showCupertinoModalPopup<String>(
     barrierColor: ColorStyles.white,

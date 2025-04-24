@@ -27,7 +27,7 @@ extension SearchTastingRecordMapper on SearchTastingRecordDTO {
       beanType: beanType,
       taste: beanTaste.split(','),
       contents: content,
-      imageUri: imageUrl,
+      imageUrl: imageUrl,
     );
   }
 }
@@ -44,7 +44,7 @@ extension SearchPostMapper on SearchPostDTO {
       createdAt: (DateTime.tryParse(createdAt) ?? DateTime.now()).timeAgo(),
       authorNickname: authorNickname,
       subject: subject.toDomain().toString(),
-      imageUri: imageUrl,
+      imageUrl: imageUrl,
     );
   }
 }
@@ -53,7 +53,7 @@ extension SearchUserMapper on SearchUserDTO {
   BuddySearchResultModel toDomain() {
     return BuddySearchResultModel(
       id: id,
-      profileImageUri: imageUrl,
+      profileImageUrl: imageUrl,
       nickname: nickname,
       followerCount: followerCount,
       tastedRecordsCount: tastingRecordCount,

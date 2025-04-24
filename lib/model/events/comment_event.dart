@@ -21,6 +21,20 @@ final class CommentLikeEvent implements CommentEvent {
   });
 }
 
+final class CreateCommentEvent implements CommentEvent {
+  @override
+  final String senderId;
+  @override
+  final int id;
+  final Comment newComment;
+
+  const CreateCommentEvent({
+    required this.senderId,
+    required this.id,
+    required this.newComment,
+  });
+}
+
 final class CreateReCommentEvent implements CommentEvent {
   @override
   final String senderId;
@@ -32,18 +46,6 @@ final class CreateReCommentEvent implements CommentEvent {
     required this.senderId,
     required this.id,
     required this.newReComment,
-  });
-}
-
-final class CommentUpdateEvent implements CommentEvent {
-  @override
-  final String senderId;
-  @override
-  final int id;
-
-  const CommentUpdateEvent({
-    required this.senderId,
-    required this.id,
   });
 }
 

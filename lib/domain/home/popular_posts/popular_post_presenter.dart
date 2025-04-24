@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/model/events/comment_event.dart';
 import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 
 final class PopularPostPresenter extends Presenter {
   late final StreamSubscription _postSub;
+  late final StreamSubscription _commentSub;
   Post _post;
 
   int get id => _post.id;
@@ -33,16 +35,18 @@ final class PopularPostPresenter extends Presenter {
   PopularPostPresenter({
     required Post post,
   }) : _post = post {
-    _postSub = EventBus.instance.on<PostEvent>().listen(_onEvent);
+    _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
+    _commentSub = EventBus.instance.on<CommentEvent>().listen(_onCommentEvent);
   }
 
   @override
   dispose() {
     _postSub.cancel();
+    _commentSub.cancel();
     super.dispose();
   }
 
-  _onEvent(PostEvent event) {
+  _onPostEvent(PostEvent event) {
     switch (event) {
       case PostUpdateEvent():
         final updateModel = event.updateModel;
@@ -58,6 +62,21 @@ final class PopularPostPresenter extends Presenter {
         break;
       default:
         break;
+    }
+  }
+
+  _onCommentEvent(CommentEvent event) {
+    if (event.senderId != presenterId) {
+      switch (event) {
+        case OnChangeCommentCountEvent():
+          if (event.id == _post.id && event.objectType == 'post') {
+            _post = _post.copyWith(commentsCount: event.count);
+            notifyListeners();
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 }

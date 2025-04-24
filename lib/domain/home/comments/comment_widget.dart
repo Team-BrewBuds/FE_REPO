@@ -14,10 +14,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class CommentWidget extends StatelessWidget {
+  final int objectAuthorId;
+  final bool isMyComment;
+  final bool isMyObject;
   final void Function() onTapReply;
 
   const CommentWidget({
     super.key,
+    required this.objectAuthorId,
+    required this.isMyComment,
+    required this.isMyObject,
     required this.onTapReply,
   });
 
@@ -46,6 +52,9 @@ class CommentWidget extends StatelessWidget {
                     return ChangeNotifierProvider.value(
                       value: presenter,
                       child: ReCommentWidget(
+                        objectAuthorId: objectAuthorId,
+                        isMyComment: isMyComment,
+                        isMyObject: isMyObject,
                         onDelete: () {
                           context.read<CommentPresenter>().onTapDeleteReCommentAt(index);
                         },
@@ -97,14 +106,12 @@ class CommentWidget extends StatelessWidget {
 
   Widget _buildSlidableComment() {
     return Builder(builder: (context) {
-      final isMyObject = context.select<CommentPresenter, bool>((presenter) => presenter.isMyObject);
-      final isMyComments = context.select<CommentPresenter, bool>((presenter) => presenter.isMyComment);
       return Slidable(
         endActionPane: ActionPane(
-          extentRatio: (isMyObject || isMyComments) && !isMyComments ? 0.4 : 0.2,
+          extentRatio: (isMyObject || isMyComment) && !isMyComment ? 0.4 : 0.2,
           motion: const DrawerMotion(),
           children: [
-            if (isMyObject || isMyComments)
+            if (isMyObject || isMyComment)
               Expanded(
                 child: ThrottleButton(
                   onTap: () {},
@@ -129,7 +136,7 @@ class CommentWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            if (!isMyComments)
+            if (!isMyComment)
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
@@ -173,7 +180,7 @@ class CommentWidget extends StatelessWidget {
             children: [
               ThrottleButton(
                 onTap: () {
-                  ScreenNavigator.pushToProfile(context: context, id: context.read<CommentPresenter>().authorId);
+                  ScreenNavigator.pushToProfile(context: context, id: context.read<CommentPresenter>().author.id);
                 },
                 child: Builder(builder: (context) {
                   final imageUrl = context.select<CommentPresenter, String>((presenter) => presenter.profileImageUrl);
@@ -209,7 +216,7 @@ class CommentWidget extends StatelessWidget {
                             style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
                           );
                         }),
-                        if (context.select<CommentPresenter, bool>((presenter) => presenter.isWriter)) ...[
+                        if (context.read<CommentPresenter>().author.id == objectAuthorId) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

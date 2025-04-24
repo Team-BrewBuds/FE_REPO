@@ -546,7 +546,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 itemBuilder: (context, index) {
                   final post = posts[index];
                   return FutureButton(
-                    onTap: () => showPostDetail(context: context, id: post.id),
+                    onTap: () => ScreenNavigator.showPostDetail(context: context, id: post.id),
                     child: ProfilePostItemWidget(
                       title: post.title,
                       author: post.author,
@@ -616,7 +616,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   switch (note) {
                     case NotedPost():
                       return FutureButton(
-                        onTap: () => showPostDetail(context: context, id: note.id),
+                        onTap: () => ScreenNavigator.showPostDetail(context: context, id: note.id),
                         child: SavedPostWidget(
                           title: note.title,
                           subject: note.subject.toString(),

@@ -12,9 +12,18 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class ReCommentWidget extends StatelessWidget {
+  final int objectAuthorId;
+  final bool isMyComment;
+  final bool isMyObject;
   final void Function() onDelete;
 
-  const ReCommentWidget({super.key, required this.onDelete});
+  const ReCommentWidget({
+    super.key,
+    required this.objectAuthorId,
+    required this.isMyComment,
+    required this.isMyObject,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +32,12 @@ class ReCommentWidget extends StatelessWidget {
 
   Widget _buildSlidableComment() {
     return Builder(builder: (context) {
-      final isMyObject = context.select<ReCommentPresenter, bool>((presenter) => presenter.isMyObject);
-      final isMyComments = context.select<ReCommentPresenter, bool>((presenter) => presenter.isMyComment);
       return Slidable(
         endActionPane: ActionPane(
-          extentRatio: (isMyObject || isMyComments) && !isMyComments ? 0.4 : 0.2,
+          extentRatio: (isMyObject || isMyComment) && !isMyComment ? 0.4 : 0.2,
           motion: const DrawerMotion(),
           children: [
-            if (isMyObject || isMyComments)
+            if (isMyObject || isMyComment)
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
@@ -57,7 +64,7 @@ class ReCommentWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            if (!isMyComments)
+            if (!isMyComment)
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
@@ -93,6 +100,7 @@ class ReCommentWidget extends StatelessWidget {
   }
 
   Widget _buildComment(BuildContext context) {
+    final isWriter = context.read<ReCommentPresenter>().authorId == objectAuthorId;
     return Container(
       padding: const EdgeInsets.only(left: 60, top: 12, bottom: 12, right: 16),
       color: ColorStyles.gray10,
@@ -124,7 +132,8 @@ class ReCommentWidget extends StatelessWidget {
                     Row(
                       children: [
                         Builder(builder: (context) {
-                          final nickName = context.select<ReCommentPresenter, String>((presenter) => presenter.nickName);
+                          final nickName =
+                              context.select<ReCommentPresenter, String>((presenter) => presenter.nickName);
                           return Text(
                             nickName,
                             style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.black),
@@ -140,7 +149,7 @@ class ReCommentWidget extends StatelessWidget {
                             style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
                           );
                         }),
-                        if (context.select<ReCommentPresenter, bool>((presenter) => presenter.isWriter)) ...[
+                        if (isWriter) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

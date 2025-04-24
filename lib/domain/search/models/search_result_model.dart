@@ -9,7 +9,7 @@ sealed class SearchResultModel {
 
   factory SearchResultModel.buddy({
     required int id,
-    required String profileImageUri,
+    required String profileImageUrl,
     required String nickname,
     required int followerCount,
     required int tastedRecordsCount,
@@ -22,7 +22,7 @@ sealed class SearchResultModel {
     required String beanType,
     required List<String> taste,
     required String contents,
-    required String imageUri,
+    required String imageUrl,
   }) = TastedRecordSearchResultModel;
 
   factory SearchResultModel.post({
@@ -35,7 +35,7 @@ sealed class SearchResultModel {
     required String createdAt,
     required String authorNickname,
     required String subject,
-    required String imageUri,
+    required String imageUrl,
   }) = PostSearchResultModel;
 }
 
@@ -57,18 +57,33 @@ class CoffeeBeanSearchResultModel implements SearchResultModel {
 
 class BuddySearchResultModel implements SearchResultModel {
   final int id;
-  final String profileImageUri;
+  final String profileImageUrl;
   final String nickname;
   final int followerCount;
   final int tastedRecordsCount;
 
   const BuddySearchResultModel({
     required this.id,
-    required this.profileImageUri,
+    required this.profileImageUrl,
     required this.nickname,
     required this.followerCount,
     required this.tastedRecordsCount,
   });
+
+  BuddySearchResultModel copyWith({
+    String? profileImageUrl,
+    String? nickname,
+    int? followerCount,
+    int? tastedRecordsCount,
+  }) {
+    return BuddySearchResultModel(
+      id: id,
+      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      nickname: nickname ?? this.nickname,
+      followerCount: followerCount ?? this.followerCount,
+      tastedRecordsCount: tastedRecordsCount ?? this.tastedRecordsCount,
+    );
+  }
 }
 
 class TastedRecordSearchResultModel implements SearchResultModel {
@@ -78,7 +93,7 @@ class TastedRecordSearchResultModel implements SearchResultModel {
   final String beanType;
   final List<String> taste;
   final String contents;
-  final String imageUri;
+  final String imageUrl;
 
   const TastedRecordSearchResultModel({
     required this.id,
@@ -87,7 +102,7 @@ class TastedRecordSearchResultModel implements SearchResultModel {
     required this.beanType,
     required this.taste,
     required this.contents,
-    required this.imageUri,
+    required this.imageUrl,
   });
 }
 
@@ -101,7 +116,7 @@ class PostSearchResultModel implements SearchResultModel {
   final String createdAt;
   final String authorNickname;
   final String subject;
-  final String imageUri;
+  final String imageUrl;
 
   const PostSearchResultModel({
     required this.id,
@@ -113,6 +128,31 @@ class PostSearchResultModel implements SearchResultModel {
     required this.createdAt,
     required this.authorNickname,
     required this.subject,
-    required this.imageUri,
+    required this.imageUrl,
   });
+
+  PostSearchResultModel copyWith({
+    String? title,
+    String? contents,
+    int? likeCount,
+    int? commentCount,
+    int? hits,
+    String? createdAt,
+    String? authorNickname,
+    String? subject,
+    String? imageUrl,
+  }) {
+    return PostSearchResultModel(
+      id: id,
+      title: title ?? this.title,
+      contents: contents ?? this.contents,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      hits: hits ?? this.hits,
+      createdAt: createdAt ?? this.createdAt,
+      authorNickname: authorNickname ?? this.authorNickname,
+      subject: subject ?? this.subject,
+      imageUrl: imageUrl ?? this.imageUrl,
+    );
+  }
 }

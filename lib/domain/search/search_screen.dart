@@ -3,23 +3,22 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/filter/sort_criteria_bottom_sheet.dart';
-import 'package:brew_buds/domain/search/models/search_result_model.dart';
 import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
 import 'package:brew_buds/domain/search/search_presenter.dart';
-import 'package:brew_buds/domain/search/widgets/buddy_results_item.dart';
-import 'package:brew_buds/domain/search/widgets/coffee_bean_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/coffee_beans_ranking_list.dart';
-import 'package:brew_buds/domain/search/widgets/post_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/recent_search_words_list.dart';
 import 'package:brew_buds/domain/search/widgets/recommended_coffee_beans_list.dart';
+import 'package:brew_buds/domain/search/widgets/search_result/buddy_results_item.dart';
+import 'package:brew_buds/domain/search/widgets/search_result/coffee_bean_results_item.dart';
+import 'package:brew_buds/domain/search/widgets/search_result/post_results_item.dart';
+import 'package:brew_buds/domain/search/widgets/search_result/search_result_presenter.dart';
+import 'package:brew_buds/domain/search/widgets/search_result/tatsed_record_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/suggest_word.dart';
-import 'package:brew_buds/domain/search/widgets/tatsed_record_results_item.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -335,7 +334,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             builder: (context) {
               final hasFilter = context.select<SearchPresenter, bool>((presenter) => presenter.hasFilter);
               final isLoading = context.select<SearchPresenter, bool>((presenter) => presenter.isLoadingSearch);
-              final searchResultList = context.select<SearchPresenter, List<SearchResultModel>>(
+              final searchResultList = context.select<SearchPresenter, List<SearchResultPresenter>>(
                 (presenter) => presenter.searchResultModel,
               );
               final hasNext = context.select<SearchPresenter, bool>((presenter) => presenter.hasNext);
@@ -385,20 +384,33 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildSearchResult({required List<SearchResultModel> searchResultList}) {
+  Widget _buildSearchResult({required List<SearchResultPresenter> searchResultList}) {
     return SliverList.separated(
       itemCount: searchResultList.length,
       itemBuilder: (context, index) {
-        final result = searchResultList[index];
-        switch (result) {
-          case CoffeeBeanSearchResultModel():
-            return _buildBeanResultItem(result);
-          case BuddySearchResultModel():
-            return _buildUserResultItem(result);
-          case TastedRecordSearchResultModel():
-            return _buildTastingRecordResultItem(result);
-          case PostSearchResultModel():
-            return _buildPostResultItem(result);
+        final searchWord = context.read<SearchPresenter>().searchWord;
+        final presenter = searchResultList[index];
+        switch (presenter) {
+          case TastedRecordSearchResultPresenter():
+            return ChangeNotifierProvider.value(
+              value: presenter,
+              child: TastedRecordResultsItem(searchWord: searchWord),
+            );
+          case PostSearchResultPresenter():
+            return ChangeNotifierProvider.value(
+              value: presenter,
+              child: PostResultsItem(searchWord: searchWord),
+            );
+          case CoffeeBeanSearchResultPresenter():
+            return ChangeNotifierProvider.value(
+              value: presenter,
+              child: const CoffeeBeanResultsItem(),
+            );
+          case BuddySearchResultPresenter():
+            return ChangeNotifierProvider.value(
+              value: presenter,
+              child: const BuddyResultsItem(),
+            );
         }
       },
       separatorBuilder: (context, index) => Container(height: 1, color: ColorStyles.gray20),
@@ -499,80 +511,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           child: SuggestWord(word: word, searchWord: searchWord),
         );
       },
-    );
-  }
-
-  Widget _buildBeanResultItem(CoffeeBeanSearchResultModel model) {
-    return ThrottleButton(
-      onTap: () {
-        ScreenNavigator.showCoffeeBeanDetail(context: context, id: model.id);
-      },
-      child: CoffeeBeanResultsItem(
-        beanName: model.name,
-        rating: model.rating,
-        recordCount: model.recordedCount,
-        imageUri: model.imageUrl,
-      ),
-    );
-  }
-
-  Widget _buildUserResultItem(BuddySearchResultModel model) {
-    return ThrottleButton(
-      onTap: () {
-        ScreenNavigator.pushToProfile(context: context, id: model.id).then((result) {
-        });
-      },
-      child: BuddyResultsItem(
-        imageUri: model.profileImageUri,
-        nickname: model.nickname,
-        followerCount: model.followerCount,
-        tastedRecordCount: model.tastedRecordsCount,
-      ),
-    );
-  }
-
-  Widget _buildTastingRecordResultItem(TastedRecordSearchResultModel model) {
-    return ThrottleButton(
-      onTap: () {
-        showTastingRecordDetail(context: context, id: model.id).then((result) {
-          if (result != null) {
-            showSnackBar(message: result);
-          }
-        });
-      },
-      child: TastedRecordResultsItem(
-        imageUri: model.imageUri,
-        beanName: model.title,
-        beanType: model.beanType,
-        rating: model.rating,
-        tasteList: model.taste,
-        contents: model.contents,
-        searchWord: textEditingController.text,
-      ),
-    );
-  }
-
-  Widget _buildPostResultItem(PostSearchResultModel model) {
-    return ThrottleButton(
-      onTap: () {
-        showPostDetail(context: context, id: model.id).then((result) {
-          if (result != null) {
-            showSnackBar(message: result);
-          }
-        });
-      },
-      child: PostResultsItem(
-        title: model.title,
-        contents: model.contents,
-        searchWord: textEditingController.text,
-        likeCount: model.likeCount,
-        commentsCount: model.commentCount,
-        subject: model.subject,
-        createdAt: model.createdAt,
-        hits: model.hits,
-        writerNickName: model.authorNickname,
-        imageUri: model.imageUri,
-      ),
     );
   }
 

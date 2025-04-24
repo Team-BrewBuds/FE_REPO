@@ -495,6 +495,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
               style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 48),
           ],
         ],
       ),

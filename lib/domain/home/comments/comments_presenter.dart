@@ -4,11 +4,7 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
-import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
-import 'package:flutter/foundation.dart';
-
-typedef BottomTextFieldState = ({String? reCommentAuthorNickname, String authorNickname});
 
 enum ObjectType {
   post,
@@ -23,122 +19,97 @@ enum ObjectType {
 
 final class CommentsPresenter extends Presenter {
   final CommentsRepository _repository = CommentsRepository.instance;
+  late final StreamSubscription _eventSub;
   final ObjectType _objectType;
   final int _objectId;
-  final User _objectAuthor;
   bool _isLoading = false;
   List<CommentPresenter> _commentPresenters = [];
+  CommentPresenter? _justWroteComment;
   int _currentPage = 1;
   bool _hasNext = true;
   int _totalCount = 0;
-  CommentPresenter? _replyCommentPresenter;
 
   CommentsPresenter({
     required ObjectType objectType,
     required int objectId,
-    required User objectAuthor,
   })  : _objectType = objectType,
-        _objectId = objectId,
-        _objectAuthor = objectAuthor;
+        _objectId = objectId {
+    _eventSub = EventBus.instance.on<CommentEvent>().listen(_onEvent);
+    fetchMoreData();
+  }
 
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isLoading && _commentPresenters.isEmpty;
 
   bool get hasNext => _hasNext;
 
   int get totalCount => _totalCount;
 
-  List<CommentPresenter> get commentPresenters => List.unmodifiable(_commentPresenters);
+  List<CommentPresenter> get commentPresenters {
+    if (_justWroteComment != null) {
+      return List.unmodifiable([_justWroteComment] + _commentPresenters);
+    } else {
+      return List.unmodifiable(_commentPresenters);
+    }
+  }
 
-  bool get isReplyMode => _replyCommentPresenter != null;
+  @override
+  dispose() {
+    _eventSub.cancel();
+    super.dispose();
+  }
 
-  BottomTextFieldState get bottomTextFieldState => (
-        reCommentAuthorNickname: _replyCommentPresenter?.nickName,
-        authorNickname: _objectAuthor.nickname,
-      );
+  _onEvent(CommentEvent event) {
+    if (event.senderId != presenterId) {
+      switch (event) {
+        case CreateCommentEvent():
+          if (event.id == _objectId) {
+            _commentPresenters.insert(0, CommentPresenter(comment: event.newComment));
+            _updateCommentCount(_totalCount + 1);
+            notifyListeners();
+          }
+          break;
+        case CreateReCommentEvent():
+          _updateCommentCount(_totalCount + 1);
+          notifyListeners();
+          break;
+        default:
+          break;
+      }
+    }
+  }
 
   Future<void> onRefresh() async {
     if (_isLoading) return;
 
+    _justWroteComment = null;
     _currentPage = 1;
-    _replyCommentPresenter = null;
     _commentPresenters = List.empty(growable: true);
-    _isLoading = true;
     _hasNext = true;
 
-    await fetchMoreData();
-
-    _isLoading = false;
-    notifyListeners();
+    await fetchMoreData(isRefresh: true);
   }
 
-  initState() async {
-    _isLoading = true;
-    notifyListeners();
+  fetchMoreData({bool isRefresh = false}) async {
+    if (hasNext && !_isLoading) {
+      _isLoading = true;
+      if (!isRefresh) {
+        notifyListeners();
+      }
 
-    await fetchMoreData();
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  fetchMoreData() async {
-    if (hasNext) {
       final newPage = await _repository.fetchCommentsPage(
         feedType: _objectType.toString(),
         id: _objectId,
         pageNo: _currentPage,
       );
 
-      _commentPresenters.addAll(
-        newPage.results.map(
-          (e) => CommentPresenter(objectId: _objectId, objectAuthorId: _objectAuthor.id, comment: e),
-        ),
-      );
-      _updateCommentCount(newPage.count);
+      _commentPresenters.addAll(newPage.results.map((e) => CommentPresenter(comment: e)));
+      if (newPage.count != _totalCount) {
+        _updateCommentCount(newPage.count);
+      }
       _hasNext = newPage.hasNext;
       _currentPage += 1;
+      _isLoading = false;
       notifyListeners();
-    }
-  }
-
-  Future<void> createNewComment({required String content}) async {
-    try {
-      final newComment = await _repository.createNewComment(
-        feedType: _objectType.toString(),
-        id: _objectId,
-        content: content,
-        parentId: _replyCommentPresenter?.id,
-      );
-
-      final parentPresenter = _replyCommentPresenter;
-
-      if (parentPresenter != null) {
-        EventBus.instance.fire(
-          CreateReCommentEvent(
-            senderId: presenterId,
-            id: parentPresenter.id,
-            newReComment: newComment,
-          ),
-        );
-        cancelReply();
-      } else {
-        _commentPresenters.insert(
-          0,
-          CommentPresenter(
-            objectId: _objectId,
-            objectAuthorId: _objectAuthor.id,
-            comment: newComment,
-          ),
-        );
-        notifyListeners();
-      }
-      _updateCommentCount(totalCount + 1);
-    } catch (_) {
-      if (_replyCommentPresenter != null) {
-        throw ErrorDescription('대댓글 작성에 실패했어요.');
-      } else {
-        throw ErrorDescription('댓글 작성에 실패했어요.');
-      }
     }
   }
 
@@ -155,30 +126,16 @@ final class CommentsPresenter extends Presenter {
     }
   }
 
-  onTappedReplyAt(int index) {
-    final presenter = _commentPresenters.elementAtOrNull(index);
-    if (presenter != null) {
-      _replyCommentPresenter = presenter;
-      notifyListeners();
-    }
-  }
-
-  cancelReply() {
-    _replyCommentPresenter = null;
-    notifyListeners();
-  }
-
   _updateCommentCount(int count) {
-    if (_totalCount != count) {
-      _totalCount = count;
-      EventBus.instance.fire(
-        OnChangeCommentCountEvent(
-            senderId: presenterId,
-            id: _objectId,
-            count: count,
-            objectType: _objectType == ObjectType.post ? 'post' : 'tasted_record'),
-      );
-      notifyListeners();
-    }
+    _totalCount = count;
+    EventBus.instance.fire(
+      OnChangeCommentCountEvent(
+        senderId: presenterId,
+        id: _objectId,
+        count: _totalCount,
+        objectType: _objectType.toString(),
+      ),
+    );
+    notifyListeners();
   }
 }

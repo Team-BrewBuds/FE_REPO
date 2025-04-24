@@ -10,8 +10,6 @@ import 'package:brew_buds/model/events/comment_event.dart';
 final class ReCommentPresenter extends Presenter {
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   late final StreamSubscription _eventSub;
-  final bool isWriter;
-  final bool isMyObject;
   Comment _comment;
 
   int get id => _comment.id;
@@ -35,8 +33,6 @@ final class ReCommentPresenter extends Presenter {
   List<Comment> get reComments => _comment.reComments;
 
   ReCommentPresenter({
-    required this.isWriter,
-    required this.isMyObject,
     required Comment comment,
   }) : _comment = comment {
     _eventSub = EventBus.instance.on<CommentEvent>().listen(_onEvent);
@@ -55,22 +51,9 @@ final class ReCommentPresenter extends Presenter {
           _comment = _comment.copyWith(isLiked: event.isLiked, likeCount: event.likeCount);
           notifyListeners();
           break;
-        case CommentUpdateEvent():
-          updateComment();
-          break;
         default:
           break;
       }
-    }
-  }
-
-  updateComment() async {
-    try {
-      final newComment = await _commentsRepository.fetchComment(id: _comment.id);
-      _comment = newComment.copyWith();
-      notifyListeners();
-    } catch (_) {
-      return;
     }
   }
 

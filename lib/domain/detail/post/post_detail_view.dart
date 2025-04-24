@@ -18,6 +18,7 @@ import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
+import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/report/report_screen.dart';
@@ -41,6 +42,15 @@ enum PostDetailAction {
 
 class PostDetailView extends StatefulWidget {
   const PostDetailView({super.key});
+
+  static Widget buildWithPresenter({required int id}) {
+    return MultiProvider(providers: [
+      ChangeNotifierProvider(create: (_) => PostDetailPresenter(id: id)),
+      ChangeNotifierProvider(
+        create: (_) => CommentsPresenter(objectType: ObjectType.post, objectId: id),
+      ),
+    ]);
+  }
 
   @override
   State<PostDetailView> createState() => _PostDetailViewState();

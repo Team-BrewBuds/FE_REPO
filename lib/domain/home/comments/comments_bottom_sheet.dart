@@ -7,10 +7,13 @@ import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
 import 'package:brew_buds/domain/home/comments/comment_widget.dart';
+import 'package:brew_buds/domain/home/comments/comments_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
+import 'package:brew_buds/model/common/user.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
@@ -18,18 +21,38 @@ class CommentsBottomSheet extends StatefulWidget {
   final double maxHeight;
   final double initialHeight;
 
-  const CommentsBottomSheet({
-    super.key,
+  const CommentsBottomSheet._({
     required this.maxHeight,
     required this.initialHeight,
   });
+
+  static Widget buildWithPresenter({
+    required double maxHeight,
+    required double initialHeight,
+    required ObjectType objectType,
+    required int objectId,
+    required User objectAuthor,
+  }) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CommentsBottomSheetPresenter>(
+          create: (_) => CommentsBottomSheetPresenter(objectType: objectType, objectId: objectId, author: objectAuthor),
+        ),
+        ChangeNotifierProvider<CommentsPresenter>(
+          create: (_) => CommentsPresenter(objectType: objectType, objectId: objectId),
+        ),
+      ],
+      child: CommentsBottomSheet._(maxHeight: maxHeight, initialHeight: initialHeight),
+    );
+  }
 
   @override
   State<CommentsBottomSheet> createState() => _CommentsBottomSheetState();
 }
 
 class _CommentsBottomSheetState extends State<CommentsBottomSheet>
-    with SnackBarMixin<CommentsBottomSheet>, ResizableBottomSheetMixin<CommentsBottomSheet> {
+    with SnackBarMixin<CommentsBottomSheet>, ResizableBottomSheetMixin<CommentsBottomSheet>, TickerProviderStateMixin {
+  late final SlidableController slidableController;
   late final Throttle<void> paginationThrottle;
   late final TextEditingController _textEditingController;
   late final FocusNode _textEditingFocusNode;
@@ -42,6 +65,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
 
   @override
   void initState() {
+    slidableController = SlidableController(this);
     _textEditingController = TextEditingController();
     _textEditingFocusNode = FocusNode();
     paginationThrottle = Throttle(
@@ -52,10 +76,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
         _fetchMoreData();
       },
     );
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<CommentsPresenter>().initState();
-    });
     super.initState();
   }
 
@@ -80,7 +100,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
 
   @override
   Widget buildBottomWidget(BuildContext context) {
-    return Selector<CommentsPresenter, BottomTextFieldState>(
+    return Selector<CommentsBottomSheetPresenter, BottomTextFieldState>(
       selector: (context, presenter) => presenter.bottomTextFieldState,
       builder: (context, state, child) => _buildBottomTextField(
         reCommentAuthorNickname: state.reCommentAuthorNickname,
@@ -110,21 +130,33 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
               : Selector<CommentsPresenter, List<CommentPresenter>>(
                   selector: (context, presenter) => presenter.commentPresenters,
                   builder: (context, commentPresenters, child) {
+                    final isMyObject = context.read<CommentsBottomSheetPresenter>().isMyObject();
+                    final authorId = context.read<CommentsBottomSheetPresenter>().authorId;
                     return commentPresenters.isNotEmpty
-                        ? SliverList.builder(
-                            itemCount: commentPresenters.length,
-                            itemBuilder: (context, index) {
-                              final presenter = commentPresenters[index];
-                              return ChangeNotifierProvider.value(
-                                value: presenter,
-                                child: CommentWidget(
-                                  onTapReply: () {
-                                    _textEditingFocusNode.requestFocus();
-                                    context.read<CommentsPresenter>().onTappedReplyAt(index);
-                                  },
-                                ),
-                              );
-                            },
+                        ? SlidableAutoCloseBehavior(
+                            child: SliverList.builder(
+                              itemCount: commentPresenters.length,
+                              itemBuilder: (context, index) {
+                                final presenter = commentPresenters[index];
+                                final isMyComment =
+                                    context.read<CommentsBottomSheetPresenter>().isMine(presenter.author.id);
+                                return ChangeNotifierProvider.value(
+                                  value: presenter,
+                                  child: CommentWidget(
+                                    objectAuthorId: authorId,
+                                    isMyObject: isMyObject,
+                                    isMyComment: isMyComment,
+                                    onTapReply: () {
+                                      _textEditingFocusNode.requestFocus();
+                                      context.read<CommentsBottomSheetPresenter>().selectedReply(
+                                            presenter.author,
+                                            presenter.id,
+                                          );
+                                    },
+                                  ),
+                                );
+                              },
+                            ),
                           )
                         : SliverFillRemaining(
                             child: Center(
@@ -184,7 +216,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                     const Spacer(),
                     ThrottleButton(
                       onTap: () {
-                        context.read<CommentsPresenter>().cancelReply();
+                        context.read<CommentsBottomSheetPresenter>().cancelReply();
                       },
                       child: SvgPicture.asset(
                         'assets/icons/x_round.svg',
@@ -221,11 +253,10 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
                     child: FutureButton(
-                      onTap: () =>
-                          context.read<CommentsPresenter>().createNewComment(content: _textEditingController.text),
-                      onError: (_) {
-                        onFailure();
-                      },
+                      onTap: () => context.read<CommentsBottomSheetPresenter>().createNewComment(
+                            content: _textEditingController.text,
+                          ),
+                      onError: (_) {},
                       onComplete: (_) {
                         _textEditingController.clear();
                       },
@@ -248,14 +279,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
         ),
       ),
     );
-  }
-
-  void onFailure() {
-    if (context.read<CommentsPresenter>().isReplyMode) {
-      showSnackBar(message: '대댓글 작성에 실패했어요.');
-    } else {
-      showSnackBar(message: '댓글 작성에 실패했어요.');
-    }
   }
 
   @override

@@ -5,6 +5,7 @@ import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/search/models/search_result_model.dart';
 import 'package:brew_buds/domain/search/models/search_sort_criteria.dart';
 import 'package:brew_buds/domain/search/models/search_subject.dart';
+import 'package:brew_buds/domain/search/widgets/search_result/search_result_presenter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
@@ -49,6 +50,8 @@ final class SearchPresenter extends Presenter {
 
   SearchState get previousViewState => _previousViewState;
 
+  String get searchWord => _searchWord;
+
   String get previousSearchWord => _previousSearchWord;
 
   int get previousTabIndex => _previousTabIndex;
@@ -82,12 +85,12 @@ final class SearchPresenter extends Presenter {
   bool get isLoadingSuggest => _isLoadingSuggest;
 
   //Search Result State
-  List<SearchResultModel> _searchResultModel = [];
+  List<SearchResultPresenter> _searchResultModel = [];
   int _pageNo = 1;
   bool _hasNext = true;
   bool _isLoadingSearch = false;
 
-  List<SearchResultModel> get searchResultModel => List.unmodifiable(_searchResultModel);
+  List<SearchResultPresenter> get searchResultModel => List.unmodifiable(_searchResultModel);
 
   bool get isLoadingSearch => _isLoadingSearch;
 
@@ -397,7 +400,22 @@ final class SearchPresenter extends Presenter {
 
       if (currentTab != SearchSubject.values.elementAtOrNull(_tabIndex)) return;
 
-      _searchResultModel.addAll(nextPage.results);
+      _searchResultModel.addAll(
+        nextPage.results.map(
+          (result) {
+            switch (result) {
+              case CoffeeBeanSearchResultModel():
+                return CoffeeBeanSearchResultPresenter(resultModel: result);
+              case BuddySearchResultModel():
+                return BuddySearchResultPresenter(resultModel: result);
+              case TastedRecordSearchResultModel():
+                return TastedRecordSearchResultPresenter(resultModel: result);
+              case PostSearchResultModel():
+                return PostSearchResultPresenter(resultModel: result);
+            }
+          },
+        ),
+      );
       _hasNext = nextPage.hasNext;
       _pageNo++;
     } catch (e) {
