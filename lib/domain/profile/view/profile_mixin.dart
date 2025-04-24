@@ -6,6 +6,7 @@ import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
@@ -579,7 +580,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 itemBuilder: (context, index) {
                   final bean = beans[index];
                   return FutureButton(
-                    onTap: () => showCoffeeBeanDetail(context: context, id: bean.id),
+                    onTap: () => ScreenNavigator.showCoffeeBeanDetail(context: context, id: bean.id),
                     child: SavedCoffeeBeanWidget(
                       name: bean.name,
                       rating: bean.rating,

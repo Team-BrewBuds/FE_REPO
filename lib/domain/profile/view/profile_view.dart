@@ -179,7 +179,7 @@ class _ProfileViewState extends State<ProfileView>
               final isVisible = context.select<ModalProfilePresenter, bool>((presenter) => !presenter.isMine);
               return Visibility(
                 visible: isVisible,
-                child: FutureButton<bool>(
+                child: FutureButton<bool, Exception>(
                   onTap: () async {
                     final context = this.context;
                     final bottomSheetResult = await _showBlockBottomSheet();
@@ -192,7 +192,7 @@ class _ProfileViewState extends State<ProfileView>
 
                     return Future.value(false);
                   },
-                  onError: () {
+                  onError: (_) {
                     showSnackBar(message: '차단에 실패했어요.');
                   },
                   onComplete: (result) {

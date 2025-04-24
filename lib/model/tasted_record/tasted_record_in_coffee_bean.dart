@@ -10,7 +10,7 @@ class TastedRecordInCoffeeBean with _$TastedRecordInCoffeeBean {
     required String nickname,
     required String contents,
     required String beanName,
-    required int rating,
+    required double rating,
     required CoffeeBeanType beanType,
     required List<String> flavors,
     required String photoUrl,

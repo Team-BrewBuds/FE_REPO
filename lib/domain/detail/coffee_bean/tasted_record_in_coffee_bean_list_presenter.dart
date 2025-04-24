@@ -1,30 +1,30 @@
+import 'dart:math';
+
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/coffee_bean_repository.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
+import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_presenter.dart';
 
 final class TastedRecordInCoffeeBeanListPresenter extends Presenter {
   final int id;
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
-  DefaultPage<TastedRecordInCoffeeBean> _page = DefaultPage.initState();
+  final List<TastedRecordInCoffeeBeanPresenter> _presenters = List.empty(growable: true);
 
-  DefaultPage<TastedRecordInCoffeeBean> get page => _page;
+  List<TastedRecordInCoffeeBeanPresenter> get previewPresenters =>
+      List.unmodifiable(_presenters.sublist(0, min(_presenters.length, 4)));
 
-  int get count => _page.count;
+  List<TastedRecordInCoffeeBeanPresenter> get presenters => List.unmodifiable(_presenters);
+
+  int get count => _presenters.length;
 
   TastedRecordInCoffeeBeanListPresenter({
     required this.id,
-  });
-
-  initState() {
-    fetchMoreData();
+  }) {
+    fetchData();
   }
 
-  fetchMoreData() async {
-    if (_page.hasNext) {
+  fetchData() async {
       final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext);
+      _presenters.addAll(newPage.results.map((e) => TastedRecordInCoffeeBeanPresenter(tastedRecordInCoffeeBean: e)));
       notifyListeners();
-    }
   }
 }

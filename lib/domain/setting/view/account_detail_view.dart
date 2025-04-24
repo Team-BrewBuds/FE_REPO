@@ -109,7 +109,7 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                       onTap: () {
                         return context.read<AccountDetailPresenter>().onSave();
                       },
-                      onError: () {
+                      onError: (_) {
                         showSnackBar(message: '맞춤정보 저장에 실패했어요.');
                       },
                       onComplete: (_) {

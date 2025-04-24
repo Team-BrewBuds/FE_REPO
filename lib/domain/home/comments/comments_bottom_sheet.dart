@@ -223,7 +223,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                     child: FutureButton(
                       onTap: () =>
                           context.read<CommentsPresenter>().createNewComment(content: _textEditingController.text),
-                      onError: () {
+                      onError: (_) {
                         onFailure();
                       },
                       onComplete: (_) {

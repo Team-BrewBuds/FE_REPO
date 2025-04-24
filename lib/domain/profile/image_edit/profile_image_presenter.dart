@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:brew_buds/core/event_bus.dart';
+import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
@@ -90,7 +91,9 @@ final class ProfileImagePresenter extends Presenter {
       _isLoading = true;
       notifyListeners();
 
-      final result = jsonDecode(await _photoApi.createProfilePhoto(imageData: data)) as Map<String, dynamic>;
+      final compressedData = await compressList(data);
+
+      final result = jsonDecode(await _photoApi.createProfilePhoto(imageData: compressedData)) as Map<String, dynamic>;
       EventBus.instance.fire(
         ProfileImageUpdateEvent(
           senderId: presenterId,

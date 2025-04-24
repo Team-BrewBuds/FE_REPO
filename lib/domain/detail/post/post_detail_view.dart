@@ -203,12 +203,7 @@ class _PostDetailViewState extends State<PostDetailView>
                       case PostDetailAction.update:
                         final post = context.read<PostDetailPresenter>().post;
                         if (post != null) {
-                          ScreenNavigator.showPostUpdateScreen(context: context, post: post).then((value) {
-                            if (value != null && value && context.mounted) {
-                              context.read<PostDetailPresenter>().onRefresh();
-                              showSnackBar(message: '게시글 수정을 완료했어요.');
-                            }
-                          });
+                          ScreenNavigator.showPostUpdateScreen(context: context, post: post);
                         }
                         break;
                       case PostDetailAction.delete:

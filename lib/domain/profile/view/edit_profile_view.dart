@@ -167,9 +167,9 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                     builder: (context, canEdit, _) {
                       return AbsorbPointer(
                         absorbing: !canEdit,
-                        child: FutureButton<Result<String>>(
+                        child: FutureButton<Result<String>, Exception>(
                           onTap: () => context.read<EditProfilePresenter>().onSave(),
-                          onError: () {
+                          onError: (_) {
                             showSnackBar(message: '프로필 수정에 실패했어요.');
                           },
                           onComplete: (result) {

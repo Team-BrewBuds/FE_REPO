@@ -45,13 +45,13 @@ final class PopularPostPresenter extends Presenter {
   _onEvent(PostEvent event) {
     switch (event) {
       case PostUpdateEvent():
-        final post = event.post;
-        if (post.id == _post.id) {
+        final updateModel = event.updateModel;
+        if (event.id == _post.id) {
           _post = _post.copyWith(
-            title: post.title,
-            subject: post.subject,
-            contents: post.contents,
-            tag: post.tag,
+            title: updateModel.title,
+            subject: updateModel.subject,
+            contents: updateModel.contents,
+            tag: updateModel.tag,
           );
           notifyListeners();
         }

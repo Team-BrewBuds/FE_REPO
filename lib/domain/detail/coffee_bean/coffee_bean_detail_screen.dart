@@ -8,15 +8,15 @@ import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
+import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_screen.dart';
+import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
 import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,19 +26,23 @@ import 'package:provider/provider.dart';
 class CoffeeBeanDetailScreen extends StatefulWidget {
   const CoffeeBeanDetailScreen({super.key});
 
+  static Widget buildWithPresenter({required int id}) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CoffeeBeanDetailPresenter>(create: (_) => CoffeeBeanDetailPresenter(id: id)),
+        ChangeNotifierProvider<TastedRecordInCoffeeBeanListPresenter>(
+          create: (_) => TastedRecordInCoffeeBeanListPresenter(id: id),
+        ),
+      ],
+      child: const CoffeeBeanDetailScreen(),
+    );
+  }
+
   @override
   State<CoffeeBeanDetailScreen> createState() => _CoffeeBeanDetailScreenState();
 }
 
 class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with SnackBarMixin<CoffeeBeanDetailScreen> {
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<CoffeeBeanDetailPresenter>().initState();
-    });
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Selector<CoffeeBeanDetailPresenter, bool>(
@@ -103,12 +107,14 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                       selector: (context, presenter) => presenter.topFlavors,
                       builder: (context, topFlavors, child) => _buildTopFlavors(topFlavors: topFlavors),
                     ),
-                    Selector<CoffeeBeanDetailPresenter, DefaultPage<TastedRecordInCoffeeBean>>(
-                      selector: (context, presenter) => presenter.page,
-                      builder: (context, page, child) => _buildTastedRecords(
-                        count: page.count,
-                        tastedRecords: page.results,
-                      ),
+                    Selector<TastedRecordInCoffeeBeanListPresenter, List<TastedRecordInCoffeeBeanPresenter>>(
+                      selector: (context, presenter) => presenter.previewPresenters,
+                      builder: (context, presenters, child) => _buildTastedRecords(presenters: presenters),
+                    ),
+                    Selector<TastedRecordInCoffeeBeanListPresenter, bool>(
+                      selector: (context, presenter) => presenter.presenters.length > 4,
+                      builder: (context, hasMoreData, child) =>
+                      hasMoreData ? _buildMoreTastedRecordsButton() : const SizedBox.shrink(),
                     ),
                     Container(height: 8, color: ColorStyles.gray20),
                     Selector<CoffeeBeanDetailPresenter, List<RecommendedCoffeeBean>>(
@@ -305,7 +311,8 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             scrollDirection: Axis.horizontal,
             child: Row(
               spacing: 4,
-              children: flavors.sublist(0, min(flavors.length, 4))
+              children: flavors
+                  .sublist(0, min(flavors.length, 4))
                   .map(
                     (flavor) => Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -446,9 +453,9 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
     );
   }
 
-  Widget _buildTastedRecords({required int count, required List<TastedRecordInCoffeeBean> tastedRecords}) {
+  Widget _buildTastedRecords({required List<TastedRecordInCoffeeBeanPresenter> presenters}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8, left: 16, right: 16, bottom: 48),
+      padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -456,32 +463,28 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
             children: [
               Text('시음기록', style: TextStyles.title02SemiBold),
               const SizedBox(width: 2),
-              Text('($count)', style: TextStyles.captionMediumSemiBold),
+              Text('(${presenters.length})', style: TextStyles.captionMediumSemiBold),
               const Spacer(),
             ],
           ),
-          if (tastedRecords.isNotEmpty) ...[
+          if (presenters.isNotEmpty) ...[
             const SizedBox(height: 24),
-            ...List<Widget>.generate(
-              min(4, tastedRecords.length),
-              (index) {
-                final tastedRecord = tastedRecords[index];
-                return ThrottleButton(
-                  onTap: () {
-                    showTastingRecordDetail(context: context, id: tastedRecord.id);
-                  },
-                  child: Container(
-                    color: Colors.transparent,
-                    child: TastedRecordInCoffeeBeanWidget(
-                      authorNickname: tastedRecord.nickname,
-                      rating: tastedRecord.rating.toDouble(),
-                      flavors: tastedRecord.flavors,
-                      imageUrl: tastedRecord.photoUrl,
-                      contents: tastedRecord.contents,
-                    ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final tastedRecordPresenter = presenters[index];
+                return ChangeNotifierProvider.value(
+                  value: tastedRecordPresenter,
+                  child: ThrottleButton(
+                    onTap: () {
+                      showTastingRecordDetail(context: context, id: tastedRecordPresenter.id);
+                    },
+                    child: Container(color: ColorStyles.white, child: const TastedRecordInCoffeeBeanWidget()),
                   ),
                 );
               },
+              itemCount: presenters.length,
             ),
           ] else ...[
             const SizedBox(height: 46),
@@ -493,30 +496,35 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
               textAlign: TextAlign.center,
             ),
           ],
-          if (count > 4) ...[
-            const SizedBox(height: 24),
-            ThrottleButton(
-              onTap: () {
-                final id = context.read<CoffeeBeanDetailPresenter>().id;
-                final name = context.read<CoffeeBeanDetailPresenter>().name;
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return buildTastedRecordInCoffeeBeanListScreen(name: name, id: id);
-                    },
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: ColorStyles.gray50),
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoreTastedRecordsButton() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 48.0),
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          ThrottleButton(
+            onTap: () {
+              final name = context.read<CoffeeBeanDetailPresenter>().name;
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => TastedRecordInCoffeeBeanListScreen(name: name),
                 ),
-                child: Center(child: Text('시음기록 더보기', style: TextStyles.labelMediumMedium)),
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+              decoration: BoxDecoration(
+                border: Border.all(color: ColorStyles.gray50),
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
               ),
+              child: Center(child: Text('시음기록 더보기', style: TextStyles.labelMediumMedium)),
             ),
-          ],
+          ),
         ],
       ),
     );
@@ -551,7 +559,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
   Widget _buildRecommendedCoffeeBean(RecommendedCoffeeBean recommendedCoffeeBean) {
     return ThrottleButton(
       onTap: () {
-        showCoffeeBeanDetail(context: context, id: recommendedCoffeeBean.id);
+        ScreenNavigator.showCoffeeBeanDetail(context: context, id: recommendedCoffeeBean.id);
       },
       child: SizedBox(
         width: 109,

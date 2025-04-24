@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class FutureButton<T> extends StatelessWidget {
+class FutureButton<T, E extends Exception> extends StatelessWidget {
   final ValueNotifier<bool> _isProcessingNotifier = ValueNotifier(false);
   final Future<T> Function() onTap;
-  final void Function()? onError;
+  final void Function(E? exception)? onError;
   final void Function(T)? onComplete;
   final Widget child;
 
@@ -28,8 +28,10 @@ class FutureButton<T> extends StatelessWidget {
                 _isProcessingNotifier.value = true;
                 final result = await onTap();
                 onComplete?.call(result);
+              } on E catch (exception) {
+                onError?.call(exception);
               } catch (e) {
-                onError?.call();
+                onError?.call(null);
               } finally {
                 if (context.mounted) _isProcessingNotifier.value = false;
               }

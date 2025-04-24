@@ -1,11 +1,13 @@
+import 'dart:async';
+
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/coffee_bean_repository.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_detail.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
+import 'package:brew_buds/model/events/coffee_bean_event.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 
 typedef BeanInfoState = ({
   String name,
@@ -29,9 +31,9 @@ typedef BeanTasteState = ({int body, int acidity, int bitterness, int sweetness}
 final class CoffeeBeanDetailPresenter extends Presenter {
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
   final int id;
+  late final StreamSubscription _coffeeBeanSub;
   bool _isEmpty = false;
   CoffeeBeanDetail? _coffeeBeanDetail;
-  DefaultPage<TastedRecordInCoffeeBean> _page = DefaultPage.initState();
   List<RecommendedCoffeeBean> _recommendedCoffeeBeanList = [];
 
   bool get isEmpty => _isEmpty;
@@ -68,23 +70,35 @@ final class CoffeeBeanDetailPresenter extends Presenter {
 
   List<TopFlavor> get topFlavors => _coffeeBeanDetail?.topFlavors ?? [];
 
-  DefaultPage<TastedRecordInCoffeeBean> get page => _page;
-
   List<RecommendedCoffeeBean> get recommendedCoffeeBeanList => _recommendedCoffeeBeanList;
 
   CoffeeBeanDetailPresenter({
     required this.id,
-  });
+  }) {
+    _coffeeBeanSub = EventBus.instance.on<CoffeeBeanSavedEvent>().listen(onCoffeeBeanEvent);
+    initState();
+  }
+
+  onCoffeeBeanEvent(CoffeeBeanSavedEvent event) {
+    if (event.senderId != presenterId && id == event.id && _coffeeBeanDetail != null) {
+      _coffeeBeanDetail = _coffeeBeanDetail?.copyWith(isUserNoted: event.isSaved);
+      notifyListeners();
+    }
+  }
 
   initState() {
     fetchCoffeeBean();
-    fetchTastedRecords();
     fetchRecommendedCoffeeBeans();
+  }
+
+  @override
+  dispose() {
+    _coffeeBeanSub.cancel();
+    super.dispose();
   }
 
   refresh() {
     fetchCoffeeBean();
-    fetchTastedRecords();
     fetchRecommendedCoffeeBeans();
   }
 
@@ -97,18 +111,6 @@ final class CoffeeBeanDetailPresenter extends Presenter {
       _isEmpty = true;
     }
     notifyListeners();
-  }
-
-  fetchTastedRecords() async {
-    try {
-      if (_page.hasNext) {
-        final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
-        _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
-        notifyListeners();
-      }
-    } catch (e) {
-      return;
-    }
   }
 
   fetchRecommendedCoffeeBeans() async {

@@ -147,7 +147,7 @@ class _ProfileImageViewState extends State<ProfileImageView>
                   absorbing: !isSelect,
                   child: FutureButton(
                     onTap: () => _onSave(),
-                    onError: () {
+                    onError: (_) {
                       showSnackBar(message: '프로필 이미지 등록에 실패했어요.');
                     },
                     onComplete: (_) {

@@ -163,14 +163,14 @@ final class PostFeedPresenter extends FeedPresenter<PostFeed> {
           }
           break;
         case PostUpdateEvent():
-          final post = event.post;
-          if (post.id == feed.data.id) {
+          final updateModel = event.updateModel;
+          if (event.id == feed.data.id) {
             feed = PostFeed(
               data: feed.data.copyWith(
-                title: post.title,
-                subject: post.subject,
-                contents: post.contents,
-                tag: post.tag,
+                title: updateModel.title,
+                subject: updateModel.subject,
+                contents: updateModel.contents,
+                tag: updateModel.tag,
               ),
             );
             notifyListeners();

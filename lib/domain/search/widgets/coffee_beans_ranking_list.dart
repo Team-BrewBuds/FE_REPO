@@ -1,6 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
 import 'package:flutter/material.dart';
 
@@ -36,7 +36,7 @@ class CoffeeBeansRankingList extends StatelessWidget {
                       return GestureDetector(
                         onTap: () {
                           if (coffeeBean != null) {
-                            showCoffeeBeanDetail(context: context, id: coffeeBean.id);
+                            ScreenNavigator.showCoffeeBeanDetail(context: context, id: coffeeBean.id);
                           }
                         },
                         child: Container(
@@ -77,7 +77,7 @@ class CoffeeBeansRankingList extends StatelessWidget {
                       return GestureDetector(
                         onTap: () {
                           if (coffeeBean != null) {
-                            showCoffeeBeanDetail(context: context, id: coffeeBean.id);
+                            ScreenNavigator.showCoffeeBeanDetail(context: context, id: coffeeBean.id);
                           }
                         },
                         child: Container(

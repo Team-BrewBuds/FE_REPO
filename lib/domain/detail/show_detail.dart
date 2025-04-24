@@ -35,17 +35,3 @@ Future<String?> showTastingRecordDetail({required BuildContext context, required
     },
   );
 }
-
-Future<T?> showCoffeeBeanDetail<T>({required BuildContext context, required int id}) {
-  return showCupertinoModalPopup<T>(
-    barrierColor: ColorStyles.white,
-    barrierDismissible: false,
-    context: context,
-    builder: (context) {
-      return ChangeNotifierProvider<CoffeeBeanDetailPresenter>(
-        create: (_) => CoffeeBeanDetailPresenter(id: id),
-        child: const CoffeeBeanDetailScreen(),
-      );
-    },
-  );
-}

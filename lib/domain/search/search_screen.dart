@@ -277,7 +277,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                     rating: recommendedBean.rating,
                     recordCount: recommendedBean.recordCount,
                     onTapped: () {
-                      showCoffeeBeanDetail(context: context, id: recommendedBean.id);
+                      ScreenNavigator.showCoffeeBeanDetail(context: context, id: recommendedBean.id);
                     },
                   );
                 },
@@ -505,7 +505,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   Widget _buildBeanResultItem(CoffeeBeanSearchResultModel model) {
     return ThrottleButton(
       onTap: () {
-        showCoffeeBeanDetail(context: context, id: model.id);
+        ScreenNavigator.showCoffeeBeanDetail(context: context, id: model.id);
       },
       child: CoffeeBeanResultsItem(
         beanName: model.name,

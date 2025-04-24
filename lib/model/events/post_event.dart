@@ -1,4 +1,4 @@
-import 'package:brew_buds/model/post/post.dart';
+import 'package:brew_buds/domain/coffee_note_post/model/post_update_model.dart';
 
 sealed class PostEvent {
   String get senderId;
@@ -27,11 +27,13 @@ final class PostDeleteEvent implements PostEvent {
 final class PostUpdateEvent implements PostEvent {
   @override
   final String senderId;
-  final Post post;
+  final int id;
+  final PostUpdateModel updateModel;
 
   const PostUpdateEvent({
     required this.senderId,
-    required this.post,
+    required this.id,
+    required this.updateModel,
   });
 }
 

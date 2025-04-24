@@ -1,4 +1,3 @@
-import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_update_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_update_screen.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
@@ -6,6 +5,8 @@ import 'package:brew_buds/domain/coffee_note_post/post_write_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_first_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_navigator.dart';
+import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
+import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_screen.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
@@ -19,7 +20,6 @@ import 'package:brew_buds/domain/profile/view/taste_report_view.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -170,19 +170,6 @@ final class ScreenNavigator {
     );
   }
 
-  //수정필요
-  static Future<bool?> showPostUpdateScreen({required BuildContext context, required Post post}) {
-    return showCupertinoModalPopup<bool>(
-      barrierColor: ColorStyles.white,
-      barrierDismissible: false,
-      context: context,
-      builder: (context) => ChangeNotifierProvider(
-        create: (_) => PostUpdatePresenter(post: post),
-        child: PostUpdateScreen(title: post.title, content: post.contents, tag: post.tag.replaceAll(',', '#')),
-      ),
-    );
-  }
-
   static Future<void> showTastedRecordWriteScreen(BuildContext context) {
     return Navigator.of(context).push(
       PageRouteBuilder(
@@ -211,7 +198,7 @@ final class ScreenNavigator {
     return Navigator.of(context).push(
       PageRouteBuilder(
         fullscreenDialog: true,
-        pageBuilder: (_, __, ___) => _buildTastingWriteScreen(context, tastedRecord),
+        pageBuilder: (_, __, ___) => _buildTastingUpdateScreen(context, tastedRecord),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
@@ -228,7 +215,7 @@ final class ScreenNavigator {
     );
   }
 
-  static Widget _buildTastingWriteScreen(BuildContext context, TastedRecord tastedRecord) {
+  static Widget _buildTastingUpdateScreen(BuildContext context, TastedRecord tastedRecord) {
     return ChangeNotifierProvider(
       create: (context) => TastedRecordUpdatePresenter(tastedRecord: tastedRecord),
       child: Navigator(
@@ -249,6 +236,51 @@ final class ScreenNavigator {
           create: (context) => PostWritePresenter(),
           child: const PostWriteScreen(),
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  static Future<void> showPostUpdateScreen({required BuildContext context, required Post post}) {
+    return Navigator.of(context).push(
+      PageRouteBuilder(
+        fullscreenDialog: true,
+        pageBuilder: (_, __, ___) => ChangeNotifierProvider(
+          create: (_) => PostUpdatePresenter(post: post),
+          child: PostUpdateScreen(title: post.title, content: post.contents, tag: post.tag.replaceAll(',', '#')),
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  static Future<void> showCoffeeBeanDetail({required BuildContext context, required int id}) {
+    return Navigator.of(context, rootNavigator: true).push(
+      PageRouteBuilder(
+        fullscreenDialog: true,
+        pageBuilder: (_, __, ___) => CoffeeBeanDetailScreen.buildWithPresenter(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
