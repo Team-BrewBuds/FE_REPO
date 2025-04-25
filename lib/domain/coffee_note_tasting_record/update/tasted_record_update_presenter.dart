@@ -2,6 +2,7 @@ import 'package:brew_buds/common/extension/date_time_ext.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/tasted_record_update_model.dart';
 import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 
@@ -49,9 +50,19 @@ final class TastedRecordUpdatePresenter extends Presenter {
 
   Future<bool> update() async {
     try {
-      final result = await _tastedRecordRepository
-          .update(id: _tastedRecord.id, tastedRecord: _tastedRecord);
-      EventBus.instance.fire(TastedRecordUpdateEvent(senderId: presenterId, tastedRecord: result));
+      final updateModel = TastedRecordUpdateModel(
+        contents: contents,
+        tag: tag,
+        tasteReview: _tastedRecord.tastingReview,
+      );
+      await _tastedRecordRepository.update(id: _tastedRecord.id, data: updateModel.toJson());
+      EventBus.instance.fire(
+        TastedRecordUpdateEvent(
+          senderId: presenterId,
+          id: _tastedRecord.id,
+          updateModel: updateModel,
+        ),
+      );
       return true;
     } catch (e) {
       return false;

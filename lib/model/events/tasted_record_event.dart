@@ -1,3 +1,4 @@
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/tasted_record_update_model.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 
 sealed class TastedRecordEvent {
@@ -27,11 +28,13 @@ final class TastedRecordDeleteEvent implements TastedRecordEvent {
 final class TastedRecordUpdateEvent implements TastedRecordEvent {
   @override
   final String senderId;
-  final TastedRecord tastedRecord;
+  final int id;
+  final TastedRecordUpdateModel updateModel;
 
   const TastedRecordUpdateEvent({
     required this.senderId,
-    required this.tastedRecord,
+    required this.id,
+    required this.updateModel,
   });
 }
 

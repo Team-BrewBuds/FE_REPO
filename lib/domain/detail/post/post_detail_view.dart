@@ -15,7 +15,6 @@ import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
 import 'package:brew_buds/domain/home/comments/comment_widget.dart';
 import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
@@ -402,7 +401,7 @@ class _PostDetailViewState extends State<PostDetailView>
               ),
               childBuilder: (context, index) => ThrottleButton(
                 onTap: () {
-                  showTastingRecordDetail(context: context, id: tastingRecords[index].id);
+                  ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id);
                 },
                 child: Container(
                   color: ColorStyles.white,

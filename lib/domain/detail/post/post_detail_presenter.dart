@@ -1,6 +1,7 @@
+import 'dart:async';
+
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
@@ -40,6 +41,8 @@ final class PostDetailPresenter extends Presenter {
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   final BlockApi _blockApi = BlockApi();
   final int id;
+  late final StreamSubscription _postSub;
+  late final StreamSubscription _followEventSub;
   bool _isEmpty = false;
   Post? _post;
   User? _replyUser;
@@ -85,7 +88,58 @@ final class PostDetailPresenter extends Presenter {
   PostDetailPresenter({
     required this.id,
   }) {
+    _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
+    _followEventSub = EventBus.instance.on<UserFollowEvent>().listen(_onFollowEvent);
     _fetchPost();
+  }
+
+  @override
+  dispose() {
+    _postSub.cancel();
+    _followEventSub.cancel();
+    super.dispose();
+  }
+
+  _onFollowEvent(UserFollowEvent event) {
+    if (event.senderId != presenterId && event.userId == _post?.author.id) {
+      _post = _post?.copyWith(isAuthorFollowing: event.isFollow);
+      notifyListeners();
+    }
+  }
+
+  _onPostEvent(PostEvent event) {
+    if (event.senderId != presenterId) {
+      switch (event) {
+        case PostDeleteEvent():
+          break;
+        case PostUpdateEvent():
+          if (event.id == _post?.id) {
+            final updateModel = event.updateModel;
+            _post = _post?.copyWith(
+              title: updateModel.title,
+              contents: updateModel.contents,
+              subject: updateModel.subject,
+              tag: updateModel.tag,
+            );
+            notifyListeners();
+          }
+          break;
+        case PostLikeEvent():
+          if (event.id == _post?.id) {
+            _post = _post?.copyWith(isLiked: event.isLiked, likeCount: event.likeCount);
+            notifyListeners();
+          }
+          break;
+        case PostSaveEvent():
+          if (event.id == _post?.id) {
+            _post = _post?.copyWith(isSaved: event.isSaved);
+            notifyListeners();
+          }
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   Future<void> onRefresh() async {
@@ -104,15 +158,12 @@ final class PostDetailPresenter extends Presenter {
 
   Future<void> onDelete() => _postRepository.delete(id: id);
 
-  Future<Result<String>> onBlock() {
+  Future<void> onBlock() {
     final authorId = _post?.author.id;
     if (authorId != null) {
-      return _blockApi
-          .block(id: authorId)
-          .then((value) => Result.success('차단을 완료했어요.'))
-          .onError((error, stackTrace) => Result.error('차단에 실패했어요.'));
+      return _blockApi.block(id: authorId);
     } else {
-      return Future.value(Result.error('차단에 실패했어요.'));
+      throw Exception();
     }
   }
 
@@ -246,6 +297,7 @@ final class PostDetailPresenter extends Presenter {
         );
       }
       _replyUser = null;
+      _parentsId = null;
       notifyListeners();
     } catch (_) {
       rethrow;

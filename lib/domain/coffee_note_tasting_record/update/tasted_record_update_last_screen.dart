@@ -7,7 +7,6 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_u
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/date_picker_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_view.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';

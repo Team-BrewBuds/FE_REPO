@@ -1,10 +1,10 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -64,7 +64,7 @@ class _TastedRecordInCoffeeBeanListScreenState extends State<TastedRecordInCoffe
                           value: tastedRecordPresenter,
                           child: ThrottleButton(
                             onTap: () {
-                              showTastingRecordDetail(context: context, id: tastedRecordPresenter.id);
+                              ScreenNavigator.showTastedRecordDetail(context: context, id: tastedRecordPresenter.id);
                             },
                             child: const TastedRecordInCoffeeBeanWidget(),
                           ),

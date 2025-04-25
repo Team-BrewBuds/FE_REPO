@@ -8,7 +8,6 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
@@ -516,7 +515,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   itemBuilder: (context, index) {
                     final tastingRecord = tastingRecords[index];
                     return FutureButton(
-                      onTap: () => showTastingRecordDetail(context: context, id: tastingRecords[index].id),
+                      onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id),
                       child: TastingRecordItemWidget(
                         imageUri: tastingRecord.imageUrl,
                         rating: tastingRecord.rating,
@@ -627,7 +626,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       );
                     case NotedTastedRecord():
                       return FutureButton(
-                        onTap: () => showTastingRecordDetail(context: context, id: note.id),
+                        onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: note.id),
                         child: SavedTastingRecordWidget(
                           beanName: note.beanName,
                           rating: '${note.rating}',

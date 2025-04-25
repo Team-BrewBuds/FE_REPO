@@ -4,7 +4,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_post_presenter.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:flutter/cupertino.dart';

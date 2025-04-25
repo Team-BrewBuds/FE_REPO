@@ -93,6 +93,7 @@ final class CommentsBottomSheetPresenter extends Presenter {
         );
       }
       _replyUser = null;
+      _parentsId = null;
       notifyListeners();
     } catch (_) {
       rethrow;

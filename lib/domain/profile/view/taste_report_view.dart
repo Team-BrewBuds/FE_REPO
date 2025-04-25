@@ -3,8 +3,8 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/activity_calendar_builder.dart';
 import 'package:brew_buds/domain/profile/widgets/profile_post_item_widget.dart';
@@ -502,7 +502,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         case PostActivityItem():
                           return ThrottleButton(
                             onTap: () {
-                              showTastingRecordDetail(context: context, id: activity.id);
+                              ScreenNavigator.showTastedRecordDetail(context: context, id: activity.id);
                             },
                             child: ProfilePostItemWidget(
                               title: activity.title,
@@ -514,7 +514,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                         case TastedRecordActivityItem():
                           return ThrottleButton(
                             onTap: () {
-                              showTastingRecordDetail(context: context, id: activity.id);
+                              ScreenNavigator.showTastedRecordDetail(context: context, id: activity.id);
                             },
                             child: SavedTastingRecordWidget(
                               beanName: activity.beanName,

@@ -4,7 +4,6 @@ import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/feed/feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
@@ -93,7 +92,7 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
           if (isGuest) {
             onGuest.call();
           } else {
-            showTastingRecordDetail(context: context, id: tastedRecords[index].id);
+            ScreenNavigator.showTastedRecordDetail(context: context, id: tastedRecords[index].id);
           }
         },
         child: Container(

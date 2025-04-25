@@ -164,20 +164,18 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
           }
           break;
         case TastedRecordUpdateEvent():
-          final tastedRecord = event.tastedRecord;
-          if (tastedRecord.id == feed.data.id) {
+          if (event.id == feed.data.id) {
+            final updateModel = event.updateModel;
             feed = TastedRecordFeed(
               data: feed.data.copyWith(
-                rating: tastedRecord.tastingReview.star,
-                beanType: tastedRecord.bean.type?.toString() ?? '',
-                beanName: tastedRecord.bean.name ?? '',
-                flavors: tastedRecord.tastingReview.flavors,
-                contents: tastedRecord.contents,
-                tag: tastedRecord.tag,
+                rating: updateModel.tasteReview.star,
+                flavors: List.from(updateModel.tasteReview.flavors),
+                contents: updateModel.contents,
+                tag: updateModel.tag,
               ),
             );
+            notifyListeners();
           }
-          notifyListeners();
           break;
         default:
           break;

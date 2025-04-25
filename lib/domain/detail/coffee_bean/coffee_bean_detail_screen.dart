@@ -12,7 +12,6 @@ import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_screen.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/widget/tasted_record_in_coffee_bean_widget.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
@@ -478,7 +477,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                   value: tastedRecordPresenter,
                   child: ThrottleButton(
                     onTap: () {
-                      showTastingRecordDetail(context: context, id: tastedRecordPresenter.id);
+                      ScreenNavigator.showTastedRecordDetail(context: context, id: tastedRecordPresenter.id);
                     },
                     child: Container(color: ColorStyles.white, child: const TastedRecordInCoffeeBeanWidget()),
                   ),

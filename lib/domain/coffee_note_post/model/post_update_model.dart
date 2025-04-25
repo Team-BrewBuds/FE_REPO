@@ -15,11 +15,16 @@ final class PostUpdateModel {
   });
 
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> json = {
       'title': title,
       'content': contents,
       'subject': subject.toJson(),
-      'tag': tag,
     };
+
+    if (tag.isNotEmpty) {
+      json['tag'] = tag;
+    }
+
+    return json;
   }
 }

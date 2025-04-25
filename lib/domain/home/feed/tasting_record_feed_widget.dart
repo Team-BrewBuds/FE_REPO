@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/home/feed/feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
@@ -55,7 +54,7 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
                     onGuest.call();
                   } else {
                     final id = context.read<TastedRecordFeedPresenter>().feed.data.id;
-                    showTastingRecordDetail(context: context, id: id);
+                    ScreenNavigator.showTastedRecordDetail(context: context, id: id);
                   }
                 },
                 child: Text(

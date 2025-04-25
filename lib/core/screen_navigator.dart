@@ -8,6 +8,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_screen.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
+import 'package:brew_buds/domain/detail/tasted_record/tasted_record_detail_view.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
@@ -58,7 +59,7 @@ final class ScreenNavigator {
       PageRouteBuilder(
         fullscreenDialog: true,
         pageBuilder: (context, animation, secondaryAnimation) => ChangeNotifierProvider<FollowerListPresenter>(
-          create: (_) => FollowerListPresenter(nickName: nickName),
+          create: (_) => FollowerListPresenter(nickName: nickName, currentTab: initialIndex),
           child: FollowerListPA(initialIndex: initialIndex),
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -87,7 +88,7 @@ final class ScreenNavigator {
       PageRouteBuilder(
         fullscreenDialog: true,
         pageBuilder: (context, animation, secondaryAnimation) => ChangeNotifierProvider<FollowerListPBPresenter>(
-          create: (_) => FollowerListPBPresenter(id: id, nickName: nickName),
+          create: (_) => FollowerListPBPresenter(id: id, nickName: nickName, currentTab: initialIndex),
           child: FollowerListPB(initialIndex: initialIndex),
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -303,6 +304,27 @@ final class ScreenNavigator {
       PageRouteBuilder(
         fullscreenDialog: true,
         pageBuilder: (_, __, ___) => PostDetailView.buildWithPresenter(id: id),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.ease;
+
+          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
+      ),
+    );
+  }
+
+  static Future<void> showTastedRecordDetail({required BuildContext context, required int id}) {
+    return Navigator.of(context, rootNavigator: true).push(
+      PageRouteBuilder(
+        fullscreenDialog: true,
+        pageBuilder: (_, __, ___) => TastedRecordDetailView.buildWithPresenter(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;

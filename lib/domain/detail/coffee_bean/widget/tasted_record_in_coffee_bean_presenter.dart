@@ -6,7 +6,7 @@ import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_coffee_bean.dart';
 
 final class TastedRecordInCoffeeBeanPresenter extends Presenter {
-  final TastedRecordInCoffeeBean _tastedRecordInCoffeeBean;
+  TastedRecordInCoffeeBean _tastedRecordInCoffeeBean;
   late final StreamSubscription _tastedRecordSub;
 
   int get id => _tastedRecordInCoffeeBean.id;
@@ -30,8 +30,13 @@ final class TastedRecordInCoffeeBeanPresenter extends Presenter {
   onTastedRecordEvent(TastedRecordEvent event) {
     switch (event) {
       case TastedRecordUpdateEvent():
-        if (event.senderId != presenterId && event.tastedRecord.id == _tastedRecordInCoffeeBean.id) {
-          //event 수정필요
+        if (event.senderId != presenterId && event.id == _tastedRecordInCoffeeBean.id) {
+          final updateModel = event.updateModel;
+          _tastedRecordInCoffeeBean = _tastedRecordInCoffeeBean.copyWith(
+            contents: updateModel.contents,
+            rating: updateModel.tasteReview.star,
+            flavors: List.from(updateModel.tasteReview.flavors),
+          );
         }
         break;
       default:
