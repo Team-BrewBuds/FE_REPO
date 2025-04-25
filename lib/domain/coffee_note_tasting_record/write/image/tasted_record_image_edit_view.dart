@@ -3,9 +3,9 @@ import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_edit_presenter.dart';
 import 'package:brew_buds/domain/photo/core/circle_crop_overlay_painter.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_edit_presenter.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,8 @@ class TastedRecordImageEditView extends StatelessWidget {
                       },
                     ),
                   ),
-                  if (context.select<TastedRecordImageEditPresenter, bool>((presenter) => presenter.images.length > 1)) ...[
+                  if (context
+                      .select<TastedRecordImageEditPresenter, bool>((presenter) => presenter.images.length > 1)) ...[
                     ValueListenableBuilder(
                       valueListenable: _indexNotifier,
                       builder: (context, index, _) {
@@ -193,7 +194,8 @@ class TastedRecordImageEditView extends StatelessWidget {
           ThrottleButton(
             onTap: () async {
               final currentContext = context;
-              final originImage = currentContext.read<TastedRecordImageEditPresenter>().originImages[_indexNotifier.value];
+              final originImage =
+                  currentContext.read<TastedRecordImageEditPresenter>().originImages[_indexNotifier.value];
               final image = currentContext.read<TastedRecordImageEditPresenter>().images[_indexNotifier.value];
 
               final result = await Navigator.of(currentContext).push<Uint8List>(

@@ -183,16 +183,18 @@ class _PostDetailViewState extends State<PostDetailView>
                     ),
                     Selector<CommentsPresenter, bool>(
                       selector: (context, presenter) => presenter.hasNext && !presenter.isLoading,
-                      builder: (context, hasNext, child) => hasNext ? const SliverToBoxAdapter(
-                        child: SizedBox(
-                          height: 100,
-                          child: Center(
-                            child: CupertinoActivityIndicator(
-                              color: ColorStyles.gray70,
-                            ),
-                          ),
-                        ),
-                      ) : const SliverToBoxAdapter(),
+                      builder: (context, hasNext, child) => hasNext
+                          ? const SliverToBoxAdapter(
+                              child: SizedBox(
+                                height: 100,
+                                child: Center(
+                                  child: CupertinoActivityIndicator(
+                                    color: ColorStyles.gray70,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : const SliverToBoxAdapter(),
                     ),
                   ],
                 ),
@@ -609,6 +611,7 @@ class _PostDetailViewState extends State<PostDetailView>
   }
 
   Future<PostDetailAction?> showActionBottomSheet() {
+    final isMine = context.read<PostDetailPresenter>().isMyObject();
     return showBarrierDialog<PostDetailAction>(
       context: context,
       pageBuilder: (context, _, __) {
@@ -630,9 +633,7 @@ class _PostDetailViewState extends State<PostDetailView>
                     top: false,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 24),
-                      child: context.read<PostDetailPresenter>().isMyObject()
-                          ? _buildMineBottomSheet()
-                          : _buildOthersBottomSheet(),
+                      child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
                     ),
                   ),
                 ),

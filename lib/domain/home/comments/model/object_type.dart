@@ -4,7 +4,7 @@ enum ObjectType {
 
   @override
   String toString() => switch (this) {
-    ObjectType.post => 'post',
-    ObjectType.tastingRecord => 'tasted_record',
-  };
+        ObjectType.post => 'post',
+        ObjectType.tastingRecord => 'tasted_record',
+      };
 }

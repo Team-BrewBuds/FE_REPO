@@ -5,7 +5,6 @@ import 'package:brew_buds/domain/coffee_note_post/post_write_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_first_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_navigator.dart';
-import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_screen.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_detail_view.dart';

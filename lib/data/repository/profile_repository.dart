@@ -13,7 +13,6 @@ import 'package:brew_buds/data/dto/profile/profile_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/noted_tasted_record_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_profile_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_in_profile_mapper.dart';
-import 'package:brew_buds/data/mapper/common/preferred_bean_taste_mapper.dart';
 import 'package:brew_buds/data/mapper/post/noted_post_mapper.dart';
 import 'package:brew_buds/data/mapper/post/post_in_profile_mapper.dart';
 import 'package:brew_buds/data/mapper/profile/account_info_mapper.dart';
@@ -23,7 +22,6 @@ import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_profile_map
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/profile/account_info.dart';
@@ -124,7 +122,7 @@ class ProfileRepository {
   }
 
   Future<AccountInfo> fetchInfo({required int id}) async {
-    final jsonString = await _profileApi.fetchUserInfo(id: id);
+    final jsonString = await _profileApi.fetchUserInfo();
     return compute(
       (jsonString) {
         try {

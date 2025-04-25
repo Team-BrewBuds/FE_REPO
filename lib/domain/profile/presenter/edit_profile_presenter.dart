@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
-import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/profile/model/profile_update_model.dart';

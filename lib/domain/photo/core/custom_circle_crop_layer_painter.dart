@@ -29,8 +29,7 @@ class CustomCircleCropLayerPainter extends EditorCropLayerPainter {
     final center = rect.center;
 
     // 1. 원형 경로 생성
-    final Path circlePath = Path()
-      ..addOval(Rect.fromCircle(center: center, radius: radius));
+    final Path circlePath = Path()..addOval(Rect.fromCircle(center: center, radius: radius));
 
     // 2. 캔버스를 원으로 clip
     canvas.save(); // 현재 상태 저장

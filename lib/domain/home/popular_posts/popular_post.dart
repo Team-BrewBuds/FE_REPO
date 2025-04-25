@@ -63,7 +63,8 @@ class PopularPostWidget extends StatelessWidget {
                           colorFilter: const ColorFilter.mode(ColorStyles.gray70, BlendMode.srcIn),
                         ),
                         Builder(builder: (context) {
-                          final likeCount = context.select<PopularPostPresenter, int>((presenter) => presenter.likeCount);
+                          final likeCount =
+                              context.select<PopularPostPresenter, int>((presenter) => presenter.likeCount);
                           return Text(
                             likeCount > 9999 ? '9999+' : '$likeCount',
                             style: TextStyles.captionMediumMedium.copyWith(
@@ -95,14 +96,16 @@ class PopularPostWidget extends StatelessWidget {
                   Row(
                     children: [
                       Builder(builder: (context) {
-                        final subject = context.select<PopularPostPresenter, PostSubject>((presenter) => presenter.subject);
+                        final subject =
+                            context.select<PopularPostPresenter, PostSubject>((presenter) => presenter.subject);
                         return Text(
                           subject.toString(),
                           style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.gray70),
                         );
                       }),
                       Builder(builder: (context) {
-                        final createdAt = context.select<PopularPostPresenter, String>((presenter) => presenter.createdAt);
+                        final createdAt =
+                            context.select<PopularPostPresenter, String>((presenter) => presenter.createdAt);
                         return Text(
                           createdAt,
                           style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),
@@ -116,7 +119,8 @@ class PopularPostWidget extends StatelessWidget {
                         );
                       }),
                       Builder(builder: (context) {
-                        final nickName = context.select<PopularPostPresenter, String>((presenter) => presenter.nickName);
+                        final nickName =
+                            context.select<PopularPostPresenter, String>((presenter) => presenter.nickName);
                         return Text(
                           nickName,
                           style: TextStyles.captionMediumRegular.copyWith(color: ColorStyles.gray70),

@@ -1,7 +1,7 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:flutter/cupertino.dart';
 
 class MyRefreshControl extends StatelessWidget {
   final Future<void> Function() onRefresh;
@@ -18,12 +18,12 @@ class MyRefreshControl extends StatelessWidget {
       refreshIndicatorExtent: 56,
       onRefresh: onRefresh,
       builder: (
-          BuildContext context,
-          RefreshIndicatorMode refreshState,
-          double pulledExtent,
-          double refreshTriggerPullDistance,
-          double refreshIndicatorExtent,
-          ) {
+        BuildContext context,
+        RefreshIndicatorMode refreshState,
+        double pulledExtent,
+        double refreshTriggerPullDistance,
+        double refreshIndicatorExtent,
+      ) {
         switch (refreshState) {
           case RefreshIndicatorMode.drag:
             final double percentageComplete = clampDouble(

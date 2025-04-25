@@ -5,10 +5,10 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
+import 'package:brew_buds/domain/coffee_note_post/image/post_image_presenter.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
 import 'package:brew_buds/domain/photo/photo_first_time_view.dart';
-import 'package:brew_buds/domain/coffee_note_post/image/post_image_presenter.dart';
 import 'package:brew_buds/domain/photo/widget/asset_album_list_view.dart';
 import 'package:brew_buds/domain/photo/widget/management_bottom_sheet.dart';
 import 'package:flutter/material.dart';
@@ -197,7 +197,11 @@ class _PostImageViewState extends State<PostImageView> {
       children: [
         AspectRatio(
           aspectRatio: 1,
-          child: AssetEntityImage(image, fit: BoxFit.cover, isOriginal: false,),
+          child: AssetEntityImage(
+            image,
+            fit: BoxFit.cover,
+            isOriginal: false,
+          ),
         ),
         if (isSelected) // 선택된 사진 음영표시
           Container(color: ColorStyles.black30),

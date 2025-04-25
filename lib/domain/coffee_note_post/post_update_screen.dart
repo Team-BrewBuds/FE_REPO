@@ -189,16 +189,15 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
               child: ThrottleButton(
                 onTap: () {
                   showCenterDialog(
-                    title: '게시글 수정을 그만두시겠습니까?',
-                    centerTitle: true,
-                    content: '지금까지 작성한 내용은 저장되지 않아요.',
-                    contentAlign: TextAlign.center,
-                    cancelText: '그만두기',
-                    doneText: '계속쓰기',
-                    onCancel: () {
-                      context.pop();
-                    }
-                  );
+                      title: '게시글 수정을 그만두시겠습니까?',
+                      centerTitle: true,
+                      content: '지금까지 작성한 내용은 저장되지 않아요.',
+                      contentAlign: TextAlign.center,
+                      cancelText: '그만두기',
+                      doneText: '계속쓰기',
+                      onCancel: () {
+                        context.pop();
+                      });
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',

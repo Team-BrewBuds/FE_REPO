@@ -25,10 +25,8 @@ abstract class ProfileApi {
     @Query('page') required int pageNo,
   });
 
-  @GET('/profiles/user/info/{user_id}/')
-  Future<String> fetchUserInfo({
-    @Path('user_id') required int id,
-  });
+  @GET('profiles/account/')
+  Future<String> fetchUserInfo();
 
   @DELETE('/profiles/')
   Future<void> signOut();

@@ -11,5 +11,6 @@ class AccountInfo with _$AccountInfo {
     required String loginKind,
     required String gender,
     required int yearOfBirth,
+    required String email,
   }) = _AccountInfo;
 }

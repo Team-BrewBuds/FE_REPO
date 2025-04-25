@@ -717,6 +717,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   }
 
   Future<TastedRecordDetailAction?> showActionBottomSheet() {
+    final isMine = context.read<TastedRecordPresenter>().isMyObject();
     return showBarrierDialog<TastedRecordDetailAction>(
       context: context,
       pageBuilder: (context, _, __) {
@@ -738,9 +739,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     top: false,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 24),
-                      child: context.read<TastedRecordPresenter>().isMyObject()
-                          ? _buildMineBottomSheet()
-                          : _buildOthersBottomSheet(),
+                      child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
                     ),
                   ),
                 ),

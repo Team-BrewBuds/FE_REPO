@@ -13,16 +13,14 @@ class TastingRecordItemWidget extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return MyNetworkImage(
-                imageUrl: imageUri,
-                height: constraints.maxHeight,
-                width: constraints.maxWidth,
-                showGradient: true,
-              );
-            }
-          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return MyNetworkImage(
+              imageUrl: imageUri,
+              height: constraints.maxHeight,
+              width: constraints.maxWidth,
+              showGradient: true,
+            );
+          }),
         ),
         Positioned(
           left: 6,

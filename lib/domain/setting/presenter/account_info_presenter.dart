@@ -12,7 +12,7 @@ final class AccountInfoPresenter extends Presenter {
 
   bool get isLoading => _isLoading;
 
-  String get signUpInfo => '$signUpAt ($signUpPeriod)';
+  String get signUpInfo => signUpPeriod.isNotEmpty ? '$signUpAt ($signUpPeriod)' : signUpAt;
 
   String get signUpAt => _accountInfo?.signUpAt ?? '';
 
@@ -23,6 +23,8 @@ final class AccountInfoPresenter extends Presenter {
   String get gender => _accountInfo?.gender ?? '';
 
   int get yearOfBirth => _accountInfo?.yearOfBirth ?? 0;
+
+  String get email => _accountInfo?.email ?? '';
 
   initState() {
     _fetchInfo();

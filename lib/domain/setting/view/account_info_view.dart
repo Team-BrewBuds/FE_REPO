@@ -63,9 +63,17 @@ class _AccountInfoViewState extends State<AccountInfoView> {
               ),
               Selector<AccountInfoPresenter, String>(
                 selector: (context, presenter) => '${presenter.yearOfBirth}',
-                builder: (context, yearOfBirth, child) => Padding(
+                builder: (context, yearOfBirth, child) => Container(
                   padding: const EdgeInsets.all(16),
+                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
                   child: yearOfBirthWidget(yearOfBirth: yearOfBirth),
+                ),
+              ),
+              Selector<AccountInfoPresenter, String>(
+                selector: (context, presenter) => presenter.email,
+                builder: (context, email, child) => Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: emailWidget(email: email),
                 ),
               ),
             ],
@@ -205,6 +213,17 @@ class _AccountInfoViewState extends State<AccountInfoView> {
         ),
         const SizedBox(width: 8),
         Text(yearOfBirth, style: TextStyles.labelMediumMedium),
+      ],
+    );
+  }
+
+  Widget emailWidget({required String email}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('이메일', style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray60)),
+        const SizedBox(width: 8),
+        Text(email.isNotEmpty ? email : 'Unknown', style: TextStyles.labelMediumMedium),
       ],
     );
   }

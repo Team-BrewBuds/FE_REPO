@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/coffee_bean_search_presenter.dart';
-import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
@@ -268,91 +267,91 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
   List<Widget> buildContents(BuildContext context) {
     // final isLoading = context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading);
     return [
-        Selector<CoffeeBeanSearchPresenter, CoffeeBeanSearchState>(
-          selector: (context, presenter) => presenter.coffeeBeanSearchState,
-          builder: (context, state, _) {
-            if (state.isLoading && state.coffeebeans.isEmpty) {
-              return const SliverFillRemaining(
-                child: Center(
-                  child: CupertinoActivityIndicator(
-                    color: ColorStyles.gray70,
-                  ),
+      Selector<CoffeeBeanSearchPresenter, CoffeeBeanSearchState>(
+        selector: (context, presenter) => presenter.coffeeBeanSearchState,
+        builder: (context, state, _) {
+          if (state.isLoading && state.coffeebeans.isEmpty) {
+            return const SliverFillRemaining(
+              child: Center(
+                child: CupertinoActivityIndicator(
+                  color: ColorStyles.gray70,
                 ),
-              );
-            } else if (state.coffeebeans.isNotEmpty) {
-              final coffeeBeans = state.coffeebeans;
-              return SliverList.builder(
-                itemCount: coffeeBeans.length,
-                itemBuilder: (context, index) {
-                  final name = coffeeBeans[index].name ?? '';
-                  return name.isNotEmpty
-                      ? ThrottleButton(
-                    onTap: () {
-                      context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      child: RichText(
-                        text: TextSpan(
-                          style: TextStyles.title01SemiBold.copyWith(
-                            color: ColorStyles.black,
-                            fontWeight: FontWeight.w400,
+              ),
+            );
+          } else if (state.coffeebeans.isNotEmpty) {
+            final coffeeBeans = state.coffeebeans;
+            return SliverList.builder(
+              itemCount: coffeeBeans.length,
+              itemBuilder: (context, index) {
+                final name = coffeeBeans[index].name ?? '';
+                return name.isNotEmpty
+                    ? ThrottleButton(
+                        onTap: () {
+                          context.pop(CoffeeBeanSearchBottomSheetResult.searched(coffeeBean: coffeeBeans[index]));
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                          child: RichText(
+                            text: TextSpan(
+                              style: TextStyles.title01SemiBold.copyWith(
+                                color: ColorStyles.black,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              children: _getSpans(
+                                name,
+                                searchWordNotifier.value,
+                                TextStyles.title01SemiBold.copyWith(
+                                  color: ColorStyles.red,
+                                ),
+                              ),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          children: _getSpans(
-                            name,
-                            searchWordNotifier.value,
-                            TextStyles.title01SemiBold.copyWith(
-                              color: ColorStyles.red,
+                        ),
+                      )
+                    : const SizedBox.shrink();
+              },
+            );
+          } else {
+            return ValueListenableBuilder(
+              valueListenable: searchWordNotifier,
+              builder: (context, searchWord, _) {
+                return searchWord.isNotEmpty
+                    ? SliverToBoxAdapter(
+                        child: ThrottleButton(
+                          onTap: () {
+                            context.pop(CoffeeBeanSearchBottomSheetResult.written(name: searchWordNotifier.value));
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                            color: ColorStyles.white,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    searchWord,
+                                    style: TextStyles.title01SemiBold,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SvgPicture.asset(
+                                  'assets/icons/plus_round.svg',
+                                  height: 24,
+                                  width: 24,
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  )
-                      : const SizedBox.shrink();
-                },
-              );
-            } else {
-              return ValueListenableBuilder(
-                valueListenable: searchWordNotifier,
-                builder: (context, searchWord, _) {
-                  return searchWord.isNotEmpty
-                      ? SliverToBoxAdapter(
-                          child: ThrottleButton(
-                            onTap: () {
-                              context.pop(CoffeeBeanSearchBottomSheetResult.written(name: searchWordNotifier.value));
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                              color: ColorStyles.white,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      searchWord,
-                                      style: TextStyles.title01SemiBold,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                  SvgPicture.asset(
-                                    'assets/icons/plus_round.svg',
-                                    height: 24,
-                                    width: 24,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      : const SliverToBoxAdapter();
-                },
-              );
-            }
-          },
-        ),
+                      )
+                    : const SliverToBoxAdapter();
+              },
+            );
+          }
+        },
+      ),
       Selector<CoffeeBeanSearchPresenter, bool>(
         selector: (context, presenter) => presenter.hasNext,
         builder: (context, hasNext, _) {

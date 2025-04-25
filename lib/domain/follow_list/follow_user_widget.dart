@@ -47,7 +47,11 @@ class FollowUserWidget extends StatelessWidget {
                     color: isFollow ? ColorStyles.gray30 : ColorStyles.red,
                     borderRadius: const BorderRadius.all(Radius.circular(20))),
                 child: Text(
-                  isFollow ? isMyFollow ? '팔로우 취소' : '팔로워' : '팔로우',
+                  isFollow
+                      ? isMyFollow
+                          ? '팔로우 취소'
+                          : '팔로워'
+                      : '팔로우',
                   style: TextStyles.labelSmallMedium.copyWith(
                     color: isFollow ? ColorStyles.black : ColorStyles.white,
                   ),

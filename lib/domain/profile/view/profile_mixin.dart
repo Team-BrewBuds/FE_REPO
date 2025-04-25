@@ -304,11 +304,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
       children: [
         FutureButton(
           onTap: () => showCupertinoModalPopup(
-              barrierColor: ColorStyles.white,
-              barrierDismissible: false,
-              context: context,
-              builder: (context) => WebScreen(url: profileLink),
-            ),
+            barrierColor: ColorStyles.white,
+            barrierDismissible: false,
+            context: context,
+            builder: (context) => WebScreen(url: profileLink),
+          ),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: const BoxDecoration(
@@ -492,156 +492,148 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   }
 
   Widget _buildTastedRecordsList({required List<TastedRecordInProfile> tastingRecords}) {
-    return Builder(
-      builder: (context) {
-        return tastingRecords.isEmpty &&
-                context.select<Presenter, bool>(
-                  (presenter) => !presenter.isLoading && !presenter.isLoadingData,
-                )
-            ? SliverFillRemaining(
-                child: Center(
-                  child: Text(tastingRecordsEmptyText, style: TextStyles.title02SemiBold),
-                ),
+    return Builder(builder: (context) {
+      return tastingRecords.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-            : SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverGrid.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 4,
-                    crossAxisSpacing: 4,
-                  ),
-                  itemCount: tastingRecords.length,
-                  itemBuilder: (context, index) {
-                    final tastingRecord = tastingRecords[index];
-                    return FutureButton(
-                      onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id),
-                      child: TastingRecordItemWidget(
-                        imageUri: tastingRecord.imageUrl,
-                        rating: tastingRecord.rating,
-                      ),
-                    );
-                  },
+          ? SliverFillRemaining(
+              child: Center(
+                child: Text(tastingRecordsEmptyText, style: TextStyles.title02SemiBold),
+              ),
+            )
+          : SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
                 ),
-              );
-      }
-    );
+                itemCount: tastingRecords.length,
+                itemBuilder: (context, index) {
+                  final tastingRecord = tastingRecords[index];
+                  return FutureButton(
+                    onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id),
+                    child: TastingRecordItemWidget(
+                      imageUri: tastingRecord.imageUrl,
+                      rating: tastingRecord.rating,
+                    ),
+                  );
+                },
+              ),
+            );
+    });
   }
 
   Widget _buildPostsList({required List<PostInProfile> posts}) {
-    return Builder(
-      builder: (context) {
-        return posts.isEmpty &&
-            context.select<Presenter, bool>(
-                  (presenter) => !presenter.isLoading && !presenter.isLoadingData,
-            )
-            ? SliverFillRemaining(
-                child: Center(
-                  child: Text(postsEmptyText, style: TextStyles.title02SemiBold),
-                ),
+    return Builder(builder: (context) {
+      return posts.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-            : SliverList.separated(
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  final post = posts[index];
-                  return FutureButton(
-                    onTap: () => ScreenNavigator.showPostDetail(context: context, id: post.id),
-                    child: ProfilePostItemWidget(
-                      title: post.title,
-                      author: post.author,
-                      createdAt: post.createdAt,
-                      subject: post.subject,
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return Container(height: 1, color: ColorStyles.gray20);
-                },
-              );
-      }
-    );
+          ? SliverFillRemaining(
+              child: Center(
+                child: Text(postsEmptyText, style: TextStyles.title02SemiBold),
+              ),
+            )
+          : SliverList.separated(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return FutureButton(
+                  onTap: () => ScreenNavigator.showPostDetail(context: context, id: post.id),
+                  child: ProfilePostItemWidget(
+                    title: post.title,
+                    author: post.author,
+                    createdAt: post.createdAt,
+                    subject: post.subject,
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Container(height: 1, color: ColorStyles.gray20);
+              },
+            );
+    });
   }
 
   Widget _buildSavedCoffeeBeansList({required List<BeanInProfile> beans}) {
-    return Builder(
-      builder: (context) {
-        return beans.isEmpty &&
-            context.select<Presenter, bool>(
-                  (presenter) => !presenter.isLoading && !presenter.isLoadingData,
-            )
-            ? SliverFillRemaining(
-                child: Center(
-                  child: Text(beansEmptyText, style: TextStyles.title02SemiBold),
-                ),
+    return Builder(builder: (context) {
+      return beans.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-            : SliverList.separated(
-                itemCount: beans.length,
-                itemBuilder: (context, index) {
-                  final bean = beans[index];
-                  return FutureButton(
-                    onTap: () => ScreenNavigator.showCoffeeBeanDetail(context: context, id: bean.id),
-                    child: SavedCoffeeBeanWidget(
-                      name: bean.name,
-                      rating: bean.rating,
-                      tastedRecordsCount: bean.tastedRecordsCount,
-                      imageUri: '',
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) {
-                  return Container(height: 1, color: ColorStyles.gray20);
-                },
-              );
-      }
-    );
+          ? SliverFillRemaining(
+              child: Center(
+                child: Text(beansEmptyText, style: TextStyles.title02SemiBold),
+              ),
+            )
+          : SliverList.separated(
+              itemCount: beans.length,
+              itemBuilder: (context, index) {
+                final bean = beans[index];
+                return FutureButton(
+                  onTap: () => ScreenNavigator.showCoffeeBeanDetail(context: context, id: bean.id),
+                  child: SavedCoffeeBeanWidget(
+                    name: bean.name,
+                    rating: bean.rating,
+                    tastedRecordsCount: bean.tastedRecordsCount,
+                    imageUri: '',
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Container(height: 1, color: ColorStyles.gray20);
+              },
+            );
+    });
   }
 
   _buildSavedPostsList({required List<NotedObject> savedNotes}) {
-    return Builder(
-      builder: (context) {
-        return savedNotes.isEmpty &&
-            context.select<Presenter, bool>(
-                  (presenter) => !presenter.isLoading && !presenter.isLoadingData,
-            )
-            ? SliverFillRemaining(
-                child: Center(
-                  child: Text(savedNotesEmptyText, style: TextStyles.title02SemiBold),
-                ),
+    return Builder(builder: (context) {
+      return savedNotes.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-            : SliverList.separated(
-                itemCount: savedNotes.length,
-                itemBuilder: (context, index) {
-                  final note = savedNotes[index];
-                  switch (note) {
-                    case NotedPost():
-                      return FutureButton(
-                        onTap: () => ScreenNavigator.showPostDetail(context: context, id: note.id),
-                        child: SavedPostWidget(
-                          title: note.title,
-                          subject: note.subject.toString(),
-                          createdAt: note.createdAt,
-                          author: note.author,
-                          imageUri: note.imageUrl,
-                        ),
-                      );
-                    case NotedTastedRecord():
-                      return FutureButton(
-                        onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: note.id),
-                        child: SavedTastingRecordWidget(
-                          beanName: note.beanName,
-                          rating: '${note.rating}',
-                          flavor: note.flavor,
-                          imageUri: note.imageUrl,
-                        ),
-                      );
-                  }
-                },
-                separatorBuilder: (context, index) {
-                  return Container(height: 1, color: ColorStyles.gray20);
-                },
-              );
-      }
-    );
+          ? SliverFillRemaining(
+              child: Center(
+                child: Text(savedNotesEmptyText, style: TextStyles.title02SemiBold),
+              ),
+            )
+          : SliverList.separated(
+              itemCount: savedNotes.length,
+              itemBuilder: (context, index) {
+                final note = savedNotes[index];
+                switch (note) {
+                  case NotedPost():
+                    return FutureButton(
+                      onTap: () => ScreenNavigator.showPostDetail(context: context, id: note.id),
+                      child: SavedPostWidget(
+                        title: note.title,
+                        subject: note.subject.toString(),
+                        createdAt: note.createdAt,
+                        author: note.author,
+                        imageUri: note.imageUrl,
+                      ),
+                    );
+                  case NotedTastedRecord():
+                    return FutureButton(
+                      onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: note.id),
+                      child: SavedTastingRecordWidget(
+                        beanName: note.beanName,
+                        rating: '${note.rating}',
+                        flavor: note.flavor,
+                        imageUri: note.imageUrl,
+                      ),
+                    );
+                }
+              },
+              separatorBuilder: (context, index) {
+                return Container(height: 1, color: ColorStyles.gray20);
+              },
+            );
+    });
   }
 
   _showCoffeeBeanFilterBottomSheet({required List<CoffeeBeanFilter> filters, initialIndex = 0}) {

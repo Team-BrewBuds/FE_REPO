@@ -113,7 +113,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
                     Selector<TastedRecordInCoffeeBeanListPresenter, bool>(
                       selector: (context, presenter) => presenter.presenters.length > 4,
                       builder: (context, hasMoreData, child) =>
-                      hasMoreData ? _buildMoreTastedRecordsButton() : const SizedBox.shrink(),
+                          hasMoreData ? _buildMoreTastedRecordsButton() : const SizedBox.shrink(),
                     ),
                     Container(height: 8, color: ColorStyles.gray20),
                     Selector<CoffeeBeanDetailPresenter, List<RecommendedCoffeeBean>>(

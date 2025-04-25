@@ -73,8 +73,7 @@ class ProfilePresenter extends Presenter {
       );
 
   FilterBarState get filterBarState => (
-        canShowFilterBar: (_tabIndex == 0 && _profileItem.isNotEmpty) ||
-            (_tabIndex == 2 && _profileItem.isNotEmpty),
+        canShowFilterBar: (_tabIndex == 0 && _profileItem.isNotEmpty) || (_tabIndex == 2 && _profileItem.isNotEmpty),
         sortCriteriaList: sortCriteriaList.map((sortCriteria) => sortCriteria.toString()).toList(),
         currentIndex: _currentSortCriteriaIndex,
         filters: _filters,

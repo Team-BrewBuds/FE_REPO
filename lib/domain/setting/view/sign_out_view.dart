@@ -231,29 +231,28 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             onTap: () async {
               final context = this.context;
               showCenterDialog(
-                title: '정말 탈퇴 하시겠어요?',
-                centerTitle: true,
-                cancelText: '취소',
-                doneText: '탈퇴하기',
-                onDone: () async {
-                  final notificationResult =
-                      await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
-                  if (notificationResult) {
-                    final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
-                    if (signOutResult) {
-                      await AccountRepository.instance.logout();
-                      if (context.mounted) {
-                        context.go('/');
+                  title: '정말 탈퇴 하시겠어요?',
+                  centerTitle: true,
+                  cancelText: '취소',
+                  doneText: '탈퇴하기',
+                  onDone: () async {
+                    final notificationResult =
+                        await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
+                    if (notificationResult) {
+                      final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
+                      if (signOutResult) {
+                        await AccountRepository.instance.logout();
+                        if (context.mounted) {
+                          context.go('/');
+                        }
+                        return;
+                      } else {
+                        await NotificationRepository.instance.registerToken(AccountRepository.instance.accessToken);
                       }
-                      return;
-                    } else {
-                      await NotificationRepository.instance.registerToken(AccountRepository.instance.accessToken);
                     }
-                  }
-                  showSnackBar(message: '회원탈퇴에 실패했습니다.');
-                  return;
-                }
-              );
+                    showSnackBar(message: '회원탈퇴에 실패했습니다.');
+                    return;
+                  });
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

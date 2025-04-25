@@ -1,7 +1,6 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/follow_list_repository.dart';
 import 'package:brew_buds/domain/follow_list/follow_user_presenter.dart';
-import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
 
 final class FollowerListPresenter extends Presenter {
   final FollowListRepository _followListRepository = FollowListRepository.instance;
@@ -15,10 +14,7 @@ final class FollowerListPresenter extends Presenter {
 
   List<FollowUserPresenter> get users => List.unmodifiable(_users);
 
-  FollowerListPresenter({
-    required this.nickName,
-    int currentTab = 0
-  }) : _currentTab = currentTab {
+  FollowerListPresenter({required this.nickName, int currentTab = 0}) : _currentTab = currentTab {
     moreData();
   }
 

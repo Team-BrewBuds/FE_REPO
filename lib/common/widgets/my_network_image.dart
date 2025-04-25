@@ -43,32 +43,34 @@ class MyNetworkImage extends StatelessWidget {
           )
         : _buildPlaceholder();
 
-    return showGradient ? Stack(
-      children: [
-        imageWidget,
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: height / 2,
-          // 하단 절반 정도만 그라데이션 적용
-          child: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.fromRGBO(0, 0, 0, 0.0), // opacity 0%
-                  Color.fromRGBO(0, 0, 0, 0.5), // opacity 50%
-                  Color.fromRGBO(0, 0, 0, 0.8), // opacity 80%
-                ],
-                stops: [0.0, 0.5, 1.0],
+    return showGradient
+        ? Stack(
+            children: [
+              imageWidget,
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: height / 2,
+                // 하단 절반 정도만 그라데이션 적용
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromRGBO(0, 0, 0, 0.0), // opacity 0%
+                        Color.fromRGBO(0, 0, 0, 0.5), // opacity 50%
+                        Color.fromRGBO(0, 0, 0, 0.8), // opacity 80%
+                      ],
+                      stops: [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-      ],
-    ) : imageWidget;
+            ],
+          )
+        : imageWidget;
   }
 
   Widget _buildPlaceholder() {

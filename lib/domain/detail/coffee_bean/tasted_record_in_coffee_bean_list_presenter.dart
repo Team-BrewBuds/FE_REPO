@@ -23,8 +23,8 @@ final class TastedRecordInCoffeeBeanListPresenter extends Presenter {
   }
 
   fetchData() async {
-      final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
-      _presenters.addAll(newPage.results.map((e) => TastedRecordInCoffeeBeanPresenter(tastedRecordInCoffeeBean: e)));
-      notifyListeners();
+    final newPage = await _coffeeBeanRepository.fetchTastedRecordsForCoffeeBean(id: id);
+    _presenters.addAll(newPage.results.map((e) => TastedRecordInCoffeeBeanPresenter(tastedRecordInCoffeeBean: e)));
+    notifyListeners();
   }
 }

@@ -217,16 +217,15 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
               child: ThrottleButton(
                 onTap: () {
                   showCenterDialog(
-                    title: '게시글 작성을 그만두시겠습니까?',
-                    centerTitle: true,
-                    content: '지금까지 작성한 내용은 저장되지 않아요.',
-                    contentAlign: TextAlign.center,
-                    cancelText: '그만두기',
-                    doneText: '계속쓰기',
-                    onCancel: () {
-                      context.pop();
-                    }
-                  );
+                      title: '게시글 작성을 그만두시겠습니까?',
+                      centerTitle: true,
+                      content: '지금까지 작성한 내용은 저장되지 않아요.',
+                      contentAlign: TextAlign.center,
+                      cancelText: '그만두기',
+                      doneText: '계속쓰기',
+                      onCancel: () {
+                        context.pop();
+                      });
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',

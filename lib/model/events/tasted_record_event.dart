@@ -1,5 +1,4 @@
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/tasted_record_update_model.dart';
-import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 
 sealed class TastedRecordEvent {
   String get senderId;

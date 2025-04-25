@@ -188,7 +188,8 @@ class _SettingScreenState extends State<SettingScreen>
         final result = await showLogoutBottomSheet().then((value) => value ?? false).onError((_, __) => false);
 
         if (result) {
-          final notificationResult = await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
+          final notificationResult =
+              await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
           if (notificationResult) {
             final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
             if (logoutResult) {

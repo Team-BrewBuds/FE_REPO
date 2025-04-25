@@ -168,11 +168,11 @@ final class AccountDetailPresenter extends Presenter {
         coffeeLife: _compareCoffeeLifeList() ? selectedCoffeeLifeList : null,
         preferredBeanTaste: _compareBeanTaste()
             ? PreferredBeanTaste(
-          body: _bodyValue ?? 0,
-          acidity: _acidityValue ?? 0,
-          sweetness: _sweetnessValue ?? 0,
-          bitterness: _bitternessValue ?? 0,
-        )
+                body: _bodyValue ?? 0,
+                acidity: _acidityValue ?? 0,
+                sweetness: _sweetnessValue ?? 0,
+                bitterness: _bitternessValue ?? 0,
+              )
             : null,
         isCertificated: _preIsCertificated != _isCertificated ? _isCertificated : null,
       );

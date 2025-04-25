@@ -185,15 +185,14 @@ class _ProfileViewState extends State<ProfileView>
                     final bottomSheetResult = await _showBlockBottomSheet();
                     if (bottomSheetResult != null && bottomSheetResult && context.mounted) {
                       showCenterDialog(
-                        title: '이 사용자를 차단하시겠어요?',
-                        centerTitle: true,
-                        content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
-                        cancelText: '취소',
-                        doneText: '차단하기',
-                        onDone: () {
-                          context.read<ModalProfilePresenter>().onTappedBlockButton();
-                        }
-                      );
+                          title: '이 사용자를 차단하시겠어요?',
+                          centerTitle: true,
+                          content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                          cancelText: '취소',
+                          doneText: '차단하기',
+                          onDone: () {
+                            context.read<ModalProfilePresenter>().onTappedBlockButton();
+                          });
                     }
 
                     return Future.value(false);

@@ -15,11 +15,7 @@ final class FollowerListPBPresenter extends Presenter {
 
   List<FollowUserPresenter> get users => List.unmodifiable(_users);
 
-  FollowerListPBPresenter({
-    required this.id,
-    required this.nickName,
-    int currentTab = 0
-  }) : _currentTab = currentTab {
+  FollowerListPBPresenter({required this.id, required this.nickName, int currentTab = 0}) : _currentTab = currentTab {
     moreData();
   }
 

@@ -19,15 +19,16 @@ Future<Result?> showBarrierDialog<Result>({
   return showGeneralDialog<Result>(
     barrierLabel: "Barrier",
     barrierDismissible: true,
-    barrierColor: barrierColor ?? ColorStyles.black.withOpacity(0.5),
+    barrierColor: barrierColor ?? ColorStyles.black50,
     transitionDuration: const Duration(milliseconds: 300),
     context: context,
     pageBuilder: pageBuilder,
-    transitionBuilder: transitionBuilder ?? (_, anim, __, child) {
-      return SlideTransition(
-        position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
-        child: child,
-      );
-    },
+    transitionBuilder: transitionBuilder ??
+        (_, anim, __, child) {
+          return SlideTransition(
+            position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim),
+            child: child,
+          );
+        },
   );
 }
