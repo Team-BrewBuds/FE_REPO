@@ -186,17 +186,6 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
     );
   }
 
-  bool calcOverFlow(BuildContext context, String text, int maxLines) {
-    final width = MediaQuery.of(context).size.width - 32;
-    final TextPainter bodyTextPainter = TextPainter(
-      text: TextSpan(text: text, style: TextStyles.bodyRegular),
-      maxLines: maxLines,
-      textDirection: TextDirection.ltr,
-    )..layout(minWidth: 0, maxWidth: width);
-
-    return bodyTextPainter.didExceedMaxLines;
-  }
-
   showSnackBar(BuildContext context, {required String message}) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

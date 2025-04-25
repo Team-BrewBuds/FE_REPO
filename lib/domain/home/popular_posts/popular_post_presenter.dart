@@ -69,7 +69,7 @@ final class PopularPostPresenter extends Presenter {
     if (event.senderId != presenterId) {
       switch (event) {
         case OnChangeCommentCountEvent():
-          if (event.id == _post.id && event.objectType == 'post') {
+          if (event.objectId == _post.id && event.objectType == 'post') {
             _post = _post.copyWith(commentsCount: event.count);
             notifyListeners();
           }

@@ -7,6 +7,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_navigator.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_screen.dart';
+import 'package:brew_buds/domain/detail/post/post_detail_view.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pa.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
@@ -301,7 +302,7 @@ final class ScreenNavigator {
     return Navigator.of(context, rootNavigator: true).push(
       PageRouteBuilder(
         fullscreenDialog: true,
-        pageBuilder: (_, __, ___) => CoffeeBeanDetailScreen.buildWithPresenter(id: id),
+        pageBuilder: (_, __, ___) => PostDetailView.buildWithPresenter(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;

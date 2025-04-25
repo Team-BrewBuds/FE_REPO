@@ -183,10 +183,10 @@ final class PostFeedPresenter extends FeedPresenter<PostFeed> {
   }
 
   _onCommentEvent(CommentEvent event) {
-    if (event.senderId != presenterId && event.id == feed.data.id) {
+    if (event.senderId != presenterId) {
       switch (event) {
         case OnChangeCommentCountEvent():
-          if (event.objectType == 'post') {
+          if (event.objectType == 'post' && event.objectId == feed.data.id) {
             feed = PostFeed(data: feed.data.copyWith(commentsCount: event.count));
             notifyListeners();
           }

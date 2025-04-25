@@ -76,7 +76,9 @@ final class CommentsBottomSheetPresenter extends Presenter {
         EventBus.instance.fire(
           CreateReCommentEvent(
             senderId: presenterId,
-            id: parentId,
+            parentId: parentId,
+            objectId: _objectId,
+            objectType: _objectType.toString(),
             newReComment: newComment,
           ),
         );
@@ -84,8 +86,9 @@ final class CommentsBottomSheetPresenter extends Presenter {
         EventBus.instance.fire(
           CreateCommentEvent(
             senderId: presenterId,
-            id: _objectId,
+            objectId: _objectId,
             newComment: newComment,
+            objectType: _objectType.toString(),
           ),
         );
       }

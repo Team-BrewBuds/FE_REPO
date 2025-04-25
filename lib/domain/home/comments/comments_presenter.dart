@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
@@ -23,8 +24,8 @@ final class CommentsPresenter extends Presenter {
   final ObjectType _objectType;
   final int _objectId;
   bool _isLoading = false;
-  List<CommentPresenter> _commentPresenters = [];
-  CommentPresenter? _justWroteComment;
+  final List<CommentPresenter> _commentPresenters = [];
+  final Map<int, CommentPresenter> _justWroteComments = {};
   int _currentPage = 1;
   bool _hasNext = true;
   int _totalCount = 0;
@@ -44,13 +45,8 @@ final class CommentsPresenter extends Presenter {
 
   int get totalCount => _totalCount;
 
-  List<CommentPresenter> get commentPresenters {
-    if (_justWroteComment != null) {
-      return List.unmodifiable([_justWroteComment] + _commentPresenters);
-    } else {
-      return List.unmodifiable(_commentPresenters);
-    }
-  }
+  List<CommentPresenter> get commentPresenters =>
+      List.unmodifiable(_justWroteComments.values.toList() + _commentPresenters);
 
   @override
   dispose() {
@@ -62,15 +58,17 @@ final class CommentsPresenter extends Presenter {
     if (event.senderId != presenterId) {
       switch (event) {
         case CreateCommentEvent():
-          if (event.id == _objectId) {
-            _commentPresenters.insert(0, CommentPresenter(comment: event.newComment));
+          if (event.objectId == _objectId && event.objectType == _objectType.toString()) {
+            _justWroteComments[event.newComment.id] = CommentPresenter(comment: event.newComment);
             _updateCommentCount(_totalCount + 1);
             notifyListeners();
           }
           break;
         case CreateReCommentEvent():
-          _updateCommentCount(_totalCount + 1);
-          notifyListeners();
+          if (event.objectId == _objectId && event.objectType == _objectType.toString()) {
+            _updateCommentCount(_totalCount + 1);
+            notifyListeners();
+          }
           break;
         default:
           break;
@@ -81,9 +79,9 @@ final class CommentsPresenter extends Presenter {
   Future<void> onRefresh() async {
     if (_isLoading) return;
 
-    _justWroteComment = null;
     _currentPage = 1;
-    _commentPresenters = List.empty(growable: true);
+    _justWroteComments.clear();
+    _commentPresenters.clear();
     _hasNext = true;
 
     await fetchMoreData(isRefresh: true);
@@ -102,7 +100,14 @@ final class CommentsPresenter extends Presenter {
         pageNo: _currentPage,
       );
 
-      _commentPresenters.addAll(newPage.results.map((e) => CommentPresenter(comment: e)));
+      _commentPresenters.addAll(
+        newPage.results.map(
+          (e) {
+            _justWroteComments.remove(e.id);
+            return CommentPresenter(comment: e);
+          },
+        ),
+      );
       if (newPage.count != _totalCount) {
         _updateCommentCount(newPage.count);
       }
@@ -131,7 +136,7 @@ final class CommentsPresenter extends Presenter {
     EventBus.instance.fire(
       OnChangeCommentCountEvent(
         senderId: presenterId,
-        id: _objectId,
+        objectId: _objectId,
         count: _totalCount,
         objectType: _objectType.toString(),
       ),

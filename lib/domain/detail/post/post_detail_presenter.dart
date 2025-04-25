@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/block_api.dart';
@@ -6,6 +7,10 @@ import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/common/user.dart';
+import 'package:brew_buds/model/events/comment_event.dart';
+import 'package:brew_buds/model/events/post_event.dart';
+import 'package:brew_buds/model/events/user_follow_event.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
@@ -17,7 +22,6 @@ typedef ProfileInfo = ({
   String createdAt,
   String viewCount,
   bool isFollow,
-  bool isMine,
 });
 typedef BodyInfo = ({
   List<String> imageUrlList,
@@ -37,16 +41,17 @@ final class PostDetailPresenter extends Presenter {
   final BlockApi _blockApi = BlockApi();
   final int id;
   bool _isEmpty = false;
-  DefaultPage<Comment> _page = DefaultPage.initState();
-  int _pageNo = 1;
   Post? _post;
-  Comment? _parentComment;
+  User? _replyUser;
+  int? _parentsId;
 
   bool get isEmpty => _isEmpty;
 
   Post? get post => _post;
 
   int? get authorId => _post?.author.id;
+
+  String? get authorNickname => _post?.author.nickname;
 
   ProfileInfo get profileInfo => (
         authorId: _post?.author.id,
@@ -55,7 +60,6 @@ final class PostDetailPresenter extends Presenter {
         createdAt: _post?.createdAt ?? '',
         viewCount: '${_post?.viewCount ?? 0}',
         isFollow: _post?.isAuthorFollowing ?? false,
-        isMine: isMine,
       );
 
   BodyInfo get bodyInfo => (
@@ -73,63 +77,32 @@ final class PostDetailPresenter extends Presenter {
         isSaved: _post?.isSaved ?? false,
       );
 
-  CommentsInfo get commentsInfo => (
-        authorId: _post?.author.id,
-        page: _page,
-      );
-
-  bool get isMine => AccountRepository.instance.id == _post?.author.id;
-
   CommentTextFieldState get commentTextFieldState => (
-        prentCommentAuthorNickname: _parentComment?.author.nickname,
+        prentCommentAuthorNickname: _replyUser?.nickname,
         authorNickname: _post?.author.nickname ?? '',
       );
 
   PostDetailPresenter({
     required this.id,
-  });
-
-  init() async {
-    _pageNo = 1;
-    _page = DefaultPage.initState();
-    notifyListeners();
-    await _fetchPost();
-    await fetchMorComments();
+  }) {
+    _fetchPost();
   }
 
   Future<void> onRefresh() async {
-    _pageNo = 1;
-    _page = DefaultPage.initState();
-    notifyListeners();
     await _fetchPost();
-    await fetchMorComments();
   }
 
   _fetchPost() async {
-    _post = await _postRepository
-        .fetchPost(id: id)
-        .then((value) => Future<Post?>.value(value))
-        .onError((error, stackTrace) => null);
-    if (_post == null) {
+    try {
+      _post = await _postRepository.fetchPost(id: id);
+    } catch (e) {
       _isEmpty = true;
+    } finally {
+      notifyListeners();
     }
-    notifyListeners();
   }
 
-  fetchMorComments() async {
-    if (!_page.hasNext) return;
-    final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'post', id: id, pageNo: _pageNo);
-    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
-    _pageNo += 1;
-    notifyListeners();
-  }
-
-  Future<Result<String>> onDelete() {
-    return _postRepository
-        .delete(id: id)
-        .then((value) => Result.success('게시글 삭제를 완료했어요.'))
-        .onError((error, stackTrace) => Result.error('게시글 삭제에 실패했어요.'));
-  }
+  Future<void> onDelete() => _postRepository.delete(id: id);
 
   Future<Result<String>> onBlock() {
     final authorId = _post?.author.id;
@@ -143,90 +116,139 @@ final class PostDetailPresenter extends Presenter {
     }
   }
 
-  onTappedFollowButton() {
+  onTappedFollowButton() async {
     final currentPost = _post;
     if (currentPost != null) {
-      _postRepository.follow(post: currentPost).then((value) {
-        _fetchPost();
-      });
+      final isFollow = currentPost.isAuthorFollowing;
+      _post = currentPost.copyWith(isAuthorFollowing: !isFollow);
+      notifyListeners();
+
+      try {
+        await _postRepository.follow(post: currentPost);
+        EventBus.instance.fire(
+          UserFollowEvent(
+            senderId: presenterId,
+            userId: currentPost.author.id,
+            isFollow: !isFollow,
+          ),
+        );
+      } catch (e) {
+        _post = currentPost.copyWith(isAuthorFollowing: isFollow);
+        notifyListeners();
+      }
     }
   }
 
-  onTappedLikeButton() {
+  onTappedLikeButton() async {
     final currentPost = _post;
     if (currentPost != null) {
-      _postRepository.like(post: currentPost).then((value) {
-        _fetchPost();
-      });
+      final isLiked = currentPost.isLiked;
+      final likeCount = currentPost.likeCount;
+      _post = currentPost.copyWith(
+        isLiked: !isLiked,
+        likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+      );
+      notifyListeners();
+
+      try {
+        await _postRepository.like(post: currentPost);
+        EventBus.instance.fire(
+          PostLikeEvent(
+            senderId: presenterId,
+            id: id,
+            isLiked: !isLiked,
+            likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+          ),
+        );
+      } catch (e) {
+        _post = currentPost.copyWith(isLiked: isLiked, likeCount: likeCount);
+        notifyListeners();
+      }
     }
   }
 
-  onTappedCommentLikeButton(Comment targetComment, {Comment? parentComment}) {
-    if (targetComment.isLiked) {
-      _commentsRepository.unLikeComment(id: targetComment.id).then((_) {
-        reloadComments();
-      });
-    } else {
-      _commentsRepository.likeComment(id: targetComment.id).then((_) {
-        reloadComments();
-      });
-    }
-  }
-
-  onTappedDeleteCommentButton(Comment comment) {
-    _commentsRepository.deleteComment(id: comment.id).then((_) => reloadComments());
-  }
-
-  bool canDeleteComment({required int authorId}) {
-    return authorId == AccountRepository.instance.id || isMine;
-  }
-
-  reloadComments() async {
-    final List<Comment> newComments = [];
-    for (int pageNo = 1; pageNo < _pageNo; pageNo++) {
-      final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'post', id: id, pageNo: pageNo);
-      newComments.addAll(newPage.results);
-    }
-    _page = _page.copyWith(results: newComments);
-    notifyListeners();
-  }
-
-  onTappedSaveButton() {
+  onTappedSaveButton() async {
     final currentPost = _post;
     if (currentPost != null) {
-      _postRepository.save(post: currentPost).then((value) {
-        _fetchPost();
-      });
+      final isSaved = currentPost.isSaved;
+      _post = currentPost.copyWith(isSaved: !isSaved);
+      notifyListeners();
+
+      try {
+        await _postRepository.save(post: currentPost);
+        EventBus.instance.fire(
+          PostSaveEvent(
+            senderId: presenterId,
+            id: id,
+            isSaved: !isSaved,
+          ),
+        );
+      } catch (e) {
+        _post = currentPost.copyWith(isSaved: isSaved);
+        notifyListeners();
+      }
     }
   }
 
-  Future<void> createComment(String text) {
-    final parentComment = _parentComment;
-    if (parentComment != null) {
-      return _commentsRepository
-          .createNewComment(feedType: 'post', id: id, content: text, parentId: parentComment.id)
-          .then((_) {
-        _parentComment = null;
-        reloadComments();
-      });
-    } else {
-      return _commentsRepository.createNewComment(feedType: 'post', id: id, content: text).then((_) {
-        reloadComments();
-      });
-    }
+  bool isWriter(int authorId) {
+    return authorId == _post?.author.id;
   }
 
-  bool isMineComment(Comment comment) {
-    return comment.author.id == AccountRepository.instance.id;
+  bool isMine(int authorId) {
+    return authorId == AccountRepository.instance.id;
   }
 
-  onTappedReply(Comment comment) {
-    _parentComment = comment;
+  bool isMyObject() {
+    return _post?.author.id == AccountRepository.instance.id;
+  }
+
+  selectedReply(User user, int id) {
+    _replyUser = user;
+    _parentsId = id;
     notifyListeners();
   }
 
   cancelReply() {
-    _parentComment = null;
+    _replyUser = null;
+    _parentsId = null;
     notifyListeners();
+  }
+
+  Future<void> createNewComment({required String content}) async {
+    try {
+      final newComment = await _commentsRepository.createNewComment(
+        feedType: 'post',
+        id: id,
+        content: content,
+        parentId: _parentsId,
+      );
+
+      final parentId = _parentsId;
+
+      if (parentId != null) {
+        EventBus.instance.fire(
+          CreateReCommentEvent(
+            senderId: presenterId,
+            parentId: parentId,
+            objectId: id,
+            newReComment: newComment,
+            objectType: 'post',
+          ),
+        );
+      } else {
+        EventBus.instance.fire(
+          CreateCommentEvent(
+            senderId: presenterId,
+            objectId: id,
+            newComment: newComment,
+            objectType: 'post',
+          ),
+        );
+      }
+      _replyUser = null;
+      notifyListeners();
+    } catch (_) {
+      rethrow;
+    }
   }
 }

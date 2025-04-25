@@ -57,16 +57,20 @@ final class CommentPresenter extends Presenter {
   }
 
   _onEvent(CommentEvent event) {
-    if (event.senderId != presenterId && event.id == _comment.id) {
+    if (event.senderId != presenterId) {
       switch (event) {
         case CommentLikeEvent():
-          _comment = _comment.copyWith(isLiked: event.isLiked, likeCount: event.likeCount);
-          notifyListeners();
+          if (event.commentId == _comment.id) {
+            _comment = _comment.copyWith(isLiked: event.isLiked, likeCount: event.likeCount);
+            notifyListeners();
+          }
           break;
         case CreateReCommentEvent():
-          _reCommentPresenters.add(ReCommentPresenter(comment: event.newReComment));
-          notifyListeners();
-          updateComment();
+          if (event.parentId == _comment.id) {
+            _reCommentPresenters.add(ReCommentPresenter(comment: event.newReComment));
+            notifyListeners();
+            updateComment();
+          }
           break;
         default:
           break;
@@ -100,7 +104,7 @@ final class CommentPresenter extends Presenter {
       EventBus.instance.fire(
         CommentLikeEvent(
           senderId: presenterId,
-          id: _comment.id,
+          commentId: _comment.id,
           isLiked: !isLikedPre,
           likeCount: isLikedPre ? likeCountPre - 1 : likeCountPre + 1,
         ),

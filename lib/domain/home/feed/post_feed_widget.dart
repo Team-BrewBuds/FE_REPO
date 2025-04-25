@@ -19,7 +19,8 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
   const PostFeedWidget({
     super.key,
     required super.isGuest,
-    required super.onGuest, required super.onTapComments,
+    required super.onGuest,
+    required super.onTapComments,
   });
 
   @override
@@ -114,7 +115,6 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
     required String tag,
     int bodyMaxLines = 5,
   }) {
-    final isOverFlow = calcOverFlow(context, contents, bodyMaxLines);
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
       child: Column(
@@ -137,22 +137,21 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
             maxLines: bodyMaxLines,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: isOverFlow ? 8 : 0),
-          if (isOverFlow)
-            ThrottleButton(
-              onTap: () {
-                if (isGuest) {
-                  onGuest.call();
-                } else {
-                  final id = context.read<PostFeedPresenter>().feed.data.id;
-                  ScreenNavigator.showPostDetail(context: context, id: id);
-                }
-              },
-              child: Text(
-                '더보기',
-                style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
-              ),
+          const SizedBox(height: 8),
+          ThrottleButton(
+            onTap: () {
+              if (isGuest) {
+                onGuest.call();
+              } else {
+                final id = context.read<PostFeedPresenter>().feed.data.id;
+                ScreenNavigator.showPostDetail(context: context, id: id);
+              }
+            },
+            child: Text(
+              '더보기',
+              style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
             ),
+          ),
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 12, width: double.infinity),
             Text(tag, style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.red)),

@@ -22,7 +22,6 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
   Widget buildBody(BuildContext context) {
     final state = context.select<TastedRecordFeedPresenter, BodyState>((presenter) => presenter.bodyState);
     final width = MediaQuery.of(context).size.width;
-    final isOverFlow = calcOverFlow(context, state.contents, 2);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -49,22 +48,21 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: isOverFlow ? 8 : 0),
-              if (isOverFlow)
-                ThrottleButton(
-                  onTap: () {
-                    if (isGuest) {
-                      onGuest.call();
-                    } else {
-                      final id = context.read<TastedRecordFeedPresenter>().feed.data.id;
-                      showTastingRecordDetail(context: context, id: id);
-                    }
-                  },
-                  child: Text(
-                    '더보기',
-                    style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
-                  ),
+              const SizedBox(height: 8),
+              ThrottleButton(
+                onTap: () {
+                  if (isGuest) {
+                    onGuest.call();
+                  } else {
+                    final id = context.read<TastedRecordFeedPresenter>().feed.data.id;
+                    showTastingRecordDetail(context: context, id: id);
+                  }
+                },
+                child: Text(
+                  '더보기',
+                  style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
                 ),
+              ),
             ],
           ),
         ),

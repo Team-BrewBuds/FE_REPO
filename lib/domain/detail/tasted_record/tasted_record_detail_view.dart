@@ -269,20 +269,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                           centerTitle: true,
                           cancelText: '닫기',
                           doneText: '삭제하기',
-                        ).then((result) {
-                          if (result != null && result) {
-                            context.read<TastedRecordPresenter>().onDelete().then((value) {
-                              switch (value) {
-                                case Success<String>():
-                                  context.pop(value.data);
-                                  break;
-                                case Error<String>():
-                                  showSnackBar(message: value.e);
-                                  break;
-                              }
-                            });
-                          }
-                        });
+                        );
                         break;
                       case TastedRecordDetailAction.block:
                         showCenterDialog(
@@ -290,20 +277,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                           content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
                           cancelText: '취소',
                           doneText: '차단하기',
-                        ).then((result) {
-                          if (result != null && result) {
-                            context.read<TastedRecordPresenter>().onBlock().then((value) {
-                              switch (value) {
-                                case Success<String>():
-                                  context.pop(value.data);
-                                  break;
-                                case Error<String>():
-                                  showSnackBar(message: value.e);
-                                  break;
-                              }
-                            });
-                          }
-                        });
+                        );
                         break;
                       case TastedRecordDetailAction.report:
                         final id = context.read<TastedRecordPresenter>().id;

@@ -186,10 +186,10 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
   }
 
   _onCommentEvent(CommentEvent event) {
-    if (event.senderId != presenterId && event.id == feed.data.id) {
+    if (event.senderId != presenterId) {
       switch (event) {
         case OnChangeCommentCountEvent():
-          if (event.objectType == 'tasted_record') {
+          if (event.objectType == 'tasted_record' && event.objectId == feed.data.id) {
             feed = TastedRecordFeed(data: feed.data.copyWith(commentsCount: event.count));
             notifyListeners();
           }

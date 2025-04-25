@@ -90,7 +90,9 @@ final class PostSearchResultPresenter extends Presenter implements SearchResultP
     if (event.senderId != presenterId) {
       switch (event) {
         case OnChangeCommentCountEvent():
-          if (event.id == _resultModel.id && event.objectType != 'post' && event.count != _resultModel.commentCount) {
+          if (event.objectId == _resultModel.id &&
+              event.objectType != 'post' &&
+              event.count != _resultModel.commentCount) {
             _resultModel = _resultModel.copyWith(commentCount: event.count);
             notifyListeners();
           }
