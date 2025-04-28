@@ -230,7 +230,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
           child: TextFormField(
             focusNode: _focusNode,
             controller: _contentsController,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.multiline,
             decoration: InputDecoration(
               isDense: true,
               hintText: '원두와 시음 경험에 대한 이야기를 자유롭게 나눠주세요.',

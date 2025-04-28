@@ -7,7 +7,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_first_screen.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_last_screen.dart';
-import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_secod_screen.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/views/tasted_record_write_second_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

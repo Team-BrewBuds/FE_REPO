@@ -309,7 +309,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
         focusNode: _titleFocusNode,
         controller: _titleController,
         keyboardType: TextInputType.text,
-        inputFormatters: [],
+        inputFormatters: const [],
         decoration: InputDecoration.collapsed(
           hintText: '제목을 입력하세요.',
           hintStyle: TextStyles.title02SemiBold.copyWith(color: ColorStyles.gray50),
@@ -331,8 +331,8 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
     return TextFormField(
       focusNode: _contentFocusNode,
       controller: _contentController,
-      keyboardType: TextInputType.text,
-      inputFormatters: [],
+      keyboardType: TextInputType.multiline,
+      inputFormatters: const [],
       decoration: InputDecoration(
         isDense: true,
         hintText: '버디님의 커피 생활을 공유해보세요.',

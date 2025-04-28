@@ -40,6 +40,10 @@ final class TastedRecordPresenter extends Presenter {
   User? _replyUser;
   int? _parentsId;
 
+  int? get beanId => _tastedRecord?.bean.id;
+
+  bool? get isOfficial => _tastedRecord?.bean.isOfficial;
+
   int? get authorId => _tastedRecord?.author.id;
 
   String? get authorNickname => _tastedRecord?.author.nickname;
@@ -68,7 +72,7 @@ final class TastedRecordPresenter extends Presenter {
   ContentsInfo get contentsInfo => (
         rating: _tastedRecord?.tastingReview.star ?? 0,
         flavors: _tastedRecord?.tastingReview.flavors ?? [],
-        tastedAt: _tastedRecord?.createdAt ?? '',
+        tastedAt: _tastedRecord?.tastingReview.tastedAt ?? '',
         contents: _tastedRecord?.contents ?? '',
         location: _tastedRecord?.tastingReview.place ?? '',
       );

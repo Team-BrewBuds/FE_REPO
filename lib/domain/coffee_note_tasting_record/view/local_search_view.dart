@@ -34,7 +34,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
   late final Throttle paginationThrottle;
   late final ValueNotifier<String> searchWord;
   late double height;
-  late final maxHeight;
+  late final double maxHeight;
   late final TextEditingController textEditingController;
   final FocusNode focusNode = FocusNode();
 

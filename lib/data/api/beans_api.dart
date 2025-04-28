@@ -25,6 +25,7 @@ abstract class BeansApi {
   Future<String> searchBeans({
     @Query('name') String? name,
     @Query('page') required int pageNo,
+    @Query('is_official') bool isOfficial = true,
   });
 
   @GET('/beans/{id}/')

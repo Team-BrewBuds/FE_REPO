@@ -8,7 +8,7 @@ import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
 import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
-import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presetner.dart';
+import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presenter.dart';
 import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/feed/feed.dart';

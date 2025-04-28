@@ -102,9 +102,8 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
                     builder: (context, tastedAt, child) => _buildDate(tastedAt: tastedAt),
                   ),
                 ),
-                Container(
+                Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray40))),
                   child: Selector<TastedRecordWritePresenter, String>(
                     selector: (context, presenter) => presenter.place,
                     builder: (context, place, child) => _buildPlace(place: place),
@@ -276,7 +275,7 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
           child: TextFormField(
             focusNode: _focusNode,
             controller: _contentsController,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.multiline,
             decoration: InputDecoration(
               isDense: true,
               hintText: '원두에 대한 이야기를 8자 이상 남겨주세요.',
@@ -394,8 +393,8 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
               if (place.isEmpty) ...[
                 SvgPicture.asset(
                   'assets/icons/plus_round.svg',
-                  width: 16,
-                  height: 16,
+                  width: 20,
+                  height: 20,
                   colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
                 )
               ] else ...[
@@ -407,8 +406,8 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
                   },
                   child: SvgPicture.asset(
                     'assets/icons/x_round.svg',
-                    width: 16,
-                    height: 16,
+                    width: 20,
+                    height: 20,
                     colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
                   ),
                 )

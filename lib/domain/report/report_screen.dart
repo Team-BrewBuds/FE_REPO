@@ -121,6 +121,7 @@ class ReportScreen extends StatelessWidget {
         child: ThrottleButton(
           onTap: () {
             context.read<ReportPresenter>().report().then((result) {
+              //수정필요
               switch (result) {
                 case Success<String>():
                   Navigator.of(context).pop(result.data);

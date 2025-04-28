@@ -14,12 +14,12 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/domain/comments/comments_presenter.dart';
+import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
+import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
-import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
-import 'package:brew_buds/domain/home/comments/comment_widget.dart';
-import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -102,6 +102,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         selector: (context, presenter) => presenter.isEmpty,
         builder: (context, isEmpty, child) {
           if (isEmpty) {
+            //수정필요
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               showEmptyDialog().then((value) => context.pop());
             });
@@ -443,6 +444,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               TextField(
                 controller: _textEditingController,
                 maxLines: null,
+                keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
                   hintText: hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
                   hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
@@ -524,15 +526,45 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   Widget _buildTitle({required String title}) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
-      child: Text(
-        title,
-        maxLines: null,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 22.sp,
-          height: 26.25 / 22,
-          letterSpacing: -0.02,
-        ),
+      child: Builder(
+        builder: (context) {
+          final id = context.read<TastedRecordPresenter>().beanId;
+          final isOfficial = context.read<TastedRecordPresenter>().isOfficial ?? false;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 4,
+            children: [
+              Text(
+                title,
+                maxLines: null,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 22.sp,
+                  height: 26.25 / 22,
+                  letterSpacing: -0.02,
+                ),
+              ),
+              if (isOfficial)
+              ThrottleButton(
+                onTap: () {
+                  if (id != null && isOfficial) {
+                    ScreenNavigator.showCoffeeBeanDetail(context: context, id: id);
+                  }
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    spacing: 2,
+                    children: [
+                      Text('원두상세', style: TextStyles.captionSmallMedium),
+                      SvgPicture.asset('assets/icons/arrow.svg', width: 12, height: 12),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
       ),
     );
   }

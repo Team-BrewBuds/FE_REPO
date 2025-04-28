@@ -14,10 +14,10 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/domain/comments/comments_presenter.dart';
+import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
+import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
-import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
-import 'package:brew_buds/domain/home/comments/comment_widget.dart';
-import 'package:brew_buds/domain/home/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
 import 'package:brew_buds/domain/report/report_screen.dart';
@@ -93,6 +93,7 @@ class _PostDetailViewState extends State<PostDetailView>
         selector: (context, presenter) => presenter.isEmpty,
         builder: (context, isEmpty, child) {
           if (isEmpty) {
+            //수정필요
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               showEmptyDialog().then((value) => context.pop());
             });
@@ -573,6 +574,7 @@ class _PostDetailViewState extends State<PostDetailView>
               focusNode: _focusNode,
               controller: _textEditingController,
               maxLines: null,
+              keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
                 hintText: hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
                 hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),

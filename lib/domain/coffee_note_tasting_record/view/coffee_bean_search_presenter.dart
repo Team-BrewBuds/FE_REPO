@@ -15,7 +15,7 @@ final class CoffeeBeanSearchPresenter extends Presenter {
   bool _isLoading = false;
 
   CoffeeBeanSearchState get coffeeBeanSearchState => (
-        isLoading: _isLoading,
+        isLoading: _isLoading && _coffeeBeanList.isNotEmpty,
         coffeebeans: List.unmodifiable(_coffeeBeanList),
       );
 
@@ -47,11 +47,15 @@ final class CoffeeBeanSearchPresenter extends Presenter {
   }
 
   fetchMoreData() async {
-    if (_hasNext) {
+    if (_hasNext && !_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+
       final newPage = await _coffeeBeanRepository.fetchCoffeeBeans(word: _searchWord, pageNo: _currentPage);
       _coffeeBeanList.addAll(newPage.results);
       _hasNext = newPage.hasNext;
       _currentPage++;
+      _isLoading = false;
       notifyListeners();
     }
   }

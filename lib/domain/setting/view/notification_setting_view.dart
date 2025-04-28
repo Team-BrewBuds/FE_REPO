@@ -137,7 +137,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
           ),
           const SizedBox(height: 48),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('팔로우', style: TextStyles.labelSmallSemiBold),
           ),
           const SizedBox(height: 8),
@@ -184,7 +184,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
           ),
           const SizedBox(height: 24),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('커피노트', style: TextStyles.labelSmallSemiBold),
           ),
           const SizedBox(height: 8),
@@ -271,7 +271,7 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
           ),
           const SizedBox(height: 24),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('마케팅', style: TextStyles.labelSmallSemiBold),
           ),
           const SizedBox(height: 8),

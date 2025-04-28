@@ -67,7 +67,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
           children: [
             Center(
               child: Text(
-                '시음 기록 수정',
+                '시음기록',
                 style: TextStyles.title02SemiBold,
                 textAlign: TextAlign.center,
               ),
@@ -76,6 +76,7 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
               left: 0,
               child: ThrottleButton(
                 onTap: () {
+                  //수정 필요
                   showCancelDialog().then((value) {
                     if (value != null && value) {
                       context.pop(false);

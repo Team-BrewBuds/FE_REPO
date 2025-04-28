@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
-import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
+import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
 
 enum ObjectType {

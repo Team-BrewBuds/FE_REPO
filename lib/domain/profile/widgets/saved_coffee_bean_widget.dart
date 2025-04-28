@@ -36,7 +36,7 @@ class SavedCoffeeBeanWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 2),
                     Text(
-                      '${rating} (${tastedRecordsCount})',
+                      '$rating ($tastedRecordsCount)',
                       style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
                     ),
                     const Spacer(),

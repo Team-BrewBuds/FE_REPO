@@ -8,8 +8,6 @@ extension RecommendedCategoryMapper on RecommendedCategoryDTO {
         return RecommendedCategory.cafeTour;
       case RecommendedCategoryDTO.coffeeExtraction:
         return RecommendedCategory.coffeeExtraction;
-      case RecommendedCategoryDTO.coffeeExtraction:
-        return RecommendedCategory.coffeeExtraction;
       case RecommendedCategoryDTO.coffeeStudy:
         return RecommendedCategory.coffeeStudy;
       case RecommendedCategoryDTO.cafeAlba:

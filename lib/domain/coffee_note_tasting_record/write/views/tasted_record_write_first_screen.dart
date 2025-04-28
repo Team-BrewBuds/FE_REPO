@@ -11,6 +11,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/view/country_bottom_
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/write/widget/expandable_option_widget.dart';
 import 'package:brew_buds/model/coffee_bean/beverage_type.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
@@ -29,6 +30,7 @@ class TastedRecordWriteFirstScreen extends StatefulWidget {
 
 class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScreen>
     with TastedRecordWriteMixin<TastedRecordWriteFirstScreen> {
+  final ScrollController _scrollController = ScrollController();
   final TextEditingController _areaController = TextEditingController();
   final FocusNode _areaFocusNode = FocusNode();
   final TextEditingController _varietyController = TextEditingController();
@@ -88,6 +90,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
   @override
   Widget buildBody() {
     return SingleChildScrollView(
+      controller: _scrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -147,7 +150,14 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
               return Column(
                 children: List<Widget>.generate(
                   options.length,
-                  (index) => _buildExpandableItem(options[index], isOfficial),
+                  (index) => ExpandableOptionWidget(
+                    title: options[index].toString(),
+                    expandableChild: _buildExpandedOptions(options[index], isOfficial),
+                    hasBottomBorder: index < options.length - 1,
+                    onExpanded: (key) {
+                      _scrollToKey(key);
+                    },
+                  ),
                 ),
               );
             },
@@ -155,6 +165,26 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
         ],
       ),
     );
+  }
+
+  void _scrollToKey(GlobalKey key) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final context = key.currentContext;
+      if (context != null) {
+        final box = context.findRenderObject() as RenderBox;
+        final position = box.localToGlobal(Offset.zero, ancestor: this.context.findRenderObject());
+        final scrollOffset = _scrollController.offset + position.dy - 100; // 약간 위 여백 주기
+
+        _scrollController.animateTo(
+          scrollOffset.clamp(
+            _scrollController.position.minScrollExtent,
+            _scrollController.position.maxScrollExtent,
+          ),
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -378,7 +408,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ).toList(),
+                          )
                         ),
                       ),
                     ),
@@ -400,45 +430,6 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildExpandableItem(BeanWriteOption option, bool isOfficial) {
-    final expanded = isExpanded(option);
-    return Container(
-      padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
-      color: ColorStyles.gray10,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ThrottleButton(
-            onTap: () => toggleSection(option),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${option.toString()} (선택)',
-                    style: TextStyles.labelSmallMedium,
-                  ),
-                ),
-                SvgPicture.asset(
-                  expanded ? 'assets/icons/minus_round.svg' : 'assets/icons/plus_round.svg',
-                  height: 24,
-                  width: 24,
-                  colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),
-                ),
-              ],
-            ),
-          ),
-          if (expanded)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: _buildExpandedOptions(option, isOfficial),
-            ),
-          SizedBox(height: expanded ? 24 : 12),
-          Container(height: 1, color: ColorStyles.gray30),
-        ],
-      ),
     );
   }
 

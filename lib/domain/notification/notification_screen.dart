@@ -1,11 +1,13 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/notification/notification_item_widget.dart';
 import 'package:brew_buds/domain/notification/notification_presenter.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -51,7 +53,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -59,9 +61,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
       },
     );
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<NotificationPresenter>().initState();
-    });
   }
 
   @override
@@ -84,94 +83,107 @@ class _NotificationScreenState extends State<NotificationScreen> {
             body: ValueListenableBuilder(
               valueListenable: isDeletingModeNotifier,
               builder: (context, isDeletingMode, child) {
-                return Column(
-                  children: [
-                    Container(height: 1, color: ColorStyles.gray20),
-                    if (isDeletingMode)
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        color: ColorStyles.gray20,
-                        child: Row(
-                          children: [
-                            const Spacer(),
-                            ThrottleButton(
-                              onTap: () {
-                                context.read<NotificationPresenter>().deleteAll();
-                              },
-                              child: Text(
-                                '전체 삭제',
-                                style: TextStyles.title01SemiBold,
-                              ),
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scroll) {
+                    if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent - 300) {
+                      paginationThrottle.setValue(null);
+                    }
+                    return false;
+                  },
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverToBoxAdapter(child: Container(height: 1, color: ColorStyles.gray20)),
+                      if (isDeletingMode)
+                        SliverToBoxAdapter(
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            color: ColorStyles.gray20,
+                            child: Row(
+                              children: [
+                                const Spacer(),
+                                FutureButton(
+                                  onTap: () => context.read<NotificationPresenter>().deleteAll(),
+                                  child: Text(
+                                    '전체 삭제',
+                                    style: TextStyles.title01SemiBold,
+                                  ),
+                                ),
+                                const SizedBox(width: 24),
+                                ThrottleButton(
+                                  onTap: () {
+                                    isDeletingModeNotifier.value = false;
+                                  },
+                                  child: Text(
+                                    '닫기',
+                                    style: TextStyles.title01SemiBold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 24),
-                            ThrottleButton(
-                              onTap: () {
-                                isDeletingModeNotifier.value = false;
-                              },
-                              child: Text(
-                                '닫기',
-                                style: TextStyles.title01SemiBold,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
-                    Expanded(
-                      child: Selector<NotificationPresenter, List<NotificationModel>>(
+                      Selector<NotificationPresenter, List<NotificationModel>>(
                         selector: (context, presenter) => presenter.notificationList,
                         builder: (context, notificationList, child) {
-                          return NotificationListener<ScrollNotification>(
-                            onNotification: (ScrollNotification scroll) {
-                              if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                                paginationThrottle.setValue(null);
-                              }
-                              return false;
+                          return SliverList.separated(
+                            itemCount: notificationList.length,
+                            itemBuilder: (context, index) {
+                              final notification = notificationList[index];
+                              return FutureButton(
+                                onTap: () => context.read<NotificationPresenter>().readAt(index),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: isDeletingMode
+                                      ? Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          spacing: 10,
+                                          children: [
+                                            Expanded(
+                                              child: NotificationItemWidget(
+                                                body: notification.body,
+                                                date: notification.createdAt,
+                                                isRead: notification.isRead,
+                                              ),
+                                            ),
+                                            ThrottleButton(
+                                              onTap: () {
+                                                context.read<NotificationPresenter>().deleteAt(index);
+                                              },
+                                              child: SvgPicture.asset('assets/icons/x.svg', width: 24, height: 24),
+                                            ),
+                                          ],
+                                        )
+                                      : NotificationItemWidget(
+                                          body: notification.body,
+                                          date: notification.createdAt,
+                                          isRead: notification.isRead,
+                                        ),
+                                ),
+                              );
                             },
-                            child: ListView.separated(
-                              itemCount: notificationList.length,
-                              itemBuilder: (context, index) {
-                                final notification = notificationList[index];
-                                return ThrottleButton(
-                                  onTap: () {
-                                    context.read<NotificationPresenter>().readAt(index);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: isDeletingMode
-                                        ? Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            spacing: 10,
-                                            children: [
-                                              Expanded(
-                                                child: NotificationItemWidget(
-                                                  body: notification.body,
-                                                  date: notification.createdAt,
-                                                  isRead: notification.isRead,
-                                                ),
-                                              ),
-                                              ThrottleButton(
-                                                onTap: () {
-                                                  context.read<NotificationPresenter>().deleteAt(index);
-                                                },
-                                                child: SvgPicture.asset('assets/icons/x.svg', width: 24, height: 24),
-                                              ),
-                                            ],
-                                          )
-                                        : NotificationItemWidget(
-                                            body: notification.body,
-                                            date: notification.createdAt,
-                                            isRead: notification.isRead,
-                                          ),
-                                  ),
-                                );
-                              },
-                              separatorBuilder: (_, __) => Container(height: 1, color: ColorStyles.gray20),
-                            ),
+                            separatorBuilder: (_, __) => Container(height: 1, color: ColorStyles.gray20),
                           );
                         },
                       ),
-                    ),
-                  ],
+                      Selector<NotificationPresenter, bool>(
+                        selector: (context, presenter) => presenter.hasNext,
+                        builder: (context, hasNext, child) {
+                          return SliverToBoxAdapter(
+                            child: hasNext
+                                ? const SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: CupertinoActivityIndicator(
+                                        color: ColorStyles.gray70,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 );
               },
             ),

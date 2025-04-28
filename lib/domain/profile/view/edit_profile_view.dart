@@ -573,6 +573,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         );
       },
     );
+    //수정필요
     if (result != null && context.mounted) {
       context.read<EditProfilePresenter>().onChangeSelectedCoffeeLife(result);
     }

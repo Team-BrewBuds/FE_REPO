@@ -164,7 +164,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           image: rawImageData,
           imageEditorOption: editorOption,
         );
-
+        //수정필요
         Navigator.of(context).pop(result);
       }
     }

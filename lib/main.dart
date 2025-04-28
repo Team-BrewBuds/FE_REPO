@@ -48,6 +48,10 @@ void main() async {
     PhotoRepository.instance.initState(),
   ]);
 
+  if (SharedPreferencesRepository.instance.isFirst) {
+    await AccountRepository.instance.deleteAll();
+  }
+
   await AppRepository.instance.checkUpdateRequired();
 
   KakaoSdk.init(
@@ -141,11 +145,6 @@ Future<void> checkInitialMessage() async {
   if (initialMessage != null) {
     AccountRepository.instance.notify();
   }
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  AccountRepository.instance.notify();
 }
 
 void setupFCMListeners() {

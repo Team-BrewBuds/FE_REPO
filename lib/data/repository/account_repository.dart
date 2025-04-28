@@ -110,4 +110,12 @@ class AccountRepository extends ChangeNotifier {
     _hasNotification = false;
     notifyListeners();
   }
+
+  deleteAll() async {
+    await _storage.deleteAll();
+    _isGuest = false;
+    _id = null;
+    _accessToken = '';
+    _refreshToken = '';
+  }
 }

@@ -91,7 +91,7 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
 
   Widget buildBottomWidget(BuildContext context);
 
-  Widget buildTitle(context);
+  Widget buildTitle(BuildContext context);
 
   @override
   Widget build(BuildContext context) {

@@ -48,6 +48,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
         selector: (context, presenter) => presenter.isEmpty,
         builder: (context, isEmpty, child) {
           if (isEmpty) {
+            //수정필요
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               showEmptyDialog().then((value) => context.pop());
             });

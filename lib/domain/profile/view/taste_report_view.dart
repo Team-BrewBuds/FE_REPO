@@ -1049,7 +1049,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
         );
       },
     );
-
+    //수정필요
     if (result != null && context.mounted) {
       context.read<TasteReportPresenter>().onChangeActivityType(result as int);
     }

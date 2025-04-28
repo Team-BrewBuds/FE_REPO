@@ -16,8 +16,6 @@ final class ApiInterceptor extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final token = AccountRepository.instance.accessToken;
 
-    print(options.uri);
-
     if (token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -28,7 +26,6 @@ final class ApiInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode != 401) {
-      print('${err.response?.statusCode}: ${err.response?.statusMessage}');
       return handler.reject(err);
     }
 

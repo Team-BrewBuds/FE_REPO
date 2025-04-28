@@ -20,7 +20,6 @@ import 'package:brew_buds/data/mapper/profile/profile_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/noted_tasted_record_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_profile_mapper.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
@@ -91,17 +90,6 @@ class ProfileRepository {
     required Map<String, dynamic> data,
   }) {
     return _profileApi.updateMyProfile(body: data);
-  }
-
-  Map<String, dynamic> _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {
-    return {
-      'cafe_alba': coffeeLife.contains(CoffeeLife.cafeAlba),
-      'cafe_tour': coffeeLife.contains(CoffeeLife.cafeTour),
-      'cafe_work': coffeeLife.contains(CoffeeLife.cafeWork),
-      'coffee_study': coffeeLife.contains(CoffeeLife.coffeeStudy),
-      'cafe_operation': coffeeLife.contains(CoffeeLife.cafeOperation),
-      'coffee_extraction': coffeeLife.contains(CoffeeLife.coffeeExtraction),
-    };
   }
 
   Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId}) async {

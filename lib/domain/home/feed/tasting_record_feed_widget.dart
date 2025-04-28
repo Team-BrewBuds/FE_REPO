@@ -24,17 +24,22 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TastingRecordCard(
-          image: MyNetworkImage(
-            imageUrl: state.image,
-            height: width,
-            width: width,
-            showGradient: true,
+        ThrottleButton(
+          onTap: () {
+            _pushToDetail(context);
+          },
+          child: TastingRecordCard(
+            image: MyNetworkImage(
+              imageUrl: state.image,
+              height: width,
+              width: width,
+              showGradient: true,
+            ),
+            rating: state.rating,
+            type: state.type,
+            name: state.name,
+            flavors: state.flavors,
           ),
-          rating: state.rating,
-          type: state.type,
-          name: state.name,
-          flavors: state.flavors,
         ),
         Padding(
           padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12, top: 16),
@@ -47,21 +52,16 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 8),
-              ThrottleButton(
-                onTap: () {
-                  if (isGuest) {
-                    onGuest.call();
-                  } else {
-                    final id = context.read<TastedRecordFeedPresenter>().feed.data.id;
-                    ScreenNavigator.showTastedRecordDetail(context: context, id: id);
-                  }
-                },
-                child: Text(
-                  '더보기',
-                  style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
-                ),
-              ),
+              // const SizedBox(height: 8),
+              // ThrottleButton(
+              //   onTap: () {
+              //     _pushToDetail(context);
+              //   },
+              //   child: Text(
+              //     '더보기',
+              //     style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -80,5 +80,14 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
   onTappedProfile(BuildContext context) {
     final author = context.read<TastedRecordFeedPresenter>().feed.data.author;
     ScreenNavigator.pushToProfile(context: context, id: author.id);
+  }
+
+  _pushToDetail(BuildContext context) {
+    if (isGuest) {
+      onGuest.call();
+    } else {
+      final id = context.read<TastedRecordFeedPresenter>().feed.data.id;
+      ScreenNavigator.showTastedRecordDetail(context: context, id: id);
+    }
   }
 }

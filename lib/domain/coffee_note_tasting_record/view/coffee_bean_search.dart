@@ -68,7 +68,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
   late final Throttle paginationThrottle;
   late final ValueNotifier<String> searchWordNotifier;
   late double height;
-  late final maxHeight;
+  late final double maxHeight;
   late final TextEditingController textEditingController;
   final FocusNode focusNode = FocusNode();
 
@@ -79,7 +79,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
     maxHeight = widget.maxHeight;
     height = widget.initialHeight;
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -128,7 +128,7 @@ class _CoffeeBeanSearchBottomSheetState extends State<CoffeeBeanSearchBottomShee
   }
 
   @override
-  Widget buildTitle(context) {
+  Widget buildTitle(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
       child: Column(

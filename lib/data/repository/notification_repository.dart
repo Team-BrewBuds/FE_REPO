@@ -121,7 +121,6 @@ final class NotificationRepository {
 
   Future<DefaultPage<NotificationModel>> fetchNotificationPage({required int pageNo}) async {
     final jsonString = await _notificationApi.fetchNotifications(pageNo: pageNo);
-    print(jsonString);
     return compute(
       (jsonString) {
         try {

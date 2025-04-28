@@ -3,9 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
-import 'package:brew_buds/domain/home/comments/comment_presenter.dart';
-import 'package:brew_buds/domain/home/comments/re_comment_presenter.dart';
-import 'package:brew_buds/domain/home/comments/re_comment_widget.dart';
+import 'package:brew_buds/domain/comments/widget/re_comment_presenter.dart';
 import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,95 +11,23 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class CommentWidget extends StatelessWidget {
+class ReCommentWidget extends StatelessWidget {
   final int objectAuthorId;
   final bool isMyComment;
   final bool isMyObject;
-  final void Function() onTapReply;
+  final void Function() onDelete;
 
-  const CommentWidget({
+  const ReCommentWidget({
     super.key,
     required this.objectAuthorId,
     required this.isMyComment,
     required this.isMyObject,
-    required this.onTapReply,
+    required this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildSlidableComment(),
-        Builder(
-          builder: (context) {
-            final isExpanded = context.select<CommentPresenter, bool>((presenter) => presenter.isExpanded);
-            final reCommentPresenters = context.select<CommentPresenter, List<ReCommentPresenter>>(
-              (presenter) => presenter.reCommentPresenters,
-            );
-            if (isExpanded) {
-              return Container(
-                color: ColorStyles.red,
-                child: ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  padding: EdgeInsets.zero,
-                  itemCount: reCommentPresenters.length,
-                  itemBuilder: (context, index) {
-                    final presenter = reCommentPresenters[index];
-                    return ChangeNotifierProvider.value(
-                      value: presenter,
-                      child: ReCommentWidget(
-                        objectAuthorId: objectAuthorId,
-                        isMyComment: isMyComment,
-                        isMyObject: isMyObject,
-                        onDelete: () {
-                          context.read<CommentPresenter>().onTapDeleteReCommentAt(index);
-                        },
-                      ),
-                    );
-                  },
-                ),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-        Builder(
-          builder: (context) {
-            final isExpanded = context.select<CommentPresenter, bool>((presenter) => presenter.isExpanded);
-            if (isExpanded) {
-              return Container(
-                padding: const EdgeInsets.only(left: 60),
-                color: ColorStyles.gray10,
-                child: ThrottleButton(
-                  onTap: () {
-                    context.read<CommentPresenter>().onTapExpanded();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                      children: [
-                        Container(height: 1, width: 18, color: ColorStyles.gray40),
-                        const SizedBox(width: 4),
-                        Text(
-                          '답글 숨기기',
-                          style: TextStyles.captionSmallSemiBold.copyWith(color: ColorStyles.gray60),
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-      ],
-    );
+    return _buildSlidableComment();
   }
 
   Widget _buildSlidableComment() {
@@ -114,7 +40,9 @@ class CommentWidget extends StatelessWidget {
             if (isMyObject || isMyComment)
               Expanded(
                 child: ThrottleButton(
-                  onTap: () {},
+                  onTap: () {
+                    onDelete.call();
+                  },
                   child: Container(
                     color: ColorStyles.red,
                     child: Column(
@@ -140,7 +68,8 @@ class CommentWidget extends StatelessWidget {
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
-                    pushToReportScreen(context, id: context.read<CommentPresenter>().id, type: 'comment');
+                    final id = context.read<ReCommentPresenter>().id;
+                    pushToReportScreen(context, id: id, type: 'comment');
                   },
                   child: Container(
                     color: ColorStyles.gray30,
@@ -171,8 +100,10 @@ class CommentWidget extends StatelessWidget {
   }
 
   Widget _buildComment(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
+    final isWriter = context.read<ReCommentPresenter>().authorId == objectAuthorId;
+    return Container(
+      padding: const EdgeInsets.only(left: 60, top: 12, bottom: 12, right: 16),
+      color: ColorStyles.gray10,
       child: Column(
         children: [
           Row(
@@ -180,10 +111,11 @@ class CommentWidget extends StatelessWidget {
             children: [
               ThrottleButton(
                 onTap: () {
-                  ScreenNavigator.pushToProfile(context: context, id: context.read<CommentPresenter>().author.id);
+                  final id = context.read<ReCommentPresenter>().authorId;
+                  ScreenNavigator.pushToProfile(context: context, id: id);
                 },
                 child: Builder(builder: (context) {
-                  final imageUrl = context.select<CommentPresenter, String>((presenter) => presenter.profileImageUrl);
+                  final imageUrl = context.select<ReCommentPresenter, String>((presenter) => presenter.profileImageUrl);
                   return MyNetworkImage(
                     imageUrl: imageUrl,
                     height: 36,
@@ -200,7 +132,8 @@ class CommentWidget extends StatelessWidget {
                     Row(
                       children: [
                         Builder(builder: (context) {
-                          final nickName = context.select<CommentPresenter, String>((presenter) => presenter.nickName);
+                          final nickName =
+                              context.select<ReCommentPresenter, String>((presenter) => presenter.nickName);
                           return Text(
                             nickName,
                             style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.black),
@@ -208,7 +141,7 @@ class CommentWidget extends StatelessWidget {
                         }),
                         const SizedBox(width: 4),
                         Builder(builder: (context) {
-                          final createdAt = context.select<CommentPresenter, String>(
+                          final createdAt = context.select<ReCommentPresenter, String>(
                             (presenter) => presenter.createdAt,
                           );
                           return Text(
@@ -216,7 +149,7 @@ class CommentWidget extends StatelessWidget {
                             style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
                           );
                         }),
-                        if (context.read<CommentPresenter>().author.id == objectAuthorId) ...[
+                        if (isWriter) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -234,37 +167,27 @@ class CommentWidget extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Builder(builder: (context) {
-                      final contents = context.select<CommentPresenter, String>((presenter) => presenter.contents);
+                      final contents = context.select<ReCommentPresenter, String>((presenter) => presenter.contents);
                       return Text(
                         contents,
                         maxLines: null,
                         style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black),
                       );
                     }),
-                    const SizedBox(height: 6),
-                    ThrottleButton(
-                      onTap: () {
-                        onTapReply.call();
-                      },
-                      child: Text(
-                        '답글 달기',
-                        style: TextStyles.captionSmallSemiBold.copyWith(color: ColorStyles.gray60),
-                      ),
-                    ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
               ThrottleButton(
                 onTap: () {
-                  context.read<CommentPresenter>().onTapLike();
+                  context.read<ReCommentPresenter>().onTapLike();
                 },
                 child: Container(
                   padding: const EdgeInsets.only(top: 14),
                   width: 36.w,
                   child: Builder(builder: (context) {
-                    final isLiked = context.select<CommentPresenter, bool>((presenter) => presenter.isLiked);
-                    final likeCount = context.select<CommentPresenter, int>((presenter) => presenter.likeCount);
+                    final isLiked = context.select<ReCommentPresenter, bool>((presenter) => presenter.isLiked);
+                    final likeCount = context.select<ReCommentPresenter, int>((presenter) => presenter.likeCount);
                     return Column(
                       children: [
                         SvgPicture.asset(
@@ -287,38 +210,6 @@ class CommentWidget extends StatelessWidget {
                 ),
               ),
             ],
-          ),
-          Builder(
-            builder: (context) {
-              final isExpanded = context.select<CommentPresenter, bool>((presenter) => presenter.isExpanded);
-              final reCommentsCount = context.select<CommentPresenter, int>(
-                (presenter) => presenter.reCommentPresenters.length,
-              );
-              return !isExpanded && reCommentsCount > 0
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 8, left: 46, right: 46),
-                      child: ThrottleButton(
-                        onTap: () {
-                          context.read<CommentPresenter>().onTapExpanded();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: [
-                              Container(height: 1, width: 18, color: ColorStyles.gray40),
-                              const SizedBox(width: 4),
-                              Text(
-                                '답글 $reCommentsCount개 더보기',
-                                style: TextStyles.captionSmallSemiBold.copyWith(color: ColorStyles.gray60),
-                              ),
-                              const Spacer(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox.shrink();
-            },
           ),
         ],
       ),
