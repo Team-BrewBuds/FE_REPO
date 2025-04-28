@@ -210,31 +210,31 @@ class _PostImageViewState extends State<PostImageView> {
           top: 8,
           right: 8,
           child: isSelected
-              ? Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: ColorStyles.white, width: 1),
-                    color: ColorStyles.red,
-                  ),
-                  width: 24.w,
-                  height: 24.h,
-                  child: Center(
-                    child: isSingleSelect
-                        ? SvgPicture.asset(
-                            'assets/icons/check_red_filled.svg',
-                            height: 24.h,
-                            width: 24.w,
-                          )
-                        : Text(
-                            (selectedAt + 1).toString(),
-                            style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.white),
-                          ),
-                  ),
-                )
+              ? isSingleSelect
+                  ? SvgPicture.asset(
+                      'assets/icons/check_red_filled.svg',
+                      height: 24.h,
+                      width: 24.w,
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: ColorStyles.white, width: 1),
+                        color: ColorStyles.red,
+                      ),
+                      width: 24.w,
+                      height: 24.h,
+                      child: Center(
+                        child: Text(
+                          '${selectedAt + 1}',
+                          style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.white),
+                        ),
+                      ),
+                    )
               : Container(
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: ColorStyles.black50, width: 1),
+                    border: Border.all(color: ColorStyles.white50, width: 1),
                     color: ColorStyles.black50,
                   ),
                   width: 24.w,
