@@ -36,9 +36,10 @@ import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:uuid/v4.dart';
 
-GoRouter createRouter(bool hasToken) {
+GoRouter createRouter(bool hasToken, GlobalKey<NavigatorState> navigatorKey) {
   return GoRouter(
     initialLocation: hasToken ? '/home' : '/',
+    navigatorKey: navigatorKey,
     routes: [
       GoRoute(
         path: '/',
@@ -229,6 +230,10 @@ GoRouter createRouter(bool hasToken) {
                       create: (_) => AccountDetailPresenter(),
                       child: const AccountDetailView(),
                     ),
+                  ),
+                  GoRoute(
+                    path: 'sign_out',
+                    builder: (context, state) => const SignOutView(),
                   ),
                 ],
               ),

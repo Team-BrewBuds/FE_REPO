@@ -74,10 +74,6 @@ class AccountRepository extends ChangeNotifier {
       _id = null;
       _accessToken = '';
       _refreshToken = '';
-      if (forceLogout) {
-        NotificationCenter().notify('force_logout');
-      }
-      notifyListeners();
     } catch (e) {
       rethrow;
     }

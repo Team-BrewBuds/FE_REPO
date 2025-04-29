@@ -5,8 +5,8 @@ import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
+import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -192,7 +192,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
         },
         onError: (exception) {
           EventBus.instance.fire(
-            MessageEvent(context: context, message: exception?.message ?? '알 수 없는 에러가 발생했어요.'),
+            MessageEvent(message: exception?.message ?? '알 수 없는 에러가 발생했어요.'),
           );
         },
         child: Container(
@@ -224,15 +224,11 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
           if (result) {
             context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
           } else {
-            EventBus.instance.fire(
-              MessageEvent(context: context, message: '회원가입에 실패했어요.'),
-            );
+            EventBus.instance.fire(const MessageEvent(message: '회원가입에 실패했어요.'));
           }
         },
         onError: (_) {
-          EventBus.instance.fire(
-            MessageEvent(context: context, message: '회원가입에 실패했어요.'),
-          );
+          EventBus.instance.fire(const MessageEvent(message: '회원가입에 실패했어요.'));
         },
         child: Container(
           height: 47,

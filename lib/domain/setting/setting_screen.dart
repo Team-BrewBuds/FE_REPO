@@ -2,14 +2,13 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
-import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -22,8 +21,7 @@ class SettingScreen extends StatefulWidget {
   State<SettingScreen> createState() => _SettingScreenState();
 }
 
-class _SettingScreenState extends State<SettingScreen>
-    with CenterDialogMixin<SettingScreen>, SnackBarMixin<SettingScreen> {
+class _SettingScreenState extends State<SettingScreen> with CenterDialogMixin<SettingScreen> {
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
@@ -149,20 +147,16 @@ class _SettingScreenState extends State<SettingScreen>
     final context = this.context;
     switch (item) {
       case SettingItem.notification:
-        context.go('/profile/setting/notification');
+        context.push('/profile/setting/notification');
         break;
       case SettingItem.block:
-        context.go('/profile/setting/block');
+        context.push('/profile/setting/block');
         break;
       case SettingItem.account:
-        context.go('/profile/setting/account_info');
+        context.push('/profile/setting/account_info');
         break;
       case SettingItem.detail:
-        context.push<String>('/profile/setting/account_detail').then((value) {
-          if (value != null) {
-            showSnackBar(message: value);
-          }
-        });
+        context.push('/profile/setting/account_detail');
         break;
       case SettingItem.notice:
         break;
@@ -185,36 +179,25 @@ class _SettingScreenState extends State<SettingScreen>
       case SettingItem.version:
         break;
       case SettingItem.logout:
-        final result = await showLogoutBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+        try {
+          final result = await showLogoutBottomSheet() ?? false;
+          if (!result) return;
 
-        if (result) {
-          final notificationResult =
-              await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
-          if (notificationResult) {
-            final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
-            if (logoutResult) {
-              if (context.mounted) {
-                context.go('/');
-                break;
-              }
-            }
+          await NotificationRepository.instance.deleteToken();
+          await AccountRepository.instance.logout();
+          if (context.mounted) {
+            context.go('/');
           }
-          showSnackBar(message: '로그아웃에 실패했습니다.');
+          break;
+        } catch (e) {
+          EventBus.instance.fire(const MessageEvent(message: '로그아웃에 실패했어요.'));
           break;
         }
-        break;
       case SettingItem.signOut:
         final result = await showSignOutBottomSheet();
 
         if (result != null && result && context.mounted) {
-          showCupertinoModalPopup(
-            barrierColor: ColorStyles.white,
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return const SignOutView();
-            },
-          );
+          context.push('/profile/setting/sign_out');
         }
         break;
     }

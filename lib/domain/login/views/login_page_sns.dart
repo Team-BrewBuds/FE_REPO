@@ -65,7 +65,6 @@ class SNSLogin extends StatelessWidget {
                               onError: (exception) {
                                 EventBus.instance.fire(
                                   MessageEvent(
-                                    context: context,
                                     message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
                                   ),
                                 );
@@ -123,7 +122,6 @@ class SNSLogin extends StatelessWidget {
                               onError: (exception) {
                                 EventBus.instance.fire(
                                   MessageEvent(
-                                    context: context,
                                     message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
                                   ),
                                 );
@@ -183,7 +181,6 @@ class SNSLogin extends StatelessWidget {
                               onError: (exception) {
                                 EventBus.instance.fire(
                                   MessageEvent(
-                                    context: context,
                                     message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
                                   ),
                                 );

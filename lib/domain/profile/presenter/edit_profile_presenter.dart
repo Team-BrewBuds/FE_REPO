@@ -6,7 +6,7 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/profile/model/profile_update_model.dart';
-import 'package:brew_buds/exception/profile_edit_exception.dart';
+import 'package:brew_buds/exception/profile_update_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/events/profile_update_event.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';

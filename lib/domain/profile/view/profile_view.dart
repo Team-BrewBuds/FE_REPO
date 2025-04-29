@@ -7,7 +7,6 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/profile/presenter/modal_profile_presenter.dart';
-import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/domain/profile/view/profile_mixin.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
@@ -198,12 +197,12 @@ class _ProfileViewState extends State<ProfileView>
                           try {
                             await context.read<ModalProfilePresenter>().onTappedBlockButton();
                             if (context.mounted) {
-                              EventBus.instance.fire(MessageEvent(context: context, message: '$nickname님을 차단했어요.'));
+                              EventBus.instance.fire(MessageEvent(message: '$nickname님을 차단했어요.'));
                               context.pop();
                             }
                           } catch (e) {
                             if (context.mounted) {
-                              EventBus.instance.fire(MessageEvent(context: context, message: '차단에 실패했어요.'));
+                              EventBus.instance.fire(const MessageEvent(message: '차단에 실패했어요.'));
                             }
                           }
                         },

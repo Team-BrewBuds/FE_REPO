@@ -12,6 +12,8 @@ import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:brew_buds/model/events/message_event.dart';
+import 'package:brew_buds/model/events/need_login_event.dart';
+import 'package:brew_buds/model/events/need_update_event.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,8 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
 
 import 'data/repository/app_repository.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +67,7 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AccountRepository.instance),
       ],
       child: MyApp(
-        router: createRouter(AccountRepository.instance.accessToken.isNotEmpty),
+        router: createRouter(AccountRepository.instance.accessToken.isNotEmpty, navigatorKey),
       ),
     ),
   );
@@ -79,11 +83,25 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  late final StreamSubscription needUpdateSub;
+  late final StreamSubscription needLoginSub;
   late final StreamSubscription messageSub;
+  bool _isAlertShow = false;
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     messageSub = EventBus.instance.on<MessageEvent>().listen(onMessageEvent);
+    needUpdateSub = EventBus.instance.on<NeedUpdateEvent>().listen(onNeedUpdateEvent);
+    needLoginSub = EventBus.instance.on<NeedLoginEvent>().listen((_) {
+      if (!_isAlertShow) {
+        _isAlertShow = true;
+        _showLoginAlert();
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AppRepository.instance.checkUpdateRequired();
+    });
     super.initState();
   }
 
@@ -97,12 +115,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state == AppLifecycleState.resumed) {
-      await AppRepository.instance.checkUpdateRequired();
+      AppRepository.instance.checkUpdateRequired();
     }
   }
 
   void onMessageEvent(MessageEvent event) {
-    showSnackBar(context: event.context, message: event.message);
+    showSnackBar(message: event.message);
+  }
+
+  void onNeedUpdateEvent(NeedUpdateEvent event) {
+    // _showForceUpdateDialog();
   }
 
   @override
@@ -146,28 +168,100 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 
-  showSnackBar({required BuildContext context, required String message}) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black90,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-              textAlign: TextAlign.center,
+  showSnackBar({required String message}) {
+    final currentContext = navigatorKey.currentContext;
+
+    if (currentContext != null) {
+      ScaffoldMessenger.of(currentContext).clearSnackBars();
+      ScaffoldMessenger.of(currentContext).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: ColorStyles.black90,
+              borderRadius: const BorderRadius.all(Radius.circular(5)),
+            ),
+            child: Center(
+              child: Text(
+                message,
+                style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-    );
+      );
+    }
+  }
+
+  void _showForceUpdateDialog() {
+    final currentContext = navigatorKey.currentContext;
+
+    if (currentContext != null) {
+      showDialog(
+        context: currentContext,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('업데이트 필요'),
+            content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  context.pop();
+                },
+                child: const Text('업데이트 하기'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  _showLoginAlert() async {
+    final currentContext = navigatorKey.currentContext;
+    if (currentContext != null) {
+      await showCupertinoDialog(
+        context: currentContext,
+        builder: (context) {
+          return CupertinoAlertDialog(
+            title: Text('토큰 만료', style: TextStyles.title02SemiBold),
+            content: Text('로그인 페이지로 이동합니다.', style: TextStyles.bodyRegular),
+            actions: [
+              CupertinoDialogAction(
+                isDefaultAction: false,
+                child: Text(
+                  '닫기',
+                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.destructiveRed),
+                ),
+                onPressed: () {
+                  context.pop();
+                },
+              ),
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: Text(
+                  '확인',
+                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
+                ),
+                onPressed: () {
+                  context.pop();
+                },
+              )
+            ],
+          );
+        },
+      );
+      await NotificationRepository.instance.deleteToken();
+      await AccountRepository.instance.logout();
+      if (currentContext.mounted) {
+        currentContext.go('/');
+        _isAlertShow = false;
+      }
+    }
   }
 }

@@ -78,13 +78,17 @@ final class NotificationRepository {
   }
 
   Future<bool> deleteToken() async {
-    if (_token.isNotEmpty) {
-      return await _notificationApi
-          .deleteDeviceToken(data: {'device_token': _token, 'device_type': 'ios'})
-          .then((value) => true)
-          .onError((error, stackTrace) => false);
-    } else {
-      return true;
+    try {
+      if (_token.isNotEmpty) {
+        return await _notificationApi
+            .deleteDeviceToken(data: {'device_token': _token, 'device_type': 'ios'})
+            .then((value) => true)
+            .onError((error, stackTrace) => false);
+      } else {
+        return true;
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 

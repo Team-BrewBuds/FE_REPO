@@ -2,10 +2,11 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +18,7 @@ class SignOutView extends StatefulWidget {
   State<SignOutView> createState() => _SignOutViewState();
 }
 
-class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOutView>, SnackBarMixin<SignOutView> {
+class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOutView> {
   final ProfileApi _api = ProfileApi();
   final List<String> _reason = [
     '시음 기록 과정이 복잡해요.',
@@ -231,28 +232,23 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
             onTap: () async {
               final context = this.context;
               showCenterDialog(
-                  title: '정말 탈퇴 하시겠어요?',
-                  centerTitle: true,
-                  cancelText: '취소',
-                  doneText: '탈퇴하기',
-                  onDone: () async {
-                    final notificationResult =
-                        await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
-                    if (notificationResult) {
-                      final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
-                      if (signOutResult) {
-                        await AccountRepository.instance.logout();
-                        if (context.mounted) {
-                          context.go('/');
-                        }
-                        return;
-                      } else {
-                        await NotificationRepository.instance.registerToken(AccountRepository.instance.accessToken);
-                      }
+                title: '정말 탈퇴 하시겠어요?',
+                centerTitle: true,
+                cancelText: '취소',
+                doneText: '탈퇴하기',
+                onDone: () async {
+                  try {
+                    await NotificationRepository.instance.deleteToken();
+                    await _api.signOut();
+                    await AccountRepository.instance.logout();
+                    if (context.mounted) {
+                      context.go('/');
                     }
-                    showSnackBar(message: '회원탈퇴에 실패했습니다.');
-                    return;
-                  });
+                  } catch (e) {
+                    EventBus.instance.fire(const MessageEvent(message: '회원탈퇴에 실패했어요.'));
+                  }
+                },
+              );
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),

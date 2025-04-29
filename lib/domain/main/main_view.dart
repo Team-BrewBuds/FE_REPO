@@ -7,7 +7,6 @@ import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
@@ -17,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
@@ -44,7 +42,6 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
-  bool _isDialogShown = false;
 
   bool _canShowAlert = true;
 
@@ -53,24 +50,6 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
   @override
   void initState() {
     super.initState();
-    NotificationCenter().subscribe(
-      'force_logout',
-      (_) {
-        showLoginAlert();
-      },
-    );
-    NotificationCenter().subscribe(
-      'need_update',
-      (_) {
-        _showForceUpdateDialog();
-      },
-    );
-    NotificationCenter().subscribe<String>(
-      'show_message',
-      (message) {
-        showSnackBar(message: message);
-      },
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (SharedPreferencesRepository.instance.isFirst) {
         ShowCaseWidget.of(context).startShowCase([_one, _two, _three]);
@@ -79,21 +58,7 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
   }
 
   @override
-  void dispose() {
-    NotificationCenter().unsubscribe('force_logout');
-    NotificationCenter().unsubscribe('need_update');
-    NotificationCenter().unsubscribe('show_message');
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (AppRepository.instance.isUpdateRequired && !_isDialogShown) {
-        _isDialogShown = true;
-        _showForceUpdateDialog();
-      }
-    });
     final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
     return Scaffold(
       body: widget.child,
@@ -586,26 +551,5 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
 
       _canShowAlert = true;
     }
-  }
-
-  void _showForceUpdateDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('업데이트 필요'),
-          content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                context.pop();
-              },
-              child: const Text('업데이트 하기'),
-            ),
-          ],
-        );
-      },
-    );
   }
 }

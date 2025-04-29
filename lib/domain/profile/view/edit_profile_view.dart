@@ -10,7 +10,7 @@ import 'package:brew_buds/domain/profile/image_edit/profile_image_navigator.dart
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/coffee_life_bottom_sheet.dart';
-import 'package:brew_buds/exception/profile_edit_exception.dart';
+import 'package:brew_buds/exception/profile_update_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,19 +160,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                 child: Selector<EditProfilePresenter, bool>(
                     selector: (context, presenter) => presenter.canEdit,
                     builder: (context, canEdit, _) {
-                      return FutureButton<bool, ProfileEditException>(
+                      return FutureButton<bool, ProfileUpdateException>(
                         onTap: () => context.read<EditProfilePresenter>().onSave(),
                         onError: (exception) {
                           EventBus.instance.fire(
-                            MessageEvent(
-                              context: context,
-                              message: exception?.toString() ?? '알 수 없는 오류가 발생했어요.',
-                            ),
+                            MessageEvent(message: exception?.toString() ?? '알 수 없는 오류가 발생했어요.'),
                           );
                         },
                         onComplete: (result) {
                           if (result) {
-                            EventBus.instance.fire(MessageEvent(context: context, message: '프로필을 수정했어요.'));
+                            EventBus.instance.fire(const MessageEvent(message: '프로필을 수정했어요.'));
                             context.pop();
                           }
                         },
@@ -412,16 +409,12 @@ class _EditProfileViewState extends State<EditProfileView> {
                 hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                 contentPadding: const EdgeInsets.all(12),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
-                      width: 1),
+                  borderSide: BorderSide(color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red, width: 1),
                   borderRadius: BorderRadius.zero,
                   gapPadding: 0,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
-                      width: 1),
+                  borderSide: BorderSide(color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red, width: 1),
                   borderRadius: BorderRadius.zero,
                   gapPadding: 0,
                 ),

@@ -60,7 +60,7 @@ final class BlockingUserManagementPresenter extends Presenter {
     } catch (e) {
       _users.insert(index, user);
       notifyListeners();
-      return false;
+      rethrow;
     }
   }
 }

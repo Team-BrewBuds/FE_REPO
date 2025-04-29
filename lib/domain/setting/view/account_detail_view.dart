@@ -5,9 +5,10 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -22,7 +23,7 @@ class AccountDetailView extends StatefulWidget {
   State<AccountDetailView> createState() => _AccountDetailViewState();
 }
 
-class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixin<AccountDetailView> {
+class _AccountDetailViewState extends State<AccountDetailView> {
   final List<String> _body = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
   final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
@@ -106,14 +107,12 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                   return AbsorbPointer(
                     absorbing: !canEdit,
                     child: FutureButton(
-                      onTap: () {
-                        return context.read<AccountDetailPresenter>().onSave();
-                      },
+                      onTap: () => context.read<AccountDetailPresenter>().onSave(),
                       onError: (_) {
-                        showSnackBar(message: '맞춤정보 저장에 실패했어요.');
+                        EventBus.instance.fire(const MessageEvent(message: '맞춤정보 저장에 실패했어요.'));
                       },
                       onComplete: (_) {
-                        showSnackBar(message: '맞춤정보 저장을 완료했어요.');
+                        EventBus.instance.fire(const MessageEvent(message: '맞춤정보를 저장했어요.'));
                         context.pop();
                       },
                       child: Text(

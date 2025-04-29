@@ -3,8 +3,10 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/setting/model/blocked_user.dart';
 import 'package:brew_buds/domain/setting/presenter/blocking_user_management_presenter.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -75,14 +77,16 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                   selector: (context, presenter) => presenter.users,
                   builder: (context, users, child) {
                     return users.isNotEmpty
-                        ? Builder(builder: (context) {
-                            final isLoading = context.select<BlockingUserManagementPresenter, bool>(
-                              (presenter) => presenter.isLoading,
-                            );
-                            return isLoading
-                                ? const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70))
-                                : _buildBlockedUserList(users: users);
-                          })
+                        ? Builder(
+                            builder: (context) {
+                              final isLoading = context.select<BlockingUserManagementPresenter, bool>(
+                                (presenter) => presenter.isLoading,
+                              );
+                              return isLoading
+                                  ? const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70))
+                                  : _buildBlockedUserList(users: users);
+                            },
+                          )
                         : Center(child: Text('차단한 버디가 없어요.', style: TextStyles.title02SemiBold));
                   },
                 ),
@@ -208,8 +212,15 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
                 ),
               ),
               const SizedBox(width: 8),
-              FutureButton(
+              FutureButton<bool, Exception>(
                 onTap: () => context.read<BlockingUserManagementPresenter>().unBlockAt(index),
+                onComplete: (result) {
+                  if (result) {
+                    EventBus.instance.fire(
+                      MessageEvent(message: '${user.nickname}님을 차단해제했어요.'),
+                    );
+                  }
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   decoration: BoxDecoration(

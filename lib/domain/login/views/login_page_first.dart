@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
@@ -41,10 +40,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (AppRepository.instance.isUpdateRequired && !_isDialogShown) {
-        _isDialogShown = true;
-        _showForceUpdateDialog();
-      } else if (SharedPreferencesRepository.instance.isFirstTimeLogin && !_isDialogShown) {
+      if (SharedPreferencesRepository.instance.isFirstTimeLogin && !_isDialogShown) {
         _isDialogShown = true;
         _showPermissionDialog();
       }
@@ -258,24 +254,5 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
       },
     );
     await SharedPreferencesRepository.instance.setLogin();
-  }
-
-  void _showForceUpdateDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('업데이트 필요'),
-          content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
-          actions: [
-            TextButton(
-              onPressed: () {},
-              child: const Text('업데이트 하기'),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
