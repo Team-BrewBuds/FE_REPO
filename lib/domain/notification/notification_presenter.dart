@@ -15,23 +15,27 @@ final class NotificationPresenter extends Presenter {
 
   List<NotificationModel> get notificationList => List.unmodifiable(_notificationList);
 
+  bool get hasNotification => _notificationList.where((notification) => !notification.isRead).isNotEmpty;
+
   NotificationPresenter() {
     fetchMoreData();
   }
 
-  onRefresh() {
+  Future<void> onRefresh() async {
     _notificationList.clear();
     _hasNext = true;
     _pageNo = 1;
-    fetchMoreData();
+    await fetchMoreData(isRefresh: true);
   }
 
-  fetchMoreData() async {
+  Future<void> fetchMoreData({bool isRefresh = false}) async {
     if (!_hasNext) return;
 
     if (!_isLoading) {
       _isLoading = true;
-      notifyListeners();
+      if (!isRefresh) {
+        notifyListeners();
+      }
 
       final newPage = await _notificationRepository.fetchNotificationPage(pageNo: _pageNo);
       _notificationList.addAll(newPage.results);

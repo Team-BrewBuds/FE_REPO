@@ -17,6 +17,7 @@ import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies.da
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
+import 'package:brew_buds/domain/notification/notification_presenter.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
@@ -99,13 +100,18 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
               ),
               const Spacer(),
               if (context.select<AccountRepository, bool>((repository) => !repository.isGuest)) ...[
-                FutureButton(
-                  onTap: () => showNotificationPage(context: context),
-                  child: SvgPicture.asset(
-                    'assets/icons/alarm.svg',
-                    width: 24,
-                    height: 24,
-                  ),
+                Builder(
+                  builder: (context) {
+                    final hasNotification = context.select<NotificationPresenter, bool>((presenter) => presenter.hasNotification);
+                    return FutureButton(
+                      onTap: () => showNotificationPage(context: context),
+                      child: SvgPicture.asset(
+                        hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
+                        width: 24,
+                        height: 24,
+                      ),
+                    );
+                  }
                 ),
               ],
             ],

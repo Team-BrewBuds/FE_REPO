@@ -10,6 +10,7 @@ import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/di/router.dart';
+import 'package:brew_buds/domain/notification/notification_presenter.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/events/need_login_event.dart';
@@ -65,6 +66,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AccountRepository.instance),
+        ChangeNotifierProvider<NotificationPresenter>(create: (_) => NotificationPresenter()),
       ],
       child: MyApp(
         router: createRouter(AccountRepository.instance.accessToken.isNotEmpty, navigatorKey),

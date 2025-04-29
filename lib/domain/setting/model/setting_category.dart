@@ -19,7 +19,12 @@ enum SettingCategory {
   List<SettingItem> get items => switch (this) {
         SettingCategory.user => [SettingItem.notification, SettingItem.block],
         SettingCategory.account => [SettingItem.account, SettingItem.detail],
-        SettingCategory.support => [SettingItem.evaluation],
+        SettingCategory.support => [
+            SettingItem.notice,
+            SettingItem.help,
+            SettingItem.evaluation,
+            SettingItem.registrationOfBeans,
+          ],
         SettingCategory.information => [SettingItem.terms, SettingItem.policy, SettingItem.version],
         SettingCategory.etc => [SettingItem.logout, SettingItem.signOut],
       };

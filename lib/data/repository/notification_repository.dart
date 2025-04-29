@@ -125,6 +125,7 @@ final class NotificationRepository {
 
   Future<DefaultPage<NotificationModel>> fetchNotificationPage({required int pageNo}) async {
     final jsonString = await _notificationApi.fetchNotifications(pageNo: pageNo);
+    print(jsonString);
     return compute(
       (jsonString) {
         try {
@@ -140,16 +141,16 @@ final class NotificationRepository {
     );
   }
 
-  Future<bool> deleteNotification({required int id}) {
-    return _notificationApi.deleteNotification(id: id).then((_) => true).onError((_, __) => false);
+  Future<void> deleteNotification({required int id}) {
+    return _notificationApi.deleteNotification(id: id);
   }
 
-  Future<bool> deleteAllNotification() {
-    return _notificationApi.deleteAllNotifications().then((_) => true).onError((_, __) => false);
+  Future<void> deleteAllNotification() {
+    return _notificationApi.deleteAllNotifications();
   }
 
-  Future<bool> readNotification({required int id}) {
-    return _notificationApi.readNotification(id: id).then((_) => true).onError((_, __) => false);
+  Future<void> readNotification({required int id}) {
+    return _notificationApi.readNotification(id: id);
   }
 
   Future<bool> readAllNotification() {

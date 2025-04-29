@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
+import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/notification/notification_item_widget.dart';
 import 'package:brew_buds/domain/notification/notification_presenter.dart';
@@ -17,10 +18,7 @@ Future<String?> showNotificationPage({required BuildContext context}) {
   return showGeneralDialog<String>(
     context: context,
     barrierColor: ColorStyles.white,
-    pageBuilder: (context, animation, secondaryAnimation) => ChangeNotifierProvider<NotificationPresenter>(
-      create: (_) => NotificationPresenter(),
-      child: const NotificationScreen(),
-    ),
+    pageBuilder: (context, animation, secondaryAnimation) => const NotificationScreen(),
     transitionBuilder: (
       BuildContext context,
       Animation<double> animation,
@@ -80,22 +78,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
         SafeArea(
           child: Scaffold(
             appBar: _buildAppBar(),
-            body: ValueListenableBuilder(
-              valueListenable: isDeletingModeNotifier,
-              builder: (context, isDeletingMode, child) {
-                return NotificationListener<ScrollNotification>(
-                  onNotification: (ScrollNotification scroll) {
-                    if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent - 300) {
-                      paginationThrottle.setValue(null);
-                    }
-                    return false;
-                  },
-                  child: CustomScrollView(
-                    slivers: [
-                      SliverToBoxAdapter(child: Container(height: 1, color: ColorStyles.gray20)),
-                      if (isDeletingMode)
-                        SliverToBoxAdapter(
-                          child: Container(
+            body: Column(
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: isDeletingModeNotifier,
+                  builder: (context, isDeletingMode, child) {
+                    return isDeletingMode
+                        ? Container(
                             padding: const EdgeInsets.all(16),
                             color: ColorStyles.gray20,
                             child: Row(
@@ -120,72 +109,92 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-                      Selector<NotificationPresenter, List<NotificationModel>>(
-                        selector: (context, presenter) => presenter.notificationList,
-                        builder: (context, notificationList, child) {
-                          return SliverList.separated(
-                            itemCount: notificationList.length,
-                            itemBuilder: (context, index) {
-                              final notification = notificationList[index];
-                              return FutureButton(
-                                onTap: () => context.read<NotificationPresenter>().readAt(index),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: isDeletingMode
-                                      ? Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          spacing: 10,
-                                          children: [
-                                            Expanded(
-                                              child: NotificationItemWidget(
+                          )
+                        : const SizedBox.shrink();
+                  },
+                ),
+                Expanded(
+                  child: ValueListenableBuilder(
+                    valueListenable: isDeletingModeNotifier,
+                    builder: (context, isDeletingMode, child) {
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scroll) {
+                          if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent - 300) {
+                            paginationThrottle.setValue(null);
+                          }
+                          return false;
+                        },
+                        child: CustomScrollView(
+                          slivers: [
+                            MyRefreshControl(onRefresh: () => context.read<NotificationPresenter>().onRefresh()),
+                            Selector<NotificationPresenter, List<NotificationModel>>(
+                              selector: (context, presenter) => presenter.notificationList,
+                              builder: (context, notificationList, child) {
+                                return SliverList.separated(
+                                  itemCount: notificationList.length,
+                                  itemBuilder: (context, index) {
+                                    final notification = notificationList[index];
+                                    return FutureButton(
+                                      onTap: () => context.read<NotificationPresenter>().readAt(index),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: isDeletingMode
+                                            ? Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                spacing: 10,
+                                                children: [
+                                                  Expanded(
+                                                    child: NotificationItemWidget(
+                                                      body: notification.body,
+                                                      date: notification.createdAt,
+                                                      isRead: notification.isRead,
+                                                    ),
+                                                  ),
+                                                  ThrottleButton(
+                                                    onTap: () {
+                                                      context.read<NotificationPresenter>().deleteAt(index);
+                                                    },
+                                                    child:
+                                                        SvgPicture.asset('assets/icons/x.svg', width: 24, height: 24),
+                                                  ),
+                                                ],
+                                              )
+                                            : NotificationItemWidget(
                                                 body: notification.body,
                                                 date: notification.createdAt,
                                                 isRead: notification.isRead,
                                               ),
-                                            ),
-                                            ThrottleButton(
-                                              onTap: () {
-                                                context.read<NotificationPresenter>().deleteAt(index);
-                                              },
-                                              child: SvgPicture.asset('assets/icons/x.svg', width: 24, height: 24),
-                                            ),
-                                          ],
-                                        )
-                                      : NotificationItemWidget(
-                                          body: notification.body,
-                                          date: notification.createdAt,
-                                          isRead: notification.isRead,
-                                        ),
-                                ),
-                              );
-                            },
-                            separatorBuilder: (_, __) => Container(height: 1, color: ColorStyles.gray20),
-                          );
-                        },
-                      ),
-                      Selector<NotificationPresenter, bool>(
-                        selector: (context, presenter) => presenter.hasNext,
-                        builder: (context, hasNext, child) {
-                          return SliverToBoxAdapter(
-                            child: hasNext
-                                ? const SizedBox(
-                                    height: 100,
-                                    child: Center(
-                                      child: CupertinoActivityIndicator(
-                                        color: ColorStyles.gray70,
                                       ),
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                          );
-                        },
-                      ),
-                    ],
+                                    );
+                                  },
+                                  separatorBuilder: (_, __) => Container(height: 1, color: ColorStyles.gray20),
+                                );
+                              },
+                            ),
+                            Selector<NotificationPresenter, bool>(
+                              selector: (context, presenter) => presenter.hasNext,
+                              builder: (context, hasNext, child) {
+                                return SliverToBoxAdapter(
+                                  child: hasNext
+                                      ? const SizedBox(
+                                          height: 100,
+                                          child: Center(
+                                            child: CupertinoActivityIndicator(
+                                              color: ColorStyles.gray70,
+                                            ),
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
         ),
@@ -203,8 +212,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
       leading: const SizedBox.shrink(),
       titleSpacing: 0,
       centerTitle: false,
+      toolbarHeight: 65,
       title: Container(
         padding: const EdgeInsets.only(left: 16, right: 16, top: 28, bottom: 12),
+        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),
         child: Row(
           children: [
             ThrottleButton(

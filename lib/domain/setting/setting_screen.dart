@@ -8,7 +8,9 @@ import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
+import 'package:brew_buds/domain/web_view/web_screen.dart';
 import 'package:brew_buds/model/events/message_event.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -159,20 +161,50 @@ class _SettingScreenState extends State<SettingScreen> with CenterDialogMixin<Se
         context.push('/profile/setting/account_detail');
         break;
       case SettingItem.notice:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/1e397baa9f48807f95bbc192f6e63fc9'),
+        );
         break;
       case SettingItem.help:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f488017beadc47fe298099b'),
+        );
         break;
       case SettingItem.improvements:
         break;
       case SettingItem.evaluation:
         break;
       case SettingItem.registrationOfBeans:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f4880d484e3c47606a9d1cc'),
+        );
         break;
       case SettingItem.inquiry:
         break;
       case SettingItem.terms:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f4880d68698c9a8218a5f0c'),
+        );
         break;
       case SettingItem.policy:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f48809a9b64e120aeb07b1d'),
+        );
         break;
       case SettingItem.openSourceLicense:
         break;
