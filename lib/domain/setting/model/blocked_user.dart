@@ -5,7 +5,7 @@ part 'blocked_user.g.dart';
 @JsonSerializable(createToJson: false)
 class BlockedUser {
   final int id;
-  @JsonKey(name: 'profile_image')
+  @JsonKey(name: 'profile_image', defaultValue: '')
   final String profileImageUri;
   final String nickname;
 

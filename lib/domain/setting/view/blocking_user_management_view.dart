@@ -28,7 +28,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {

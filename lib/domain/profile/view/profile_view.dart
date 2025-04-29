@@ -3,10 +3,13 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/profile/presenter/modal_profile_presenter.dart';
+import 'package:brew_buds/domain/profile/presenter/profile_presenter.dart';
 import 'package:brew_buds/domain/profile/view/profile_mixin.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -179,31 +182,32 @@ class _ProfileViewState extends State<ProfileView>
               final isVisible = context.select<ModalProfilePresenter, bool>((presenter) => !presenter.isMine);
               return Visibility(
                 visible: isVisible,
-                child: FutureButton<bool, Exception>(
+                child: ThrottleButton(
                   onTap: () async {
                     final context = this.context;
+                    final nickname = context.read<ModalProfilePresenter>().nickName;
                     final bottomSheetResult = await _showBlockBottomSheet();
                     if (bottomSheetResult != null && bottomSheetResult && context.mounted) {
-                      showCenterDialog(
-                          title: '이 사용자를 차단하시겠어요?',
-                          centerTitle: true,
-                          content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
-                          cancelText: '취소',
-                          doneText: '차단하기',
-                          onDone: () {
-                            context.read<ModalProfilePresenter>().onTappedBlockButton();
-                          });
-                    }
-
-                    return Future.value(false);
-                  },
-                  onError: (_) {
-                    showSnackBar(message: '차단에 실패했어요.');
-                  },
-                  onComplete: (result) {
-                    if (result) {
-                      showSnackBar(message: '차단에 성공했어요.');
-                      context.pop();
+                      await showCenterDialog(
+                        title: '이 사용자를 차단하시겠어요?',
+                        centerTitle: true,
+                        content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                        cancelText: '취소',
+                        doneText: '차단하기',
+                        onDone: () async {
+                          try {
+                            await context.read<ModalProfilePresenter>().onTappedBlockButton();
+                            if (context.mounted) {
+                              EventBus.instance.fire(MessageEvent(context: context, message: '$nickname님을 차단했어요.'));
+                              context.pop();
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              EventBus.instance.fire(MessageEvent(context: context, message: '차단에 실패했어요.'));
+                            }
+                          }
+                        },
+                      );
                     }
                   },
                   child: SvgPicture.asset(
@@ -222,7 +226,7 @@ class _ProfileViewState extends State<ProfileView>
   }
 
   @override
-  pushFollowList(int index) {
+  Future<void> pushFollowList(int index) {
     final profile = context.read<ModalProfilePresenter>().profile;
     if (profile != null) {
       return ScreenNavigator.pushToFollowListPB(

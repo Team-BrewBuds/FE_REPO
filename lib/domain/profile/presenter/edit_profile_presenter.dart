@@ -3,17 +3,17 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/profile/model/profile_update_model.dart';
+import 'package:brew_buds/exception/profile_edit_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/events/profile_update_event.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 
 typedef ProfileImageState = ({String imageUrl, Uint8List? imageData});
 typedef NicknameState = ({bool isValid, bool isDuplicating, bool isChecking, bool isEditing});
-typedef LinkState = ({bool isValid, bool isStartWithHttpOrHttps, bool hasLink});
+typedef LinkState = ({bool isValid, bool hasLink});
 
 final class EditProfilePresenter extends Presenter {
   late final Debouncer<String> _nicknameCheckDebouncer;
@@ -40,8 +40,7 @@ final class EditProfilePresenter extends Presenter {
       !_isDuplicatingNickname &&
       _nickname.length >= 2 &&
       _nickname.length <= 12 &&
-      _isValidUrl() &&
-      _isStartWithHttpOrHttps();
+      _isValidUrl(_link);
 
   String get imageUrl => _imageUrl;
 
@@ -57,8 +56,7 @@ final class EditProfilePresenter extends Presenter {
   int get introductionCount => _introduction.length;
 
   LinkState get linkState => (
-        isValid: _isValidUrl(),
-        isStartWithHttpOrHttps: _isStartWithHttpOrHttps(),
+        isValid: _isValidUrl(_link),
         hasLink: _link.isNotEmpty,
       );
 
@@ -139,22 +137,16 @@ final class EditProfilePresenter extends Presenter {
     }
   }
 
-  bool _isValidUrl() {
-    if (_link.isNotEmpty) {
-      final uri = Uri.tryParse(_link);
-      return uri != null && uri.host.isNotEmpty;
-    } else {
-      return true;
-    }
-  }
+  bool _isValidUrl(String link) {
+    if (link.trim().isEmpty) return true; // 비어 있으면 유효하다고 간주
 
-  bool _isStartWithHttpOrHttps() {
-    if (_link.isNotEmpty) {
-      final uri = Uri.tryParse(_link);
-      return uri != null && (uri.isScheme('http') || uri.isScheme('https'));
-    } else {
-      return true;
-    }
+    final uri = Uri.tryParse(link.trim());
+    if (uri == null || !uri.hasScheme || !uri.isAbsolute) return false;
+
+    final hostParts = uri.host.split('.').where((e) => e.trim().isNotEmpty).toList();
+    if (hostParts.length < 2) return false;
+
+    return true;
   }
 
   onChangeNickname(String nickname) {
@@ -178,7 +170,30 @@ final class EditProfilePresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<Result<String>> onSave() async {
+  Future<bool> onSave() async {
+    if (_preNickname == _nickname &&
+        _preIntroduction == _introduction &&
+        _preLink == _link &&
+        !_compareCoffeeLifeList()) {
+      return false;
+    }
+
+    if (_nickname.length < 2 || _nickname.length > 12) {
+      throw const InvalidNicknameProfileEditException();
+    }
+
+    if (_isNicknameChecking) {
+      throw const NicknameCheckingProfileEditException();
+    }
+
+    if (_isDuplicatingNickname) {
+      throw const DuplicateNicknameProfileEditException();
+    }
+
+    if (!_isValidUrl(_link)) {
+      throw const InvalidUrlException();
+    }
+
     final ProfileUpdateModel profileUpdateModel = ProfileUpdateModel(
       nickname: _preNickname != _nickname ? _nickname : null,
       introduction: _preIntroduction != _introduction ? _introduction : null,
@@ -195,9 +210,9 @@ final class EditProfilePresenter extends Presenter {
           profileUpdateModel: profileUpdateModel,
         ),
       );
-      return Result.success('프로필을 수정했어요.');
+      return true;
     } catch (e) {
-      return Result.error('프로필 수정에 실패했어요.');
+      rethrow;
     }
   }
 }

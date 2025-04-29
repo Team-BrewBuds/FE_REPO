@@ -47,7 +47,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -716,29 +716,6 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             isLeftIcon ? textWidget : iconWidget,
           ],
         ),
-      ),
-    );
-  }
-
-  showSnackBar({required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black90,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
     );
   }

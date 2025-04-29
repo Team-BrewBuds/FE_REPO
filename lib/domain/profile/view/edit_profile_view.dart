@@ -4,14 +4,15 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/profile/image_edit/profile_image_navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/coffee_life_bottom_sheet.dart';
+import 'package:brew_buds/exception/profile_edit_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,7 +36,7 @@ class EditProfileView extends StatefulWidget {
   State<EditProfileView> createState() => _EditProfileViewState();
 }
 
-class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<EditProfileView> {
+class _EditProfileViewState extends State<EditProfileView> {
   late final TextEditingController _nicknameEditingController;
   late final TextEditingController _introductionEditingController;
   late final TextEditingController _linkEditingController;
@@ -89,9 +90,9 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
 
   @override
   Widget build(BuildContext context) {
-    return ThrottleButton(
+    return GestureDetector(
       onTap: () {
-        _unFocus();
+        FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Scaffold(
         appBar: _buildAppBar(),
@@ -127,12 +128,6 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     );
   }
 
-  _unFocus() {
-    if (_nicknameFocusNode.hasFocus) _nicknameFocusNode.unfocus();
-    if (_introductionFocusNode.hasFocus) _introductionFocusNode.unfocus();
-    if (_linkFocusNode.hasFocus) _linkFocusNode.unfocus();
-  }
-
   AppBar _buildAppBar() {
     return AppBar(
       leading: const SizedBox.shrink(),
@@ -165,29 +160,28 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 child: Selector<EditProfilePresenter, bool>(
                     selector: (context, presenter) => presenter.canEdit,
                     builder: (context, canEdit, _) {
-                      return AbsorbPointer(
-                        absorbing: !canEdit,
-                        child: FutureButton<Result<String>, Exception>(
-                          onTap: () => context.read<EditProfilePresenter>().onSave(),
-                          onError: (_) {
-                            showSnackBar(message: '프로필 수정에 실패했어요.');
-                          },
-                          onComplete: (result) {
-                            switch (result) {
-                              case Success<String>():
-                                showSnackBar(message: result.data);
-                                context.pop();
-                              case Error<String>():
-                                showSnackBar(message: result.e);
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Text(
-                              '저장',
-                              style: TextStyles.title02SemiBold.copyWith(
-                                color: canEdit ? ColorStyles.red : ColorStyles.gray30,
-                              ),
+                      return FutureButton<bool, ProfileEditException>(
+                        onTap: () => context.read<EditProfilePresenter>().onSave(),
+                        onError: (exception) {
+                          EventBus.instance.fire(
+                            MessageEvent(
+                              context: context,
+                              message: exception?.toString() ?? '알 수 없는 오류가 발생했어요.',
+                            ),
+                          );
+                        },
+                        onComplete: (result) {
+                          if (result) {
+                            EventBus.instance.fire(MessageEvent(context: context, message: '프로필을 수정했어요.'));
+                            context.pop();
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 8),
+                          child: Text(
+                            '저장',
+                            style: TextStyles.title02SemiBold.copyWith(
+                              color: canEdit ? ColorStyles.red : ColorStyles.gray30,
                             ),
                           ),
                         ),
@@ -419,16 +413,14 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 contentPadding: const EdgeInsets.all(12),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                      color:
-                          linkState.isStartWithHttpOrHttps && linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
+                      color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
                       width: 1),
                   borderRadius: BorderRadius.zero,
                   gapPadding: 0,
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
-                      color:
-                          linkState.isStartWithHttpOrHttps && linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
+                      color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
                       width: 1),
                   borderRadius: BorderRadius.zero,
                   gapPadding: 0,
@@ -456,14 +448,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 context.read<EditProfilePresenter>().onChangeLink(newLink);
               },
             ),
-            if (!linkState.isStartWithHttpOrHttps) ...[
-              const SizedBox(height: 4),
-              Text(
-                '주소는 http:// 또는 https://로 시작해야 합니다.',
-                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
-              ),
-              const SizedBox(height: 20),
-            ] else if (!linkState.isValid) ...[
+            if (!linkState.isValid) ...[
               const SizedBox(height: 4),
               Text(
                 '주소가 유효하지 않습니다.',
@@ -564,6 +549,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   }
 
   _showCoffeeLifeBottomSheet({required List<CoffeeLife> coffeeLifeList}) async {
+    final context = this.context;
     final result = await showBarrierDialog<List<CoffeeLife>>(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -573,7 +559,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         );
       },
     );
-    //수정필요
+
     if (result != null && context.mounted) {
       context.read<EditProfilePresenter>().onChangeSelectedCoffeeLife(result);
     }

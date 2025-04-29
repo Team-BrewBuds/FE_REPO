@@ -27,7 +27,7 @@ final class BlockingUserManagementPresenter extends Presenter {
   }
 
   fetchMoreData() async {
-    if (!_hasNext) return;
+    if (!_hasNext || _isLoading) return;
 
     try {
       _isLoading = true;
@@ -41,7 +41,7 @@ final class BlockingUserManagementPresenter extends Presenter {
       _users.addAll(nextPage.results);
       _hasNext = nextPage.hasNext;
     } catch (e) {
-      return;
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
