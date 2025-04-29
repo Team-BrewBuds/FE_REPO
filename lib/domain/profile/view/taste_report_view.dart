@@ -41,7 +41,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
   };
   final GlobalKey _scrollViewKey = GlobalKey();
   final List<GlobalKey> _keyList = [GlobalKey(), GlobalKey(), GlobalKey(), GlobalKey()];
-  bool _isExpanded = false;
+  final ValueNotifier<bool> _expandedNotifier = ValueNotifier(false);
   late final TabController _tabController;
   late final ScrollController _scrollController;
 
@@ -124,7 +124,12 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                 const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 _buildActivityCalendar(),
                 const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                _buildActivityList(),
+                _buildActivityListTitle(),
+                ValueListenableBuilder(
+                    valueListenable: _expandedNotifier,
+                    builder: (context, isExpanded, child) {
+                      return isExpanded ? _buildActivityList() : const SliverToBoxAdapter();
+                    }),
                 SliverToBoxAdapter(child: Container(height: 8, color: ColorStyles.gray20)),
                 Selector<TasteReportPresenter, RatingDistribution?>(
                   selector: (context, presenter) => presenter.ratingDistribution,
@@ -458,97 +463,107 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     );
   }
 
-  Widget _buildActivityList() {
+  Widget _buildActivityListTitle() {
     return SliverToBoxAdapter(
       child: Container(
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: ColorStyles.gray20)),
         ),
-        child: Selector<TasteReportPresenter, ActivityListState>(
-          selector: (context, presenter) => presenter.activityListState,
-          builder: (context, activityListState, child) {
-            return Column(
-              children: [
-                ThrottleButton(
-                  onTap: () {
-                    _toggleExpanded();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Text(
-                          '${activityListState.currentActivityType} (${activityListState.items.length})',
-                          style: TextStyles.title02Bold,
-                        ),
-                        const Spacer(),
-                        if (_isExpanded)
-                          SvgPicture.asset('assets/icons/up.svg', width: 24, height: 24)
-                        else
-                          SvgPicture.asset('assets/icons/down.svg', width: 24, height: 24)
-                      ],
-                    ),
-                  ),
-                ),
-                if (_isExpanded)
-                  ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: EdgeInsets.zero,
-                    itemCount: activityListState.items.length,
-                    itemBuilder: (context, index) {
-                      final activity = activityListState.items[index];
-                      switch (activity) {
-                        case PostActivityItem():
-                          return ThrottleButton(
-                            onTap: () {
-                              ScreenNavigator.showTastedRecordDetail(context: context, id: activity.id);
-                            },
-                            child: ProfilePostItemWidget(
-                              title: activity.title,
-                              author: activity.author,
-                              createdAt: activity.createdAt,
-                              subject: activity.subject,
-                            ),
-                          );
-                        case TastedRecordActivityItem():
-                          return ThrottleButton(
-                            onTap: () {
-                              ScreenNavigator.showTastedRecordDetail(context: context, id: activity.id);
-                            },
-                            child: SavedTastingRecordWidget(
-                              beanName: activity.beanName,
-                              rating: '${activity.rating}',
-                              flavor: activity.flavors,
-                              imageUri: activity.thumbnail,
-                            ),
-                          );
-                        case SavedBeanActivityItem():
-                          return SavedCoffeeBeanWidget(
-                            name: activity.name,
-                            rating: '${activity.rating}',
-                            tastedRecordsCount: 0,
-                            imageUri: '',
-                          );
-                      }
-                    },
-                    separatorBuilder: (context, index) => Container(
-                      height: 1,
-                      color: ColorStyles.gray30,
-                    ),
-                  )
-              ],
-            );
+        child: ThrottleButton(
+          onTap: () {
+            _toggleExpanded();
           },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Builder(builder: (context) {
+                  final currentActivityType = context.select<TasteReportPresenter, String>(
+                    (presenter) => presenter.currentActivityType,
+                  );
+                  final itemsLength = context.select<TasteReportPresenter, int>((presenter) => presenter.itemsLength);
+                  return Text(
+                    '$currentActivityType ($itemsLength)',
+                    style: TextStyles.title02Bold,
+                  );
+                }),
+                const Spacer(),
+                ValueListenableBuilder(
+                  valueListenable: _expandedNotifier,
+                  builder: (context, isExpanded, child) {
+                    if (isExpanded) {
+                      return SvgPicture.asset('assets/icons/up.svg', width: 24, height: 24);
+                    } else {
+                      return SvgPicture.asset('assets/icons/down.svg', width: 24, height: 24);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildActivityList() {
+    return Selector<TasteReportPresenter, List<ActivityItem>>(
+      selector: (context, presenter) => presenter.items,
+      builder: (context, items, child) {
+        return SliverList.separated(
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final activity = items[index];
+            switch (activity) {
+              case PostActivityItem():
+                return ThrottleButton(
+                  onTap: () {
+                    ScreenNavigator.showTastedRecordDetail(context: context, id: activity.id);
+                  },
+                  child: ProfilePostItemWidget(
+                    title: activity.title,
+                    author: activity.author,
+                    createdAt: activity.createdAt,
+                    subject: activity.subject,
+                  ),
+                );
+              case TastedRecordActivityItem():
+                return ThrottleButton(
+                  onTap: () {
+                    ScreenNavigator.showTastedRecordDetail(context: context, id: activity.id);
+                  },
+                  child: SavedTastingRecordWidget(
+                    beanName: activity.beanName,
+                    rating: '${activity.rating}',
+                    flavor: activity.flavors,
+                    imageUri: activity.thumbnail,
+                  ),
+                );
+              case SavedBeanActivityItem():
+                return ThrottleButton(
+                  onTap: () {
+                    ScreenNavigator.showCoffeeBeanDetail(context: context, id: activity.id);
+                  },
+                  child: SavedCoffeeBeanWidget(
+                    name: activity.name,
+                    rating: '${activity.rating}',
+                    tastedRecordsCount: 0,
+                    imageUri: '',
+                  ),
+                );
+            }
+          },
+          separatorBuilder: (context, index) => Container(
+            height: 1,
+            color: ColorStyles.gray30,
+          ),
+        );
+      },
+    );
+  }
+
   _toggleExpanded() {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });
+    _expandedNotifier.value = !_expandedNotifier.value;
   }
 
   Widget _buildRatingGraph({required RatingDistribution? ratingDistribution}) {

@@ -68,10 +68,11 @@ final class TasteReportPresenter extends Presenter {
         selectedDay: _selectedDay,
       );
 
-  ActivityListState get activityListState => (
-        currentActivityType: ActivityType.values[_activityTypeIndex].toString(),
-        items: _activityItems[_selectedDay.toDefaultString()] ?? [],
-      );
+  String get currentActivityType => ActivityType.values[_activityTypeIndex].toString();
+
+  int get itemsLength => (_activityItems[_selectedDay.toDefaultString()] ?? []).length;
+
+  List<ActivityItem> get items => List.unmodifiable(_activityItems[_selectedDay.toDefaultString()] ?? []);
 
   RatingDistribution? get ratingDistribution => _ratingDistribution;
 

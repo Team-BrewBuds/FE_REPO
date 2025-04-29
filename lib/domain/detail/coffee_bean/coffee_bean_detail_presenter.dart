@@ -32,11 +32,14 @@ final class CoffeeBeanDetailPresenter extends Presenter {
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
   final int id;
   late final StreamSubscription _coffeeBeanSub;
+  bool _isLoading = false;
   bool _isEmpty = false;
   CoffeeBeanDetail? _coffeeBeanDetail;
   List<RecommendedCoffeeBean> _recommendedCoffeeBeanList = [];
 
   bool get isEmpty => _isEmpty;
+
+  bool get isLoading => _isLoading;
 
   String get name => _coffeeBeanDetail?.name ?? '';
 
@@ -86,9 +89,17 @@ final class CoffeeBeanDetailPresenter extends Presenter {
     }
   }
 
-  initState() {
-    fetchCoffeeBean();
-    fetchRecommendedCoffeeBeans();
+  initState() async {
+    _isLoading = true;
+    notifyListeners();
+
+    await Future.wait([
+      fetchCoffeeBean(),
+      fetchRecommendedCoffeeBeans(),
+    ]);
+
+    _isLoading = false;
+    notifyListeners();
   }
 
   @override
@@ -97,12 +108,20 @@ final class CoffeeBeanDetailPresenter extends Presenter {
     super.dispose();
   }
 
-  refresh() {
-    fetchCoffeeBean();
-    fetchRecommendedCoffeeBeans();
+  refresh() async {
+    _isLoading = true;
+    notifyListeners();
+
+    await Future.wait([
+      fetchCoffeeBean(),
+      fetchRecommendedCoffeeBeans(),
+    ]);
+
+    _isLoading = false;
+    notifyListeners();
   }
 
-  fetchCoffeeBean() async {
+  Future<void> fetchCoffeeBean() async {
     _coffeeBeanDetail = await _coffeeBeanRepository
         .fetchCoffeeBeanDetail(id: id)
         .then((value) => Future<CoffeeBeanDetail?>.value(value))
@@ -110,12 +129,10 @@ final class CoffeeBeanDetailPresenter extends Presenter {
     if (_coffeeBeanDetail == null) {
       _isEmpty = true;
     }
-    notifyListeners();
   }
 
-  fetchRecommendedCoffeeBeans() async {
+  Future<void> fetchRecommendedCoffeeBeans() async {
     _recommendedCoffeeBeanList = List.from(await _coffeeBeanRepository.fetchRecommendedCoffeeBean());
-    notifyListeners();
   }
 
   Future<void> onTapSave() {
