@@ -18,6 +18,7 @@ import 'package:brew_buds/domain/profile/presenter/tasted_report_presenter.dart'
 import 'package:brew_buds/domain/profile/view/edit_profile_view.dart';
 import 'package:brew_buds/domain/profile/view/profile_view.dart';
 import 'package:brew_buds/domain/profile/view/taste_report_view.dart';
+import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
@@ -337,6 +338,12 @@ final class ScreenNavigator {
           );
         },
       ),
+    );
+  }
+
+  static Future<void> pushToReportScreen(BuildContext context, {required int id, required String type}) {
+    return Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (context) => ReportScreen.buildWithPresenter(id: id, type: type)),
     );
   }
 }

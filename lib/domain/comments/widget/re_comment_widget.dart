@@ -4,7 +4,6 @@ import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/comments/widget/re_comment_presenter.dart';
-import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -69,7 +68,7 @@ class ReCommentWidget extends StatelessWidget {
                 child: ThrottleButton(
                   onTap: () {
                     final id = context.read<ReCommentPresenter>().id;
-                    pushToReportScreen(context, id: id, type: 'comment');
+                    ScreenNavigator.pushToReportScreen(context, id: id, type: 'comment');
                   },
                   child: Container(
                     color: ColorStyles.gray30,

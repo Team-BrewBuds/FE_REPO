@@ -20,7 +20,6 @@ import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
-import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
@@ -366,7 +365,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     break;
                   case TastedRecordDetailAction.report:
                     final id = context.read<TastedRecordPresenter>().id;
-                    pushToReportScreen(context, id: id, type: 'tasted_record');
+                    ScreenNavigator.pushToReportScreen(context, id: id, type: 'tasted_record');
                   default:
                     return;
                 }

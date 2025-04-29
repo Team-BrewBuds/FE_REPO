@@ -1,25 +1,24 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/report/report_presenter.dart';
+import 'package:brew_buds/exception/report_exception.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-Future<String?> pushToReportScreen(BuildContext context, {required int id, required String type}) {
-  return Navigator.of(context).push<String>(
-    MaterialPageRoute(
-      builder: (context) => ChangeNotifierProvider(
-        create: (_) => ReportPresenter(id: id, type: type),
-        child: const ReportScreen(),
-      ),
-    ),
-  );
-}
-
 class ReportScreen extends StatelessWidget {
+  static Widget buildWithPresenter({required int id, required String type}) {
+    return ChangeNotifierProvider(
+      create: (_) => ReportPresenter(id: id, type: type),
+      child: const ReportScreen(),
+    );
+  }
+
   const ReportScreen({super.key});
 
   @override
@@ -118,18 +117,14 @@ class ReportScreen extends StatelessWidget {
       padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
       child: AbsorbPointer(
         absorbing: !canReport,
-        child: ThrottleButton(
-          onTap: () {
-            context.read<ReportPresenter>().report().then((result) {
-              //수정필요
-              switch (result) {
-                case Success<String>():
-                  Navigator.of(context).pop(result.data);
-                  break;
-                case Error<String>():
-                  _showSnackBar(context, message: result.e);
-              }
-            });
+        child: FutureButton<void, ReportException>(
+          onTap: () => context.read<ReportPresenter>().report(),
+          onComplete: (_) {
+            Navigator.of(context).pop();
+            EventBus.instance.fire(const MessageEvent(message: '신고를 완료했어요.'));
+          },
+          onError: (exception) {
+            EventBus.instance.fire(MessageEvent(message: exception?.message ?? '알 수 없는 오류가 발생했어요.'));
           },
           child: Container(
             width: double.infinity,
@@ -144,29 +139,6 @@ class ReportScreen extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  _showSnackBar(BuildContext context, {required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black90,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
     );
   }

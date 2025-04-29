@@ -20,7 +20,6 @@ import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
-import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -290,7 +289,7 @@ class _PostDetailViewState extends State<PostDetailView>
                     break;
                   case PostDetailAction.report:
                     final id = context.read<PostDetailPresenter>().id;
-                    pushToReportScreen(context, id: id, type: 'post');
+                    ScreenNavigator.pushToReportScreen(context, id: id, type: 'post');
                   default:
                     return;
                 }

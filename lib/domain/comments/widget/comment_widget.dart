@@ -6,7 +6,6 @@ import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/re_comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/re_comment_widget.dart';
-import 'package:brew_buds/domain/report/report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -140,7 +139,7 @@ class CommentWidget extends StatelessWidget {
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
-                    pushToReportScreen(context, id: context.read<CommentPresenter>().id, type: 'comment');
+                    ScreenNavigator.pushToReportScreen(context, id: context.read<CommentPresenter>().id, type: 'comment');
                   },
                   child: Container(
                     color: ColorStyles.gray30,
