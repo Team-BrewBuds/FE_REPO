@@ -31,7 +31,7 @@ class _FollowerListPAState extends State<FollowerListPA> {
   void initState() {
     scrollController = ScrollController();
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {

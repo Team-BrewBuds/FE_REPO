@@ -31,7 +31,7 @@ class _FollowerListPBState extends State<FollowerListPB> {
   void initState() {
     scrollController = ScrollController();
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {

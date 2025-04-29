@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/coffee_bean_detail_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_presenter.dart';
 import 'package:brew_buds/domain/detail/coffee_bean/tasted_record_in_coffee_bean_list_screen.dart';
@@ -42,7 +42,7 @@ class CoffeeBeanDetailScreen extends StatefulWidget {
   State<CoffeeBeanDetailScreen> createState() => _CoffeeBeanDetailScreenState();
 }
 
-class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with SnackBarMixin<CoffeeBeanDetailScreen> {
+class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Selector<CoffeeBeanDetailPresenter, bool>(
@@ -203,12 +203,8 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> with Sn
           children: [
             Expanded(
               flex: 1,
-              child: ThrottleButton(
-                onTap: () {
-                  context.read<CoffeeBeanDetailPresenter>().onTapSave().then((_) {
-                    showSnackBar(message: isSaved ? '저장된 원두정보를 삭제했어요.' : '원두 정보를 저장했어요.');
-                  });
-                },
+              child: FutureButton(
+                onTap: () => context.read<CoffeeBeanDetailPresenter>().onTapSave(),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
                   decoration: const BoxDecoration(

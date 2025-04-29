@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -74,14 +75,12 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
             ),
             Positioned(
               left: 0,
-              child: ThrottleButton(
-                onTap: () {
-                  //수정 필요
-                  showCancelDialog().then((value) {
-                    if (value != null && value) {
-                      context.pop(false);
-                    }
-                  });
+              child: FutureButton<bool?, Exception>(
+                onTap: () => showCancelDialog(),
+                onComplete: (result) {
+                  if (result != null && result) {
+                    context.pop();
+                  }
                 },
                 child: SvgPicture.asset(
                   'assets/icons/x.svg',
@@ -127,11 +126,12 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
                   ? Stack(
                       children: [
                         Positioned.fill(
-                            child: MyNetworkImage(
-                          imageUrl: images.first,
-                          height: 80,
-                          width: 80,
-                        )),
+                          child: MyNetworkImage(
+                            imageUrl: images.first,
+                            height: 80,
+                            width: 80,
+                          ),
+                        ),
                         if (images.length > 1)
                           Positioned(
                             right: 6,

@@ -4,11 +4,11 @@ import 'dart:typed_data';
 import 'package:brew_buds/common/extension/date_time_ext.dart';
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_extraction.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/coffee_bean_processing.dart';
+import 'package:brew_buds/exception/tasted_record_exception.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
@@ -92,7 +92,15 @@ final class TastedRecordWritePresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<Result<String>> write() async {
+  Future<void> write() async {
+    final List<int> imageCreatedResult;
+    try {
+      imageCreatedResult = await _uploadImages();
+      if (imageCreatedResult.isEmpty) throw const ImageUploadFailedException();
+    } catch (e) {
+      throw const ImageUploadFailedException();
+    }
+
     final extraction = _coffeeBeanExtraction;
     switch (extraction) {
       case CoffeeBeanExtraction.writtenByUser:
@@ -114,30 +122,34 @@ final class TastedRecordWritePresenter extends Presenter {
         .whereType<String>()
         .toList();
     _coffeeBean = _coffeeBean.copyWith(process: processing);
-    final List<int> imageCreatedResult = await _uploadImages();
-    if (imageCreatedResult.isEmpty) return Result.error('사진 등록 실패.');
 
-    return _tastedRecordRepository
-        .create(
-          content: _contents,
-          isPrivate: false,
-          tag: _hashTag,
-          coffeeBean: _coffeeBean,
-          tasteReview: _tasteReview,
-          photos: imageCreatedResult,
-        )
-        .then((value) => Result.success('시음기록 작성 성공'))
-        .onError((error, stackTrace) => Result.error('시음기록 작성에 실패했습니다.'));
+    try {
+      await _tastedRecordRepository
+          .create(
+        content: _contents,
+        isPrivate: false,
+        tag: _hashTag,
+        coffeeBean: _coffeeBean,
+        tasteReview: _tasteReview,
+        photos: imageCreatedResult,
+      );
+    } catch (e) {
+      throw const TastingRecordWriteFailedException();
+    }
   }
 
   Future<List<int>> _uploadImages() async {
-    final compressedImageDataList = await Future.wait(imageData.map((data) => compressList(data)));
-    return photoApi.createPhotos(imageDataList: compressedImageDataList).then(
-      (jsonString) {
-        final jsonList = jsonDecode(jsonString) as List<dynamic>;
-        return jsonList.map((json) => json['id'] as int).toList();
-      },
-    ).onError((error, stackTrace) => []);
+    try {
+      final compressedImageDataList = await Future.wait(imageData.map((data) => compressList(data)));
+      return photoApi.createPhotos(imageDataList: compressedImageDataList).then(
+        (jsonString) {
+          final jsonList = jsonDecode(jsonString) as List<dynamic>;
+          return jsonList.map((json) => json['id'] as int).toList();
+        },
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 
   onDeleteBeanName() {

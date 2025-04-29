@@ -1,20 +1,21 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/date_picker_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_view.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
+import 'package:brew_buds/exception/tasted_record_exception.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 
 class TastedRecordWriteLastScreen extends StatefulWidget {
@@ -25,7 +26,7 @@ class TastedRecordWriteLastScreen extends StatefulWidget {
 }
 
 class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScreen>
-    with TastedRecordWriteMixin<TastedRecordWriteLastScreen>, SnackBarMixin<TastedRecordWriteLastScreen> {
+    with TastedRecordWriteMixin<TastedRecordWriteLastScreen> {
   final TextEditingController _contentsController = TextEditingController();
   final TextEditingController _hashTagController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
@@ -147,18 +148,14 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
               builder: (context, isValidLastPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidLastPage,
-                  child: ThrottleButton(
-                    onTap: () async {
-                      final result = await context.read<TastedRecordWritePresenter>().write();
-                      switch (result) {
-                        case Success<String>():
-                          NotificationCenter().notify<String>('show_message', data: '시음기록 작성을 완료했어요.');
-                          _onSuccessWrite();
-                          break;
-                        case Error<String>():
-                          showSnackBar(message: result.e);
-                          break;
-                      }
+                  child: FutureButton<void, TastedRecordException>(
+                    onTap: () async => context.read<TastedRecordWritePresenter>().write(),
+                    onError: (exception) {
+                      EventBus.instance.fire(MessageEvent(message: exception.toString()));
+                    },
+                    onComplete: (_) {
+                      EventBus.instance.fire(const MessageEvent(message: '시음기록 작성을 완료했어요.'));
+                      context.pop();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -451,10 +448,6 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
 
   _onChangeTastedTime(DateTime dateTime) {
     context.read<TastedRecordWritePresenter>().onChangeTastedAt(dateTime);
-  }
-
-  _onSuccessWrite() {
-    context.pop();
   }
 }
 

@@ -2,7 +2,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_post.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_post_presenter.dart';
 import 'package:brew_buds/domain/home/popular_posts/popular_posts_presenter.dart';
@@ -18,7 +17,7 @@ class PopularPostsView extends StatefulWidget {
   State<PopularPostsView> createState() => _PopularPostsViewState();
 }
 
-class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<PopularPostsView> {
+class _PopularPostsViewState extends State<PopularPostsView> {
   late final Throttle<void> pageNationThrottle;
   late final ScrollController scrollController;
 

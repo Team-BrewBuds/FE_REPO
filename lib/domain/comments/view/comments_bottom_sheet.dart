@@ -5,7 +5,6 @@ import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/comments/presenter/comments_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
@@ -53,7 +52,7 @@ class CommentsBottomSheet extends StatefulWidget {
 }
 
 class _CommentsBottomSheetState extends State<CommentsBottomSheet>
-    with SnackBarMixin<CommentsBottomSheet>, ResizableBottomSheetMixin<CommentsBottomSheet>, TickerProviderStateMixin {
+    with ResizableBottomSheetMixin<CommentsBottomSheet>, TickerProviderStateMixin {
   late final SlidableController slidableController;
   late final Throttle<void> paginationThrottle;
   late final TextEditingController _textEditingController;

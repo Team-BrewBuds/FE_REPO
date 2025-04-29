@@ -1,6 +1,8 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/event_bus.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -54,50 +56,58 @@ class TasteBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              height: MediaQuery.of(context).size.height - 75,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-              ),
-              child: SafeArea(
-                top: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _buildAppBar(context),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: ValueListenableBuilder(
-                          valueListenable: tasteListNotifier,
-                          builder: (context, tasteList, child) => _buildTaste(context, tasteList),
+    return GestureDetector(
+      onTap: () {
+        context.pop();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  height: MediaQuery.of(context).size.height - 75,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildAppBar(context),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: ValueListenableBuilder(
+                              valueListenable: tasteListNotifier,
+                              builder: (context, tasteList, child) => _buildTaste(context, tasteList),
+                            ),
+                          ),
                         ),
-                      ),
+                        ValueListenableBuilder(
+                          valueListenable: tasteListNotifier,
+                          builder: (context, tasteList, child) {
+                            return tasteList.isNotEmpty ? _buildSelectedTasteList(tasteList) : const SizedBox.shrink();
+                          },
+                        ),
+                        _buildBottomButtons(context),
+                      ],
                     ),
-                    ValueListenableBuilder(
-                      valueListenable: tasteListNotifier,
-                      builder: (context, tasteList, child) {
-                        return tasteList.isNotEmpty ? _buildSelectedTasteList(tasteList) : const SizedBox.shrink();
-                      },
-                    ),
-                    _buildBottomButtons(context),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -153,7 +163,7 @@ class TasteBottomSheet extends StatelessWidget {
                               if (selectedTaste.length < 4) {
                                 tasteListNotifier.value = List.from(tasteListNotifier.value)..add(valueString);
                               } else {
-                                showLimitErrorSnackBar(context);
+                                EventBus.instance.fire(const MessageEvent(message: '맛은 최대 4개만 선택할 수 있습니다.'));
                               }
                             }
                           },
@@ -275,26 +285,6 @@ class TasteBottomSheet extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  showLimitErrorSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: const BoxDecoration(color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(4))),
-          child: Center(
-            child: Text(
-              '맛은 최대 4개만 선택할 수 있습니다.',
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
@@ -22,7 +21,7 @@ class SignupScreen extends StatefulWidget {
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   onPop() {
     final pageIndex = widget.navigationShell.currentIndex;
     if (pageIndex == 0) {

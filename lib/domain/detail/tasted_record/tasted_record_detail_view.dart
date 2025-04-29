@@ -14,7 +14,6 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
@@ -59,7 +58,7 @@ class TastedRecordDetailView extends StatefulWidget {
 }
 
 class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
-    with SnackBarMixin<TastedRecordDetailView>, CenterDialogMixin<TastedRecordDetailView> {
+    with CenterDialogMixin<TastedRecordDetailView> {
   late final Throttle paginationThrottle;
   late final FocusNode _focusNode;
   late final TextEditingController _textEditingController;
@@ -69,7 +68,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -323,7 +322,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     final tastedRecord = context.read<TastedRecordPresenter>().tastedRecord;
                     if (tastedRecord != null) {
                       ScreenNavigator.showTastedRecordUpdateScreen(
-                          context: context, tastedRecord: tastedRecord.copyWith());
+                        context: context,
+                        tastedRecord: tastedRecord.copyWith(),
+                      );
                     }
                     break;
                   case TastedRecordDetailAction.delete:
@@ -337,11 +338,11 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                             final context = this.context;
                             await context.read<TastedRecordPresenter>().onDelete();
                             if (context.mounted) {
-                              showSnackBar(message: '해당 시음기록을 삭제했어요.');
+                              EventBus.instance.fire(const MessageEvent(message: '해당 시음기록을 삭제했어요.'));
                               context.pop();
                             }
                           } catch (e) {
-                            showSnackBar(message: '시음기록 삭제에 실패했어요.');
+                            EventBus.instance.fire(const MessageEvent(message: '시음기록 삭제에 실패했어요.'));
                           }
                         });
                     break;
@@ -357,9 +358,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         if (nickname != null) {
                           try {
                             await context.read<TastedRecordPresenter>().onBlock();
-                            showSnackBar(message: '$nickname님을 차단했어요.');
+                            EventBus.instance.fire(MessageEvent(message: '$nickname님을 차단했어요.'));
                           } catch (e) {
-                            showSnackBar(message: '$nickname님 차단에 실패했어요.');
+                            EventBus.instance.fire(MessageEvent(message: '$nickname님 차단에 실패했어요.'));
                           }
                         }
                       },

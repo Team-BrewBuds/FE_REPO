@@ -2,11 +2,14 @@ import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_post/coffee_note_post_exception.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_update_presenter.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -85,81 +88,92 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Selector<PostUpdatePresenter, PostSubject>(
-                    selector: (context, presenter) => presenter.subject,
-                    builder: (context, subject, child) {
-                      return _buildSubjectSelector(subject: subject);
-                    }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildTitleTextField(),
-                ),
-                const SizedBox(height: 14),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 100),
-                    child: _buildContentTextField(),
+      child: Builder(
+        builder: (context) {
+          final isLoading = context.select<PostUpdatePresenter, bool>((presenter) => presenter.isLoading);
+          return Stack(
+            children: [
+              Scaffold(
+                appBar: _buildAppBar(),
+                body: SafeArea(
+                  top: false,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Selector<PostUpdatePresenter, PostSubject>(
+                            selector: (context, presenter) => presenter.subject,
+                            builder: (context, subject, child) {
+                              return _buildSubjectSelector(subject: subject);
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildTitleTextField(),
+                        ),
+                        const SizedBox(height: 14),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 100),
+                            child: _buildContentTextField(),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildTagTextField(),
+                        ),
+                        Selector<PostUpdatePresenter, ImageListViewState>(
+                          selector: (context, presenter) => presenter.imageListViewState,
+                          builder: (context, imageListViewState, _) {
+                            if (imageListViewState.images.isNotEmpty) {
+                              return _buildAttachedContent(
+                                itemLength: imageListViewState.images.length,
+                                itemBuilder: (index) {
+                                  final image = imageListViewState.images[index];
+                                  return _buildGridItem(
+                                    imageWidget: ExtendedImage.network(
+                                      image,
+                                      fit: BoxFit.cover,
+                                      border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                    ),
+                                    isRepresentative: index == 0,
+                                  );
+                                },
+                              );
+                            } else if (imageListViewState.tastedRecords.isNotEmpty) {
+                              return _buildAttachedContent(
+                                itemLength: imageListViewState.tastedRecords.length,
+                                itemBuilder: (index) {
+                                  final tastedRecord = imageListViewState.tastedRecords[index];
+                                  return _buildGridItem(
+                                    imageWidget: ExtendedImage.network(
+                                      tastedRecord.thumbnailUrl,
+                                      fit: BoxFit.cover,
+                                      border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                    ),
+                                    isRepresentative: index == 0,
+                                  );
+                                },
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildTagTextField(),
-                ),
-                Selector<PostUpdatePresenter, ImageListViewState>(
-                  selector: (context, presenter) => presenter.imageListViewState,
-                  builder: (context, imageListViewState, _) {
-                    if (imageListViewState.images.isNotEmpty) {
-                      return _buildAttachedContent(
-                        itemLength: imageListViewState.images.length,
-                        itemBuilder: (index) {
-                          final image = imageListViewState.images[index];
-                          return _buildGridItem(
-                            imageWidget: ExtendedImage.network(
-                              image,
-                              fit: BoxFit.cover,
-                              border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
-                            ),
-                            isRepresentative: index == 0,
-                          );
-                        },
-                      );
-                    } else if (imageListViewState.tastedRecords.isNotEmpty) {
-                      return _buildAttachedContent(
-                        itemLength: imageListViewState.tastedRecords.length,
-                        itemBuilder: (index) {
-                          final tastedRecord = imageListViewState.tastedRecords[index];
-                          return _buildGridItem(
-                            imageWidget: ExtendedImage.network(
-                              tastedRecord.thumbnailUrl,
-                              fit: BoxFit.cover,
-                              border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
-                            ),
-                            isRepresentative: index == 0,
-                          );
-                        },
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
+              if (isLoading)
+                const Positioned.fill(child: LoadingBarrier()),
+            ],
+          );
+        }
       ),
     );
   }
@@ -215,13 +229,13 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                     onTap: () => context.read<PostUpdatePresenter>().update(),
                     onError: (exception) {
                       if (exception != null) {
-                        _showSnackBar(message: exception.message);
+                        EventBus.instance.fire(MessageEvent(message: exception.message));
                       } else {
-                        _showSnackBar(message: '알 수 없는 오류로 게시글 수정에 실패했어요.');
+                        EventBus.instance.fire(const MessageEvent(message: '알 수 없는 오류로 게시글 수정에 실패했어요.'));
                       }
                     },
                     onComplete: (_) {
-                      _showSnackBar(message: '게시글을 수정했어요.');
+                      EventBus.instance.fire(const MessageEvent(message: '게시글을 수정했어요.'));
                       context.pop();
                     },
                     child: Container(
@@ -486,26 +500,6 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
 
   _onSelectedSubject(PostSubject subject) {
     context.read<PostUpdatePresenter>().onChangeSubject(subject);
-  }
-
-  _showSnackBar({required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: const BoxDecoration(color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(4))),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-    );
   }
 }
 

@@ -14,7 +14,6 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
@@ -59,8 +58,7 @@ class PostDetailView extends StatefulWidget {
   State<PostDetailView> createState() => _PostDetailViewState();
 }
 
-class _PostDetailViewState extends State<PostDetailView>
-    with SnackBarMixin<PostDetailView>, CenterDialogMixin<PostDetailView> {
+class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<PostDetailView> {
   late final Throttle paginationThrottle;
   late final FocusNode _focusNode;
   late final TextEditingController _textEditingController;
@@ -261,11 +259,11 @@ class _PostDetailViewState extends State<PostDetailView>
                             final context = this.context;
                             await context.read<PostDetailPresenter>().onDelete();
                             if (context.mounted) {
-                              showSnackBar(message: '해당 게시글을 삭제했어요.');
+                              EventBus.instance.fire(const MessageEvent(message: '해당 게시글을 삭제했어요.'));
                               context.pop();
                             }
                           } catch (e) {
-                            showSnackBar(message: '게시글 삭제에 실패했어요.');
+                            EventBus.instance.fire(const MessageEvent(message: '게시글 삭제에 실패했어요.'));
                           }
                         });
                     break;
@@ -281,9 +279,9 @@ class _PostDetailViewState extends State<PostDetailView>
                         if (nickname != null) {
                           try {
                             await context.read<PostDetailPresenter>().onBlock();
-                            showSnackBar(message: '$nickname님을 차단했어요.');
+                            EventBus.instance.fire(MessageEvent(message: '$nickname님을 차단했어요.'));
                           } catch (e) {
-                            showSnackBar(message: '$nickname님 차단에 실패했어요.');
+                            EventBus.instance.fire(MessageEvent(message: '$nickname님 차단에 실패했어요.'));
                           }
                         }
                       },

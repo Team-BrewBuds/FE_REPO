@@ -101,6 +101,7 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        resizeToAvoidBottomInset: false,
         body: Stack(
           children: [
             Positioned(

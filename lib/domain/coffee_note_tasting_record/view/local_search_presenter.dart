@@ -10,11 +10,16 @@ final class LocalSearchPresenter extends Presenter {
   String _y = '';
   int _pageNo = 1;
   bool _hasNext = true;
+  bool _isLoading = false;
 
   List<Local> get localList => List.unmodifiable(_localList);
 
+  bool get hasNext => _hasNext && _localList.isNotEmpty;
+
   fetchMoreData() async {
-    if (_hasNext) {
+    if (_hasNext && !_isLoading) {
+      _isLoading = true;
+
       final newPage = await _tastedRecordRepository.fetchLocal(
         word: _searchWord,
         pageNo: _pageNo,
@@ -24,6 +29,7 @@ final class LocalSearchPresenter extends Presenter {
       _localList.addAll(newPage.results);
       _hasNext = newPage.hasNext;
       _pageNo++;
+      _isLoading = false;
       notifyListeners();
     }
   }

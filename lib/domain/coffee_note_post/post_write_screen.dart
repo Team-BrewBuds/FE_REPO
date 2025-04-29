@@ -1,13 +1,16 @@
 import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_post/image/post_image_navigator.dart';
 import 'package:brew_buds/domain/coffee_note_post/post_write_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_view.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
@@ -16,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notification_center/notification_center.dart';
 import 'package:provider/provider.dart';
 
 typedef SelectedItemsState = ({List<Photo> photos, List<TastedRecordInProfile> tastedRecords});
@@ -81,110 +83,121 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Scaffold(
-        appBar: _buildAppBar(),
-        body: SafeArea(
-          top: false,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Selector<PostWritePresenter, PostSubject?>(
-                    selector: (context, presenter) => presenter.subject,
-                    builder: (context, subject, child) {
-                      return _buildSubjectSelector(subject: subject);
-                    }),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildTitleTextField(),
-                ),
-                const SizedBox(height: 14),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 100),
-                    child: _buildContentTextField(),
+      child: Builder(
+        builder: (context) {
+          final isLoading = context.select<PostWritePresenter, bool>((presenter) => presenter.isLoading);
+          return Stack(
+            children: [
+              Scaffold(
+                appBar: _buildAppBar(),
+                body: SafeArea(
+                  top: false,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Selector<PostWritePresenter, PostSubject?>(
+                            selector: (context, presenter) => presenter.subject,
+                            builder: (context, subject, child) {
+                              return _buildSubjectSelector(subject: subject);
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildTitleTextField(),
+                        ),
+                        const SizedBox(height: 14),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 100),
+                            child: _buildContentTextField(),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildTagTextField(),
+                        ),
+                        Selector<PostWritePresenter, ImageListViewState>(
+                          selector: (context, presenter) => presenter.imageListViewState,
+                          builder: (context, imageListViewState, _) {
+                            if (imageListViewState.images.isNotEmpty) {
+                              return _buildAttachedContent(
+                                itemLength: imageListViewState.images.length,
+                                itemBuilder: (index) {
+                                  final photo = imageListViewState.images[index];
+                                  return _buildGridItem(
+                                    imageWidget: switch (photo) {
+                                      PhotoWithUrl() => ExtendedImage.network(
+                                          photo.url,
+                                          fit: BoxFit.cover,
+                                          border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                          printError: false,
+                                        ),
+                                      PhotoWithData() => ExtendedImage.memory(
+                                          photo.data,
+                                          fit: BoxFit.cover,
+                                          border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                        ),
+                                    },
+                                    isRepresentative: index == 0,
+                                    onDeleteTap: () {
+                                      context.read<PostWritePresenter>().onDeleteImageAt(index);
+                                    },
+                                  );
+                                },
+                              );
+                            } else if (imageListViewState.tastedRecords.isNotEmpty) {
+                              return _buildAttachedContent(
+                                itemLength: imageListViewState.tastedRecords.length,
+                                itemBuilder: (index) {
+                                  final tastedRecord = imageListViewState.tastedRecords[index];
+                                  return _buildGridItem(
+                                    imageWidget: ExtendedImage.network(
+                                      tastedRecord.imageUrl,
+                                      fit: BoxFit.cover,
+                                      border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                      borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                    ),
+                                    isRepresentative: index == 0,
+                                    onDeleteTap: () {
+                                      context.read<PostWritePresenter>().onDeleteTastedRecordAt(index);
+                                    },
+                                  );
+                                },
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: _buildTagTextField(),
+                bottomNavigationBar: SafeArea(
+                  child: Padding(
+                    padding: MediaQuery.of(context).viewInsets,
+                    child: Selector<PostWritePresenter, BottomButtonState>(
+                      selector: (context, presenter) => presenter.bottomsButtonState,
+                      builder: (context, bottomsButtonState, _) {
+                        return _buildBottomButtons(
+                          hasImages: bottomsButtonState.hasImages,
+                          tastedRecords: bottomsButtonState.tastedRecords,
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                Selector<PostWritePresenter, ImageListViewState>(
-                  selector: (context, presenter) => presenter.imageListViewState,
-                  builder: (context, imageListViewState, _) {
-                    if (imageListViewState.images.isNotEmpty) {
-                      return _buildAttachedContent(
-                        itemLength: imageListViewState.images.length,
-                        itemBuilder: (index) {
-                          final photo = imageListViewState.images[index];
-                          return _buildGridItem(
-                            imageWidget: switch (photo) {
-                              PhotoWithUrl() => ExtendedImage.network(
-                                  photo.url,
-                                  fit: BoxFit.cover,
-                                  border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                  printError: false,
-                                ),
-                              PhotoWithData() => ExtendedImage.memory(
-                                  photo.data,
-                                  fit: BoxFit.cover,
-                                  border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                ),
-                            },
-                            isRepresentative: index == 0,
-                            onDeleteTap: () {
-                              context.read<PostWritePresenter>().onDeleteImageAt(index);
-                            },
-                          );
-                        },
-                      );
-                    } else if (imageListViewState.tastedRecords.isNotEmpty) {
-                      return _buildAttachedContent(
-                        itemLength: imageListViewState.tastedRecords.length,
-                        itemBuilder: (index) {
-                          final tastedRecord = imageListViewState.tastedRecords[index];
-                          return _buildGridItem(
-                            imageWidget: ExtendedImage.network(
-                              tastedRecord.imageUrl,
-                              fit: BoxFit.cover,
-                              border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
-                            ),
-                            isRepresentative: index == 0,
-                            onDeleteTap: () {
-                              context.read<PostWritePresenter>().onDeleteTastedRecordAt(index);
-                            },
-                          );
-                        },
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Selector<PostWritePresenter, BottomButtonState>(
-              selector: (context, presenter) => presenter.bottomsButtonState,
-              builder: (context, bottomsButtonState, _) {
-                return _buildBottomButtons(
-                  hasImages: bottomsButtonState.hasImages,
-                  tastedRecords: bottomsButtonState.tastedRecords,
-                );
-              },
-            ),
-          ),
-        ),
+              ),
+              if (isLoading)
+              const Positioned.fill(child: LoadingBarrier()),
+            ],
+          );
+        }
       ),
     );
   }
@@ -237,40 +250,33 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
             Positioned(
               right: 0,
               child: Selector<PostWritePresenter, AppBarState>(
-                  selector: (context, presenter) => presenter.appBarState,
-                  builder: (context, state, child) {
-                    return ThrottleButton(
-                      onTap: () async {
-                        if (state.isValid) {
-                          final result = await context.read<PostWritePresenter>().write();
-                          if (context.mounted) {
-                            switch (result) {
-                              case Success<String>():
-                                NotificationCenter().notify<String>('show_message', data: '게시글 작성을 완료했어요.');
-                                context.pop();
-                              case Error<String>():
-                                _showErrorSnackBar(errorMessage: result.e);
-                            }
-                          }
-                        } else {
-                          _showErrorSnackBar(errorMessage: state.errorMessage);
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: state.isValid ? ColorStyles.red : ColorStyles.gray20,
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        ),
-                        child: Text(
-                          '완료',
-                          style: TextStyles.labelSmallMedium.copyWith(
-                            color: state.isValid ? ColorStyles.white : ColorStyles.gray40,
-                          ),
+                selector: (context, presenter) => presenter.appBarState,
+                builder: (context, state, child) {
+                  return FutureButton(
+                    onTap: () async => context.read<PostWritePresenter>().write(),
+                    onError: (exception) {
+                      EventBus.instance.fire(MessageEvent(message: exception.toString()));
+                    },
+                    onComplete: (_) {
+                      EventBus.instance.fire(const MessageEvent(message: '게시글 작성을 완료했어요.'));
+                      context.pop();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: state.isValid ? ColorStyles.red : ColorStyles.gray20,
+                        borderRadius: const BorderRadius.all(Radius.circular(20)),
+                      ),
+                      child: Text(
+                        '완료',
+                        style: TextStyles.labelSmallMedium.copyWith(
+                          color: state.isValid ? ColorStyles.white : ColorStyles.gray40,
                         ),
                       ),
-                    );
-                  }),
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -463,7 +469,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
               if (!hasTastedRecords) {
                 _fetchImagesAtAlbum();
               } else {
-                _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
+                EventBus.instance.fire(const MessageEvent(message: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.'));
               }
             },
             child: Column(
@@ -484,7 +490,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
               if (!hasImages) {
                 _fetchTastedRecords(tastedRecords: tastedRecords);
               } else {
-                _showErrorSnackBar(errorMessage: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
+                EventBus.instance.fire(const MessageEvent(message: '사진, 시음기록 중 한 종류만 첨부할 수 있어요.'));
               }
             },
             child: Column(
@@ -534,7 +540,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
 
   _addImages(List<Uint8List> images) async {
     if (!await context.read<PostWritePresenter>().addImages(images)) {
-      _showErrorSnackBar(errorMessage: '이미지는 최대 10개까지 등록 가능합니다.');
+      EventBus.instance.fire(const MessageEvent(message: '이미지는 최대 10개까지 등록 가능합니다.'));
     }
   }
 
@@ -627,30 +633,6 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
 
   _onSelectedSubject(PostSubject subject) {
     context.read<PostWritePresenter>().onChangeSubject(subject);
-  }
-
-  _showErrorSnackBar({required String? errorMessage}) {
-    final message = errorMessage;
-    if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration:
-                const BoxDecoration(color: ColorStyles.black, borderRadius: BorderRadius.all(Radius.circular(4))),
-            child: Center(
-              child: Text(
-                message,
-                style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-              ),
-            ),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
-    }
   }
 }
 

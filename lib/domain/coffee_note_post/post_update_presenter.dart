@@ -51,9 +51,12 @@ final class PostUpdatePresenter extends Presenter {
   Future<void> update() async {
     if (_post.title.length < 2) {
       throw ShortTitleLength();
-    } else if (_post.contents.length < 8) {
+    }
+    if (_post.contents.length < 8) {
       throw ShortContentsLength();
     }
+    if (_isLoading) return;
+
     _isLoading = true;
     notifyListeners();
 

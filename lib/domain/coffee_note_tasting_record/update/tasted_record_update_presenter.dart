@@ -3,6 +3,7 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/model/tasted_record_update_model.dart';
+import 'package:brew_buds/exception/tasted_record_exception.dart';
 import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 
@@ -48,7 +49,7 @@ final class TastedRecordUpdatePresenter extends Presenter {
 
   int get star => _tastedRecord.tastingReview.star.toInt();
 
-  Future<bool> update() async {
+  Future<void> update() async {
     try {
       final updateModel = TastedRecordUpdateModel(
         contents: contents,
@@ -63,9 +64,8 @@ final class TastedRecordUpdatePresenter extends Presenter {
           updateModel: updateModel,
         ),
       );
-      return true;
     } catch (e) {
-      return false;
+      throw const TastingRecordUpdateFailedException();
     }
   }
 

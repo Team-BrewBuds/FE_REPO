@@ -135,11 +135,17 @@ final class CoffeeBeanDetailPresenter extends Presenter {
     _recommendedCoffeeBeanList = List.from(await _coffeeBeanRepository.fetchRecommendedCoffeeBean());
   }
 
-  Future<void> onTapSave() {
-    return _coffeeBeanRepository.save(id: id, isSaved: isSaved).then((_) {
-      _coffeeBeanDetail = _coffeeBeanDetail?.copyWith(isUserNoted: !isSaved);
+  Future<void> onTapSave() async {
+    final isSaved = this.isSaved;
+    _coffeeBeanDetail = _coffeeBeanDetail?.copyWith(isUserNoted: !isSaved);
+    notifyListeners();
+
+    try {
+      await _coffeeBeanRepository.save(id: id, isSaved: isSaved);
+    } catch (e) {
+      _coffeeBeanDetail = _coffeeBeanDetail?.copyWith(isUserNoted: isSaved);
       notifyListeners();
-    });
+    }
   }
 
   String? _roastingPointToString(int? roastingPoint) {

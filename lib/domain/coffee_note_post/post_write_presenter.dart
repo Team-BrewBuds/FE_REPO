@@ -3,9 +3,9 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
+import 'package:brew_buds/exception/post_exception.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
@@ -23,6 +23,9 @@ final class PostWritePresenter extends Presenter {
   String _tag = '';
   List<Photo> _images = [];
   List<TastedRecordInProfile> _tastedRecords = [];
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
 
   List<Photo> get images => _images;
 
@@ -103,7 +106,30 @@ final class PostWritePresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<Result<String>> write() async {
+  Future<void> write() async {
+    if (_isLoading) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    if (_title.length < 2) {
+      _isLoading = false;
+      notifyListeners();
+      throw const InvalidTitleException();
+    }
+
+    if (_content.length < 8) {
+      _isLoading = false;
+      notifyListeners();
+      throw const InvalidContentsException();
+    }
+
+    if (_images.isNotEmpty && _tastedRecords.isNotEmpty) {
+      _isLoading = false;
+      notifyListeners();
+      throw const MultiUploadException();
+    }
+
     final Map<String, dynamic> data = {};
     data['title'] = _title;
     data['content'] = _content;
@@ -111,20 +137,28 @@ final class PostWritePresenter extends Presenter {
     if (subjectKey != null) {
       data['subject'] = subjectKey;
     } else {
-      return Result.error('게시물 주제를 선택해주세요.');
+      _isLoading = false;
+      notifyListeners();
+      throw const EmptySubjectException();
     }
     data['tag'] = _tag;
 
-    if (_images.isNotEmpty && _tastedRecords.isNotEmpty) {
-      return Result.error('사진, 시음기록 중 한 종류만 첨부할 수 있어요.');
-    }
+
 
     if (_images.isNotEmpty) {
-      final List<int> imageCreatedResult = await _uploadImages();
-      if (imageCreatedResult.isNotEmpty) {
-        data['photos'] = imageCreatedResult;
-      } else {
-        return Result.error('사진 등록 실패.');
+      try {
+        final imageCreatedResult = await _uploadImages();
+        if (imageCreatedResult.isNotEmpty) {
+          data['photos'] = imageCreatedResult;
+        } else {
+          _isLoading = false;
+          notifyListeners();
+          throw const ImageUploadFailedException();
+        }
+      } catch (e) {
+        _isLoading = false;
+        notifyListeners();
+        throw const ImageUploadFailedException();
       }
     }
 
@@ -132,10 +166,14 @@ final class PostWritePresenter extends Presenter {
       data['tasted_records'] = _tastedRecords.map((tastedRecord) => tastedRecord.id).toList();
     }
 
-    return postApi
-        .createPost(data: data)
-        .then((_) => Result.success('게시글이 작성되었습니다.'))
-        .onError((error, stackTrace) => Result.error('게시글 작성에 실패했습니다.'));
+    try {
+      await postApi.createPost(data: data);
+    } catch (e) {
+      throw const PostWriteFailedException();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<List<int>> _uploadImages() async {
