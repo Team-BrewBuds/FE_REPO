@@ -5,6 +5,7 @@ import 'package:brew_buds/data/api/duplicated_nickname_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
+import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
@@ -100,13 +101,47 @@ class SignUpPresenter extends Presenter {
     notifyListeners();
   }
 
+  Future<void> isValidAt(int index) {
+    if (index == 0) {
+      if ((_state.nickName?.length ?? 0) < 2 || (_state.nickName?.length ?? 0) > 12) {
+        return Future.error(const InvalidNicknameException());
+      }
+
+      if (_isNicknameChecking) {
+        return Future.error(const NicknameCheckingException());
+      }
+
+      if (_isDuplicatingNickname) {
+        return Future.error(const DuplicateNicknameException());
+      }
+
+      if (_yearOfBirthLength != 4 && !_isValidYearOfBirth) {
+        return Future.error(const InvalidBirthYearException());
+      }
+
+      if (_state.gender == null) {
+        return Future.error(const InvalidGenderSelectionException());
+      }
+    } else if (index == 1) {
+      if (_state.coffeeLifes?.isEmpty ?? true) {
+        return Future.error(const EmptyCoffeeLifeSelectionException());
+      }
+    } else if (index == 2) {
+      if (_state.isCertificated == null) {
+        return Future.error(const InvalidCertificateSelectionException());
+      }
+    }
+
+    return Future.value();
+  }
+
   resetCoffeeLifes() {
     _state = _state.copyWith(coffeeLifes: []);
     notifyListeners();
   }
 
   resetCertificated() {
-    _state = _state.copyWith(isCertificated: null);
+    _state = _state.copyWithoutIsCertificated();
     notifyListeners();
   }
 
@@ -168,7 +203,7 @@ class SignUpPresenter extends Presenter {
 
   onChangeGender(Gender newGender) {
     if (newGender == _state.gender) {
-      _state = _state.copyWith(gender: null);
+      _state = _state.copyWithoutGender();
     } else {
       _state = _state.copyWith(gender: newGender);
     }

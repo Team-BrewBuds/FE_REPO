@@ -1,13 +1,17 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-
-import '../../common/styles/text_styles.dart';
 
 class SignupScreen extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -37,7 +41,7 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
     widget.navigationShell.goBranch(pageIndex + 1);
   }
 
-  onNext() async {
+  onNext() {
     final pageIndex = widget.navigationShell.currentIndex;
     if (pageIndex == 0) {
       context.read<SignUpPresenter>().resetCoffeeLifes();
@@ -48,13 +52,6 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
     } else if (pageIndex == 2) {
       context.read<SignUpPresenter>().resetPreferredBeanTaste();
       widget.navigationShell.goBranch(pageIndex + 1);
-    } else {
-      final context = this.context;
-      if (await context.read<SignUpPresenter>().register() && context.mounted) {
-        context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
-      } else {
-        showSnackBar(message: '회원가입에 실패했습니다.');
-      }
     }
   }
 
@@ -79,64 +76,64 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
         appBar: buildAppbar(),
         body: SafeArea(
           child: Selector<SignUpPresenter, bool>(
-              selector: (context, presenter) => presenter.isLoading,
-              builder: (context, isLoading, child) {
-                return AbsorbPointer(
-                  absorbing: isLoading,
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: isLoading
-                            ? const CircularProgressIndicator(color: ColorStyles.gray60)
-                            : const SizedBox.shrink(),
-                      ),
-                      Positioned.fill(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final width = (constraints.maxWidth - 6) / 4;
-                                  return Row(
-                                    spacing: 2,
-                                    children: List<Widget>.generate(
-                                      4,
-                                      (index) => Container(
-                                        height: 2,
-                                        width: width,
-                                        color: index <= widget.navigationShell.currentIndex
-                                            ? ColorStyles.red
-                                            : ColorStyles.gray40,
-                                      ),
+            selector: (context, presenter) => presenter.isLoading,
+            builder: (context, isLoading, child) {
+              return AbsorbPointer(
+                absorbing: isLoading,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final width = (constraints.maxWidth - 6) / 4;
+                                return Row(
+                                  spacing: 2,
+                                  children: List<Widget>.generate(
+                                    4,
+                                    (index) => Container(
+                                      height: 2,
+                                      width: width,
+                                      color: index <= widget.navigationShell.currentIndex
+                                          ? ColorStyles.red
+                                          : ColorStyles.gray40,
                                     ),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 28),
-                              Expanded(
-                                child: SingleChildScrollView(child: widget.navigationShell),
-                              ),
-                            ],
-                          ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 28),
+                            Expanded(
+                              child: SingleChildScrollView(child: widget.navigationShell),
+                            ),
+                            Builder(builder: (context) {
+                              final isValid = context.select<SignUpPresenter, bool>(
+                                (presenter) => presenter.canNext(widget.navigationShell.currentIndex),
+                              );
+                              final currentIndex = widget.navigationShell.currentIndex;
+                              if (currentIndex < 3) {
+                                return buildNextButton(isSatisfyRequirements: isValid);
+                              } else {
+                                return buildRegisterButton();
+                              }
+                            }),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                );
-              }),
+                    ),
+                    if (isLoading) const Positioned.fill(child: LoadingBarrier())
+                  ],
+                ),
+              );
+            },
+          ),
         ),
-        bottomNavigationBar: SafeArea(child: buildBottom()),
       ),
     );
-  }
-
-  Widget buildBottom() {
-    final isValid = context.select<SignUpPresenter, bool>(
-      (presenter) => presenter.canNext(widget.navigationShell.currentIndex),
-    );
-    return buildBottomButton(isSatisfyRequirements: isValid);
   }
 
   AppBar buildAppbar() {
@@ -185,27 +182,66 @@ class _SignupScreenState extends State<SignupScreen> with SnackBarMixin<SignupSc
     );
   }
 
-  Widget buildBottomButton({required bool isSatisfyRequirements}) {
+  Widget buildNextButton({required bool isSatisfyRequirements}) {
     return Padding(
-      padding: EdgeInsets.only(top: 24, bottom: MediaQuery.of(context).viewInsets.bottom + 24.0, left: 16, right: 16),
-      child: AbsorbPointer(
-        absorbing: !isSatisfyRequirements,
-        child: ThrottleButton(
-          onTap: onNext,
-          child: Container(
-            height: 47,
-            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: isSatisfyRequirements ? ColorStyles.black : ColorStyles.gray30,
-            ),
-            child: Center(
-              child: Text(
-                widget.navigationShell.currentIndex == 3 ? '가입하기' : '다음',
-                style: TextStyles.labelMediumMedium.copyWith(
-                  color: isSatisfyRequirements ? ColorStyles.white : ColorStyles.gray40,
-                ),
+      padding: const EdgeInsets.only(top: 24, bottom: 24.0),
+      child: FutureButton<void, SignupException>(
+        onTap: () => context.read<SignUpPresenter>().isValidAt(widget.navigationShell.currentIndex),
+        onComplete: (_) {
+          onNext.call();
+        },
+        onError: (exception) {
+          EventBus.instance.fire(
+            MessageEvent(context: context, message: exception?.message ?? '알 수 없는 에러가 발생했어요.'),
+          );
+        },
+        child: Container(
+          height: 47,
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: isSatisfyRequirements ? ColorStyles.black : ColorStyles.gray30,
+          ),
+          child: Center(
+            child: Text(
+              '다음',
+              style: TextStyles.labelMediumMedium.copyWith(
+                color: isSatisfyRequirements ? ColorStyles.white : ColorStyles.gray40,
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRegisterButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 24.0),
+      child: FutureButton<bool, Exception>(
+        onTap: () => context.read<SignUpPresenter>().register(),
+        onComplete: (result) {
+          if (result) {
+            context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
+          } else {
+            EventBus.instance.fire(
+              MessageEvent(context: context, message: '회원가입에 실패했어요.'),
+            );
+          }
+        },
+        onError: (_) {
+          EventBus.instance.fire(
+            MessageEvent(context: context, message: '회원가입에 실패했어요.'),
+          );
+        },
+        child: Container(
+          height: 47,
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: ColorStyles.black),
+          child: Center(
+            child: Text(
+              '가입하기',
+              style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
             ),
           ),
         ),

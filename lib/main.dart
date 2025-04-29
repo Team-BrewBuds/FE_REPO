@@ -155,6 +155,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   showSnackBar({required BuildContext context, required String message}) {
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
@@ -168,6 +169,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             child: Text(
               message,
               style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+              textAlign: TextAlign.center,
             ),
           ),
         ),

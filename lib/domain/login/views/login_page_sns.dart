@@ -8,7 +8,7 @@ import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
-import 'package:brew_buds/exception/login/login_exception.dart';
+import 'package:brew_buds/exception/login_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

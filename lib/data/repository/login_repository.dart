@@ -96,7 +96,7 @@ class LoginRepository {
             final newRefreshToken = resp.data['refresh'];
 
             AccountRepository.instance.saveTokenAndIdInMemory(
-              id: AccountRepository.instance.id ?? 0,
+              id: AccountRepository.instance.idInMemory ?? 0,
               accessToken: newAccessToken,
               refreshToken: newRefreshToken,
             );
@@ -124,7 +124,7 @@ class LoginRepository {
       } else {
         throw Error();
       }
-    } on DioException catch (_) {
+    } on DioException catch (e) {
       rethrow;
     }
   }

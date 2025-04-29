@@ -7,7 +7,7 @@ import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:brew_buds/exception/login/login_exception.dart';
+import 'package:brew_buds/exception/login_exception.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';

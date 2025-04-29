@@ -3,7 +3,7 @@ import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
-import 'package:brew_buds/exception/login/login_exception.dart';
+import 'package:brew_buds/exception/login_exception.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';

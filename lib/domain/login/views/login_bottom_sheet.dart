@@ -6,7 +6,7 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
-import 'package:brew_buds/exception/login/login_exception.dart';
+import 'package:brew_buds/exception/login_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

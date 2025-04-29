@@ -19,6 +19,28 @@ final class SignUpState {
     this.preferredBeanTaste,
   });
 
+  SignUpState copyWithoutGender() {
+    return SignUpState(
+      nickName: nickName,
+      yearOfBirth: yearOfBirth,
+      gender: null,
+      coffeeLifes: coffeeLifes,
+      isCertificated: isCertificated,
+      preferredBeanTaste: preferredBeanTaste,
+    );
+  }
+
+  SignUpState copyWithoutIsCertificated() {
+    return SignUpState(
+      nickName: nickName,
+      yearOfBirth: yearOfBirth,
+      gender: gender,
+      coffeeLifes: coffeeLifes,
+      isCertificated: null,
+      preferredBeanTaste: preferredBeanTaste,
+    );
+  }
+
   SignUpState copyWith({
     String? nickName,
     int? yearOfBirth,
