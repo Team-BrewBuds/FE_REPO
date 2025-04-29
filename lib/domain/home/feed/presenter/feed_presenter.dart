@@ -30,9 +30,9 @@ abstract class FeedPresenter<T extends Feed> extends Presenter {
 
   onUserFollowEvent(UserFollowEvent event);
 
-  onLikeButtonTap();
+  Future<void> onLikeButtonTap();
 
-  onSaveButtonTap();
+  Future<void> onSaveButtonTap();
 
-  onFollowButtonTap();
+  Future<void> onFollowButtonTap();
 }

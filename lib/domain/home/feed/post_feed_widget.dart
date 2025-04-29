@@ -8,6 +8,7 @@ import 'package:brew_buds/domain/home/feed/feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
+import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,21 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
+  static Widget buildWithPresenter(
+    PostFeedPresenter presenter, {
+    required Future<void> Function() onGuest,
+    required bool isGuest,
+    required Future<void> Function(bool isPost, int id, User author) onTapComments,
+  }) =>
+      ChangeNotifierProvider.value(
+        value: presenter,
+        child: PostFeedWidget(
+          isGuest: isGuest,
+          onGuest: onGuest,
+          onTapComments: onTapComments,
+        ),
+      );
+
   const PostFeedWidget({
     super.key,
     required super.isGuest,
@@ -175,15 +191,15 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
   }
 
   @override
-  onTappedCommentsButton(BuildContext context) {
+  Future<void> onTappedCommentsButton(BuildContext context) {
     final id = context.read<PostFeedPresenter>().feed.data.id;
     final author = context.read<PostFeedPresenter>().feed.data.author;
-    onTapComments.call(false, id, author);
+    return onTapComments.call(false, id, author);
   }
 
   @override
-  onTappedProfile(BuildContext context) {
+  Future<void> onTappedProfile(BuildContext context) {
     final author = context.read<PostFeedPresenter>().feed.data.author;
-    ScreenNavigator.pushToProfile(context: context, id: author.id);
+    return ScreenNavigator.pushToProfile(context: context, id: author.id);
   }
 }

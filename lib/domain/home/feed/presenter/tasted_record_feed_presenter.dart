@@ -69,7 +69,7 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
       );
 
   @override
-  onFollowButtonTap() async {
+  Future<void> onFollowButtonTap() async {
     final previousTastedRecord = feed.data;
     final isFollow = previousTastedRecord.isAuthorFollowing;
     feed = TastedRecordFeed(data: previousTastedRecord.copyWith(isAuthorFollowing: !isFollow));
@@ -91,7 +91,7 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
   }
 
   @override
-  onLikeButtonTap() async {
+  Future<void> onLikeButtonTap() async {
     final previousTastedRecord = feed.data;
     final isLiked = previousTastedRecord.isLiked;
     final likeCount = previousTastedRecord.likeCount;
@@ -120,7 +120,7 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
   }
 
   @override
-  onSaveButtonTap() async {
+  Future<void> onSaveButtonTap() async {
     final previousTastedRecord = feed.data;
     final isSaved = previousTastedRecord.isSaved;
     feed = TastedRecordFeed(data: previousTastedRecord.copyWith(isSaved: !isSaved));

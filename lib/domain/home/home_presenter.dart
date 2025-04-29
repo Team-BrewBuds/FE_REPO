@@ -34,11 +34,9 @@ final class HomePresenter extends Presenter {
   bool _hasNext = true;
   List<FeedPresenter> _feedPresenters = [];
 
-  bool get hasNext => _hasNext;
+  bool get hasNext => _hasNext && _feedPresenters.isNotEmpty;
 
   bool get isGuest => _isGuest;
-
-  bool get isLoading => _isLoading;
 
   List<FeedPresenter> get feedPresenters => List.unmodifiable(_feedPresenters);
 

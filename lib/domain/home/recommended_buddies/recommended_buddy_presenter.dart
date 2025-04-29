@@ -35,7 +35,7 @@ final class RecommendedBuddyPresenter extends Presenter {
     }
   }
 
-  onTapFollow() async {
+  Future<void> onTapFollow() async {
     final isFollow = user.isFollow;
     final followerCount = user.followerCount;
     _user = _user.copyWith(isFollow: !isFollow, followerCount: isFollow ? followerCount - 1 : followerCount + 1);

@@ -13,7 +13,6 @@ import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,13 +33,6 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
   await PermissionRepository.instance.initPermission();
-
-  // await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  // await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
-  //
-  // await initializeDateFormatting('ko');
-  //
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   DioClient.instance.initial();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -178,22 +170,4 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ),
     );
   }
-}
-
-Future<void> checkInitialMessage() async {
-  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-  if (initialMessage != null) {
-    AccountRepository.instance.notify();
-  }
-}
-
-void setupFCMListeners() {
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    AccountRepository.instance.notify();
-  });
-
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    AccountRepository.instance.notify();
-  });
 }

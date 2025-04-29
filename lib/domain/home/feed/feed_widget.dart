@@ -12,9 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidget {
-  final void Function() onGuest;
+  final Future<void> Function() onGuest;
   final bool isGuest;
-  final void Function(bool isPost, int id, User author) onTapComments;
+  final Future<void> Function(bool isPost, int id, User author) onTapComments;
 
   const FeedWidget({
     super.key,
@@ -23,9 +23,9 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
     required this.onTapComments,
   });
 
-  onTappedCommentsButton(BuildContext context);
+  Future<void> onTappedCommentsButton(BuildContext context);
 
-  onTappedProfile(BuildContext context);
+  Future<void> onTappedProfile(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
@@ -121,9 +121,9 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
               FollowButton(
                 onTap: () {
                   if (isGuest) {
-                    onGuest.call();
+                    return onGuest.call();
                   } else {
-                    context.read<Presenter>().onFollowButtonTap();
+                    return context.read<Presenter>().onFollowButtonTap();
                   }
                 },
                 isFollowed: isFollow,
@@ -151,9 +151,9 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
           LikeButton(
             onTap: () {
               if (isGuest) {
-                onGuest.call();
+                return onGuest.call();
               } else {
-                context.read<Presenter>().onLikeButtonTap();
+                return context.read<Presenter>().onLikeButtonTap();
               }
             },
             isLiked: isLiked,
@@ -163,9 +163,9 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
           CommentButton(
             onTap: () {
               if (isGuest) {
-                onGuest.call();
+                return onGuest.call();
               } else {
-                onTappedCommentsButton(context);
+                return onTappedCommentsButton(context);
               }
             },
             commentCount: commentsCount,
@@ -174,37 +174,14 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
           SaveButton(
             onTap: () {
               if (isGuest) {
-                onGuest.call();
+                return onGuest.call();
               } else {
-                context.read<Presenter>().onSaveButtonTap();
+                return context.read<Presenter>().onSaveButtonTap();
               }
             },
             isSaved: isSaved,
           ),
         ],
-      ),
-    );
-  }
-
-  showSnackBar(BuildContext context, {required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black90,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
     );
   }

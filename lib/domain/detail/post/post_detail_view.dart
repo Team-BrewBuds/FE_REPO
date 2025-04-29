@@ -353,9 +353,7 @@ class _PostDetailViewState extends State<PostDetailView>
               if (!context.read<PostDetailPresenter>().isMyObject()) ...[
                 const SizedBox(width: 8),
                 FollowButton(
-                  onTap: () {
-                    context.read<PostDetailPresenter>().onTappedFollowButton();
-                  },
+                  onTap: () => context.read<PostDetailPresenter>().onTappedFollowButton(),
                   isFollowed: isFollow,
                 ),
               ],
@@ -482,17 +480,13 @@ class _PostDetailViewState extends State<PostDetailView>
         child: Row(
           children: [
             LikeButton(
-              onTap: () {
-                context.read<PostDetailPresenter>().onTappedLikeButton();
-              },
+              onTap: () => context.read<PostDetailPresenter>().onTappedLikeButton(),
               isLiked: isLiked,
               likeCount: likeCount,
             ),
             const Spacer(),
             SaveButton(
-              onTap: () {
-                context.read<PostDetailPresenter>().onTappedSaveButton();
-              },
+              onTap: () => context.read<PostDetailPresenter>().onTappedSaveButton(),
               isSaved: isSaved,
             ),
           ],

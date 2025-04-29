@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -39,7 +40,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   late final Throttle paginationThrottle;
   final ScrollController _scrollController = ScrollController();
   late final TabController _tabController;
-  bool isRefresh = false;
   int currentIndex = 0;
 
   @override
@@ -99,21 +99,12 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
               ),
               const Spacer(),
               if (context.select<AccountRepository, bool>((repository) => !repository.isGuest)) ...[
-                ThrottleButton(
-                  onTap: () {
-                    AccountRepository.instance.readNotification();
-                    showNotificationPage(context: context);
-                  },
-                  child: Builder(
-                    builder: (context) {
-                      final hasNotification =
-                          context.select<AccountRepository, bool>((repository) => repository.hasNotification);
-                      return SvgPicture.asset(
-                        hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
-                        width: 24,
-                        height: 24,
-                      );
-                    },
+                FutureButton(
+                  onTap: () => showNotificationPage(context: context),
+                  child: SvgPicture.asset(
+                    'assets/icons/alarm.svg',
+                    width: 24,
+                    height: 24,
                   ),
                 ),
               ],
@@ -177,11 +168,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 ),
               );
             }),
-            MyRefreshControl(
-              onRefresh: () {
-                return context.read<HomePresenter>().onRefresh();
-              },
-            ),
+            MyRefreshControl(onRefresh: () => context.read<HomePresenter>().onRefresh()),
             Builder(
               builder: (context) {
                 final feedPresenters = context.select<HomePresenter, List<FeedPresenter>>(
@@ -207,38 +194,26 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                         final feedPresenter = feedPresenters[index];
                         final isGuest = AccountRepository.instance.isGuest;
                         if (feedPresenter is PostFeedPresenter) {
-                          return ChangeNotifierProvider.value(
-                            value: feedPresenter,
-                            child: PostFeedWidget(
-                              isGuest: isGuest,
-                              onGuest: () {
-                                showLoginBottomSheet();
-                              },
-                              onTapComments: (isPost, id, author) {
-                                showCommentsBottomSheet(
-                                  objectType: ObjectType.post,
-                                  objectId: feedPresenter.feed.data.id,
-                                  objectAuthor: feedPresenter.feed.data.author,
-                                );
-                              },
-                            ),
+                          return PostFeedWidget.buildWithPresenter(
+                            feedPresenter,
+                            isGuest: isGuest,
+                            onGuest: () => showLoginBottomSheet(),
+                            onTapComments: (isPost, id, author) => showCommentsBottomSheet(
+                                objectType: ObjectType.post,
+                                objectId: feedPresenter.feed.data.id,
+                                objectAuthor: feedPresenter.feed.data.author,
+                              ),
                           );
                         } else if (feedPresenter is TastedRecordFeedPresenter) {
-                          return ChangeNotifierProvider.value(
-                            value: feedPresenter,
-                            child: TastedRecordFeedWidget(
-                              isGuest: isGuest,
-                              onGuest: () {
-                                showLoginBottomSheet();
-                              },
-                              onTapComments: (isPost, id, author) {
-                                showCommentsBottomSheet(
-                                  objectType: ObjectType.tastingRecord,
-                                  objectId: feedPresenter.feed.data.id,
-                                  objectAuthor: feedPresenter.feed.data.author,
-                                );
-                              },
-                            ),
+                          return TastedRecordFeedWidget.buildWithPresenter(
+                            feedPresenter,
+                            isGuest: isGuest,
+                            onGuest: () => showLoginBottomSheet(),
+                            onTapComments: (isPost, id, author) => showCommentsBottomSheet(
+                                objectType: ObjectType.tastingRecord,
+                                objectId: feedPresenter.feed.data.id,
+                                objectAuthor: feedPresenter.feed.data.author,
+                              ),
                           );
                         } else {
                           return const SizedBox.shrink();
@@ -252,10 +227,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                                 final presenter =
                                     context.read<HomePresenter>().getRecommendedBuddiesPresenter(pageIndex);
                                 if (presenter != null) {
-                                  return ChangeNotifierProvider.value(
-                                    value: presenter,
-                                    child: const RecommendedBuddiesWidget(),
-                                  );
+                                  return RecommendedBuddiesWidget.buildWithPresenter(presenter);
                                 } else {
                                   return Container(height: 12, color: ColorStyles.gray20);
                                 }
@@ -284,12 +256,12 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  showCommentsBottomSheet({
+  Future<void> showCommentsBottomSheet({
     required ObjectType objectType,
     required int objectId,
     required User objectAuthor,
   }) {
-    showGeneralDialog(
+    return showGeneralDialog(
       barrierLabel: "Barrier",
       barrierDismissible: true,
       barrierColor: ColorStyles.black50,
@@ -325,12 +297,12 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
             subjectList.length + 1,
             (index) {
               if (index == 0) {
-                return ThrottleButton(
+                return FutureButton(
                   onTap: () {
                     if (isGuest) {
-                      showLoginBottomSheet();
+                      return showLoginBottomSheet();
                     } else {
-                      context.push('/home/popular_post');
+                      return context.push('/home/popular_post');
                     }
                   },
                   child: Container(
@@ -380,7 +352,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  showLoginBottomSheet() async {
+  Future<void> showLoginBottomSheet() async {
     final context = this.context;
     final result = await showBarrierDialog<LoginResult>(
       context: context,

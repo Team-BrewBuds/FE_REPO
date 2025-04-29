@@ -73,7 +73,7 @@ final class PostFeedPresenter extends FeedPresenter<PostFeed> {
       );
 
   @override
-  onFollowButtonTap() async {
+  Future<void> onFollowButtonTap() async {
     final previousPost = feed.data;
     final isFollow = previousPost.isAuthorFollowing;
     feed = PostFeed(data: previousPost.copyWith(isAuthorFollowing: !isFollow));
@@ -95,7 +95,7 @@ final class PostFeedPresenter extends FeedPresenter<PostFeed> {
   }
 
   @override
-  onLikeButtonTap() async {
+  Future<void> onLikeButtonTap() async {
     final previousPost = feed.data;
     final isLiked = previousPost.isLiked;
     final likeCount = previousPost.likeCount;
@@ -119,7 +119,7 @@ final class PostFeedPresenter extends FeedPresenter<PostFeed> {
   }
 
   @override
-  onSaveButtonTap() async {
+  Future<void> onSaveButtonTap() async {
     final previousPost = feed.data;
     final isSaved = previousPost.isSaved;
     feed = PostFeed(data: previousPost.copyWith(isSaved: !isSaved));

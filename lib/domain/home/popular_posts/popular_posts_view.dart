@@ -78,11 +78,7 @@ class _PopularPostsViewState extends State<PopularPostsView> with SnackBarMixin<
           controller: scrollController,
           slivers: [
             buildSubjectFilter(),
-            MyRefreshControl(
-              onRefresh: () {
-                return context.read<PopularPostsPresenter>().onRefresh();
-              },
-            ),
+            MyRefreshControl(onRefresh: () => context.read<PopularPostsPresenter>().onRefresh()),
             Builder(
               builder: (context) {
                 final presenters = context.select<PopularPostsPresenter, List<PopularPostPresenter>>(

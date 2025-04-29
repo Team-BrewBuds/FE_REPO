@@ -59,17 +59,17 @@ class RecommendedBuddyWidget extends StatelessWidget {
             );
           }),
           const SizedBox(height: 12),
-          Builder(builder: (context) {
-            final isFollow = context.select<RecommendedBuddyPresenter, bool>(
-              (presenter) => presenter.user.isFollow,
-            );
-            return FollowButton(
-              onTap: () async {
-                context.read<RecommendedBuddyPresenter>().onTapFollow();
-              },
-              isFollowed: isFollow,
-            );
-          }),
+          Builder(
+            builder: (context) {
+              final isFollow = context.select<RecommendedBuddyPresenter, bool>(
+                (presenter) => presenter.user.isFollow,
+              );
+              return FollowButton(
+                onTap: () => context.read<RecommendedBuddyPresenter>().onTapFollow(),
+                isFollowed: isFollow,
+              );
+            },
+          ),
         ],
       ),
     );

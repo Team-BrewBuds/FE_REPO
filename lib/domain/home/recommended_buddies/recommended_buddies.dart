@@ -1,5 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presenter.dart';
@@ -9,6 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class RecommendedBuddiesWidget extends StatelessWidget {
+  static Widget buildWithPresenter(RecommendedBuddiesPresenter presenter) => ChangeNotifierProvider.value(
+        value: presenter,
+        child: const RecommendedBuddiesWidget(),
+      );
+
   const RecommendedBuddiesWidget({super.key});
 
   @override
@@ -58,10 +64,8 @@ class RecommendedBuddiesWidget extends StatelessWidget {
                       final presenter = presenters[index];
                       return ChangeNotifierProvider.value(
                         value: presenter,
-                        child: ThrottleButton(
-                          onTap: () {
-                            ScreenNavigator.pushToProfile(context: context, id: presenter.user.id);
-                          },
+                        child: FutureButton(
+                          onTap: () => ScreenNavigator.pushToProfile(context: context, id: presenter.user.id),
                           child: const RecommendedBuddyWidget(),
                         ),
                       );

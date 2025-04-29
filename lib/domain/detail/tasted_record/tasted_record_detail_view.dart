@@ -505,17 +505,13 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       child: Row(
         children: [
           LikeButton(
-            onTap: () {
-              context.read<TastedRecordPresenter>().onTappedLikeButton();
-            },
+            onTap: () => context.read<TastedRecordPresenter>().onTappedLikeButton(),
             isLiked: isLiked,
             likeCount: likeCount,
           ),
           const Spacer(),
           SaveButton(
-            onTap: () {
-              context.read<TastedRecordPresenter>().onTappedSaveButton();
-            },
+            onTap: () => context.read<TastedRecordPresenter>().onTappedSaveButton(),
             isSaved: isSaved,
           ),
         ],
@@ -605,9 +601,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             ),
             if (!context.read<TastedRecordPresenter>().isMyObject()) ...[
               FollowButton(
-                onTap: () {
-                  context.read<TastedRecordPresenter>().onTappedFollowButton();
-                },
+                onTap: () => context.read<TastedRecordPresenter>().onTappedFollowButton(),
                 isFollowed: isFollow,
               ),
             ],
