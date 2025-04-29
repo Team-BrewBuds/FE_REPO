@@ -2,7 +2,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
@@ -16,6 +15,7 @@ import 'package:brew_buds/domain/home/home_presenter.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
+import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
@@ -311,29 +311,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
   }
 
-  showSnackBar({required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black70,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-    );
-  }
-
   Widget buildSubjectFilterBar({required PostSubject currentSubject}) {
     const subjectList = PostSubject.values;
     final isGuest = context.read<HomePresenter>().isGuest;
@@ -405,27 +382,37 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   showLoginBottomSheet() async {
     final context = this.context;
-    final result = await showBarrierDialog<Result<LoginResult>>(
+    final result = await showBarrierDialog<LoginResult>(
       context: context,
       pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
     );
 
     if (result != null && context.mounted) {
       switch (result) {
-        case Success<LoginResult>():
-          switch (result.data) {
-            case LoginResult.login:
-              context.read<HomePresenter>().login();
-              break;
-            case LoginResult.needSignUp:
-              context.push('/login/signup/1');
-              break;
-          }
+        case LoginSuccess():
+          context.read<HomePresenter>().login();
           break;
-        case Error<LoginResult>():
-          showSnackBar(message: result.e);
+        case NeedToSignUp():
+          final checkResult = await _checkModal(context);
+          if (checkResult != null && checkResult && context.mounted) {
+            AccountRepository.instance.saveTokenAndIdInMemory(
+              id: result.id,
+              accessToken: result.accessToken,
+              refreshToken: result.refreshToken,
+            );
+            context.go('/login/signup/1');
+          }
           break;
       }
     }
+  }
+
+  Future<bool?> _checkModal(BuildContext context) {
+    return showBarrierDialog<bool>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return const TermsOfUseBottomSheet();
+      },
+    );
   }
 }

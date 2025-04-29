@@ -20,6 +20,7 @@ import 'package:brew_buds/domain/search/widgets/search_result/search_result_pres
 import 'package:brew_buds/domain/search/widgets/search_result/tatsed_record_results_item.dart';
 import 'package:brew_buds/domain/search/widgets/suggest_word.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
+import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,7 +29,20 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/post/post_subject.dart';
+class CustomTextSelectionControls extends MaterialTextSelectionControls {
+  final Color handleColor;
+  final Color selectionColor;
+
+  CustomTextSelectionControls({required this.handleColor, required this.selectionColor});
+
+  Color getHandleColor(BuildContext context) {
+    return handleColor;
+  }
+
+  Color getSelectionColor(BuildContext context) {
+    return selectionColor;
+  }
+}
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

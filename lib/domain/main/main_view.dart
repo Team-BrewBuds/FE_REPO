@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -12,6 +11,7 @@ import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
+import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -511,28 +511,38 @@ class _MainViewState extends State<MainView> with SnackBarMixin<MainView>, Cente
 
   showLoginBottomSheet({required void Function() onLogin}) async {
     final context = this.context;
-    final result = await showBarrierDialog<Result<LoginResult>>(
+    final result = await showBarrierDialog<LoginResult>(
       context: context,
       pageBuilder: (context, _, __) => LoginBottomSheet.buildWithPresenter(),
     );
 
     if (result != null && context.mounted) {
       switch (result) {
-        case Success<LoginResult>():
-          switch (result.data) {
-            case LoginResult.login:
-              onLogin.call();
-              break;
-            case LoginResult.needSignUp:
-              context.push('/login/signup/1');
-              break;
-          }
+        case LoginSuccess():
+          onLogin.call();
           break;
-        case Error<LoginResult>():
-          showSnackBar(message: result.e);
+        case NeedToSignUp():
+          final checkResult = await _checkModal(context);
+          if (checkResult != null && checkResult && context.mounted) {
+            AccountRepository.instance.saveTokenAndIdInMemory(
+              id: result.id,
+              accessToken: result.accessToken,
+              refreshToken: result.refreshToken,
+            );
+            context.go('/login/signup/1');
+          }
           break;
       }
     }
+  }
+
+  Future<bool?> _checkModal(BuildContext context) {
+    return showBarrierDialog<bool>(
+      context: context,
+      pageBuilder: (context, _, __) {
+        return const TermsOfUseBottomSheet();
+      },
+    );
   }
 
   showLoginAlert() async {

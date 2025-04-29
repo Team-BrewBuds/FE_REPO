@@ -1,16 +1,35 @@
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
+import 'package:brew_buds/exception/login/login_exception.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
-enum LoginResult {
-  login,
-  needSignUp;
+sealed class LoginResult {
+  factory LoginResult.login() = LoginSuccess;
+
+  factory LoginResult.needToSignUp({
+    required String accessToken,
+    required String refreshToken,
+    required int id,
+  }) = NeedToSignUp;
+}
+
+final class LoginSuccess implements LoginResult {}
+
+final class NeedToSignUp implements LoginResult {
+  final String accessToken;
+  final String refreshToken;
+  final int id;
+
+  const NeedToSignUp({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.id,
+  });
 }
 
 typedef SocialLoginResultData = ({String accessToken, String refreshToken, int id});
@@ -25,58 +44,52 @@ class LoginPresenter extends Presenter {
 
   SocialLoginResultData get loginResultData => _socialLoginResultData;
 
-  Future<Result<LoginResult>> login(SocialLogin socialLogin) async {
+  Future<LoginResult> login(SocialLogin socialLogin) async {
     _isLoading = true;
     notifyListeners();
 
-    final socialToken = await _loginWithSNS(socialLogin);
-    String errorMessage = '';
-    if (socialToken != null && socialToken.isNotEmpty) {
+    try {
+      final socialToken = await _loginWithSNS(socialLogin);
       final result = await _registerToken(socialToken, socialLogin.name);
-      if (result != null) {
-        _socialLoginResultData = result;
-        final hasAccount = await _checkUser(accessToken: result.accessToken);
-        if (hasAccount != null && hasAccount) {
-          await _accountRepository.login(
-            id: result.id,
-            accessToken: result.accessToken,
-            refreshToken: result.refreshToken,
-          );
-
-          final registered = await NotificationRepository.instance.registerToken(result.accessToken);
-          if (registered) {
-            _isLoading = false;
-            notifyListeners();
-            return Result.success(LoginResult.login);
-          } else {
-            await _accountRepository.logout();
-            errorMessage = '디바이스 정보 등록에 실패했습니다.';
-          }
-        } else {
-          _isLoading = false;
-          notifyListeners();
-          return Result.success(LoginResult.needSignUp);
-        }
+      final hasAccount = await _checkUser(accessToken: result.accessToken);
+      if (hasAccount) {
+        await _accountRepository.login(
+          id: result.id,
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+        );
+        await NotificationRepository.instance.registerToken(result.accessToken);
+        return LoginResult.login();
       } else {
-        errorMessage = '소셜로그인 정보 등록에 실패했습니다.';
+        return LoginResult.needToSignUp(
+          accessToken: result.accessToken,
+          refreshToken: result.refreshToken,
+          id: result.id,
+        );
       }
-    } else {
-      errorMessage = '소셜로그인에 실패했습니다.';
+    } catch (_) {
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
-    return Result.error(errorMessage);
   }
 
-  Future<String?> _loginWithSNS(SocialLogin socialLogin) async {
+  Future<String> _loginWithSNS(SocialLogin socialLogin) async {
+    final String? token;
     switch (socialLogin) {
       case SocialLogin.kakao:
-        return _loginWithKakao();
+        token = await _loginWithKakao();
       case SocialLogin.naver:
-        return _loginWithNaver().timeout(const Duration(seconds: 10), onTimeout: () => null);
+        token = await _loginWithNaver().timeout(const Duration(seconds: 10), onTimeout: () => null);
       case SocialLogin.apple:
-        return _loginWithApple();
+        token = await _loginWithApple();
+    }
+
+    if (token != null && token.isNotEmpty) {
+      return token;
+    } else {
+      throw SocialLoginFailedException();
     }
   }
 
@@ -84,9 +97,9 @@ class LoginPresenter extends Presenter {
     try {
       final String? token;
       if (await isKakaoTalkInstalled()) {
-        token = await UserApi.instance.loginWithKakaoTalk().then((value) => value.accessToken, onError: (_) => null);
+        token = await UserApi.instance.loginWithKakaoTalk().then((value) => value.accessToken);
       } else {
-        token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken, onError: (_) => null);
+        token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken);
       }
       return token;
     } catch (e) {
@@ -110,43 +123,28 @@ class LoginPresenter extends Presenter {
 
   Future<String?> _loginWithApple() async {
     try {
-      final credential = await SignInWithApple.getAppleIDCredential(
+      return await SignInWithApple.getAppleIDCredential(
         scopes: [AppleIDAuthorizationScopes.email],
-      );
-      return credential.identityToken;
+      ).then((result) => result.identityToken);
     } catch (e) {
       return null;
     }
   }
 
-  Future<SocialLoginResultData?> _registerToken(String token, String platform) async {
+  Future<SocialLoginResultData> _registerToken(String token, String platform) async {
     try {
       final result = await _loginRepository.registerToken(token, platform);
       return (accessToken: result.accessToken, refreshToken: result.refreshToken, id: result.id);
     } catch (_) {
-      return null;
+      throw SocialLoginRegistrationException();
     }
   }
 
-  Future<bool?> _checkUser({required String accessToken}) async {
+  Future<bool> _checkUser({required String accessToken}) async {
     try {
-      final loginResult = await _loginRepository.login(accessToken: accessToken).onError((error, stackTrace) => false);
-      return loginResult;
+      return await _loginRepository.login(accessToken: accessToken);
     } catch (_) {
-      return null;
-    }
-  }
-
-  bool saveTokenInMemory() {
-    final accessToken = loginResultData.accessToken;
-    final refreshToken = loginResultData.refreshToken;
-    final id = loginResultData.id;
-
-    if (accessToken.isNotEmpty && refreshToken.isNotEmpty && id != 0) {
-      AccountRepository.instance.saveTokenAndIdInMemory(id: id, accessToken: accessToken, refreshToken: refreshToken);
-      return true;
-    } else {
-      return false;
+      throw SocialLoginApiException();
     }
   }
 }

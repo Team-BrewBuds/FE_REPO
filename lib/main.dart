@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:brew_buds/common/styles/color_styles.dart';
+import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/dio_client.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
@@ -7,8 +11,10 @@ import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/di/router.dart';
 import 'package:brew_buds/firebase_options.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -81,15 +87,18 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  late final StreamSubscription messageSub;
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+    messageSub = EventBus.instance.on<MessageEvent>().listen(onMessageEvent);
     super.initState();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    messageSub.cancel();
     super.dispose();
   }
 
@@ -98,6 +107,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       await AppRepository.instance.checkUpdateRequired();
     }
+  }
+
+  void onMessageEvent(MessageEvent event) {
+    showSnackBar(context: event.context, message: event.message);
   }
 
   @override
@@ -133,7 +146,33 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             selectionHandleColor: Color(0xFFFF4412),
           ),
           useMaterial3: true,
+          cupertinoOverrideTheme: const CupertinoThemeData(
+            primaryColor: Color(0xFFFF4412),
+          ),
         ),
+      ),
+    );
+  }
+
+  showSnackBar({required BuildContext context, required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black90,
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
     );
   }

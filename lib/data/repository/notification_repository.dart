@@ -7,6 +7,7 @@ import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/exception/login/login_exception.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
@@ -49,7 +50,7 @@ final class NotificationRepository {
     }
   }
 
-  Future<bool> registerToken(String accessToken) async {
+  Future<void> registerToken(String accessToken) async {
     if (_token.isNotEmpty) {
       try {
         await _notificationApi
@@ -65,15 +66,14 @@ final class NotificationRepository {
           isGranted,
         );
         await _notificationApi.createNotificationSettings(data: data, token: 'Bearer $accessToken');
-        return true;
       } catch (e) {
-        rethrow;
+        throw DeviceRegistrationException();
       }
     } else if (_token.isEmpty &&
         await _deviceInfo.iosInfo.then((info) => !info.isPhysicalDevice).onError((_, __) => false)) {
-      return true;
+      return;
     } else {
-      return false;
+      throw EmptyDeviceTokenException();
     }
   }
 
