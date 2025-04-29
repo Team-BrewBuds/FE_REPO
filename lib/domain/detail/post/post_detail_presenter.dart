@@ -6,6 +6,7 @@ import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
+import 'package:brew_buds/exception/comments_exception.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/common/user.dart';
@@ -266,6 +267,7 @@ final class PostDetailPresenter extends Presenter {
   }
 
   Future<void> createNewComment({required String content}) async {
+    if (content.isEmpty) throw const EmptyCommentException();
     try {
       final newComment = await _commentsRepository.createNewComment(
         feedType: 'post',
@@ -300,7 +302,11 @@ final class PostDetailPresenter extends Presenter {
       _parentsId = null;
       notifyListeners();
     } catch (_) {
-      rethrow;
+      if (_parentsId != null) {
+        throw const CommentCreateFailedException();
+      } else {
+        throw const ReCommentCreateFailedException();
+      }
     }
   }
 }

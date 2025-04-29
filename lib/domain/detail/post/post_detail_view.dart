@@ -11,6 +11,7 @@ import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -20,6 +21,7 @@ import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_button.dart';
 import 'package:brew_buds/domain/home/widgets/tasting_record_card.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -586,12 +588,13 @@ class _PostDetailViewState extends State<PostDetailView>
                   padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
                   child: SendButton(
                     onTap: () {
-                      if (_textEditingController.text.isNotEmpty) {
-                        context
-                            .read<PostDetailPresenter>()
-                            .createNewComment(content: _textEditingController.text)
-                            .then((_) => _textEditingController.value = TextEditingValue.empty);
-                      }
+                      return context.read<PostDetailPresenter>().createNewComment(content: _textEditingController.text);
+                    },
+                    onComplete: () {
+                      _textEditingController.value = TextEditingValue.empty;
+                    },
+                    onError: (message) {
+                      EventBus.instance.fire(MessageEvent(message: message));
                     },
                   ),
                 ),

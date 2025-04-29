@@ -6,6 +6,7 @@ import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
+import 'package:brew_buds/exception/comments_exception.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
 import 'package:brew_buds/model/events/tasted_record_event.dart';
@@ -289,6 +290,8 @@ final class TastedRecordPresenter extends Presenter {
   }
 
   Future<void> createNewComment({required String content}) async {
+    if (content.isEmpty) throw const EmptyCommentException();
+
     try {
       final newComment = await _commentsRepository.createNewComment(
         feedType: 'tasted_record',
@@ -323,7 +326,11 @@ final class TastedRecordPresenter extends Presenter {
       _parentsId = null;
       notifyListeners();
     } catch (_) {
-      rethrow;
+      if (_parentsId != null) {
+        throw const CommentCreateFailedException();
+      } else {
+        throw const ReCommentCreateFailedException();
+      }
     }
   }
 

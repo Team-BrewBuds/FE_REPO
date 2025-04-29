@@ -95,137 +95,142 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              onTap: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              onVerticalDragStart: (_) {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              onVerticalDragEnd: (_) {
-                if (_height < minimumHeight * 0.5) {
-                  context.pop();
-                } else {
-                  final target =
-                      (_height - minimumHeight).abs() < (_height - maximumHeight).abs() ? minimumHeight : maximumHeight;
+    return GestureDetector(
+      onTap: () {
+        context.pop();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: GestureDetector(
+                onTap: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+                onVerticalDragStart: (_) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                },
+                onVerticalDragEnd: (_) {
+                  if (_height < minimumHeight * 0.5) {
+                    context.pop();
+                  } else {
+                    final target =
+                        (_height - minimumHeight).abs() < (_height - maximumHeight).abs() ? minimumHeight : maximumHeight;
 
-                  setState(() {
-                    _height = target;
-                    _longAnimation = true;
-                  });
-                }
-              },
-              onVerticalDragUpdate: (details) {
-                final double? delta = details.primaryDelta;
-
-                if (delta != null) {
-                  setState(() {
-                    _height = _height - delta;
-                    _longAnimation = true;
-                  });
-                }
-              },
-              child: AnimatedContainer(
-                curve: Curves.bounceOut,
-                onEnd: () {
-                  if (_longAnimation) {
                     setState(() {
-                      _longAnimation = false;
+                      _height = target;
+                      _longAnimation = true;
                     });
                   }
                 },
-                duration: const Duration(milliseconds: 100),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: ColorStyles.gray40)),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(12),
+                onVerticalDragUpdate: (details) {
+                  final double? delta = details.primaryDelta;
+
+                  if (delta != null) {
+                    setState(() {
+                      _height = _height - delta;
+                      _longAnimation = true;
+                    });
+                  }
+                },
+                child: AnimatedContainer(
+                  curve: Curves.bounceOut,
+                  onEnd: () {
+                    if (_longAnimation) {
+                      setState(() {
+                        _longAnimation = false;
+                      });
+                    }
+                  },
+                  duration: const Duration(milliseconds: 100),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    border: Border(top: BorderSide(color: ColorStyles.gray40)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(12),
+                    ),
                   ),
-                ),
-                width: double.infinity,
-                height: _height,
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                child: SafeArea(
-                  top: false,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 30,
-                        height: 4,
-                        margin: const EdgeInsets.only(top: 12),
-                        decoration: const BoxDecoration(
-                          color: ColorStyles.gray70,
-                          borderRadius: BorderRadius.all(Radius.circular(21)),
-                        ),
-                      ),
-                      buildTitle(context),
-                      Expanded(
-                        child: NotificationListener<ScrollNotification>(
-                          onNotification: onScrollNotification,
-                          child: CustomScrollView(
-                            controller: _scrollController,
-                            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-                            slivers: buildContents(context),
+                  width: double.infinity,
+                  height: _height,
+                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: SafeArea(
+                    top: false,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 30,
+                          height: 4,
+                          margin: const EdgeInsets.only(top: 12),
+                          decoration: const BoxDecoration(
+                            color: ColorStyles.gray70,
+                            borderRadius: BorderRadius.all(Radius.circular(21)),
                           ),
                         ),
-                      ),
-                      if (hasTextField)
-                        ValueListenableBuilder(
-                          valueListenable: _bottomWidgetHeightNotifier,
-                          builder: (context, height, _) {
-                            final isTextFieldPinned = _height >= minimumHeight;
-                            if (isTextFieldPinned) {
-                              return SizedBox(height: height);
-                            } else {
-                              if (height - (minimumHeight - _height) > 0) {
-                                return SizedBox(height: height - (minimumHeight - _height));
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            }
-                          },
+                        buildTitle(context),
+                        Expanded(
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: onScrollNotification,
+                            child: CustomScrollView(
+                              controller: _scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                              slivers: buildContents(context),
+                            ),
+                          ),
                         ),
-                    ],
+                        if (hasTextField)
+                          ValueListenableBuilder(
+                            valueListenable: _bottomWidgetHeightNotifier,
+                            builder: (context, height, _) {
+                              final isTextFieldPinned = _height >= minimumHeight;
+                              if (isTextFieldPinned) {
+                                return SizedBox(height: height);
+                              } else {
+                                if (height - (minimumHeight - _height) > 0) {
+                                  return SizedBox(height: height - (minimumHeight - _height));
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              }
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+            if (hasTextField)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: _height < minimumHeight
+                    ? MediaQuery.of(context).viewInsets.bottom - (minimumHeight - _height)
+                    : MediaQuery.of(context).viewInsets.bottom, // 키보드 위에 표시
+                child: SafeArea(
+                  top: false,
+                  child: NotificationListener<SizeChangedLayoutNotification>(
+                    onNotification: (notification) {
+                      _updateBottomWidgetHeight();
+                      return true;
+                    },
+                    child: SizeChangedLayoutNotifier(
+                      child: Material(
+                        key: _bottomWidgetKey,
+                        color: ColorStyles.white,
+                        child: buildBottomWidget(context),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
-        if (hasTextField)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: _height < minimumHeight
-                ? MediaQuery.of(context).viewInsets.bottom - (minimumHeight - _height)
-                : MediaQuery.of(context).viewInsets.bottom, // 키보드 위에 표시
-            child: SafeArea(
-              top: false,
-              child: NotificationListener<SizeChangedLayoutNotification>(
-                onNotification: (notification) {
-                  _updateBottomWidgetHeight();
-                  return true;
-                },
-                child: SizeChangedLayoutNotifier(
-                  child: Material(
-                    key: _bottomWidgetKey,
-                    color: ColorStyles.white,
-                    child: buildBottomWidget(context),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
+import 'package:brew_buds/exception/comments_exception.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
 
@@ -62,15 +63,16 @@ final class CommentsBottomSheetPresenter extends Presenter {
   }
 
   Future<void> createNewComment({required String content}) async {
+    if (content.isEmpty) throw const EmptyCommentException();
+
+    final parentId = _parentsId;
     try {
       final newComment = await _commentsRepository.createNewComment(
         feedType: _objectType.toString(),
         id: _objectId,
         content: content,
-        parentId: _parentsId,
+        parentId: parentId,
       );
-
-      final parentId = _parentsId;
 
       if (parentId != null) {
         EventBus.instance.fire(
@@ -96,7 +98,11 @@ final class CommentsBottomSheetPresenter extends Presenter {
       _parentsId = null;
       notifyListeners();
     } catch (_) {
-      rethrow;
+      if (parentId != null) {
+        throw const CommentCreateFailedException();
+      } else {
+        throw const ReCommentCreateFailedException();
+      }
     }
   }
 }

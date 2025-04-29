@@ -83,6 +83,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late final StreamSubscription needUpdateSub;
   late final StreamSubscription needLoginSub;
   late final StreamSubscription messageSub;
@@ -134,6 +135,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       designSize: const Size(375, 812),
       child: MaterialApp.router(
         routerConfig: widget.router,
+        scaffoldMessengerKey: scaffoldMessengerKey,
         title: 'Brew Buds',
         debugShowCheckedModeBanner: false,
         localizationsDelegates: const [
@@ -169,32 +171,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   showSnackBar({required String message}) {
-    final currentContext = navigatorKey.currentContext;
-
-    if (currentContext != null) {
-      ScaffoldMessenger.of(currentContext).clearSnackBars();
-      ScaffoldMessenger.of(currentContext).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: const EdgeInsets.symmetric(vertical: 15),
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: ColorStyles.black90,
-              borderRadius: const BorderRadius.all(Radius.circular(5)),
-            ),
-            child: Center(
-              child: Text(
-                message,
-                style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-                textAlign: TextAlign.center,
-              ),
+    scaffoldMessengerKey.currentState?.clearSnackBars();
+    scaffoldMessengerKey.currentState?.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 1),
+        content: Container(
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: ColorStyles.black90,
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+          ),
+          child: Center(
+            child: Text(
+              message,
+              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
+              textAlign: TextAlign.center,
             ),
           ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
         ),
-      );
-    }
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+    );
   }
 
   void _showForceUpdateDialog() {

@@ -11,6 +11,7 @@ import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/core/snack_bar_mixin.dart';
@@ -20,6 +21,7 @@ import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
 import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
@@ -462,12 +464,17 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
                     child: SendButton(
                       onTap: () {
-                        if (_textEditingController.text.isNotEmpty) {
-                          context
-                              .read<TastedRecordPresenter>()
-                              .createNewComment(content: _textEditingController.text)
-                              .then((_) => _textEditingController.value = TextEditingValue.empty);
-                        }
+                        return context
+                            .read<TastedRecordPresenter>()
+                            .createNewComment(content: _textEditingController.text);
+                      },
+                      onComplete: () {
+                        _textEditingController.value = TextEditingValue.empty;
+                      },
+                      onError: (message) {
+                        print(message);
+                        print('asdklfjklasdjlg');
+                        EventBus.instance.fire(MessageEvent(message: message));
                       },
                     ),
                   ),
@@ -521,25 +528,24 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
   Widget _buildTitle({required String title}) {
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
-      child: Builder(
-        builder: (context) {
-          final id = context.read<TastedRecordPresenter>().beanId;
-          final isOfficial = context.read<TastedRecordPresenter>().isOfficial ?? false;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 4,
-            children: [
-              Text(
-                title,
-                maxLines: null,
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 22.sp,
-                  height: 26.25 / 22,
-                  letterSpacing: -0.02,
-                ),
+      child: Builder(builder: (context) {
+        final id = context.read<TastedRecordPresenter>().beanId;
+        final isOfficial = context.read<TastedRecordPresenter>().isOfficial ?? false;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
+          children: [
+            Text(
+              title,
+              maxLines: null,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 22.sp,
+                height: 26.25 / 22,
+                letterSpacing: -0.02,
               ),
-              if (isOfficial)
+            ),
+            if (isOfficial)
               ThrottleButton(
                 onTap: () {
                   if (id != null && isOfficial) {
@@ -557,10 +563,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                   ),
                 ),
               ),
-            ],
-          );
-        }
-      ),
+          ],
+        );
+      }),
     );
   }
 
