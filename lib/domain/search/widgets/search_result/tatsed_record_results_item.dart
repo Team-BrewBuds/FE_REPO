@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/search/widgets/search_result/search_result_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,7 +20,10 @@ class TastedRecordResultsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureButton(
-      onTap: () async {},
+      onTap: () => ScreenNavigator.showTastedRecordDetail(
+          context: context,
+          id: context.read<TastedRecordSearchResultPresenter>().id,
+        ),
       child: Container(
         padding: const EdgeInsets.all(16),
         color: Colors.transparent,
