@@ -32,6 +32,7 @@ class ProfilePresenter extends Presenter {
   int _tabIndex = 0;
   int _pageNo = 1;
   bool _hasNext = true;
+  bool _isError = false;
 
   ProfilePresenter({required int id}) : _id = id {
     _profileUpdateSub = EventBus.instance.on<ProfileUpdateEvent>().listen(onProfileUpdateEvent);
@@ -50,6 +51,8 @@ class ProfilePresenter extends Presenter {
   String get currentSortCriteria => sortCriteriaList[_currentSortCriteriaIndex].toString();
 
   bool get isLoading => _isLoading;
+
+  bool get isError => _isError;
 
   bool get isLoadingData => _isLoadingData;
 
@@ -87,12 +90,15 @@ class ProfilePresenter extends Presenter {
     _isLoading = true;
     notifyListeners();
 
-    await Future.wait([
-      fetchProfile(),
-      paginate(isPageChanged: true),
-    ]);
-    _isLoading = false;
-    notifyListeners();
+    try {
+      await fetchProfile();
+      await paginate(isPageChanged: true);
+    } catch (_) {
+      _isError = true;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   @override
@@ -109,6 +115,7 @@ class ProfilePresenter extends Presenter {
       fetchProfile(),
       paginate(isPageChanged: true),
     ]);
+
     _isLoading = false;
     notifyListeners();
   }
@@ -171,6 +178,8 @@ class ProfilePresenter extends Presenter {
   }
 
   Future<void> _fetchPage() async {
+    if (profile == null) return;
+
     _isLoadingData = true;
     notifyListeners();
 

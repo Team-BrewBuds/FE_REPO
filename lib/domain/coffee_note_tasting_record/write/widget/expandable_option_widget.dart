@@ -4,26 +4,37 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ExpandableOptionWidget extends StatelessWidget {
-  final ValueNotifier<bool> _isExpandableNotifier = ValueNotifier(false);
-  final GlobalKey _globalKey = GlobalKey();
+class ExpandableOptionWidget extends StatefulWidget {
   final String title;
   final Widget expandableChild;
   final bool hasBottomBorder;
   final Function(GlobalKey key)? onExpanded;
 
-  ExpandableOptionWidget({
+  const ExpandableOptionWidget({
     super.key,
     required this.title,
     required this.expandableChild,
     this.hasBottomBorder = true,
     this.onExpanded,
-  }) {
+  });
+
+  @override
+  State<ExpandableOptionWidget> createState() => _ExpandableOptionWidgetState();
+}
+
+class _ExpandableOptionWidgetState extends State<ExpandableOptionWidget> {
+  final ValueNotifier<bool> _isExpandableNotifier = ValueNotifier(false);
+
+  final GlobalKey _globalKey = GlobalKey();
+
+  @override
+  void initState() {
     _isExpandableNotifier.addListener(() {
       if (_isExpandableNotifier.value) {
-        onExpanded?.call(_globalKey);
+        widget.onExpanded?.call(_globalKey);
       }
     });
+    super.initState();
   }
 
   @override
@@ -36,7 +47,7 @@ class ExpandableOptionWidget extends StatelessWidget {
           padding: EdgeInsets.only(left: 12, right: 12, top: 12, bottom: isExpandable ? 24 : 12),
           decoration: BoxDecoration(
             color: ColorStyles.gray10,
-            border: hasBottomBorder ? const Border(bottom: BorderSide(color: ColorStyles.gray30)) : null,
+            border: widget.hasBottomBorder ? const Border(bottom: BorderSide(color: ColorStyles.gray30)) : null,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +60,7 @@ class ExpandableOptionWidget extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        '$title (선택)',
+                        '${widget.title} (선택)',
                         style: TextStyles.labelSmallMedium,
                       ),
                     ),
@@ -65,7 +76,7 @@ class ExpandableOptionWidget extends StatelessWidget {
               if (isExpandable)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: expandableChild,
+                  child: widget.expandableChild,
                 ),
             ],
           ),

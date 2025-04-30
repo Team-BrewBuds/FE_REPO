@@ -11,13 +11,10 @@ final class ModalProfilePresenter extends ProfilePresenter {
   final FollowApi _followApi = FollowApi();
   final BlockApi _blockApi = BlockApi();
   late final StreamSubscription _userFollowSub;
-  bool _isError = false;
 
   ModalProfilePresenter({required super.id}) {
     _userFollowSub = EventBus.instance.on<UserFollowEvent>().listen(onUserFollowEvent);
   }
-
-  bool get isError => _isError;
 
   bool get canShowTastingReport => (profile?.tastedRecordCnt ?? 0) >= 1;
 
@@ -43,8 +40,7 @@ final class ModalProfilePresenter extends ProfilePresenter {
     try {
       profile = await repository.fetchProfile(id: id);
     } catch (e) {
-      _isError = true;
-      notifyListeners();
+      rethrow;
     }
   }
 

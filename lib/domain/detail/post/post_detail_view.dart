@@ -15,6 +15,7 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
+import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/post/post_detail_presenter.dart';

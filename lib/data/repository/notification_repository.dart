@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:brew_buds/data/api/notification_api.dart';
 import 'package:brew_buds/data/dto/notification/notification_dto.dart';
+import 'package:brew_buds/data/dto/notification/notification_model_dto.dart';
 import 'package:brew_buds/data/dto/notification/notification_setting_dto.dart';
 import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
@@ -124,21 +125,15 @@ final class NotificationRepository {
   }
 
   Future<DefaultPage<NotificationModel>> fetchNotificationPage({required int pageNo}) async {
-    final jsonString = await _notificationApi.fetchNotifications(pageNo: pageNo);
-    print(jsonString);
-    return compute(
-      (jsonString) {
-        try {
-          final json = jsonDecode(jsonString) as Map<String, dynamic>;
-          return DefaultPage.fromJson(json, (jsonT) {
-            return NotificationDTO.fromJson(jsonT as Map<String, dynamic>).toDomain();
-          });
-        } catch (e) {
-          return DefaultPage.initState();
-        }
-      },
-      jsonString,
-    );
+    try {
+      final json = jsonDecode(await _notificationApi.fetchNotifications(pageNo: pageNo)) as Map<String, dynamic>;
+      return DefaultPage.fromJson(
+        json,
+        (jsonT) => NotificationModelDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+      );
+    } catch (e) {
+      return DefaultPage(count: 0, results: const [], hasNext: false);
+    }
   }
 
   Future<void> deleteNotification({required int id}) {

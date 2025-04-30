@@ -41,7 +41,9 @@ class _ProfileViewState extends State<ProfileView>
       selector: (context, presenter) => presenter.isError,
       builder: (context, isError, child) {
         if (isError) {
-          showEmptyDialog();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showEmptyDialog();
+          });
         }
         return super.build(context);
       },

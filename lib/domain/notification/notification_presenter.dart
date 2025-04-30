@@ -1,10 +1,11 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
+import 'package:brew_buds/domain/notification/notification_item_presenter.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 
 final class NotificationPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;
-  final List<NotificationModel> _notificationList = List.empty(growable: true);
+  final List<NotificationItemPresenter> _notificationList = List.empty(growable: true);
   bool _hasNext = true;
   int _pageNo = 1;
   bool _isLoading = false;
@@ -13,7 +14,7 @@ final class NotificationPresenter extends Presenter {
 
   bool get hasNext => _hasNext && _notificationList.isNotEmpty;
 
-  List<NotificationModel> get notificationList => List.unmodifiable(_notificationList);
+  List<NotificationItemPresenter> get notificationList => List.unmodifiable(_notificationList);
 
   bool get hasNotification => _notificationList.where((notification) => !notification.isRead).isNotEmpty;
 
@@ -38,7 +39,7 @@ final class NotificationPresenter extends Presenter {
       }
 
       final newPage = await _notificationRepository.fetchNotificationPage(pageNo: _pageNo);
-      _notificationList.addAll(newPage.results);
+      _notificationList.addAll(newPage.results.map((model) => NotificationItemPresenter(notificationModel: model)));
       _hasNext = newPage.hasNext;
       _pageNo++;
       _isLoading = false;
@@ -46,21 +47,8 @@ final class NotificationPresenter extends Presenter {
     }
   }
 
-  readAt(int index) async {
-    final notification = _notificationList[index];
-    _notificationList[index] = notification.copyWith(isRead: true);
-    notifyListeners();
-
-    try {
-      await _notificationRepository.readNotification(id: notification.id);
-    } catch (e) {
-      _notificationList[index] = notification.copyWith();
-      notifyListeners();
-    }
-  }
-
   Future<void> deleteAll() async {
-    final previous = List<NotificationModel>.from(_notificationList);
+    final previous = List<NotificationItemPresenter>.from(_notificationList);
     _notificationList.clear();
     notifyListeners();
 
@@ -72,7 +60,7 @@ final class NotificationPresenter extends Presenter {
     }
   }
 
-  deleteAt(int index) async {
+  Future<void> deleteAt(int index) async {
     final removedNotification = _notificationList.removeAt(index);
     notifyListeners();
 
@@ -81,6 +69,7 @@ final class NotificationPresenter extends Presenter {
     } catch (e) {
       _notificationList.insert(index, removedNotification);
       notifyListeners();
+      rethrow;
     }
   }
 }

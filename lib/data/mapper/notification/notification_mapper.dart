@@ -1,13 +1,66 @@
-import 'package:brew_buds/data/dto/notification/notification_dto.dart';
+import 'package:brew_buds/data/dto/notification/notification_data_dto.dart';
+import 'package:brew_buds/data/dto/notification/notification_model_dto.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 
-extension NotificationMapper on NotificationDTO {
-  NotificationModel toDomain() => NotificationModel(
-        id: id,
-        body: body,
-        createdAt: _timeAgo(createdAt),
-        isRead: isRead,
-      );
+extension NotificationMapper on NotificationModelDTO {
+  NotificationModel toDomain() {
+    final current = this;
+    switch (current) {
+      case CommentNotificationDTO():
+        return CommentNotification(
+          id: current.id,
+          body: current.body,
+          isRead: current.isRead,
+          createdAt: _timeAgo(current.createdAt),
+          objectId: current.data?.objectId,
+          objectType: current.data?.objectType,
+        );
+      case LikeNotificationDTO():
+        final currentData = current.data;
+        switch (currentData) {
+          case null:
+            return DefaultLikeNotification(
+              id: current.id,
+              body: current.body,
+              isRead: current.isRead,
+              createdAt: current.createdAt,
+            );
+          case PostLikeNotificationDataDTO():
+            return PostLikeNotification(
+              id: current.id,
+              body: current.body,
+              isRead: current.isRead,
+              createdAt: current.createdAt,
+              objectId: currentData.postId,
+            );
+          case TastedRecordLikeNotificationDataDTO():
+            return TastedRecordLikeNotification(
+              id: current.id,
+              body: current.body,
+              isRead: current.isRead,
+              createdAt: current.createdAt,
+              objectId: currentData.tastedRecordId,
+            );
+          case CommentLikeNotificationDataDTO():
+            return CommentLikeNotification(
+              id: current.id,
+              body: current.body,
+              isRead: current.isRead,
+              createdAt: current.createdAt,
+              objectId: currentData.objectId,
+              objectType: currentData.objectType,
+            );
+        }
+      case FollowNotificationDTO():
+        return FollowNotification(
+          id: current.id,
+          body: current.body,
+          isRead: current.isRead,
+          createdAt: _timeAgo(current.createdAt),
+          followUserId: current.data?.followerUserId,
+        );
+    }
+  }
 
   String _timeAgo(String isoString) {
     final now = DateTime.now();

@@ -2,7 +2,7 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
-import 'package:brew_buds/domain/comments/comments_presenter.dart';
+import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/exception/comments_exception.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/comment_event.dart';

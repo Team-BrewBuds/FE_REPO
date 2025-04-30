@@ -15,6 +15,7 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
+import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
 import 'package:brew_buds/domain/detail/tasted_record/tasted_record_presenter.dart';
@@ -473,8 +474,6 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         _textEditingController.value = TextEditingValue.empty;
                       },
                       onError: (message) {
-                        print(message);
-                        print('asdklfjklasdjlg');
                         EventBus.instance.fire(MessageEvent(message: message));
                       },
                     ),

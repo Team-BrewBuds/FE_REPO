@@ -121,7 +121,7 @@ final class HomePresenter extends Presenter {
 
     if (_isLoading) return;
 
-    if (!hasNext) {
+    if (!_hasNext) {
       if (_currentTab != 0 || (_currentTab == 0 && _currentTypeIndex == 2)) return;
     }
 
@@ -155,7 +155,6 @@ final class HomePresenter extends Presenter {
       }
     } else if (_currentTab == 1) {
       final nextPage = await tastedRecordRepository.fetchTastedRecordFeedPage(pageNo: _pageNo);
-
       _addAllFeeds(nextPage.results);
       _hasNext = nextPage.hasNext;
       _pageNo++;

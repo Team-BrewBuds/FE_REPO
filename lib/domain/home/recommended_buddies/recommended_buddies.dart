@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
-import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presenter.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddy.dart';
