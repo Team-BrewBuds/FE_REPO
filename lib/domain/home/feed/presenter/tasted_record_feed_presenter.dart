@@ -59,7 +59,7 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
   String get _tag => feed.data.tag.replaceAll(',', '#');
 
   BodyState get bodyState => (
-        image: feed.data.thumbnailUri,
+        image: feed.data.thumbnailUrl,
         rating: '${feed.data.rating}',
         type: feed.data.beanType,
         name: feed.data.beanName,

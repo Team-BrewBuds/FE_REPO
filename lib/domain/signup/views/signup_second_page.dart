@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -53,7 +54,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(coffeeLife.imagePath, width: 90, height: 90, fit: BoxFit.cover),
+                        ExtendedImage.asset(coffeeLife.imagePath, width: 90.w, height: 90.h, fit: BoxFit.cover),
                         const SizedBox(height: 4),
                         Text(
                           coffeeLife.title,

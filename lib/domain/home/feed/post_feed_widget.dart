@@ -200,6 +200,6 @@ final class PostFeedWidget extends FeedWidget<PostFeedPresenter> {
   @override
   Future<void> onTappedProfile(BuildContext context) {
     final author = context.read<PostFeedPresenter>().feed.data.author;
-    return ScreenNavigator.pushToProfile(context: context, id: author.id);
+    return ScreenNavigator.showProfile(context: context, id: author.id);
   }
 }

@@ -124,7 +124,7 @@ class LoginRepository {
       } else {
         throw Error();
       }
-    } on DioException catch (e) {
+    } on DioException catch (_) {
       rethrow;
     }
   }

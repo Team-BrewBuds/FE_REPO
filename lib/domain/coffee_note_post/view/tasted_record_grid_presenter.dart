@@ -50,18 +50,17 @@ final class TastedRecordGridPresenter extends Presenter {
     }
   }
 
-  bool onSelected(TastedRecordInProfile tastedRecord) {
+  Future<void> onSelected(TastedRecordInProfile tastedRecord) async {
     if (_selectedTastedRecords.contains(tastedRecord)) {
       _selectedTastedRecords.remove(tastedRecord);
     } else {
       if (_selectedTastedRecords.length < 10) {
         _selectedTastedRecords.add(tastedRecord);
       } else {
-        return false;
+        throw Exception();
       }
     }
     notifyListeners();
-    return true;
   }
 
   onDeletedAt(int index) {

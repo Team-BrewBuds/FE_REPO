@@ -5,8 +5,8 @@ import 'package:brew_buds/data/api/duplicated_nickname_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
-import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/domain/signup/state/signup_state.dart';
+import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
@@ -17,6 +17,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 typedef NicknameValidState = ({
   bool isChangeNickname,
   bool hasNickname,
+  bool isValidNicknameLength,
   bool isValidNickname,
   bool isDuplicatingNickname,
   bool isNicknameChecking,
@@ -50,7 +51,8 @@ class SignUpPresenter extends Presenter {
       !_isDuplicatingNickname &&
       _yearOfBirthLength == 4 &&
       _isValidYearOfBirth &&
-      _state.gender != null;
+      _state.gender != null &&
+      _isValidNickName();
 
   bool get isValidSecondPage => _state.coffeeLifes?.isNotEmpty ?? false;
 
@@ -61,7 +63,8 @@ class SignUpPresenter extends Presenter {
   NicknameValidState get nicknameValidState => (
         isChangeNickname: _isChangeNickname,
         hasNickname: nickName.isNotEmpty,
-        isValidNickname: nickName.length >= 2 && nickName.length <= 12,
+        isValidNicknameLength: nickName.length >= 2 && nickName.length <= 12,
+        isValidNickname: _isValidNickName(),
         isDuplicatingNickname: _isDuplicatingNickname,
         isNicknameChecking: _isNicknameChecking,
       );
@@ -304,5 +307,14 @@ class SignUpPresenter extends Presenter {
       notifyListeners();
       return false;
     }
+  }
+
+  bool _isValidNickName() {
+    for (int codeUnit in nickName.codeUnits) {
+      if (codeUnit >= 0x3131 && codeUnit <= 0x318E) {
+        return false;
+      }
+    }
+    return true;
   }
 }

@@ -18,14 +18,21 @@ class AppRepository {
     await remoteConfig.fetchAndActivate();
 
     final minVersionStr = remoteConfig.getString('min_required_version');
-    final minVersion = Version.parse('1.0.1');
+    final minVersion = Version.parse(minVersionStr);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = Version.parse(packageInfo.version);
 
     if (currentVersion < minVersion) {
-      EventBus.instance.fire(NeedUpdateEvent(url: await _fetchAppStoreUrl()));
+      EventBus.instance.fire(NeedUpdateEvent(id: await fetchAppId()));
     }
+  }
+
+  Future<String> fetchAppId() async {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.fetchAndActivate();
+
+    return remoteConfig.getString('ios_app_id');
   }
 
   Future<String> _fetchAppStoreUrl() async {

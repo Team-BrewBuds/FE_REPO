@@ -20,9 +20,9 @@ class LoginPageFirst extends StatefulWidget {
 
 class _LoginPageFirstState extends State<LoginPageFirst> {
   final List<String> images = [
-    'assets/images/cafe.png',
-    'assets/images/coffeeEnjoy.png',
-    'assets/images/maker.png',
+    'assets/images/banner/tasted_record.png',
+    'assets/images/banner/search.png',
+    'assets/images/banner/recommend.png',
   ];
   final List<String> titleList = [
     "시음 기록",
@@ -64,8 +64,8 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
               ),
               Center(
                 child: SizedBox(
-                  height: 240.h,
-                  width: 240.w,
+                  height: 260.h,
+                  width: 260.w,
                   child: CarouselSlider.builder(
                     itemCount: images.length,
                     itemBuilder: (context, _, index) => ExtendedImage.asset(images[index], fit: BoxFit.cover),

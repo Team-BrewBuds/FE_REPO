@@ -5,6 +5,7 @@ import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
 
 final class PostImagePresenter extends Presenter {
+  final int maximumSelectCount = 5;
   final PhotoRepository _photoRepository = PhotoRepository.instance;
   final List<int> _selectedPhotoIndexList = List.empty(growable: true);
   final List<AssetAlbum> _albumList = List.empty(growable: true);
@@ -27,11 +28,15 @@ final class PostImagePresenter extends Presenter {
     notifyListeners();
   }
 
-  onSelectPhotoAt(int index) {
+  Future<void> onSelectPhotoAt(int index) async {
     if (_selectedPhotoIndexList.contains(index)) {
       _selectedPhotoIndexList.remove(index);
     } else {
-      _selectedPhotoIndexList.add(index);
+      if (_selectedPhotoIndexList.length == maximumSelectCount) {
+        throw Exception();
+      } else {
+        _selectedPhotoIndexList.add(index);
+      }
     }
     notifyListeners();
   }

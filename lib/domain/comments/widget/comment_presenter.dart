@@ -56,6 +56,20 @@ final class CommentPresenter extends Presenter {
     notifyListeners();
   }
 
+  Future<void> onDelete() async {
+    final previousContent = _comment.content;
+    _comment = _comment.copyWith(content: '삭제된 댓글입니다.');
+    notifyListeners();
+
+    try {
+      await _commentsRepository.deleteComment(id: _comment.id);
+    } catch (e) {
+      _comment = _comment.copyWith(content: previousContent);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   _onEvent(CommentEvent event) {
     if (event.senderId != presenterId) {
       switch (event) {
@@ -89,7 +103,7 @@ final class CommentPresenter extends Presenter {
     }
   }
 
-  onTapLike() async {
+  Future<void> onTapLike() async {
     final isLikedPre = _comment.isLiked;
     final likeCountPre = _comment.likeCount;
     _comment = _comment.copyWith(isLiked: !isLikedPre, likeCount: isLikedPre ? likeCountPre - 1 : likeCountPre + 1);
@@ -115,7 +129,7 @@ final class CommentPresenter extends Presenter {
     }
   }
 
-  onTapDeleteReCommentAt(int index) async {
+  Future<void> onTapDeleteReCommentAt(int index) async {
     final removedComment = _reCommentPresenters.removeAt(index);
     notifyListeners();
 
@@ -123,7 +137,8 @@ final class CommentPresenter extends Presenter {
       await _commentsRepository.deleteComment(id: removedComment.id);
     } catch (e) {
       _reCommentPresenters.insert(index, removedComment);
-      return;
+      notifyListeners();
+      rethrow;
     }
   }
 }

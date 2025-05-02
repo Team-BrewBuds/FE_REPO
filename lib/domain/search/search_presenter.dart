@@ -278,9 +278,13 @@ final class SearchPresenter extends Presenter {
   }
 
   onChangeSearchWord(String newWord) {
-    if (newWord.length < 2) return;
-    _searchWord = newWord;
-    _debouncer.setValue(null);
+    if (newWord.length < 2) {
+      _searchWord = '';
+      _suggestWordList.clear();
+    } else {
+      _searchWord = newWord;
+      _debouncer.setValue(null);
+    }
   }
 
   _fetchSuggestWordList() async {

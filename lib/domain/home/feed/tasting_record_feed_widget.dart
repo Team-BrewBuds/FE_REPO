@@ -84,7 +84,7 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
   @override
   Future<void> onTappedProfile(BuildContext context) {
     final author = context.read<TastedRecordFeedPresenter>().feed.data.author;
-    return ScreenNavigator.pushToProfile(context: context, id: author.id);
+    return ScreenNavigator.showProfile(context: context, id: author.id);
   }
 
   _pushToDetail(BuildContext context) {

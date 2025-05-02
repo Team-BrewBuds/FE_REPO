@@ -10,7 +10,6 @@ import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -41,8 +40,6 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
-
-  bool _canShowAlert = true;
 
   int get currentIndex => getCurrentIndex(context);
 
@@ -507,48 +504,5 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
         return const TermsOfUseBottomSheet();
       },
     );
-  }
-
-  showLoginAlert() async {
-    final context = this.context;
-    if (context.mounted && _canShowAlert) {
-      _canShowAlert = false;
-
-      await showCupertinoDialog(
-        context: context,
-        builder: (context) {
-          return CupertinoAlertDialog(
-            title: Text('토큰 만료', style: TextStyles.title02SemiBold),
-            content: Text('로그인 페이지로 이동합니다.', style: TextStyles.bodyRegular),
-            actions: [
-              CupertinoDialogAction(
-                isDefaultAction: false,
-                child: Text(
-                  '닫기',
-                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.destructiveRed),
-                ),
-                onPressed: () {
-                  context.pop();
-                  context.go('/login');
-                },
-              ),
-              CupertinoDialogAction(
-                isDefaultAction: true,
-                child: Text(
-                  '확인',
-                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
-                ),
-                onPressed: () {
-                  context.pop();
-                  context.go('/login');
-                },
-              )
-            ],
-          );
-        },
-      );
-
-      _canShowAlert = true;
-    }
   }
 }

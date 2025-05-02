@@ -1,7 +1,6 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,7 +15,11 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
     Function()? onCancel,
     Function()? onDone,
   }) {
-    return showBarrierDialog(
+    return showGeneralDialog<void>(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: ColorStyles.black50,
+      transitionDuration: const Duration(milliseconds: 100),
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -99,6 +102,17 @@ mixin CenterDialogMixin<T extends StatefulWidget> on State<T> {
               ),
             ),
           ],
+        );
+      },
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween(begin: 0.9, end: 1.0).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            ),
+            child: child,
+          ),
         );
       },
     );

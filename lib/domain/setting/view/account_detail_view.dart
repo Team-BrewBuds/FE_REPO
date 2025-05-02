@@ -9,6 +9,7 @@ import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/events/message_event.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -167,7 +168,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(CoffeeLife.values[index].imagePath, width: 90, height: 90, fit: BoxFit.cover),
+                    ExtendedImage.asset(CoffeeLife.values[index].imagePath, width: 90.w, height: 90.h, fit: BoxFit.cover),
                     const SizedBox(height: 4),
                     Text(
                       CoffeeLife.values[index].title,

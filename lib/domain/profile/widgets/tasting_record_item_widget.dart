@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class TastingRecordItemWidget extends StatelessWidget {
-  final String imageUri;
+  final String imageUrl;
   final double rating;
 
   @override
@@ -15,7 +15,7 @@ class TastingRecordItemWidget extends StatelessWidget {
         Positioned.fill(
           child: LayoutBuilder(builder: (context, constraints) {
             return MyNetworkImage(
-              imageUrl: imageUri,
+              imageUrl: imageUrl,
               height: constraints.maxHeight,
               width: constraints.maxWidth,
               showGradient: true,
@@ -47,7 +47,7 @@ class TastingRecordItemWidget extends StatelessWidget {
 
   const TastingRecordItemWidget({
     super.key,
-    required this.imageUri,
+    required this.imageUrl,
     required this.rating,
   });
 }

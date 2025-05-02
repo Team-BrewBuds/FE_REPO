@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/setting/model/blocked_user.dart';
@@ -198,12 +198,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
             children: [
-              MyNetworkImage(
-                imageUrl: user.profileImageUri,
-                height: 48,
-                width: 48,
-                shape: BoxShape.circle,
-              ),
+              ProfileImage(imageUrl:  user.profileImageUrl, height: 48, width: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

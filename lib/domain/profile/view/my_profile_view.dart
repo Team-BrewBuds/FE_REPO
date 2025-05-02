@@ -70,7 +70,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
               onTap: () {
                 final id = context.read<ProfilePresenter>().id;
                 final nickname = context.read<ProfilePresenter>().nickName;
-                return ScreenNavigator.pushToTasteReport(context: context, id: id, nickname: nickname);
+                return ScreenNavigator.showTasteReport(context: context, id: id, nickname: nickname);
               },
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -93,13 +93,13 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
                 final nickname = context.read<ProfilePresenter>().nickName;
                 final introduction = context.read<ProfilePresenter>().profile?.introduction ?? '';
                 final profileLink = context.read<ProfilePresenter>().profile?.profileLink ?? '';
-                final profileImageURI = context.read<ProfilePresenter>().profile?.profileImageUrl ?? '';
+                final profileImageUrl = context.read<ProfilePresenter>().profile?.profileImageUrl ?? '';
                 final coffeeLife = context.read<ProfilePresenter>().profile?.coffeeLife ?? [];
 
                 return ScreenNavigator.showProfileEditScreen(
                   context: context,
                   selectedCoffeeLifeList: coffeeLife,
-                  imageUrl: profileImageURI,
+                  imageUrl: profileImageUrl,
                   nickname: nickname,
                   introduction: introduction,
                   link: profileLink,
@@ -128,7 +128,7 @@ class _MyProfileViewState extends State<MyProfileView> with ProfileMixin<MyProfi
   Future<void> pushFollowList(int index) {
     final profile = context.read<ProfilePresenter>().profile;
     if (profile != null) {
-      return ScreenNavigator.pushToFollowListPA(
+      return ScreenNavigator.showFollowListPA(
         context: context,
         id: profile.id,
         nickName: profile.nickname,

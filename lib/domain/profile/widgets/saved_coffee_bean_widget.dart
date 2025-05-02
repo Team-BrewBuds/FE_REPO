@@ -8,7 +8,7 @@ class SavedCoffeeBeanWidget extends StatelessWidget {
   final String name;
   final String rating;
   final int tastedRecordsCount;
-  final String imageUri;
+  final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class SavedCoffeeBeanWidget extends StatelessWidget {
           ),
           const SizedBox(width: 24),
           MyNetworkImage(
-            imageUrl: imageUri,
+            imageUrl: imageUrl,
             height: 64,
             width: 64,
           ),
@@ -61,6 +61,6 @@ class SavedCoffeeBeanWidget extends StatelessWidget {
     required this.name,
     required this.rating,
     required this.tastedRecordsCount,
-    required this.imageUri,
+    required this.imageUrl,
   });
 }

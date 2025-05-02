@@ -138,20 +138,50 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       title: Padding(
         padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
         child: Row(
-          spacing: 8,
           children: [
-            if (context.select<SearchPresenter, bool>((presenter) => presenter.canBack))
-              ThrottleButton(
-                onTap: () {
-                  onTapBackButton();
-                },
-                child: SvgPicture.asset(
-                  'assets/icons/back.svg',
-                  width: 24,
-                  height: 24,
-                ),
-              ),
+            Builder(
+              builder: (context) {
+                final canBack =
+                    context.select<SearchPresenter, bool>((presenter) => presenter.viewState == SearchState.result);
+                return canBack
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ThrottleButton(
+                          onTap: () {
+                            onTapBackButton();
+                          },
+                          child: SvgPicture.asset(
+                            'assets/icons/back.svg',
+                            width: 24,
+                            height: 24,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink();
+              },
+            ),
             Expanded(child: buildSearchTextFiled()),
+            Builder(
+              builder: (context) {
+                final canPop =
+                    context.select<SearchPresenter, bool>((presenter) => presenter.viewState == SearchState.suggesting);
+                return canPop
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: ThrottleButton(
+                          onTap: () {
+                            onTapBackButton();
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            color: ColorStyles.white,
+                            child: Text('닫기', style: TextStyles.labelSmallMedium),
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink();
+              },
+            ),
           ],
         ),
       ),

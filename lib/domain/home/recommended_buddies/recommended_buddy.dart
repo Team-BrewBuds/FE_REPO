@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddy_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,11 +27,10 @@ class RecommendedBuddyWidget extends StatelessWidget {
             final imageUrl = context.select<RecommendedBuddyPresenter, String>(
               (presenter) => presenter.user.profileImageUrl,
             );
-            return MyNetworkImage(
+            return ProfileImage(
               imageUrl: imageUrl,
               height: 80,
               width: 80,
-              shape: BoxShape.circle,
             );
           }),
           const SizedBox(height: 12),

@@ -7,6 +7,7 @@ import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
@@ -234,7 +235,7 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               onTap: () {
                 context.pop();
               },
-              child: SvgPicture.asset('assets/icons/x.svg', fit: BoxFit.cover, height: 24, width: 24),
+              child: SvgPicture.asset('assets/icons/back.svg', fit: BoxFit.cover, height: 24, width: 24),
             ),
             const Spacer(),
             Text('게시글', style: TextStyles.title02SemiBold),
@@ -323,7 +324,7 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
       child: ThrottleButton(
         onTap: () {
           if (authorId != null) {
-            ScreenNavigator.pushToProfile(context: context, id: authorId);
+            ScreenNavigator.showProfile(context: context, id: authorId);
           }
         },
         child: Container(
@@ -332,7 +333,7 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              MyNetworkImage(imageUrl: imageUrl, height: 36, width: 36, shape: BoxShape.circle),
+              ProfileImage(imageUrl: imageUrl, height: 36, width: 36),
               const SizedBox(width: 8),
               Expanded(
                 child: Column(

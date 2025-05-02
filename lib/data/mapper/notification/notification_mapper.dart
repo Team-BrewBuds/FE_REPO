@@ -23,14 +23,14 @@ extension NotificationMapper on NotificationModelDTO {
               id: current.id,
               body: current.body,
               isRead: current.isRead,
-              createdAt: current.createdAt,
+              createdAt: _timeAgo(current.createdAt),
             );
           case PostLikeNotificationDataDTO():
             return PostLikeNotification(
               id: current.id,
               body: current.body,
               isRead: current.isRead,
-              createdAt: current.createdAt,
+              createdAt: _timeAgo(current.createdAt),
               objectId: currentData.postId,
             );
           case TastedRecordLikeNotificationDataDTO():
@@ -38,7 +38,7 @@ extension NotificationMapper on NotificationModelDTO {
               id: current.id,
               body: current.body,
               isRead: current.isRead,
-              createdAt: current.createdAt,
+              createdAt: _timeAgo(current.createdAt),
               objectId: currentData.tastedRecordId,
             );
           case CommentLikeNotificationDataDTO():
@@ -46,7 +46,7 @@ extension NotificationMapper on NotificationModelDTO {
               id: current.id,
               body: current.body,
               isRead: current.isRead,
-              createdAt: current.createdAt,
+              createdAt: _timeAgo(current.createdAt),
               objectId: currentData.objectId,
               objectType: currentData.objectType,
             );

@@ -3,7 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/comment_button.dart';
 import 'package:brew_buds/common/widgets/follow_button.dart';
 import 'package:brew_buds/common/widgets/like_button.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
@@ -87,12 +87,7 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             //프로필 사진
-            MyNetworkImage(
-              imageUrl: imageUrl,
-              height: 36,
-              width: 36,
-              shape: BoxShape.circle,
-            ),
+            ProfileImage(imageUrl: imageUrl, height: 36, width: 36),
             const SizedBox(width: 8),
             Expanded(
               child: Column(

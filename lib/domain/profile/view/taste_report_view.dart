@@ -97,33 +97,140 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     return Stack(
       children: [
         Scaffold(
-          appBar: _buildAppBar(),
+          backgroundColor: ColorStyles.white,
           body: SafeArea(
+            top: false,
             child: CustomScrollView(
               key: _scrollViewKey,
               controller: _scrollController,
               slivers: [
-                SliverToBoxAdapter(
-                  child: ExtendedImage.asset(
-                    'assets/images/owner.png',
-                    height: 150,
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  pinned: true,
+                  backgroundColor: ColorStyles.white,
+                  expandedHeight: 140.h + 64 + 45 + 120,
+                  toolbarHeight: 64,
+                  titleSpacing: 0,
+                  leadingWidth: 0,
+                  title: Padding(
+                    padding: const EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ThrottleButton(
+                          onTap: () {
+                            context.pop();
+                          },
+                          child: SvgPicture.asset(
+                            'assets/icons/back.svg',
+                            fit: BoxFit.cover,
+                            height: 24,
+                            width: 24,
+                          ),
+                        ),
+                        const Spacer(),
+                        Selector<TasteReportPresenter, String>(
+                            selector: (context, presenter) => presenter.nickname,
+                            builder: (context, nickname, child) => Text(nickname, style: TextStyles.title02Bold)),
+                        const Spacer(),
+                        const SizedBox(
+                          height: 24,
+                          width: 24,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SliverToBoxAdapter(
-                  child: Selector<TasteReportPresenter, ActivityInformationState>(
+                  flexibleSpace: Selector<TasteReportPresenter, ActivityInformationState>(
                     selector: (context, presenter) => presenter.activityInformationState,
-                    builder: (context, activityInformationState, child) => _buildActivityInformation(
-                      tastingRecordCount: activityInformationState.tastingReportCount,
-                      postCount: activityInformationState.postCount,
-                      savedNoteCount: activityInformationState.savedNoteCount,
-                      savedBeanCount: activityInformationState.savedBeanCount,
+                    builder: (context, activityInformationState, child) {
+                      final String pathPath;
+                      if (activityInformationState.tastingReportCount >= 5) {
+                        final postCount = activityInformationState.postCount;
+                        final savedBeanCount = activityInformationState.savedBeanCount;
+                        final savedNoteCount = activityInformationState.savedNoteCount;
+                        if (postCount >= 5 && savedBeanCount >= 5 && savedNoteCount >= 5) {
+                          pathPath = 'assets/images/taste_report/taste_explorer.png';
+                        } else {
+                          pathPath = 'assets/images/taste_report/taste_novice.png';
+                        }
+                      } else {
+                        pathPath = 'assets/images/taste_report/new_buddy.png';
+                      }
+                      return FlexibleSpaceBar(
+                        expandedTitleScale: 1.0,
+                        background: Container(
+                          color: ColorStyles.background,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(height: ScreenUtil().statusBarHeight + 64),
+                              ExtendedImage.asset(
+                                pathPath,
+                                width: 200.w,
+                                height: 140.h,
+                                fit: BoxFit.contain,
+                              ),
+                              Expanded(
+                                child: Selector<TasteReportPresenter, ActivityInformationState>(
+                                  selector: (context, presenter) => presenter.activityInformationState,
+                                  builder: (context, activityInformationState, child) => _buildActivityInformation(
+                                    tastingRecordCount: activityInformationState.tastingReportCount,
+                                    postCount: activityInformationState.postCount,
+                                    savedNoteCount: activityInformationState.savedNoteCount,
+                                    savedBeanCount: activityInformationState.savedBeanCount,
+                                  ),
+                                ),
+                              ),
+                              Container(height: 45, color: ColorStyles.white),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  bottom: PreferredSize(
+                    preferredSize: const Size(double.infinity, 45),
+                    child: Container(
+                      color: ColorStyles.white,
+                      child: TabBar(
+                        controller: _tabController,
+                        padding: const EdgeInsets.only(left: 8, right: 8),
+                        indicatorPadding: const EdgeInsets.only(top: 4),
+                        indicatorSize: TabBarIndicatorSize.label,
+                        indicator: const UnderlineTabIndicator(
+                          borderSide: BorderSide(width: 2, color: ColorStyles.black),
+                        ),
+                        labelPadding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
+                        labelStyle: TextStyles.title01SemiBold,
+                        labelColor: ColorStyles.black,
+                        unselectedLabelStyle: TextStyles.title01SemiBold,
+                        unselectedLabelColor: ColorStyles.gray50,
+                        dividerHeight: 1,
+                        dividerColor: ColorStyles.gray20,
+                        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
+                        tabs: const [
+                          Tab(text: '활동 캘린더', height: 31),
+                          Tab(text: '별점 분포', height: 31),
+                          Tab(text: '선호 맛', height: 31),
+                          Tab(text: '선호 원산지', height: 31),
+                        ],
+                        onTap: (index) {
+                          final tapContext = _keyList[index].currentContext;
+                          if (tapContext != null) {
+                            Scrollable.ensureVisible(tapContext,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                                alignment: 0,
+                                alignmentPolicy: ScrollPositionAlignmentPolicy.explicit);
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ),
-                _buildTabBar(),
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
                 _buildActivityCalendar(),
-                const SliverToBoxAdapter(child: SizedBox(height: 32)),
                 _buildActivityListTitle(),
                 ValueListenableBuilder(
                     valueListenable: _expandedNotifier,
@@ -158,43 +265,6 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     );
   }
 
-  AppBar _buildAppBar() {
-    return AppBar(
-      leading: const SizedBox.shrink(),
-      leadingWidth: 0,
-      centerTitle: false,
-      titleSpacing: 0,
-      title: Padding(
-        padding: const EdgeInsets.only(top: 28, left: 16, right: 16, bottom: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ThrottleButton(
-              onTap: () {
-                context.pop();
-              },
-              child: SvgPicture.asset(
-                'assets/icons/back.svg',
-                fit: BoxFit.cover,
-                height: 24,
-                width: 24,
-              ),
-            ),
-            const Spacer(),
-            Selector<TasteReportPresenter, String>(
-                selector: (context, presenter) => presenter.nickname,
-                builder: (context, nickname, child) => Text(nickname, style: TextStyles.title02Bold)),
-            const Spacer(),
-            const SizedBox(
-              height: 24,
-              width: 24,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildActivityInformation({
     required int tastingRecordCount,
     required int postCount,
@@ -221,20 +291,6 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               children: [
                 Text('활동 요약', style: TextStyles.title02Bold),
                 const Spacer(),
-                Row(
-                  children: [
-                    SvgPicture.asset(
-                      height: 14,
-                      width: 14,
-                      'assets/icons/information.svg',
-                      colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                    ),
-                    Text(
-                      '최근 1개월간 브루버즈에서의 활동을 요약했어요.',
-                      style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray50),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -280,57 +336,13 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     );
   }
 
-  Widget _buildTabBar() {
-    return SliverAppBar(
-      leadingWidth: 0,
-      leading: const SizedBox.shrink(),
-      titleSpacing: 0,
-      floating: true,
-      toolbarHeight: 65,
-      title: TabBar(
-        controller: _tabController,
-        padding: const EdgeInsets.only(left: 8, right: 8, top: 24),
-        indicatorPadding: const EdgeInsets.only(top: 4),
-        indicatorSize: TabBarIndicatorSize.label,
-        indicator: const UnderlineTabIndicator(
-          borderSide: BorderSide(width: 2, color: ColorStyles.black),
-        ),
-        labelPadding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-        tabAlignment: TabAlignment.start,
-        isScrollable: true,
-        labelStyle: TextStyles.title01SemiBold,
-        labelColor: ColorStyles.black,
-        unselectedLabelStyle: TextStyles.title01SemiBold,
-        unselectedLabelColor: ColorStyles.gray50,
-        dividerHeight: 1,
-        dividerColor: ColorStyles.gray20,
-        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        tabs: const [
-          Tab(text: '활동 캘린더', height: 31),
-          Tab(text: '별점 분포', height: 31),
-          Tab(text: '선호 맛', height: 31),
-          Tab(text: '선호 원산지', height: 31),
-        ],
-        onTap: (index) {
-          final tapContext = _keyList[index].currentContext;
-          if (tapContext != null) {
-            Scrollable.ensureVisible(tapContext,
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                alignment: 0,
-                alignmentPolicy: ScrollPositionAlignmentPolicy.explicit);
-          }
-        },
-      ),
-    );
-  }
-
   Widget _buildActivityCalendar() {
     return SliverToBoxAdapter(
       child: Container(
         key: _keyList[0],
         clipBehavior: Clip.none,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 24, bottom: 32),
+        color: ColorStyles.white,
         child: Column(
           children: [
             Row(
@@ -466,9 +478,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
   Widget _buildActivityListTitle() {
     return SliverToBoxAdapter(
       child: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: ColorStyles.gray20)),
-        ),
+        decoration:
+            const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20)), color: ColorStyles.white),
         child: ThrottleButton(
           onTap: () {
             _toggleExpanded();
@@ -536,7 +547,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     beanName: activity.beanName,
                     rating: '${activity.rating}',
                     flavor: activity.flavors,
-                    imageUri: activity.thumbnail,
+                    imageUrl: activity.thumbnail,
                   ),
                 );
               case SavedBeanActivityItem():
@@ -548,7 +559,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     name: activity.name,
                     rating: '${activity.rating}',
                     tastedRecordsCount: 0,
-                    imageUri: '',
+                    imageUrl: '',
                   ),
                 );
             }
@@ -570,129 +581,133 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     List<String> ratingKey = ['0.0', '0.5', '1.0', '1.5', '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5'];
 
     return SliverToBoxAdapter(
-      child: Column(
+      child: Container(
         key: _keyList[1],
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
-            child: Text('별점 분포', style: TextStyles.title02Bold),
-          ),
-          const SizedBox(height: 24),
-          if (ratingDistribution != null && ratingDistribution.ratingCount != 0) ...[
-            Container(
-              height: 100,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BarChart(
-                BarChartData(
-                  barGroups: List<BarChartGroupData>.generate(ratingKey.length, (index) {
-                    final rating = ratingKey[index];
-                    final topIndex = ratingKey.indexOf('${ratingDistribution.mostRating}');
-                    final count = ratingDistribution.ratingDistribution[rating] ?? 0;
-                    return BarChartGroupData(
-                      x: index,
-                      barRods: [
-                        BarChartRodData(
-                          toY: index == 0 || index == 11 ? 0.0 : (count / ratingDistribution.ratingCount) + 0.01,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
-                          color: topIndex == index ? ColorStyles.red : ColorStyles.gray20,
-                          width: 24,
-                        ),
-                      ],
-                      showingTooltipIndicators: (index == 1 || index == 10) || topIndex == index ? [0] : null,
-                    );
-                  }),
-                  groupsSpace: 3,
-                  titlesData: const FlTitlesData(show: false),
-                  barTouchData: BarTouchData(
-                    enabled: false,
-                    touchTooltipData: BarTouchTooltipData(
-                      getTooltipColor: (_) => Colors.transparent,
-                      tooltipPadding: EdgeInsets.zero,
-                      tooltipMargin: 2,
-                      getTooltipItem: (
-                        BarChartGroupData group,
-                        int groupIndex,
-                        BarChartRodData rod,
-                        int rodIndex,
-                      ) {
-                        return BarTooltipItem(
-                          ratingKey[groupIndex],
-                          TextStyles.labelSmallSemiBold.copyWith(
-                            color: '${ratingDistribution.mostRating}' == ratingKey[groupIndex]
-                                ? ColorStyles.red
-                                : ColorStyles.gray50,
+        color: ColorStyles.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 16),
+              child: Text('별점 분포', style: TextStyles.title02Bold),
+            ),
+            const SizedBox(height: 24),
+            if (ratingDistribution != null && ratingDistribution.ratingCount != 0) ...[
+              Container(
+                height: 100,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: BarChart(
+                  BarChartData(
+                    barGroups: List<BarChartGroupData>.generate(ratingKey.length, (index) {
+                      final rating = ratingKey[index];
+                      final topIndex = ratingKey.indexOf('${ratingDistribution.mostRating}');
+                      final count = ratingDistribution.ratingDistribution[rating] ?? 0;
+                      return BarChartGroupData(
+                        x: index,
+                        barRods: [
+                          BarChartRodData(
+                            toY: index == 0 || index == 11 ? 0.0 : (count / ratingDistribution.ratingCount) + 0.01,
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                            color: topIndex == index ? ColorStyles.red : ColorStyles.gray20,
+                            width: 24,
                           ),
-                        );
-                      },
+                        ],
+                        showingTooltipIndicators: (index == 1 || index == 10) || topIndex == index ? [0] : null,
+                      );
+                    }),
+                    groupsSpace: 3,
+                    titlesData: const FlTitlesData(show: false),
+                    barTouchData: BarTouchData(
+                      enabled: false,
+                      touchTooltipData: BarTouchTooltipData(
+                        getTooltipColor: (_) => Colors.transparent,
+                        tooltipPadding: EdgeInsets.zero,
+                        tooltipMargin: 2,
+                        getTooltipItem: (
+                          BarChartGroupData group,
+                          int groupIndex,
+                          BarChartRodData rod,
+                          int rodIndex,
+                        ) {
+                          return BarTooltipItem(
+                            ratingKey[groupIndex],
+                            TextStyles.labelSmallSemiBold.copyWith(
+                              color: '${ratingDistribution.mostRating}' == ratingKey[groupIndex]
+                                  ? ColorStyles.red
+                                  : ColorStyles.gray50,
+                            ),
+                          );
+                        },
+                      ),
                     ),
+                    borderData:
+                        FlBorderData(border: const Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
+                    gridData: const FlGridData(show: false),
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: 1,
                   ),
-                  borderData:
-                      FlBorderData(border: const Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1))),
-                  gridData: const FlGridData(show: false),
-                  alignment: BarChartAlignment.spaceAround,
-                  maxY: 1,
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              height: 73,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        ratingDistribution.avgRating.toStringAsFixed(1),
-                        style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
-                      ),
-                      const SizedBox(height: 6),
-                      Text('별점 평균', style: TextStyles.captionMediumMedium),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '${ratingDistribution.ratingCount}',
-                        style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
-                      ),
-                      const SizedBox(height: 6),
-                      Text('별점 개수', style: TextStyles.captionMediumMedium),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        ratingDistribution.mostRating.toStringAsFixed(1),
-                        style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
-                      ),
-                      const SizedBox(height: 6),
-                      Text('주요 별점', style: TextStyles.captionMediumMedium),
-                    ],
-                  ),
-                ],
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                height: 73,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          ratingDistribution.avgRating.toStringAsFixed(1),
+                          style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
+                        ),
+                        const SizedBox(height: 6),
+                        Text('별점 평균', style: TextStyles.captionMediumMedium),
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${ratingDistribution.ratingCount}',
+                          style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
+                        ),
+                        const SizedBox(height: 6),
+                        Text('별점 개수', style: TextStyles.captionMediumMedium),
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          ratingDistribution.mostRating.toStringAsFixed(1),
+                          style: TextStyles.title04SemiBold.copyWith(color: ColorStyles.red),
+                        ),
+                        const SizedBox(height: 6),
+                        Text('주요 별점', style: TextStyles.captionMediumMedium),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ] else ...[
-            _buildEmpty(),
+            ] else ...[
+              _buildEmpty(imagePath: 'assets/images/taste_report/empty_rating.png'),
+            ],
+            const SizedBox(height: 24),
           ],
-          const SizedBox(height: 48),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildFlavor({required List<TopFlavor> topFlavors}) {
     return SliverToBoxAdapter(
-      child: Padding(
+      child: Container(
         key: _keyList[2],
         padding: const EdgeInsets.symmetric(horizontal: 16),
+        color: ColorStyles.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -700,9 +715,10 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               padding: const EdgeInsets.only(top: 24, bottom: 16),
               child: Text('선호하는 맛', style: TextStyles.title02Bold),
             ),
-            if (topFlavors.isEmpty)
-              _buildEmpty()
-            else
+            if (topFlavors.isEmpty) ...[
+              _buildEmpty(imagePath: 'assets/images/taste_report/empty_taste.png'),
+              const SizedBox(height: 24),
+            ] else ...[
               Container(
                 margin: const EdgeInsets.only(top: 16, right: 36, left: 36, bottom: 16),
                 height: 200,
@@ -757,20 +773,21 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                   ],
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                spacing: 16,
-                children: List.generate(
-                  topFlavors.length,
-                  (index) => _buildRankRow(
-                    rank: index + 1,
-                    title: topFlavors[index].flavor,
-                    percent: topFlavors[index].percent,
-                  ),
-                ).toList(),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  spacing: 16,
+                  children: List.generate(
+                    topFlavors.length,
+                    (index) => _buildRankRow(
+                      rank: index + 1,
+                      title: topFlavors[index].flavor,
+                      percent: topFlavors[index].percent,
+                    ),
+                  ).toList(),
+                ),
               ),
-            ),
+            ],
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Container(
@@ -796,9 +813,10 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
 
   Widget _buildCountry({required List<TopCountry> topCountryList}) {
     return SliverToBoxAdapter(
-      child: Padding(
+      child: Container(
         key: _keyList[3],
         padding: const EdgeInsets.symmetric(horizontal: 16),
+        color: ColorStyles.white,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -806,9 +824,10 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
               padding: const EdgeInsets.only(top: 24, bottom: 16),
               child: Text('선호하는 원산지', style: TextStyles.title02Bold),
             ),
-            if (topCountryList.isEmpty)
-              _buildEmpty()
-            else
+            if (topCountryList.isEmpty) ...[
+              _buildEmpty(imagePath: 'assets/images/taste_report/empty_origin.png'),
+              const SizedBox(height: 24),
+            ] else ...[
               Container(
                 margin: const EdgeInsets.only(top: 16, right: 36, left: 36, bottom: 16),
                 height: 200,
@@ -863,20 +882,21 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                   ],
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              child: Column(
-                spacing: 16,
-                children: List.generate(
-                  topCountryList.length,
-                  (index) => _buildRankRow(
-                    rank: index + 1,
-                    title: topCountryList[index].country,
-                    percent: topCountryList[index].percent,
-                  ),
-                ).toList(),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  spacing: 16,
+                  children: List.generate(
+                    topCountryList.length,
+                    (index) => _buildRankRow(
+                      rank: index + 1,
+                      title: topCountryList[index].country,
+                      percent: topCountryList[index].percent,
+                    ),
+                  ).toList(),
+                ),
               ),
-            ),
+            ],
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: Container(
@@ -945,7 +965,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildEmpty({required String imagePath}) {
     return Column(
       children: [
         Text('아직 작성한 시음기록이 없어요.', style: TextStyles.title02SemiBold),
@@ -955,15 +975,25 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
           style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
         ),
         const SizedBox(height: 24),
-        Container(height: 160, width: 160, color: const Color(0xffd9d9d9)),
+        ExtendedImage.asset(
+          imagePath,
+          height: 160.h,
+          width: 160.w,
+          fit: BoxFit.cover,
+        ),
         const SizedBox(height: 24),
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-          decoration: const BoxDecoration(color: ColorStyles.red, borderRadius: BorderRadius.all(Radius.circular(8))),
-          child: Text(
-            '시음기록 작성하기',
-            style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.white),
-            textAlign: TextAlign.center,
+        ThrottleButton(
+          onTap: () {
+            ScreenNavigator.showTastedRecordWriteScreen(context);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+            decoration: const BoxDecoration(color: ColorStyles.red, borderRadius: BorderRadius.all(Radius.circular(8))),
+            child: Text(
+              '시음기록 작성하기',
+              style: TextStyles.captionMediumSemiBold.copyWith(color: ColorStyles.white),
+              textAlign: TextAlign.center,
+            ),
           ),
         )
       ],

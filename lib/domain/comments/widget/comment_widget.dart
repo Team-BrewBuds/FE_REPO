@@ -1,8 +1,10 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/re_comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/re_comment_widget.dart';
@@ -12,7 +14,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class CommentWidget extends StatelessWidget {
+class CommentWidget extends StatefulWidget {
   final int objectAuthorId;
   final bool isMyComment;
   final bool isMyObject;
@@ -25,6 +27,19 @@ class CommentWidget extends StatelessWidget {
     required this.isMyObject,
     required this.onTapReply,
   });
+
+  @override
+  State<CommentWidget> createState() => _CommentWidgetState();
+}
+
+class _CommentWidgetState extends State<CommentWidget> with TickerProviderStateMixin {
+  late final SlidableController _slidableController;
+
+  @override
+  void initState() {
+    _slidableController = SlidableController(this);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +66,10 @@ class CommentWidget extends StatelessWidget {
                     return ChangeNotifierProvider.value(
                       value: presenter,
                       child: ReCommentWidget(
-                        objectAuthorId: objectAuthorId,
-                        isMyComment: isMyComment,
-                        isMyObject: isMyObject,
-                        onDelete: () {
-                          context.read<CommentPresenter>().onTapDeleteReCommentAt(index);
-                        },
+                        objectAuthorId: widget.objectAuthorId,
+                        isMyComment: presenter.authorId == AccountRepository.instance.id,
+                        isMyObject: widget.isMyObject,
+                        onDelete: () => context.read<CommentPresenter>().onTapDeleteReCommentAt(index),
                       ),
                     );
                   },
@@ -106,14 +119,21 @@ class CommentWidget extends StatelessWidget {
   Widget _buildSlidableComment() {
     return Builder(builder: (context) {
       return Slidable(
+        controller: _slidableController,
         endActionPane: ActionPane(
-          extentRatio: (isMyObject || isMyComment) && !isMyComment ? 0.4 : 0.2,
+          extentRatio: (widget.isMyObject || widget.isMyComment) && !widget.isMyComment ? 0.4 : 0.2,
           motion: const DrawerMotion(),
           children: [
-            if (isMyObject || isMyComment)
+            if (widget.isMyObject || widget.isMyComment)
               Expanded(
-                child: ThrottleButton(
-                  onTap: () {},
+                child: FutureButton(
+                  onTap: () => context.read<CommentPresenter>().onDelete(),
+                  onError: (_) {
+                    _slidableController.close();
+                  },
+                  onComplete: (_) {
+                    _slidableController.close();
+                  },
                   child: Container(
                     color: ColorStyles.red,
                     child: Column(
@@ -135,10 +155,11 @@ class CommentWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            if (!isMyComment)
+            if (!widget.isMyComment)
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
+                    _slidableController.close();
                     ScreenNavigator.pushToReportScreen(context, id: context.read<CommentPresenter>().id, type: 'comment');
                   },
                   child: Container(
@@ -179,15 +200,14 @@ class CommentWidget extends StatelessWidget {
             children: [
               ThrottleButton(
                 onTap: () {
-                  ScreenNavigator.pushToProfile(context: context, id: context.read<CommentPresenter>().author.id);
+                  ScreenNavigator.showProfile(context: context, id: context.read<CommentPresenter>().author.id);
                 },
                 child: Builder(builder: (context) {
                   final imageUrl = context.select<CommentPresenter, String>((presenter) => presenter.profileImageUrl);
-                  return MyNetworkImage(
+                  return ProfileImage(
                     imageUrl: imageUrl,
                     height: 36,
                     width: 36,
-                    shape: BoxShape.circle,
                   );
                 }),
               ),
@@ -215,7 +235,7 @@ class CommentWidget extends StatelessWidget {
                             style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
                           );
                         }),
-                        if (context.read<CommentPresenter>().author.id == objectAuthorId) ...[
+                        if (context.read<CommentPresenter>().author.id == widget.objectAuthorId) ...[
                           const SizedBox(width: 6),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -243,7 +263,7 @@ class CommentWidget extends StatelessWidget {
                     const SizedBox(height: 6),
                     ThrottleButton(
                       onTap: () {
-                        onTapReply.call();
+                        widget.onTapReply.call();
                       },
                       child: Text(
                         '답글 달기',
@@ -254,10 +274,8 @@ class CommentWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              ThrottleButton(
-                onTap: () {
-                  context.read<CommentPresenter>().onTapLike();
-                },
+              FutureButton(
+                onTap: () => context.read<CommentPresenter>().onTapLike(),
                 child: Container(
                   padding: const EdgeInsets.only(top: 14),
                   width: 36.w,

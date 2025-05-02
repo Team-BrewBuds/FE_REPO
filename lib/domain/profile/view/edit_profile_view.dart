@@ -2,7 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -205,12 +205,12 @@ class _EditProfileViewState extends State<EditProfileView> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: MyNetworkImage(
-                imageUrl: imageUrl,
-                height: 98,
-                width: 98,
-                shape: BoxShape.circle,
-                border: Border.all(width: 1, color: const Color(0xff888888)),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 1, color: const Color(0xff888888)),
+                  shape: BoxShape.circle
+                ),
+                child: ProfileImage(imageUrl: imageUrl, height: 98, width: 98),
               ),
             ),
             Positioned(

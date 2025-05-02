@@ -2,8 +2,10 @@ import 'dart:typed_data';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_presenter.dart';
@@ -14,6 +16,7 @@ import 'package:brew_buds/domain/photo/model/asset_album.dart';
 import 'package:brew_buds/domain/photo/photo_first_time_view.dart';
 import 'package:brew_buds/domain/photo/widget/asset_album_list_view.dart';
 import 'package:brew_buds/domain/photo/widget/management_bottom_sheet.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -347,9 +350,15 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
                                     final selectedAt = context.select<TastedRecordImagePresenter, int>(
                                       (presenter) => presenter.getOrderOfSelected(index - 1),
                                     );
-                                    return ThrottleButton(
-                                      onTap: () {
-                                        context.read<TastedRecordImagePresenter>().onSelectPhotoAt(index - 1);
+                                    return FutureButton(
+                                      onTap: () =>
+                                          context.read<TastedRecordImagePresenter>().onSelectPhotoAt(index - 1),
+                                      onError: (_) {
+                                        EventBus.instance.fire(
+                                          const MessageEvent(message: '사진은 최대 5장까지 첨부할 수 있어요.'),
+                                        );
+                                      },
+                                      onComplete: (_) {
                                         _previewController.animateTo(1.0);
                                       },
                                       child: buildImage(

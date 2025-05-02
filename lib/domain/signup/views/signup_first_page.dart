@@ -128,7 +128,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               cursorWidth: 1,
               maxLines: 1,
             ),
-            if (nicknameValidState.hasNickname && !nicknameValidState.isValidNickname) ...[
+            if (nicknameValidState.hasNickname && !nicknameValidState.isValidNicknameLength) ...[
               const SizedBox(height: 4),
               Text(
                 '2자 이상 입력해 주세요.',
@@ -139,6 +139,13 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               const SizedBox(height: 4),
               Text(
                 '이미 사용 중인 닉네임이에요.',
+                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+              ),
+              const SizedBox(height: 17),
+            ] else if (nicknameValidState.hasNickname && !nicknameValidState.isValidNickname) ...[
+              const SizedBox(height: 4),
+              Text(
+                '유효하지 않은 닉네임이에요.',
                 style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
               ),
               const SizedBox(height: 17),

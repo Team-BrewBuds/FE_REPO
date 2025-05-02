@@ -7,6 +7,7 @@ import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/horizontal_slider_widget.dart';
 import 'package:brew_buds/common/widgets/like_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/save_button.dart';
 import 'package:brew_buds/common/widgets/send_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
@@ -306,7 +307,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                 context.pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/x.svg',
+                'assets/icons/back.svg',
                 fit: BoxFit.cover,
                 height: 24,
                 width: 24,
@@ -581,17 +582,16 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
         onTap: () {
           final id = authorId;
           if (id != null) {
-            ScreenNavigator.pushToProfile(context: context, id: id);
+            ScreenNavigator.showProfile(context: context, id: id);
           }
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            MyNetworkImage(
+            ProfileImage(
               imageUrl: profileImageUrl,
               height: 36,
               width: 36,
-              shape: BoxShape.circle,
             ),
             const SizedBox(width: 8),
             Expanded(

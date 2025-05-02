@@ -59,7 +59,7 @@ final class ReCommentPresenter extends Presenter {
     }
   }
 
-  onTapLike() async {
+  Future<void> onTapLike() async {
     final isLikedPre = _comment.isLiked;
     final likeCountPre = _comment.likeCount;
     _comment = _comment.copyWith(isLiked: !isLikedPre, likeCount: isLikedPre ? likeCountPre - 1 : likeCountPre + 1);
@@ -82,6 +82,7 @@ final class ReCommentPresenter extends Presenter {
     } catch (e) {
       _comment = _comment.copyWith(isLiked: isLikedPre, likeCount: likeCountPre);
       notifyListeners();
+      rethrow;
     }
   }
 }

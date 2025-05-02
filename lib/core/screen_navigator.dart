@@ -26,7 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 final class ScreenNavigator {
-  static Future<void> pushToProfile({required BuildContext context, required int id}) {
+  static Future<void> showProfile({required BuildContext context, required int id}) {
     return Navigator.of(context, rootNavigator: true).push(
       PageRouteBuilder(
         fullscreenDialog: true,
@@ -35,21 +35,22 @@ final class ScreenNavigator {
           child: const ProfileView(),
         ),
         transitionsBuilder: (_, animation, __, child) {
-          return FadeTransition(
-            opacity: animation,
-            child: ScaleTransition(
-              scale: Tween(begin: 0.9, end: 1.0).animate(
-                CurvedAnimation(parent: animation, curve: Curves.easeOut),
-              ),
-              child: child,
-            ),
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          final tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
           );
         },
       ),
     );
   }
 
-  static Future<void> pushToFollowListPA({
+  static Future<void> showFollowListPA({
     required BuildContext context,
     required int id,
     required String nickName,
@@ -78,7 +79,7 @@ final class ScreenNavigator {
     );
   }
 
-  static Future<void> pushToFollowListPB<T>({
+  static Future<void> showFollowListPB<T>({
     required BuildContext context,
     required int id,
     required String nickName,
@@ -107,7 +108,7 @@ final class ScreenNavigator {
     );
   }
 
-  static Future<void> pushToTasteReport({required BuildContext context, required String nickname, required int id}) {
+  static Future<void> showTasteReport({required BuildContext context, required String nickname, required int id}) {
     return Navigator.of(context, rootNavigator: true).push(
       PageRouteBuilder(
         fullscreenDialog: true,
@@ -180,9 +181,9 @@ final class ScreenNavigator {
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(0.0, 1.0);
           const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -263,11 +264,11 @@ final class ScreenNavigator {
           child: PostUpdateScreen(title: post.title, content: post.contents, tag: post.tag.replaceAll(',', '#')),
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
+          const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -284,11 +285,11 @@ final class ScreenNavigator {
         fullscreenDialog: true,
         pageBuilder: (_, __, ___) => CoffeeBeanDetailScreen.buildWithPresenter(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
+          const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -305,11 +306,11 @@ final class ScreenNavigator {
         fullscreenDialog: true,
         pageBuilder: (_, __, ___) => PostDetailView.buildWithPresenter(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
+          const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
 
           return SlideTransition(
             position: animation.drive(tween),
@@ -326,11 +327,11 @@ final class ScreenNavigator {
         fullscreenDialog: true,
         pageBuilder: (_, __, ___) => TastedRecordDetailView.buildWithPresenter(id: id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
+          const begin = Offset(1.0, 0.0);
           const end = Offset.zero;
-          const curve = Curves.ease;
-
-          final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          final tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: Curves.easeInOut),
+          );
 
           return SlideTransition(
             position: animation.drive(tween),

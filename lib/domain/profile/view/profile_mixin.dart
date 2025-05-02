@@ -4,7 +4,7 @@ import 'package:brew_buds/common/widgets/expandable_coffee_life.dart';
 import 'package:brew_buds/common/widgets/expandable_text.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -25,14 +25,18 @@ import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/profile/item_in_profile.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter> on State<T> {
   late final Throttle paginationThrottle;
   final GlobalKey<NestedScrollViewState> scrollKey = GlobalKey<NestedScrollViewState>();
+  final TextStyle emptyTextStyle = TextStyle(
+      fontWeight: FontWeight.w500, fontSize: 16.sp, height: 1.2, letterSpacing: -0.02, color: ColorStyles.gray70);
 
   bool isExpandedIntro = false;
 
@@ -91,7 +95,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                 Selector<Presenter, ProfileState>(
                   selector: (context, presenter) => presenter.profileState,
                   builder: (context, profileState, child) => _buildProfile(
-                    imageUri: profileState.imageUrl,
+                    imageUrl: profileState.imageUrl,
                     tastingRecordCount: profileState.tastingRecordCount,
                     followerCount: profileState.followerCount,
                     followingCount: profileState.followingCount,
@@ -135,33 +139,64 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                               )
                             : const SliverToBoxAdapter(child: SizedBox.shrink()),
                       ),
-                      if (context.select<Presenter, bool>(
-                        (presenter) => !presenter.isLoading && presenter.isLoadingData,
-                      ))
-                        const SliverFillRemaining(
-                          child: Center(
-                            child: CupertinoActivityIndicator(
-                              color: ColorStyles.gray70,
-                            ),
-                          ),
-                        )
-                      else
-                        buildContentsList(),
+                      Builder(
+                        builder: (context) {
+                          final isLoading = context.select<Presenter, bool>(
+                            (presenter) => presenter.isLoadingData && presenter.items.isEmpty && !presenter.isLoading,
+                          );
+                          return isLoading
+                              ? const SliverFillRemaining(
+                                  child: Center(
+                                    child: CupertinoActivityIndicator(
+                                      color: ColorStyles.gray70,
+                                    ),
+                                  ),
+                                )
+                              : buildContentsList();
+                        },
+                      ),
+                      Builder(
+                        builder: (context) {
+                          final hasNext = context.select<Presenter, bool>(
+                            (presenter) => presenter.hasNext && presenter.items.isNotEmpty,
+                          );
+                          return SliverToBoxAdapter(
+                            child: hasNext
+                                ? const SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: CupertinoActivityIndicator(
+                                        color: ColorStyles.gray70,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          if (context.select<Presenter, bool>((presenter) => presenter.isLoading))
-            const Positioned.fill(child: LoadingBarrier()),
+          Positioned.fill(
+            child: Builder(
+              builder: (context) {
+                final isLoading = context.select<Presenter, bool>(
+                  (presenter) => presenter.isLoading && presenter.items.isEmpty,
+                );
+                return isLoading ? const LoadingBarrier() : const SizedBox.shrink();
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 
   SliverToBoxAdapter _buildProfile({
-    required String imageUri,
+    required String imageUrl,
     required int tastingRecordCount,
     required int followerCount,
     required int followingCount,
@@ -187,13 +222,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           children: [
             Row(
               children: [
-                MyNetworkImage(
-                  imageUrl: imageUri,
-                  height: 80,
-                  width: 80,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: ColorStyles.gray20, width: 1),
-                ),
+                ProfileImage(imageUrl: imageUrl, height: 80, width: 80),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Padding(
@@ -497,9 +526,24 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               context.select<Presenter, bool>(
                 (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-          ? SliverFillRemaining(
-              child: Center(
-                child: Text(tastingRecordsEmptyText, style: TextStyles.title02SemiBold),
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_coffee_note.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(tastingRecordsEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
+                ),
               ),
             )
           : SliverPadding(
@@ -516,7 +560,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                   return FutureButton(
                     onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id),
                     child: TastingRecordItemWidget(
-                      imageUri: tastingRecord.imageUrl,
+                      imageUrl: tastingRecord.imageUrl,
                       rating: tastingRecord.rating,
                     ),
                   );
@@ -532,9 +576,24 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               context.select<Presenter, bool>(
                 (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-          ? SliverFillRemaining(
-              child: Center(
-                child: Text(postsEmptyText, style: TextStyles.title02SemiBold),
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_coffee_note.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(postsEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
+                ),
               ),
             )
           : SliverList.separated(
@@ -564,9 +623,24 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               context.select<Presenter, bool>(
                 (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-          ? SliverFillRemaining(
-              child: Center(
-                child: Text(beansEmptyText, style: TextStyles.title02SemiBold),
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_default.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(beansEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
+                ),
               ),
             )
           : SliverList.separated(
@@ -579,7 +653,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     name: bean.name,
                     rating: bean.rating,
                     tastedRecordsCount: bean.tastedRecordsCount,
-                    imageUri: '',
+                    imageUrl: '',
                   ),
                 );
               },
@@ -596,9 +670,24 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
               context.select<Presenter, bool>(
                 (presenter) => !presenter.isLoading && !presenter.isLoadingData,
               )
-          ? SliverFillRemaining(
-              child: Center(
-                child: Text(savedNotesEmptyText, style: TextStyles.title02SemiBold),
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_default.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(savedNotesEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
+                ),
               ),
             )
           : SliverList.separated(
@@ -614,7 +703,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                         subject: note.subject.toString(),
                         createdAt: note.createdAt,
                         author: note.author,
-                        imageUri: note.imageUrl,
+                        imageUrl: note.imageUrl,
                       ),
                     );
                   case NotedTastedRecord():
@@ -624,7 +713,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                         beanName: note.beanName,
                         rating: '${note.rating}',
                         flavor: note.flavor,
-                        imageUri: note.imageUrl,
+                        imageUrl: note.imageUrl,
                       ),
                     );
                 }

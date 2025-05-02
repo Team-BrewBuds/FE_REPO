@@ -66,7 +66,7 @@ class _ProfileViewState extends State<ProfileView>
                   onTap: () {
                     final id = context.read<ModalProfilePresenter>().id;
                     final nickname = context.read<ModalProfilePresenter>().nickName;
-                    return ScreenNavigator.pushToTasteReport(context: context, id: id, nickname: nickname);
+                    return ScreenNavigator.showTasteReport(context: context, id: id, nickname: nickname);
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -97,13 +97,13 @@ class _ProfileViewState extends State<ProfileView>
                       final nickname = context.read<ModalProfilePresenter>().nickName;
                       final introduction = context.read<ModalProfilePresenter>().profile?.introduction ?? '';
                       final profileLink = context.read<ModalProfilePresenter>().profile?.profileLink ?? '';
-                      final profileImageURI = context.read<ModalProfilePresenter>().profile?.profileImageUrl ?? '';
+                      final profileImageUrl = context.read<ModalProfilePresenter>().profile?.profileImageUrl ?? '';
                       final coffeeLife = context.read<ModalProfilePresenter>().profile?.coffeeLife ?? [];
 
                       return ScreenNavigator.showProfileEditScreen(
                         context: context,
                         selectedCoffeeLifeList: coffeeLife,
-                        imageUrl: profileImageURI,
+                        imageUrl: profileImageUrl,
                         nickname: nickname,
                         introduction: introduction,
                         link: profileLink,
@@ -167,7 +167,7 @@ class _ProfileViewState extends State<ProfileView>
                 context.pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/x.svg',
+                'assets/icons/back.svg',
                 fit: BoxFit.cover,
                 height: 24,
                 width: 24,
@@ -230,7 +230,7 @@ class _ProfileViewState extends State<ProfileView>
   Future<void> pushFollowList(int index) {
     final profile = context.read<ModalProfilePresenter>().profile;
     if (profile != null) {
-      return ScreenNavigator.pushToFollowListPB(
+      return ScreenNavigator.showFollowListPB(
         context: context,
         id: profile.id,
         nickName: profile.nickname,

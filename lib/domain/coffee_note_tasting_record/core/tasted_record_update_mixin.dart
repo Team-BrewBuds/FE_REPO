@@ -3,7 +3,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -149,7 +148,11 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
   }
 
   Future<bool?> showCancelDialog() {
-    return showBarrierDialog<bool>(
+    return showGeneralDialog<bool>(
+      barrierLabel: "Barrier",
+      barrierDismissible: true,
+      barrierColor: ColorStyles.black50,
+      transitionDuration: const Duration(milliseconds: 100),
       context: context,
       pageBuilder: (context, _, __) {
         return Stack(
@@ -232,6 +235,17 @@ mixin TastedRecordUpdateMixin<T extends StatefulWidget> on State<T> {
               ),
             ),
           ],
+        );
+      },
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween(begin: 0.9, end: 1.0).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOut),
+            ),
+            child: child,
+          ),
         );
       },
     );

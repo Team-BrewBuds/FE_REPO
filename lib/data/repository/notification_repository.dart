@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:brew_buds/data/api/notification_api.dart';
-import 'package:brew_buds/data/dto/notification/notification_dto.dart';
 import 'package:brew_buds/data/dto/notification/notification_model_dto.dart';
 import 'package:brew_buds/data/dto/notification/notification_setting_dto.dart';
 import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';

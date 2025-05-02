@@ -62,6 +62,7 @@ dependencies:
   device_info_plus: ^11.3.3
   uuid: ^4.5.1
   flutter_keyboard_visibility: ^6.0.0
+  url_launcher: ^6.3.1
 
 flutter_native_splash:
   color: "#FFFFFF"
@@ -90,7 +91,11 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/images/banner/
+    - assets/images/coffee_life/
     - assets/images/login/
+    - assets/images/profile/
+    - assets/images/taste_report/
     - assets/icons/
 
 

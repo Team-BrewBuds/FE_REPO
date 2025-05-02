@@ -36,13 +36,10 @@ typedef SocialLoginResultData = ({String accessToken, String refreshToken, int i
 
 class LoginPresenter extends Presenter {
   bool _isLoading = false;
-  SocialLoginResultData _socialLoginResultData = (accessToken: '', refreshToken: '', id: 0);
   final AccountRepository _accountRepository = AccountRepository.instance;
   final LoginRepository _loginRepository = LoginRepository.instance;
 
   bool get isLoading => _isLoading;
-
-  SocialLoginResultData get loginResultData => _socialLoginResultData;
 
   Future<LoginResult> login(SocialLogin socialLogin) async {
     _isLoading = true;

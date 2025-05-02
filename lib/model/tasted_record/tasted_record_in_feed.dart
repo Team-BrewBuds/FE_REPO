@@ -27,5 +27,5 @@ class TastedRecordInFeed with _$TastedRecordInFeed {
 
   const TastedRecordInFeed._();
 
-  String get thumbnailUri => imagesUrl.firstOrNull ?? '';
+  String get thumbnailUrl => imagesUrl.firstOrNull ?? '';
 }

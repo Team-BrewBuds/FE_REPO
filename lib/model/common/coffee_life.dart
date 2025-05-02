@@ -25,11 +25,11 @@ enum CoffeeLife {
       };
 
   String get imagePath => switch (this) {
-        CoffeeLife.cafeTour => 'assets/images/tour.png',
-        CoffeeLife.coffeeExtraction => 'assets/images/extract.png',
-        CoffeeLife.coffeeStudy => 'assets/images/study.png',
-        CoffeeLife.cafeAlba => 'assets/images/alba.png',
-        CoffeeLife.cafeWork => 'assets/images/worker.png',
-        CoffeeLife.cafeOperation => 'assets/images/owner.png',
+        CoffeeLife.cafeTour => 'assets/images/coffee_life/cafe_tour.png',
+        CoffeeLife.coffeeExtraction => 'assets/images/coffee_life/coffee_extraction.png',
+        CoffeeLife.coffeeStudy => 'assets/images/coffee_life/coffee_study.png',
+        CoffeeLife.cafeAlba => 'assets/images/coffee_life/cafe_part_time.png',
+        CoffeeLife.cafeWork => 'assets/images/coffee_life/cafe_work.png',
+        CoffeeLife.cafeOperation => 'assets/images/coffee_life/cafe_operation.png',
       };
 }

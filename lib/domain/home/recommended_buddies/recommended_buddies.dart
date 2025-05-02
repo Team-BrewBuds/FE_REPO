@@ -64,7 +64,7 @@ class RecommendedBuddiesWidget extends StatelessWidget {
                       return ChangeNotifierProvider.value(
                         value: presenter,
                         child: FutureButton(
-                          onTap: () => ScreenNavigator.pushToProfile(context: context, id: presenter.user.id),
+                          onTap: () => ScreenNavigator.showProfile(context: context, id: presenter.user.id),
                           child: const RecommendedBuddyWidget(),
                         ),
                       );

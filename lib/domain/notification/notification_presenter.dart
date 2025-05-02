@@ -1,7 +1,6 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/notification/notification_item_presenter.dart';
-import 'package:brew_buds/model/notification/notification_model.dart';
 
 final class NotificationPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;

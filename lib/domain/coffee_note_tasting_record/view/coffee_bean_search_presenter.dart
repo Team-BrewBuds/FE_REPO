@@ -37,7 +37,6 @@ final class CoffeeBeanSearchPresenter extends Presenter {
     _coffeeBeanList.clear();
     _isLoading = true;
     notifyListeners();
-
     final newPage = await _coffeeBeanRepository.fetchCoffeeBeans(word: _searchWord, pageNo: _currentPage);
     _coffeeBeanList.addAll(newPage.results);
     _hasNext = newPage.hasNext;

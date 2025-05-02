@@ -27,6 +27,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'data/repository/app_repository.dart';
 
@@ -127,7 +128,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void onNeedUpdateEvent(NeedUpdateEvent event) {
-    // _showForceUpdateDialog();
+    _showForceUpdateDialog(event.id);
   }
 
   @override
@@ -198,23 +199,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 
-  void _showForceUpdateDialog() {
+  void _showForceUpdateDialog(String id) {
     final currentContext = navigatorKey.currentContext;
-
     if (currentContext != null) {
-      showDialog(
+      showCupertinoDialog(
         context: currentContext,
-        barrierDismissible: false,
         builder: (context) {
-          return AlertDialog(
-            title: const Text('업데이트 필요'),
-            content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
+          return CupertinoAlertDialog(
+            title: Text('최신 버전의 앱이 있습니다', style: TextStyles.title02SemiBold),
+            content: Text('최적의 사용 환경을 위해 최신 버전의\n앱으로 업데이해주세요.', style: TextStyles.bodyRegular),
             actions: [
-              TextButton(
-                onPressed: () {
-                  context.pop();
+              CupertinoDialogAction(
+                isDefaultAction: true,
+                child: Text(
+                  '업데이트',
+                  style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
+                ),
+                onPressed: () async {
+                  final uri = Uri.parse('https://apps.apple.com/kr/app/id$id');
+                  if (await canLaunchUrl(uri)) {
+                    await launchUrl(uri, mode: LaunchMode.externalApplication,);
+                  }
                 },
-                child: const Text('업데이트 하기'),
               ),
             ],
           );

@@ -18,7 +18,7 @@ extension CoffeeBeanMapper on CoffeeBeanDTO {
       beverageType: beverageType,
       isUserCreated: isUserCreated,
       isOfficial: isOfficial,
-      imageUri: imageUri,
+      imageUrl: imageUrl,
     );
   }
 }
@@ -47,7 +47,7 @@ extension CoffeeBeanToJson on CoffeeBean {
     writeNotNull('bean_type', type?.toJson());
     writeNotNull('region', nullableString(region));
     writeNotNull('origin_country', _countryToJson());
-    writeNotNull('image_url', nullableString(imageUri));
+    writeNotNull('image_url', nullableString(imageUrl));
     writeNotNull('is_decaf', isDecaf);
     writeNotNull('extraction', nullableString(extraction));
     writeNotNull('roast_point', roastPoint);

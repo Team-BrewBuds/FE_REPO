@@ -24,8 +24,7 @@ final class TastedRecordUpdatePresenter extends Presenter {
 
   bool get isValidLastPage =>
       _tastedRecord.tastingReview.star > 0 &&
-      _tastedRecord.contents.length > 7 &&
-      _tastedRecord.tastingReview.place.isNotEmpty;
+      _tastedRecord.contents.length > 7;
 
   String get contents => _tastedRecord.contents;
 
@@ -47,7 +46,7 @@ final class TastedRecordUpdatePresenter extends Presenter {
 
   String get place => _tastedRecord.tastingReview.place;
 
-  int get star => _tastedRecord.tastingReview.star.toInt();
+  double get star => _tastedRecord.tastingReview.star;
 
   Future<void> update() async {
     try {
@@ -138,8 +137,8 @@ final class TastedRecordUpdatePresenter extends Presenter {
     notifyListeners();
   }
 
-  onChangeStar(int star) {
-    _tastedRecord = _tastedRecord.copyWith(tastingReview: _tastedRecord.tastingReview.copyWith(star: star.toDouble()));
+  onChangeStar(double star) {
+    _tastedRecord = _tastedRecord.copyWith(tastingReview: _tastedRecord.tastingReview.copyWith(star: star));
     notifyListeners();
   }
 }

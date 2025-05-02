@@ -1,8 +1,11 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/coffee_note_post/view/tasted_record_grid_presenter.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
@@ -85,9 +88,10 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
                           itemCount: gridViewState.tastedRecords.length,
                           itemBuilder: (context, index) {
                             final tastedRecord = gridViewState.tastedRecords[index];
-                            return ThrottleButton(
-                              onTap: () {
-                                context.read<TastedRecordGridPresenter>().onSelected(tastedRecord);
+                            return FutureButton(
+                              onTap: () => context.read<TastedRecordGridPresenter>().onSelected(tastedRecord),
+                              onError: (_) {
+                                EventBus.instance.fire(const MessageEvent(message: '시음기록은 최대 10개까지 첨부할 수 있어요.'));
                               },
                               child: _buildGridItem(
                                 imageUrl: tastedRecord.imageUrl,
@@ -131,7 +135,7 @@ class _TastedRecordGridViewState extends State<TastedRecordGridView> {
                   Navigator.of(context).pop();
                 },
                 child: SvgPicture.asset(
-                  'assets/icons/x.svg',
+                  'assets/icons/back.svg',
                   height: 24,
                   width: 24,
                   colorFilter: const ColorFilter.mode(ColorStyles.black, BlendMode.srcIn),

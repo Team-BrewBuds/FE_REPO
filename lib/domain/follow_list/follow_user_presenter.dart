@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/follow_api.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/follow_list/model/follow_user.dart';
 import 'package:brew_buds/model/events/user_follow_event.dart';
 
@@ -10,6 +11,10 @@ final class FollowUserPresenter extends Presenter {
   final FollowApi _followApi = FollowApi();
   late final StreamSubscription _userFollowSub;
   FollowUser _user;
+
+  int get id => _user.id;
+
+  bool get isMe => _user.id == AccountRepository.instance.id;
 
   String get imageUrl => _user.profileImageUrl;
 

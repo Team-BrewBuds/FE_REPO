@@ -1,6 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/comments/widget/re_comment_presenter.dart';
@@ -10,11 +11,11 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class ReCommentWidget extends StatelessWidget {
+class ReCommentWidget extends StatefulWidget {
   final int objectAuthorId;
   final bool isMyComment;
   final bool isMyObject;
-  final void Function() onDelete;
+  final Future<void> Function() onDelete;
 
   const ReCommentWidget({
     super.key,
@@ -25,6 +26,19 @@ class ReCommentWidget extends StatelessWidget {
   });
 
   @override
+  State<ReCommentWidget> createState() => _ReCommentWidgetState();
+}
+
+class _ReCommentWidgetState extends State<ReCommentWidget> with TickerProviderStateMixin {
+  late final SlidableController _slidableController;
+
+  @override
+  void initState() {
+    _slidableController = SlidableController(this);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _buildSlidableComment();
   }
@@ -32,15 +46,20 @@ class ReCommentWidget extends StatelessWidget {
   Widget _buildSlidableComment() {
     return Builder(builder: (context) {
       return Slidable(
+        controller: _slidableController,
         endActionPane: ActionPane(
-          extentRatio: (isMyObject || isMyComment) && !isMyComment ? 0.4 : 0.2,
+          extentRatio: (widget.isMyObject || widget.isMyComment) && !widget.isMyComment ? 0.4 : 0.2,
           motion: const DrawerMotion(),
           children: [
-            if (isMyObject || isMyComment)
+            if (widget.isMyObject || widget.isMyComment)
               Expanded(
-                child: ThrottleButton(
-                  onTap: () {
-                    onDelete.call();
+                child: FutureButton(
+                  onTap: () => widget.onDelete.call(),
+                  onError: (_) {
+                    _slidableController.close();
+                  },
+                  onComplete: (_) {
+                    _slidableController.close();
                   },
                   child: Container(
                     color: ColorStyles.red,
@@ -63,11 +82,12 @@ class ReCommentWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            if (!isMyComment)
+            if (!widget.isMyComment)
               Expanded(
                 child: ThrottleButton(
                   onTap: () {
                     final id = context.read<ReCommentPresenter>().id;
+                    _slidableController.close();
                     ScreenNavigator.pushToReportScreen(context, id: id, type: 'comment');
                   },
                   child: Container(
@@ -99,7 +119,7 @@ class ReCommentWidget extends StatelessWidget {
   }
 
   Widget _buildComment(BuildContext context) {
-    final isWriter = context.read<ReCommentPresenter>().authorId == objectAuthorId;
+    final isWriter = context.read<ReCommentPresenter>().authorId == widget.objectAuthorId;
     return Container(
       padding: const EdgeInsets.only(left: 60, top: 12, bottom: 12, right: 16),
       color: ColorStyles.gray10,
@@ -111,15 +131,14 @@ class ReCommentWidget extends StatelessWidget {
               ThrottleButton(
                 onTap: () {
                   final id = context.read<ReCommentPresenter>().authorId;
-                  ScreenNavigator.pushToProfile(context: context, id: id);
+                  ScreenNavigator.showProfile(context: context, id: id);
                 },
                 child: Builder(builder: (context) {
                   final imageUrl = context.select<ReCommentPresenter, String>((presenter) => presenter.profileImageUrl);
-                  return MyNetworkImage(
+                  return ProfileImage(
                     imageUrl: imageUrl,
                     height: 36,
                     width: 36,
-                    shape: BoxShape.circle,
                   );
                 }),
               ),
@@ -177,10 +196,8 @@ class ReCommentWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              ThrottleButton(
-                onTap: () {
-                  context.read<ReCommentPresenter>().onTapLike();
-                },
+              FutureButton(
+                onTap: () => context.read<ReCommentPresenter>().onTapLike(),
                 child: Container(
                   padding: const EdgeInsets.only(top: 14),
                   width: 36.w,

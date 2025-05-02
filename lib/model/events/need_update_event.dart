@@ -1,7 +1,7 @@
 final class NeedUpdateEvent {
-  final String url;
+  final String id;
 
   const NeedUpdateEvent({
-    required this.url,
+    required this.id,
   });
 }

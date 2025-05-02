@@ -164,7 +164,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
                 context.pop();
               },
               child: SvgPicture.asset(
-                'assets/icons/x.svg',
+                'assets/icons/back.svg',
                 fit: BoxFit.cover,
                 height: 24,
                 width: 24,

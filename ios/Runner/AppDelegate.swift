@@ -27,12 +27,13 @@ import NaverThirdPartyLogin
             thirdConn?.serviceUrlScheme = serviceUrlScheme
         }
         
+        UIApplication.shared.applicationIconBadgeNumber = 0
+        
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
     override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
         var result = false
-        print(url)
         if (url.absoluteString.hasPrefix("kakao")) {
             result = super.application(app, open: url, options: options)
         }

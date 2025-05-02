@@ -29,16 +29,16 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
           bottom: 0,
           child: Material(
             color: Colors.transparent,
-            child: SafeArea(
-              top: false,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: ColorStyles.gray40)),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: ColorStyles.gray40)),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(12),
                 ),
+              ),
+              child: SafeArea(
+                top: false,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,

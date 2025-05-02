@@ -7,6 +7,7 @@ import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/model/events/message_event.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -111,7 +112,20 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
               children: _getSpans('탈퇴 후 30일 동안 브루버즈에 다시 가입할 수 없어요.', '30일', TextStyles.title01SemiBold),
             ),
           ),
-          const Spacer(),
+          Expanded(
+            child: Row(
+              children: [
+                const Spacer(),
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: ExtendedImage.asset(
+                    'assets/images/sign_out.png',
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ],
+            ),
+          ),
           Row(
             children: [
               ThrottleButton(

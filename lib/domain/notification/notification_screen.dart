@@ -158,7 +158,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                                 );
                                                 break;
                                               case PushToProfile():
-                                                ScreenNavigator.pushToProfile(
+                                                ScreenNavigator.showProfile(
                                                   context: context,
                                                   id: action.id,
                                                 );

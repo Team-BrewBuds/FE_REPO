@@ -1,7 +1,7 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/search/widgets/search_result/search_result_presenter.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class BuddyResultsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureButton(
-      onTap: () => ScreenNavigator.pushToProfile(context: context, id: context.read<BuddySearchResultPresenter>().id),
+      onTap: () => ScreenNavigator.showProfile(context: context, id: context.read<BuddySearchResultPresenter>().id),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
         color: Colors.transparent,
@@ -27,11 +27,10 @@ class BuddyResultsItem extends StatelessWidget {
                 if (imageUrl.isNotEmpty) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: MyNetworkImage(
+                    child: ProfileImage(
                       imageUrl: imageUrl,
                       height: 40,
                       width: 40,
-                      shape: BoxShape.circle,
                     ),
                   );
                 } else {

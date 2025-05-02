@@ -197,4 +197,21 @@ final class TasteReportPresenter extends Presenter {
       return DateTime(date.year, date.month - 1);
     }
   }
+
+  String getImagePath() {
+    final tastedRecordCount = _activitySummary?.tastedRecordCount ?? 0;
+
+    if (tastedRecordCount >= 5) {
+      final postCount = _activitySummary?.postCount ?? 0;
+      final savedBeanCount = _activitySummary?.savedBeanCount ?? 0;
+      final savedNoteCount = _activitySummary?.savedNoteCount ?? 0;
+      if (postCount >= 5 && savedBeanCount >= 5 && savedNoteCount >= 5) {
+        return 'assets/images/taste_report/taste_explorer.png';
+      } else {
+        return 'assets/images/taste_report/taste_novice.png';
+      }
+    } else {
+      return 'assets/images/taste_report/new_buddy.png';
+    }
+  }
 }
