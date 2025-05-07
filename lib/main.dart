@@ -15,6 +15,7 @@ import 'package:brew_buds/firebase_options.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:brew_buds/model/events/need_login_event.dart';
 import 'package:brew_buds/model/events/need_update_event.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,14 +32,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'data/repository/app_repository.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await dotenv.load(fileName: ".env");
-  await PermissionRepository.instance.initPermission();
 
   DioClient.instance.initial();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -46,14 +44,19 @@ void main() async {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values),
     initializeDateFormatting('ko'),
-    AccountRepository.instance.init(),
     SharedPreferencesRepository.instance.init(),
-    NotificationRepository.instance.init(),
-    PhotoRepository.instance.initState(),
+    FirebaseAnalytics.instance.logAppOpen(),
   ]);
 
   if (SharedPreferencesRepository.instance.isFirst) {
     await AccountRepository.instance.deleteAll();
+  } else {
+    await PermissionRepository.instance.initPermission();
+    await Future.wait([
+      AccountRepository.instance.init(),
+      NotificationRepository.instance.init(),
+    ]);
+    PhotoRepository.instance.initState();
   }
 
   await AppRepository.instance.checkUpdateRequired();
@@ -69,24 +72,22 @@ void main() async {
         ChangeNotifierProvider(create: (context) => AccountRepository.instance),
         ChangeNotifierProvider<NotificationPresenter>(create: (_) => NotificationPresenter()),
       ],
-      child: MyApp(
-        router: createRouter(AccountRepository.instance.accessToken.isNotEmpty, navigatorKey),
-      ),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
-  final GoRouter router;
-
-  const MyApp({super.key, required this.router});
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  late final GoRouter router;
   late final StreamSubscription needUpdateSub;
   late final StreamSubscription needLoginSub;
   late final StreamSubscription messageSub;
@@ -94,6 +95,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    router = createRouter(AccountRepository.instance.accessToken.isNotEmpty, navigatorKey);
     WidgetsBinding.instance.addObserver(this);
     messageSub = EventBus.instance.on<MessageEvent>().listen(onMessageEvent);
     needUpdateSub = EventBus.instance.on<NeedUpdateEvent>().listen(onNeedUpdateEvent);
@@ -137,7 +139,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       child: MaterialApp.router(
-        routerConfig: widget.router,
+        routerConfig: router,
         scaffoldMessengerKey: scaffoldMessengerKey,
         title: 'Brew Buds',
         debugShowCheckedModeBanner: false,
@@ -218,7 +220,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 onPressed: () async {
                   final uri = Uri.parse('https://apps.apple.com/kr/app/id$id');
                   if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication,);
+                    await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    );
                   }
                 },
               ),

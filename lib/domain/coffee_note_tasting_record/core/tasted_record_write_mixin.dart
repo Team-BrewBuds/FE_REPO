@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_presenter.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -83,6 +84,15 @@ mixin TastedRecordWriteMixin<T extends StatefulWidget> on State<T> {
                   showCancelDialog().then(
                     (value) {
                       if (value != null && value && context.mounted) {
+                        final String buttonName;
+                        if (currentStep == 1) {
+                          buttonName = 'tasted_record_beaninfo_close';
+                        } else if (currentStep == 2) {
+                          buttonName = 'tasted_record_tasteinfo_close';
+                        } else {
+                          buttonName = 'tasted_record_tasteinfo_close';
+                        }
+                        AnalyticsManager.instance.logButtonTap(buttonName: buttonName);
                         context.pop();
                       }
                     },

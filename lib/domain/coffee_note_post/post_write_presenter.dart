@@ -37,7 +37,7 @@ final class PostWritePresenter extends Presenter {
 
   String? get _errorMessage {
     if (_subject == null) {
-      return '게시물 주제를 선택해주세요.';
+      return '게시글 주제를 선택해 주세요.';
     } else if (_title.length < 2) {
       return '제목을 2자 이상 입력해 주세요.';
     } else if (_content.length < 8) {

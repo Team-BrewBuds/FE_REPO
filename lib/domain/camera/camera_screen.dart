@@ -5,6 +5,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/camera/camera_first_time_view.dart';
@@ -23,12 +24,14 @@ class CameraScreen<T> extends StatefulWidget {
   final BoxShape _previewShape;
   final Future<T> Function(BuildContext context, Uint8List imageData) onDone;
   final Function(BuildContext context) onTapAlbum;
+  final bool isTastedRecordFlow;
 
   const CameraScreen({
     super.key,
     required this.onDone,
     required this.onTapAlbum,
     BoxShape previewShape = BoxShape.rectangle,
+    this.isTastedRecordFlow = false,
   }) : _previewShape = previewShape;
 
   @override
@@ -44,6 +47,11 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void initState() {
     isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeCamera);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.isTastedRecordFlow) {
+        AnalyticsManager.instance.logScreen(screenName: 'tasted_record_camera');
+      }
+    });
     super.initState();
   }
 
@@ -91,6 +99,9 @@ class _CameraScreenState extends State<CameraScreen> {
                                       children: [
                                         ThrottleButton(
                                           onTap: () {
+                                            if (widget.isTastedRecordFlow) {
+                                              AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_camera_back');
+                                            }
                                             widget.onTapAlbum.call(context);
                                           },
                                           child: thumbnail != null
@@ -149,6 +160,9 @@ class _CameraScreenState extends State<CameraScreen> {
                     children: [
                       ThrottleButton(
                         onTap: () {
+                          if (widget.isTastedRecordFlow) {
+                            AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_camera_close');
+                          }
                           context.pop();
                         },
                         child: SvgPicture.asset(
@@ -279,6 +293,9 @@ class _CameraScreenState extends State<CameraScreen> {
                 children: [
                   ThrottleButton(
                     onTap: () {
+                      if (widget.isTastedRecordFlow) {
+                        AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_camera_close');
+                      }
                       context.pop();
                     },
                     child: SvgPicture.asset(
@@ -302,7 +319,7 @@ class _CameraScreenState extends State<CameraScreen> {
                             ),
                           ),
                         );
-
+                        
                         if (editedData != null) {
                           imageData.value = editedData;
                         }

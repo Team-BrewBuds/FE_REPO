@@ -69,6 +69,7 @@ class _TastedRecordWriteNavigatorFlowStack extends StatelessWidget {
                         context.read<TastedRecordImagePresenter>().reset();
                         context.read<TastedRecordWriteFlowPresenter>().replace(TastedRecordWriteFlow.albumSelect());
                       },
+                      isTastedRecordFlow: true,
                     ),
                   ),
                 WriteFirstStep() => const MaterialPage(

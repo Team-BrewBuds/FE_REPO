@@ -2,6 +2,7 @@ import 'package:brew_buds/common/extension/iterator_widget_ext.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -73,6 +74,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                         if (index == 0) {
                           return ThrottleButton(
                             onTap: () {
+                              AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_home');
                               context.go('/home');
                             },
                             child: _buildBottomNavigationItem(
@@ -122,6 +124,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                             targetPadding: const EdgeInsets.all(8),
                             child: ThrottleButton(
                               onTap: () async {
+                                AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_search');
                                 if (isGuest) {
                                   showLoginBottomSheet(onLogin: () {
                                     context.go('/search');
@@ -177,6 +180,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                             targetPadding: const EdgeInsets.all(8),
                             child: ThrottleButton(
                               onTap: () async {
+                                AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_records');
                                 if (isGuest) {
                                   showLoginBottomSheet(onLogin: () {
                                     showCoffeeNoteBottomSheet();
@@ -232,6 +236,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                             targetPadding: const EdgeInsets.all(8),
                             child: ThrottleButton(
                               onTap: () async {
+                                AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_profile');
                                 if (isGuest) {
                                   showLoginBottomSheet(onLogin: () {
                                     context.go('/profile');
@@ -380,7 +385,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                                 Text('게시글', style: TextStyles.title01SemiBold),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '자유롭게 커피에 대한 것을 공유해보세요 ',
+                                  '자유롭게 내 커피 생활을 공유해 보세요',
                                   style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
                                 ),
                               ],
@@ -423,7 +428,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                                 Text('시음기록', style: TextStyles.title01SemiBold),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '어떤 커피를 드셨나요?',
+                                  '오늘은 어떤 커피를 드셨나요?',
                                   style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.gray50),
                                 ),
                               ],

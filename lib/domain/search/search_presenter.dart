@@ -148,7 +148,7 @@ final class SearchPresenter extends Presenter {
     await Future.wait([
       fetchHistory(),
       fetchRecommendedBeanList(),
-      fetchCoffeeBeanRanking(),
+      // fetchCoffeeBeanRanking(),
     ]);
   }
 
@@ -159,7 +159,7 @@ final class SearchPresenter extends Presenter {
     await Future.wait([
       fetchHistory(isRefresh: true),
       fetchRecommendedBeanList(isRefresh: true),
-      fetchCoffeeBeanRanking(isRefresh: true),
+      // fetchCoffeeBeanRanking(isRefresh: true),
     ]);
   }
 

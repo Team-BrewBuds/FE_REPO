@@ -101,7 +101,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: nicknameValidState.isChangeNickname
-                        ? (nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname)
+                        ? (nicknameValidState.isValidNickname &&
+                                !nicknameValidState.isDuplicatingNickname &&
+                                nicknameValidState.isValidNicknameLength)
                             ? ColorStyles.gray50
                             : ColorStyles.red
                         : ColorStyles.gray50,
@@ -114,7 +116,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
                   padding: const EdgeInsets.all(12),
                   child: _buildNickNameSuffixIcon(
                     hasNickname: nicknameValidState.hasNickname,
-                    isValidNickname: nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname,
+                    isValidNickname: nicknameValidState.isValidNickname &&
+                        !nicknameValidState.isDuplicatingNickname &&
+                        nicknameValidState.isValidNicknameLength,
                     isCheckingDuplicateNicknames: nicknameValidState.isNicknameChecking,
                   ),
                 ),

@@ -91,6 +91,10 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+            argument = "-FIRDebugEnabled"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "--darf-define=NAVER_CLIENT_SECRET=bp1KZUpaD3"
             isEnabled = "YES">
          </CommandLineArgument>

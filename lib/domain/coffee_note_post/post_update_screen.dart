@@ -450,7 +450,7 @@ class _PostUpdateScreenState extends State<PostUpdateScreen> with CenterDialogMi
                             decoration: const BoxDecoration(
                               border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
                             ),
-                            child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                            child: Center(child: Text('게시글 주제', style: TextStyles.title02SemiBold)),
                           ),
                           ...List<Widget>.generate(
                             subjectList.length,

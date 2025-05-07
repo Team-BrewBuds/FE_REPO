@@ -2,6 +2,7 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_write_mixin.dart';
@@ -42,6 +43,7 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
     });
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AnalyticsManager.instance.logScreen(screenName: 'tasted_record_reviewinfo');
       context.read<TastedRecordWritePresenter>().lastPageInitState();
     });
   }
@@ -128,6 +130,7 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
             flex: 1,
             child: ThrottleButton(
               onTap: () {
+                AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_reviewinfo_back');
                 context.read<TastedRecordWriteFlowPresenter>().back();
               },
               child: Container(
@@ -154,6 +157,7 @@ class _TastedRecordWriteLastScreenState extends State<TastedRecordWriteLastScree
                       EventBus.instance.fire(MessageEvent(message: exception.toString()));
                     },
                     onComplete: (_) {
+                      AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_reviewinfo_done');
                       EventBus.instance.fire(const MessageEvent(message: '시음기록 작성을 완료했어요.'));
                       context.pop();
                     },

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_write_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/taste_bottom_sheet.dart';
@@ -35,6 +36,7 @@ class _TastedRecordWriteSecondScreenState extends State<TastedRecordWriteSecondS
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AnalyticsManager.instance.logScreen(screenName: 'tasted_record_tasteinfo');
       context.read<TastedRecordWritePresenter>().secondPageInitState();
     });
   }
@@ -87,6 +89,7 @@ class _TastedRecordWriteSecondScreenState extends State<TastedRecordWriteSecondS
             flex: 1,
             child: ThrottleButton(
               onTap: () {
+                AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_tasteinfo_back');
                 context.read<TastedRecordWriteFlowPresenter>().back();
               },
               child: Container(

@@ -222,7 +222,12 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           children: [
             Row(
               children: [
-                ProfileImage(imageUrl: imageUrl, height: 80, width: 80),
+                ProfileImage(
+                  imageUrl: imageUrl,
+                  height: 80,
+                  width: 80,
+                  border: Border.all(color: ColorStyles.gray20, width: 1),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Padding(

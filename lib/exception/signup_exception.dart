@@ -36,5 +36,9 @@ class InvalidCertificateSelectionException extends SignupException {
 }
 
 class EmptyCoffeePreferenceSelectionException extends SignupException {
-  const EmptyCoffeePreferenceSelectionException() : super('커피 취향을 선택해주세요.');
+  const EmptyCoffeePreferenceSelectionException() : super('커피 취향을 모두 선택해주세요.');
+}
+
+class SignUpFailedException extends SignupException {
+  const SignUpFailedException() : super('회원 가입에 실패했어요.');
 }

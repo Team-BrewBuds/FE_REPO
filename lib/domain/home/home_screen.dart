@@ -3,9 +3,9 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/my_refresh_control.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/domain/comments/view/comments_bottom_sheet.dart';
 import 'package:brew_buds/domain/home/feed/post_feed_widget.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
@@ -19,6 +19,7 @@ import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:brew_buds/domain/notification/notification_presenter.dart';
 import 'package:brew_buds/domain/notification/notification_screen.dart';
+import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -94,25 +95,33 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SvgPicture.asset(
-                'assets/icons/logo.svg',
-                width: 130,
+              ThrottleButton(
+                onTap: () {
+                  _scrollController.animateTo(
+                    0,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+                child: SvgPicture.asset(
+                  'assets/icons/logo.svg',
+                  width: 130,
+                ),
               ),
               const Spacer(),
               if (context.select<AccountRepository, bool>((repository) => !repository.isGuest)) ...[
-                Builder(
-                  builder: (context) {
-                    final hasNotification = context.select<NotificationPresenter, bool>((presenter) => presenter.hasNotification);
-                    return FutureButton(
-                      onTap: () => showNotificationPage(context: context),
-                      child: SvgPicture.asset(
-                        hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
-                        width: 24,
-                        height: 24,
-                      ),
-                    );
-                  }
-                ),
+                Builder(builder: (context) {
+                  final hasNotification =
+                      context.select<NotificationPresenter, bool>((presenter) => presenter.hasNotification);
+                  return FutureButton(
+                    onTap: () => showNotificationPage(context: context),
+                    child: SvgPicture.asset(
+                      hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
+                      width: 24,
+                      height: 24,
+                    ),
+                  );
+                }),
               ],
             ],
           ),
@@ -153,6 +162,14 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                         Tab(text: '게시글', height: 31),
                       ],
                       onTap: (index) {
+                        if (index == 0) {
+                          AnalyticsManager.instance.logButtonTap(buttonName: 'home_all');
+                        } else if (index == 1) {
+                          AnalyticsManager.instance.logButtonTap(buttonName: 'home_tasted_record');
+                        } else {
+                          AnalyticsManager.instance.logButtonTap(buttonName: 'home_post');
+                        }
+
                         if (_tabController.index == _tabController.previousIndex) {
                           _scrollController.animateTo(
                             0,
@@ -205,10 +222,10 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                             isGuest: isGuest,
                             onGuest: () => showLoginBottomSheet(),
                             onTapComments: (isPost, id, author) => showCommentsBottomSheet(
-                                objectType: ObjectType.post,
-                                objectId: feedPresenter.feed.data.id,
-                                objectAuthor: feedPresenter.feed.data.author,
-                              ),
+                              objectType: ObjectType.post,
+                              objectId: feedPresenter.feed.data.id,
+                              objectAuthor: feedPresenter.feed.data.author,
+                            ),
                           );
                         } else if (feedPresenter is TastedRecordFeedPresenter) {
                           return TastedRecordFeedWidget.buildWithPresenter(
@@ -216,10 +233,10 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                             isGuest: isGuest,
                             onGuest: () => showLoginBottomSheet(),
                             onTapComments: (isPost, id, author) => showCommentsBottomSheet(
-                                objectType: ObjectType.tastingRecord,
-                                objectId: feedPresenter.feed.data.id,
-                                objectAuthor: feedPresenter.feed.data.author,
-                              ),
+                              objectType: ObjectType.tastingRecord,
+                              objectId: feedPresenter.feed.data.id,
+                              objectAuthor: feedPresenter.feed.data.author,
+                            ),
                           );
                         } else {
                           return const SizedBox.shrink();

@@ -220,7 +220,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
           children: [
             Center(
               child: Text(
-                '글쓰기',
+                '게시글',
                 style: TextStyles.title02SemiBold,
                 textAlign: TextAlign.center,
               ),
@@ -296,7 +296,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
         ),
         child: Row(
           children: [
-            Text(subject?.toString() ?? '게시물 주제를 선택해주세요', style: TextStyles.labelMediumMedium),
+            Text(subject?.toString() ?? '게시글 주제를 선택해 주세요.', style: TextStyles.labelMediumMedium),
             const Spacer(),
             SvgPicture.asset('assets/icons/down.svg', height: 24, width: 24),
           ],
@@ -583,7 +583,7 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
                             decoration: const BoxDecoration(
                               border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
                             ),
-                            child: Center(child: Text('게시물 주제', style: TextStyles.title02SemiBold)),
+                            child: Center(child: Text('게시글 주제', style: TextStyles.title02SemiBold)),
                           ),
                           ...List<Widget>.generate(
                             subjectList.length,

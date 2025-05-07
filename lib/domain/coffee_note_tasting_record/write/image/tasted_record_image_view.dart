@@ -5,6 +5,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
@@ -72,7 +73,9 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
       duration: const Duration(milliseconds: 300),
       value: 1.0,
     );
-
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AnalyticsManager.instance.logScreen(screenName: 'tasted_record_photo');
+    });
     super.initState();
   }
 
@@ -135,6 +138,7 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
           children: [
             ThrottleButton(
               onTap: () {
+                AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_photo_close');
                 context.pop();
               },
               child: SvgPicture.asset(

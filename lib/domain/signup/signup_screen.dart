@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:brew_buds/exception/signup_exception.dart';
@@ -25,19 +26,32 @@ class _SignupScreenState extends State<SignupScreen> {
   onPop() {
     final pageIndex = widget.navigationShell.currentIndex;
     if (pageIndex == 0) {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userinfo_back');
       context.pop();
     } else if (pageIndex == 1) {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_life_back');
       widget.navigationShell.goBranch(pageIndex - 1);
     } else if (pageIndex == 2) {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_cert_back');
       widget.navigationShell.goBranch(pageIndex - 1);
     } else {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_taste_back');
       widget.navigationShell.goBranch(pageIndex - 1);
     }
   }
 
   onSkip() {
     final pageIndex = widget.navigationShell.currentIndex;
-    widget.navigationShell.goBranch(pageIndex + 1);
+    if (pageIndex == 1) {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_life_skip');
+      widget.navigationShell.goBranch(pageIndex + 1);
+    } else if (pageIndex == 2) {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_cert_skip');
+      widget.navigationShell.goBranch(pageIndex + 1);
+    } else if (pageIndex == 3) {
+      AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_taste_skip');
+      context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
+    }
   }
 
   onNext() {
@@ -51,10 +65,12 @@ class _SignupScreenState extends State<SignupScreen> {
     } else if (pageIndex == 2) {
       context.read<SignUpPresenter>().resetPreferredBeanTaste();
       widget.navigationShell.goBranch(pageIndex + 1);
+    } else if (pageIndex == 3) {
+      context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
     }
   }
 
-  bool get isSkippablePage => widget.navigationShell.currentIndex == 1 || widget.navigationShell.currentIndex == 2;
+  bool get isSkippablePage => widget.navigationShell.currentIndex != 0;
 
   @override
   void initState() {
@@ -113,12 +129,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               final isValid = context.select<SignUpPresenter, bool>(
                                 (presenter) => presenter.canNext(widget.navigationShell.currentIndex),
                               );
-                              final currentIndex = widget.navigationShell.currentIndex;
-                              if (currentIndex < 3) {
-                                return buildNextButton(isSatisfyRequirements: isValid);
-                              } else {
-                                return buildRegisterButton();
-                              }
+                              return buildNextButton(isSatisfyRequirements: isValid);
                             }),
                           ],
                         ),
@@ -165,8 +176,16 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
             Positioned(
               right: 0,
-              child: ThrottleButton(
-                onTap: onSkip,
+              child: FutureButton<void, SignupException>(
+                onTap: () => context.read<SignUpPresenter>().onSkip(widget.navigationShell.currentIndex),
+                onComplete: (_) {
+                  onSkip().call();
+                },
+                onError: (exception) {
+                  if (exception != null) {
+                    EventBus.instance.fire(MessageEvent(message: exception.message));
+                  }
+                },
                 child: isSkippablePage
                     ? Text(
                         '건너뛰기',
@@ -190,9 +209,9 @@ class _SignupScreenState extends State<SignupScreen> {
           onNext.call();
         },
         onError: (exception) {
-          EventBus.instance.fire(
-            MessageEvent(message: exception?.message ?? '알 수 없는 에러가 발생했어요.'),
-          );
+          if (exception != null) {
+            EventBus.instance.fire(MessageEvent(message: exception.message));
+          }
         },
         child: Container(
           height: 47,
@@ -207,36 +226,6 @@ class _SignupScreenState extends State<SignupScreen> {
               style: TextStyles.labelMediumMedium.copyWith(
                 color: isSatisfyRequirements ? ColorStyles.white : ColorStyles.gray40,
               ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildRegisterButton() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 24.0),
-      child: FutureButton<bool, Exception>(
-        onTap: () => context.read<SignUpPresenter>().register(),
-        onComplete: (result) {
-          if (result) {
-            context.go('/login/signup/finish?nickname=${context.read<SignUpPresenter>().nickName}');
-          } else {
-            EventBus.instance.fire(const MessageEvent(message: '회원가입에 실패했어요.'));
-          }
-        },
-        onError: (_) {
-          EventBus.instance.fire(const MessageEvent(message: '회원가입에 실패했어요.'));
-        },
-        child: Container(
-          height: 47,
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: ColorStyles.black),
-          child: Center(
-            child: Text(
-              '가입하기',
-              style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
             ),
           ),
         ),

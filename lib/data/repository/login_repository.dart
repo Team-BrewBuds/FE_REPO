@@ -60,7 +60,7 @@ class LoginRepository {
     );
   }
 
-  Future<bool> registerAccount({
+  Future<void> registerAccount({
     required SignUpState state,
   }) async {
     final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
@@ -119,10 +119,8 @@ class LoginRepository {
         '/profiles/signup/',
         data: state.toJson(),
       );
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        throw Error();
+      if (response.statusCode != 200) {
+        throw Exception();
       }
     } on DioException catch (_) {
       rethrow;

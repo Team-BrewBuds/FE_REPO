@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 

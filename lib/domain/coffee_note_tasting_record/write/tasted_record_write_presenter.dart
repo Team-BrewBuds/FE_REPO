@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/photo_api.dart';

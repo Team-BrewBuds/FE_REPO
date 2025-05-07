@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/home_repository.dart';
@@ -47,6 +48,7 @@ final class HomePresenter extends Presenter {
   bool get isPostFeed => _currentTab == 2;
 
   HomePresenter({required bool isGuest}) : _isGuest = isGuest {
+    AnalyticsManager.instance.logScreen(screenName: 'home_all');
     _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
     _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onTastedRecordEvent);
     initState();
@@ -199,14 +201,17 @@ final class HomePresenter extends Presenter {
 
   onChangeTab(int index) {
     if (index == 0 && _currentTab != index) {
+      AnalyticsManager.instance.logScreen(screenName: 'home_all');
       _currentTypeIndex = 0;
       _currentTab = index;
       fetchMoreData(isPageChanged: true);
     } else if (index == 2 && _currentTab != index) {
+      AnalyticsManager.instance.logScreen(screenName: 'home_tasted_record');
       _currentSubject = PostSubject.all;
       _currentTab = index;
       fetchMoreData(isPageChanged: true);
     } else if (index == 1 && _currentTab != index) {
+      AnalyticsManager.instance.logScreen(screenName: 'home_post');
       _currentTab = index;
       fetchMoreData(isPageChanged: true);
     } else {

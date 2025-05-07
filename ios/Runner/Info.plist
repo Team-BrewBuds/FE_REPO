@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Brew Buds</string>
+	<string>Brewbuds</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -40,8 +40,8 @@
 	<string>$(KAKAO_NATIVE_APP_KEY)</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-	    <string>naversearchapp</string>
-        <string>naversearchthirdlogin</string>
+		<string>naversearchapp</string>
+		<string>naversearchthirdlogin</string>
 		<string>kakaokompassauth</string>
 		<string>kakaotalk</string>
 	</array>
@@ -49,10 +49,10 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-	    <key>NSAllowsLocalNetworking></key>
-    	<true/>
-    	<key>NSAllowsArbitraryLoadsInWebContent></key>
-    	<true/>
+		<key>NSAllowsLocalNetworking&gt;</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent&gt;</key>
+		<true/>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 		<key>NSExceptionDomains</key>
@@ -76,17 +76,17 @@
 	<key>NSLocationDefaultAccuracyReduced</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>사진을 찰영하기 위해 이 권한이 필요합니다.</string>
+	<string>커피노트를 작성할 때 사진을 찍고 첨부해 보세요.</string>
 	<key>NSUserNotificationsUsageDescription</key>
-	<string>알림을 수신하기 위해 이 권한이 필요합니다.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>현재 위치를 알기위해 이 권한이 필요합니다.</string>
+	<string>경고, 사운드 및 아이콘 배지가 알림에 포함될 수 있습니다. 설정에서 이를 구성할 수 있습니다.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>현재 위치를 알기위해 이 권한이 필요합니다.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>사진을 저장하기 위해 이 권한이 필요합니다.</string>
+    <string>시음기록을 작성할 때 시음 장소를 검색하고 첨부해 보세요. 언제든지 기기 설정에서 선택 항목을 변경할 수 있습니다.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>시음기록을 작성할 때 시음 장소를 검색하고 첨부해 보세요. 언제든지 기기 설정에서 선택 항목을 변경할 수 있습니다.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>시음기록을 작성할 때 시음 장소를 검색하고 첨부해 보세요. 언제든지 기기 설정에서 선택 항목을 변경할 수 있습니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>사진을 첨부하기 위해 이 권한이 필요합니다.</string>
+	<string>커피노트를 작성할 때 사진을 첨부해 보세요.</string>
 	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
@@ -128,6 +128,6 @@
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
 	<key>FlutterDeepLinkingEnabled</key>
-    <false/>
+	<false/>
 </dict>
 </plist>

@@ -1,6 +1,8 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/domain/web_view/web_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -13,11 +15,11 @@ class TermsOfUseBottomSheet extends StatefulWidget {
 }
 
 class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
-  List<bool> _checkList = List<bool>.filled(4, false);
+  List<bool> _checkList = List<bool>.filled(5, false);
 
-  bool get isAllChecked => _checkList[0] && _checkList[1] && _checkList[2] && _checkList[3];
+  bool get isAllChecked => _checkList[0] && _checkList[1] && _checkList[2] && _checkList[3] && _checkList[4];
 
-  bool get isRequiredChecked => _checkList[0] && _checkList[1] && _checkList[2];
+  bool get isRequiredChecked => _checkList[0] && _checkList[1] && _checkList[2] && _checkList[3];
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +79,9 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                             onTap: () {
                               setState(() {
                                 if (isAllChecked) {
-                                  _checkList = List<bool>.filled(4, false);
+                                  _checkList = List<bool>.filled(5, false);
                                 } else {
-                                  _checkList = List<bool>.filled(4, true);
+                                  _checkList = List<bool>.filled(5, true);
                                 }
                               });
                             },
@@ -99,62 +101,121 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                       ),
                       child: Column(
                         children: [
-                          Row(
-                            children: [
-                              ThrottleButton(
-                                onTap: () {
-                                  setState(() {
-                                    _checkList[0] = !_checkList[0];
-                                  });
-                                },
-                                child: SvgPicture.asset(
-                                  'assets/icons/${_checkList[0] ? 'checked.svg' : 'uncheck.svg'}',
-                                  height: 18,
-                                  width: 18,
+                          ThrottleButton(
+                            onTap: () {
+                              showCupertinoModalPopup(
+                                barrierColor: ColorStyles.white,
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f4880d68698c9a8218a5f0c'),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                ThrottleButton(
+                                  onTap: () {
+                                    setState(() {
+                                      _checkList[0] = !_checkList[0];
+                                    });
+                                  },
+                                  child: SvgPicture.asset(
+                                    'assets/icons/${_checkList[0] ? 'checked.svg' : 'uncheck.svg'}',
+                                    height: 18,
+                                    width: 18,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '(필수) 브루버즈 이용약관 동의',
-                                style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
-                              ),
-                              const Spacer(),
-                              SvgPicture.asset(
-                                'assets/icons/arrow.svg',
-                                height: 24,
-                                width: 24,
-                                colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(필수) 브루버즈 이용약관 동의',
+                                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
+                                ),
+                                const Spacer(),
+                                SvgPicture.asset(
+                                  'assets/icons/arrow.svg',
+                                  height: 24,
+                                  width: 24,
+                                  colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              ThrottleButton(
-                                onTap: () {
-                                  setState(() {
-                                    _checkList[1] = !_checkList[1];
-                                  });
-                                },
-                                child: SvgPicture.asset(
-                                  'assets/icons/${_checkList[1] ? 'checked.svg' : 'uncheck.svg'}',
-                                  height: 18,
-                                  width: 18,
+                          ThrottleButton(
+                            onTap: () {
+                              showCupertinoModalPopup(
+                                barrierColor: ColorStyles.white,
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f48809a9b64e120aeb07b1d'),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                ThrottleButton(
+                                  onTap: () {
+                                    setState(() {
+                                      _checkList[1] = !_checkList[1];
+                                    });
+                                  },
+                                  child: SvgPicture.asset(
+                                    'assets/icons/${_checkList[1] ? 'checked.svg' : 'uncheck.svg'}',
+                                    height: 18,
+                                    width: 18,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '(필수) 개인정보 수집 및 이용 동의',
-                                style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
-                              ),
-                              const Spacer(),
-                              SvgPicture.asset(
-                                'assets/icons/arrow.svg',
-                                height: 24,
-                                width: 24,
-                                colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                              ),
-                            ],
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(필수) 개인정보 수집 및 이용 동의',
+                                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
+                                ),
+                                const Spacer(),
+                                SvgPicture.asset(
+                                  'assets/icons/arrow.svg',
+                                  height: 24,
+                                  width: 24,
+                                  colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ThrottleButton(
+                            onTap: () {
+                              showCupertinoModalPopup(
+                                barrierColor: ColorStyles.white,
+                                barrierDismissible: false,
+                                context: context,
+                                builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/1e797baa9f48803ab48fede661655611'),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                ThrottleButton(
+                                  onTap: () {
+                                    setState(() {
+                                      _checkList[2] = !_checkList[2];
+                                    });
+                                  },
+                                  child: SvgPicture.asset(
+                                    'assets/icons/${_checkList[2] ? 'checked.svg' : 'uncheck.svg'}',
+                                    height: 18,
+                                    width: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '(필수) 개인정보 국외 이전 동의',
+                                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray70),
+                                ),
+                                const Spacer(),
+                                SvgPicture.asset(
+                                  'assets/icons/arrow.svg',
+                                  height: 24,
+                                  width: 24,
+                                  colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                                ),
+                              ],
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -163,11 +224,11 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                               ThrottleButton(
                                 onTap: () {
                                   setState(() {
-                                    _checkList[2] = !_checkList[2];
+                                    _checkList[3] = !_checkList[3];
                                   });
                                 },
                                 child: SvgPicture.asset(
-                                  'assets/icons/${_checkList[2] ? 'checked.svg' : 'uncheck.svg'}',
+                                  'assets/icons/${_checkList[3] ? 'checked.svg' : 'uncheck.svg'}',
                                   height: 18,
                                   width: 18,
                                 ),
@@ -199,11 +260,11 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                               ThrottleButton(
                                 onTap: () {
                                   setState(() {
-                                    _checkList[3] = !_checkList[3];
+                                    _checkList[4] = !_checkList[4];
                                   });
                                 },
                                 child: SvgPicture.asset(
-                                  'assets/icons/${_checkList[3] ? 'checked.svg' : 'uncheck.svg'}',
+                                  'assets/icons/${_checkList[4] ? 'checked.svg' : 'uncheck.svg'}',
                                   height: 18,
                                   width: 18,
                                 ),

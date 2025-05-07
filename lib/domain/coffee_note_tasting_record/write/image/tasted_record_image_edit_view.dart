@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_edit_presenter.dart';
 import 'package:brew_buds/domain/photo/core/circle_crop_overlay_painter.dart';
 import 'package:brew_buds/domain/photo/photo_edit_screen.dart';
@@ -32,6 +33,7 @@ class TastedRecordImageEditView extends StatelessWidget {
     required Function(List<Uint8List> images) onNext,
     BoxShape shape = BoxShape.rectangle,
   }) {
+    AnalyticsManager.instance.logScreen(screenName: 'tasted_record_photo_select');
     return ChangeNotifierProvider<TastedRecordImageEditPresenter>(
       create: (context) => TastedRecordImageEditPresenter(images: images),
       child: TastedRecordImageEditView(shape: shape, onPop: onPop, onNext: onNext),
@@ -96,6 +98,7 @@ class TastedRecordImageEditView extends StatelessWidget {
           children: [
             ThrottleButton(
               onTap: () {
+                AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_photo_select_back');
                 onPop.call();
               },
               child: SvgPicture.asset(

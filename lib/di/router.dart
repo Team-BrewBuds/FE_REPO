@@ -30,6 +30,7 @@ import 'package:brew_buds/domain/signup/views/signup_first_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_fourth_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_second_page.dart';
 import 'package:brew_buds/domain/signup/views/signup_third_page.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -67,6 +68,7 @@ GoRouter createRouter(bool hasToken, GlobalKey<NavigatorState> navigatorKey) {
                       GoRoute(
                         path: 'signup/1',
                         builder: (BuildContext context, GoRouterState state) {
+                          FirebaseAnalytics.instance.logScreenView(screenName: 'signup_userinfo');
                           return const SignUpFirstPage();
                         },
                       ),
@@ -77,6 +79,7 @@ GoRouter createRouter(bool hasToken, GlobalKey<NavigatorState> navigatorKey) {
                       GoRoute(
                         path: 'signup/2',
                         builder: (BuildContext context, GoRouterState state) {
+                          FirebaseAnalytics.instance.logScreenView(screenName: 'signup_userprefer_life');
                           return const SignUpSecondPage();
                         },
                       ),
@@ -87,6 +90,7 @@ GoRouter createRouter(bool hasToken, GlobalKey<NavigatorState> navigatorKey) {
                       GoRoute(
                         path: 'signup/3',
                         builder: (BuildContext context, GoRouterState state) {
+                          FirebaseAnalytics.instance.logScreenView(screenName: 'signup_userprefer_cert');
                           return const SignUpThirdPage();
                         },
                       ),
@@ -97,6 +101,7 @@ GoRouter createRouter(bool hasToken, GlobalKey<NavigatorState> navigatorKey) {
                       GoRoute(
                         path: 'signup/4',
                         builder: (BuildContext context, GoRouterState state) {
+                          FirebaseAnalytics.instance.logScreenView(screenName: 'signup_userprefer_taste');
                           return const SignUpFourthPage();
                         },
                       ),

@@ -58,6 +58,12 @@ class SignUpPresenter extends Presenter {
 
   bool get isValidThirdPage => _state.isCertificated != null;
 
+  bool get isValidLastPage =>
+      (_state.preferredBeanTaste?.body ?? 0) != 0 &&
+      (_state.preferredBeanTaste?.sweetness ?? 0) != 0 &&
+      (_state.preferredBeanTaste?.bitterness ?? 0) != 0 &&
+      (_state.preferredBeanTaste?.acidity ?? 0) != 0;
+
   String get nickName => _state.nickName ?? '';
 
   NicknameValidState get nicknameValidState => (
@@ -104,6 +110,14 @@ class SignUpPresenter extends Presenter {
     notifyListeners();
   }
 
+  Future<void> onSkip(int index) {
+    if (index == 1 || index == 2) {
+      return Future.value();
+    } else {
+      return register();
+    }
+  }
+
   Future<void> isValidAt(int index) {
     if (index == 0) {
       if ((_state.nickName?.length ?? 0) < 2 || (_state.nickName?.length ?? 0) > 12) {
@@ -133,6 +147,12 @@ class SignUpPresenter extends Presenter {
       if (_state.isCertificated == null) {
         return Future.error(const InvalidCertificateSelectionException());
       }
+    } else if (index == 3) {
+      if (!isValidLastPage) {
+        return Future.error(const EmptyCoffeePreferenceSelectionException());
+      } else {
+        return register();
+      }
     }
 
     return Future.value();
@@ -161,7 +181,7 @@ class SignUpPresenter extends Presenter {
     } else if (index == 2) {
       return isValidThirdPage;
     } else {
-      return true;
+      return isValidLastPage;
     }
   }
 
@@ -283,29 +303,19 @@ class SignUpPresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<bool> register() async {
+  Future<void> register() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final result = await _loginRepository.registerAccount(state: _state);
-
-      if (result) {
-        await NotificationRepository.instance.registerToken(accessToken);
-        await _accountRepository.login(id: id, accessToken: accessToken, refreshToken: refreshToken);
-
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _isLoading = false;
-        notifyListeners();
-        return false;
-      }
+      await _loginRepository.registerAccount(state: _state);
+      await NotificationRepository.instance.registerToken(accessToken);
+      await _accountRepository.login(id: id, accessToken: accessToken, refreshToken: refreshToken);
     } catch (e) {
+      throw const SignUpFailedException();
+    } finally {
       _isLoading = false;
       notifyListeners();
-      return false;
     }
   }
 

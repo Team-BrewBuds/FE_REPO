@@ -5,12 +5,14 @@ class ProfileImage extends StatelessWidget {
   final String imageUrl;
   final double height;
   final double width;
+  final BoxBorder? border;
 
   const ProfileImage({
     super.key,
     required this.imageUrl,
     required this.height,
     required this.width,
+    this.border,
   });
 
   @override
@@ -22,6 +24,7 @@ class ProfileImage extends StatelessWidget {
             width: width,
             shape: BoxShape.circle,
             fit: BoxFit.cover,
+            border: border,
             printError: false,
             loadStateChanged: (state) {
               switch (state.extendedImageLoadState) {
@@ -46,6 +49,7 @@ class ProfileImage extends StatelessWidget {
             width: width,
             shape: BoxShape.circle,
             fit: BoxFit.cover,
+            border: border,
           );
   }
 }

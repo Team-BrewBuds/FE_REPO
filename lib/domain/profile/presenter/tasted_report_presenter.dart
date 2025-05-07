@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/taste_report_repository.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/taste_report/activity_item.dart';
@@ -88,6 +90,12 @@ final class TasteReportPresenter extends Presenter {
   initState() async {
     _isLoading = true;
     notifyListeners();
+
+    if (_id == AccountRepository.instance.id) {
+      AnalyticsManager.instance.logScreen(screenName: 'profiles_a_taste_report');
+    } else {
+      AnalyticsManager.instance.logScreen(screenName: 'profiles_b_taste_report');
+    }
 
     await Future.wait([
       fetchActivitySummary(),
