@@ -658,7 +658,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                     name: bean.name,
                     rating: bean.rating,
                     tastedRecordsCount: bean.tastedRecordsCount,
-                    imageUrl: '',
+                    imagePath: bean.imagePath,
                   ),
                 );
               },

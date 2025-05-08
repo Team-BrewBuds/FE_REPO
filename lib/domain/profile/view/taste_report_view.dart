@@ -559,7 +559,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                     name: activity.name,
                     rating: '${activity.rating}',
                     tastedRecordsCount: 0,
-                    imageUrl: '',
+                    imagePath: activity.imagePath,
                   ),
                 );
             }

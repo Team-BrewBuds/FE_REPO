@@ -1,12 +1,12 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 typedef RecommendedCoffeeBeansItem = ({
-  String imgaeUrl,
+  String imagePath,
   String name,
   double rating,
   int recordCount,
@@ -58,8 +58,8 @@ class RecommendedCoffeeBeansList extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (item.imgaeUrl.isNotEmpty)
-                                MyNetworkImage(imageUrl: item.imgaeUrl, height: 109, width: 109)
+                              if (item.imagePath.isNotEmpty)
+                                ExtendedImage.asset(item.imagePath, height: 109, width: 109)
                               else
                                 Container(height: 109, width: 109, color: const Color(0xffd9d9d9)),
                               const SizedBox(height: 4),

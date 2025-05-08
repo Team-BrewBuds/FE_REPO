@@ -238,8 +238,8 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Widget _buildNickname() {
-    return Selector<EditProfilePresenter, NicknameState>(
-        selector: (context, presenter) => presenter.nicknameState,
+    return Selector<EditProfilePresenter, NicknameValidState>(
+        selector: (context, presenter) => presenter.nicknameValidState,
         builder: (context, state, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -263,7 +263,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: state.isEditing
-                          ? state.isValid && !state.isDuplicating
+                          ? state.isValidNickname && !state.isDuplicatingNickname && state.isValidNicknameLength
                               ? ColorStyles.gray50
                               : ColorStyles.red
                           : ColorStyles.gray50,
@@ -275,7 +275,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: state.isEditing
-                          ? state.isValid && !state.isDuplicating
+                          ? state.isValidNickname && !state.isDuplicatingNickname && state.isValidNicknameLength
                               ? ColorStyles.gray50
                               : ColorStyles.red
                           : ColorStyles.gray50,
@@ -284,7 +284,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                     borderRadius: BorderRadius.zero,
                     gapPadding: 0,
                   ),
-                  suffixIcon: state.isChecking
+                  suffixIcon: state.isNicknameChecking
                       ? Container(
                           padding: const EdgeInsets.all(16),
                           width: 40,
@@ -304,24 +304,29 @@ class _EditProfileViewState extends State<EditProfileView> {
                   context.read<EditProfilePresenter>().onChangeNickname(newNickName);
                 },
               ),
-              if (state.isEditing && !state.isValid) ...[
-                const SizedBox(height: 8),
+              if (state.hasNickname && !state.isValidNicknameLength) ...[
+                const SizedBox(height: 4),
                 Text(
                   '2자 이상 입력해 주세요.',
                   style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
                 ),
-              ] else if (state.isEditing && state.isDuplicating) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 17),
+              ] else if (state.hasNickname && state.isDuplicatingNickname) ...[
+                const SizedBox(height: 4),
                 Text(
                   '이미 사용 중인 닉네임이에요.',
                   style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
                 ),
-              ] else ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 17),
+              ] else if (state.hasNickname && !state.isValidNickname) ...[
+                const SizedBox(height: 4),
                 Text(
-                  '닉네임은 14일 동안 최대 2번까지 변경할 수 있어요.',
-                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
+                  '닉네임은 영문, 한글, 숫자만 사용할 수 있어요.',
+                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
                 ),
+                const SizedBox(height: 17),
+              ] else ...[
+                const SizedBox(height: 36),
               ],
             ],
           );
@@ -570,9 +575,10 @@ class NicknameFormatter extends TextInputFormatter {
     String text = newValue.text;
     int cursorPosition = newValue.selection.baseOffset;
 
-    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+    // 한글(완성형), 영문, 숫자만 허용
+    text = text.replaceAll(RegExp(r'[^\u3131-\u314E\u314F-\u3163가-힣a-zA-Z0-9]'), '');
 
-    // 6️⃣ 커서 위치 보정
+    // 커서 위치 보정
     int diff = text.length - newValue.text.length;
     int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
 

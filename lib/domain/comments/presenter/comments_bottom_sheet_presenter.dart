@@ -6,6 +6,7 @@ import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/exception/comments_exception.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef BottomTextFieldState = ({String? reCommentAuthorNickname, String authorNickname});
 
@@ -64,6 +65,8 @@ final class CommentsBottomSheetPresenter extends Presenter {
 
   Future<void> createNewComment({required String content}) async {
     if (content.isEmpty) throw const EmptyCommentException();
+
+    if (content.containsBadWords) throw const ContainsBadWordsCommentException();
 
     final parentId = _parentsId;
     try {

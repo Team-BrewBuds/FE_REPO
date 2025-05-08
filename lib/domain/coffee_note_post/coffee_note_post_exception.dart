@@ -12,6 +12,11 @@ final class ShortContentsLength implements CoffeeNotePostException {
   String get message => '내용을 8글자 이상 입력해주세요.';
 }
 
+final class ContainsBadWordsException implements CoffeeNotePostException {
+  @override
+  String get message => '내용을 8글자 이상 입력해주세요.';
+}
+
 final class SubjectNotFound implements CoffeeNotePostException {
   @override
   String get message => '게시글의 주제를 선택해주세요.';

@@ -13,6 +13,7 @@ import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef NicknameValidState = ({
   bool isChangeNickname,
@@ -320,6 +321,10 @@ class SignUpPresenter extends Presenter {
   }
 
   bool _isValidNickName() {
+    if (nickName.containsBadWords) {
+      return false;
+    }
+
     for (int codeUnit in nickName.codeUnits) {
       if (codeUnit >= 0x3131 && codeUnit <= 0x318E) {
         return false;

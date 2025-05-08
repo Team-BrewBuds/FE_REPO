@@ -13,7 +13,7 @@ typedef BeanInfoState = ({
   String name,
   String type,
   bool isDecaf,
-  String imageUrl,
+  String imagePath,
   double rating,
   List<String> flavors
 });
@@ -49,7 +49,7 @@ final class CoffeeBeanDetailPresenter extends Presenter {
         name: _coffeeBeanDetail?.name ?? '',
         type: (_coffeeBeanDetail?.type ?? CoffeeBeanType.singleOrigin).toString(),
         isDecaf: _coffeeBeanDetail?.isDecaf ?? false,
-        imageUrl: _coffeeBeanDetail?.imageUrl ?? '',
+  imagePath: _coffeeBeanDetail?.imagePath ?? '',
         rating: _coffeeBeanDetail?.rating ?? 0,
         flavors: _coffeeBeanDetail?.flavors ?? [],
       );

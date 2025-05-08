@@ -131,6 +131,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               cursorHeight: 16,
               cursorWidth: 1,
               maxLines: 1,
+              onTapOutside: (_) {
+                _nickNameFocusNode.unfocus();
+              },
             ),
             if (nicknameValidState.hasNickname && !nicknameValidState.isValidNicknameLength) ...[
               const SizedBox(height: 4),
@@ -149,7 +152,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
             ] else if (nicknameValidState.hasNickname && !nicknameValidState.isValidNickname) ...[
               const SizedBox(height: 4),
               Text(
-                '유효하지 않은 닉네임이에요.',
+                '닉네임은 영문, 한글, 숫자만 사용할 수 있어요.',
                 style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
               ),
               const SizedBox(height: 17),
@@ -244,6 +247,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               cursorErrorColor: ColorStyles.black,
               cursorHeight: 16,
               cursorWidth: 1,
+              onTapOutside: (_) {
+                _yearOfAgeFocusNode.unfocus();
+              },
             ),
             if (yearOfBirthValidState.yearOfBirthLength > 0 && yearOfBirthValidState.yearOfBirthLength < 4) ...[
               const SizedBox(height: 8),
@@ -331,9 +337,10 @@ class NicknameFormatter extends TextInputFormatter {
     String text = newValue.text;
     int cursorPosition = newValue.selection.baseOffset;
 
-    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+    // 한글(완성형), 영문, 숫자만 허용
+    text = text.replaceAll(RegExp(r'[^\u3131-\u314E\u314F-\u3163가-힣a-zA-Z0-9]'), '');
 
-    // 6️⃣ 커서 위치 보정
+    // 커서 위치 보정
     int diff = text.length - newValue.text.length;
     int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
 

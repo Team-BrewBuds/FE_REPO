@@ -64,6 +64,7 @@ dependencies:
   flutter_keyboard_visibility: ^6.0.0
   url_launcher: ^6.3.1
   firebase_analytics: ^11.4.5
+  korean_profanity_filter: ^1.0.0
 
 flutter_native_splash:
   color: "#FFFFFF"
@@ -97,6 +98,7 @@ flutter:
     - assets/images/login/
     - assets/images/profile/
     - assets/images/taste_report/
+    - assets/images/coffee_bean/
     - assets/icons/
 
 

@@ -4,7 +4,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
@@ -17,6 +16,7 @@ import 'package:brew_buds/domain/detail/widget/bean_detail.dart';
 import 'package:brew_buds/domain/detail/widget/taste_graph.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -73,7 +73,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
                                 rating: state.rating,
                                 type: state.type,
                                 isDecaf: state.isDecaf,
-                                imageUrl: state.imageUrl,
+                                imagePath: state.imagePath,
                                 flavors: state.flavors,
                               ),
                             ),
@@ -265,7 +265,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
     required double rating,
     required String type,
     required bool isDecaf,
-    required String imageUrl,
+    required String imagePath,
     required List<String> flavors,
   }) {
     return Padding(
@@ -312,7 +312,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
                   ],
                 ),
               ),
-              MyNetworkImage(imageUrl: imageUrl, height: 80, width: 80),
+              ExtendedImage.asset(imagePath, height: 80, width: 80),
             ],
           ),
           SingleChildScrollView(
@@ -575,7 +575,7 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            MyNetworkImage(imageUrl: recommendedCoffeeBean.imageUrl, height: 109, width: 109),
+            ExtendedImage.asset(recommendedCoffeeBean.imagePath, height: 109, width: 109),
             const SizedBox(height: 4),
             Text(
               recommendedCoffeeBean.name,

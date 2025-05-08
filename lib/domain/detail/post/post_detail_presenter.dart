@@ -16,6 +16,7 @@ import 'package:brew_buds/model/events/user_follow_event.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef ProfileInfo = ({
   int? authorId,
@@ -268,6 +269,9 @@ final class PostDetailPresenter extends Presenter {
 
   Future<void> createNewComment({required String content}) async {
     if (content.isEmpty) throw const EmptyCommentException();
+
+    if (content.containsBadWords) throw const ContainsBadWordsCommentException();
+
     try {
       final newComment = await _commentsRepository.createNewComment(
         feedType: 'post',

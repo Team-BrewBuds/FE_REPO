@@ -115,7 +115,7 @@ final class CoffeeBeanSearchResultPresenter extends Presenter implements SearchR
 
   int get recordCount => _resultModel.recordedCount;
 
-  String get imageUrl => _resultModel.imageUrl;
+  String get imagePath => _resultModel.imagePath;
 
   CoffeeBeanSearchResultPresenter({
     required CoffeeBeanSearchResultModel resultModel,

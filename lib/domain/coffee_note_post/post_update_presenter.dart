@@ -7,6 +7,7 @@ import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef AppBarState = ({bool canUpdate, String? errorMessage});
 typedef ImageListViewState = ({List<String> images, List<TastedRecordInPost> tastedRecords});
@@ -55,6 +56,11 @@ final class PostUpdatePresenter extends Presenter {
     if (_post.contents.length < 8) {
       throw ShortContentsLength();
     }
+
+    if (_post.title.containsBadWords || _post.contents.containsBadWords) {
+      throw ContainsBadWordsException();
+    }
+
     if (_isLoading) return;
 
     _isLoading = true;

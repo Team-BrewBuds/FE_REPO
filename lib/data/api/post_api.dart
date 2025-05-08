@@ -25,7 +25,7 @@ abstract class PostApi {
   Future<String> fetchPopularPostsPage({@Query('subject') required String subject, @Query('page') required int pageNo});
 
   @GET('/records/post/user/{userId}/')
-  Future<String> fetchPostPage({@Path('userId') required int userId});
+  Future<String> fetchPostPage({@Path('userId') required int userId, @Query('page') required int pageNo});
 
   factory PostApi() => _PostApi(DioClient.instance.dio);
 }

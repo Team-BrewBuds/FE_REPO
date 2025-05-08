@@ -34,11 +34,4 @@ class AppRepository {
 
     return remoteConfig.getString('ios_app_id');
   }
-
-  Future<String> _fetchAppStoreUrl() async {
-    final remoteConfig = FirebaseRemoteConfig.instance;
-    await remoteConfig.fetchAndActivate();
-
-    return remoteConfig.getString('app_store_url');
-  }
 }

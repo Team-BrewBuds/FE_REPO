@@ -12,7 +12,7 @@ class CoffeeBean with _$CoffeeBean {
     String? name,
     String? region,
     List<String>? country,
-    String? imageUrl,
+    String? imagePath,
     bool? isDecaf,
     String? extraction,
     int? roastPoint,

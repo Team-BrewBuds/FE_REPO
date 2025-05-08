@@ -6,6 +6,7 @@ import 'package:brew_buds/domain/coffee_note_tasting_record/model/tasted_record_
 import 'package:brew_buds/exception/tasted_record_exception.dart';
 import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 final class TastedRecordUpdatePresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
@@ -49,6 +50,10 @@ final class TastedRecordUpdatePresenter extends Presenter {
   double get star => _tastedRecord.tastingReview.star;
 
   Future<void> update() async {
+    if (contents.containsBadWords) {
+      throw const ContentsContainsBadWordsException();
+    }
+
     try {
       final updateModel = TastedRecordUpdateModel(
         contents: contents,

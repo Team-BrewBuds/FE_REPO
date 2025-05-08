@@ -1,9 +1,24 @@
 import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_dto.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_type_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_type_mapper.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 
 extension CoffeeBeanMapper on CoffeeBeanDTO {
   CoffeeBean toDomain() {
+    final String imagePath;
+
+    switch (type) {
+      case CoffeeBeanTypeDTO.singleOrigin:
+        final roastPoint = this.roastPoint;
+        if (roastPoint != null && roastPoint > 0 && roastPoint <= 5) {
+          imagePath = 'assets/images/coffee_bean/single_$roastPoint.png';
+        } else {
+          imagePath = 'assets/images/coffee_bean/single_3.png';
+        }
+      case CoffeeBeanTypeDTO.blend:
+        imagePath = 'assets/images/coffee_bean/blend.png';
+    }
+
     return CoffeeBean(
       id: id,
       name: name,
@@ -18,7 +33,7 @@ extension CoffeeBeanMapper on CoffeeBeanDTO {
       beverageType: beverageType,
       isUserCreated: isUserCreated,
       isOfficial: isOfficial,
-      imageUrl: imageUrl,
+      imagePath: imagePath,
     );
   }
 }
@@ -47,7 +62,7 @@ extension CoffeeBeanToJson on CoffeeBean {
     writeNotNull('bean_type', type?.toJson());
     writeNotNull('region', nullableString(region));
     writeNotNull('origin_country', _countryToJson());
-    writeNotNull('image_url', nullableString(imageUrl));
+    writeNotNull('image_url', '');
     writeNotNull('is_decaf', isDecaf);
     writeNotNull('extraction', nullableString(extraction));
     writeNotNull('roast_point', roastPoint);

@@ -10,9 +10,17 @@ import 'package:brew_buds/exception/profile_update_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/events/profile_update_event.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef ProfileImageState = ({String imageUrl, Uint8List? imageData});
-typedef NicknameState = ({bool isValid, bool isDuplicating, bool isChecking, bool isEditing});
+typedef NicknameValidState = ({
+  bool isEditing,
+  bool hasNickname,
+  bool isValidNicknameLength,
+  bool isValidNickname,
+  bool isDuplicatingNickname,
+  bool isNicknameChecking,
+});
 typedef LinkState = ({bool isValid, bool hasLink});
 
 final class EditProfilePresenter extends Presenter {
@@ -46,11 +54,13 @@ final class EditProfilePresenter extends Presenter {
 
   List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
 
-  NicknameState get nicknameState => (
-        isValid: _nickname.length >= 2 && _nickname.length <= 12,
-        isDuplicating: _isDuplicatingNickname,
-        isChecking: _isNicknameChecking,
+  NicknameValidState get nicknameValidState => (
         isEditing: _preNickname != _nickname,
+        hasNickname: _nickname.isNotEmpty,
+        isValidNicknameLength: _nickname.length >= 2 && _nickname.length <= 12,
+        isValidNickname: _isValidNickName(),
+        isDuplicatingNickname: _isDuplicatingNickname,
+        isNicknameChecking: _isNicknameChecking,
       );
 
   int get introductionCount => _introduction.length;
@@ -179,7 +189,7 @@ final class EditProfilePresenter extends Presenter {
     }
 
     if (_nickname.length < 2 || _nickname.length > 12) {
-      throw const InvalidNicknameProfileEditException();
+      throw const IsShortNicknameProfileEditException();
     }
 
     if (_isNicknameChecking) {
@@ -188,6 +198,14 @@ final class EditProfilePresenter extends Presenter {
 
     if (_isDuplicatingNickname) {
       throw const DuplicateNicknameProfileEditException();
+    }
+
+    if (!_isValidNickName()) {
+      throw const InvalidNicknameProfileEditException();
+    }
+
+    if (_introduction.containsBadWords) {
+      throw const IntroductionContainsBadWordsProfileEditException();
     }
 
     if (!_isValidUrl(_link)) {
@@ -214,5 +232,18 @@ final class EditProfilePresenter extends Presenter {
     } catch (e) {
       rethrow;
     }
+  }
+
+  bool _isValidNickName() {
+    if (_nickname.containsBadWords) {
+      return false;
+    }
+
+    for (int codeUnit in _nickname.codeUnits) {
+      if (codeUnit >= 0x3131 && codeUnit <= 0x318E) {
+        return false;
+      }
+    }
+    return true;
   }
 }

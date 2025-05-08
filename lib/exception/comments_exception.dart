@@ -11,6 +11,10 @@ final class EmptyCommentException extends CommentException {
   const EmptyCommentException() : super('내용을 작성해 주세요.');
 }
 
+final class ContainsBadWordsCommentException extends CommentException {
+  const ContainsBadWordsCommentException() : super('부적절한 언어가 포함되어 있어요.');
+}
+
 final class CommentCreateFailedException extends CommentException {
   const CommentCreateFailedException() : super('댓글 작성에 실패했어요.');
 }

@@ -1,9 +1,9 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/domain/search/widgets/search_result/search_result_presenter.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -70,13 +70,13 @@ class CoffeeBeanResultsItem extends StatelessWidget {
             ),
             Builder(
               builder: (context) {
-                final imageUrl = context.select<CoffeeBeanSearchResultPresenter, String>(
-                  (presenter) => presenter.imageUrl,
+                final imagePath = context.select<CoffeeBeanSearchResultPresenter, String>(
+                  (presenter) => presenter.imagePath,
                 );
-                if (imageUrl.isNotEmpty) {
+                if (imagePath.isNotEmpty) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: MyNetworkImage(imageUrl: imageUrl, height: 64, width: 64),
+                    child: ExtendedImage.asset(imagePath, height: 64, width: 64),
                   );
                 } else {
                   return const SizedBox.shrink();

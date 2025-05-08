@@ -22,7 +22,7 @@ sealed class ActivityItem {
     required int id,
     required String name,
     required double rating,
-    required String thumbnail,
+    required String imagePath,
   }) = SavedBeanActivityItem;
 }
 
@@ -64,12 +64,12 @@ final class SavedBeanActivityItem implements ActivityItem {
   final int id;
   final String name;
   final double rating;
-  final String thumbnail;
+  final String imagePath;
 
   const SavedBeanActivityItem({
     required this.id,
     required this.name,
     required this.rating,
-    required this.thumbnail,
+    required this.imagePath,
   });
 }

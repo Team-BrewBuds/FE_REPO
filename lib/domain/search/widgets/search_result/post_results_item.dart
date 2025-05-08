@@ -30,6 +30,7 @@ class PostResultsItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
@@ -178,10 +179,7 @@ class PostResultsItem extends StatelessWidget {
                       (presenter) => presenter.imageUrl,
                     );
                     if (imageUrl.isNotEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: MyNetworkImage(imageUrl: imageUrl, height: 64, width: 64),
-                      );
+                      return MyNetworkImage(imageUrl: imageUrl, height: 64, width: 64);
                     } else {
                       return const SizedBox.shrink();
                     }

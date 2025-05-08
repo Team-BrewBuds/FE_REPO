@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:brew_buds/common/extension/date_time_ext.dart';
-import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
@@ -13,6 +12,7 @@ import 'package:brew_buds/exception/tasted_record_exception.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_type.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 final class TastedRecordWritePresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
@@ -100,6 +100,10 @@ final class TastedRecordWritePresenter extends Presenter {
       if (imageCreatedResult.isEmpty) throw const ImageUploadFailedException();
     } catch (e) {
       throw const ImageUploadFailedException();
+    }
+
+    if (_contents.containsBadWords) {
+      throw const ContentsContainsBadWordsException();
     }
 
     final extraction = _coffeeBeanExtraction;

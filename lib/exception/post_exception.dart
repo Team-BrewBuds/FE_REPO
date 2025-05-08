@@ -15,6 +15,10 @@ class InvalidContentsException extends PostException {
   const InvalidContentsException() : super('내용을 8자 이상 입력해주세요.');
 }
 
+class ContainsBadWordsException extends PostException {
+  const ContainsBadWordsException() : super('제목 또는 내용에 부적절한 단어가 포함되어 있어요.');
+}
+
 final class ImageUploadFailedException extends PostException {
   const ImageUploadFailedException() : super('사진 등록에 실패했어요.');
 }

@@ -31,6 +31,7 @@ class TastedRecordResultsItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Column(
@@ -59,8 +60,8 @@ class TastedRecordResultsItem extends StatelessWidget {
                         children: [
                           SvgPicture.asset(
                             'assets/icons/star_fill.svg',
-                            height: 16,
-                            width: 16,
+                            height: 14,
+                            width: 14,
                             colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
                           ),
                           Builder(
@@ -68,9 +69,12 @@ class TastedRecordResultsItem extends StatelessWidget {
                               final rating = context.select<TastedRecordSearchResultPresenter, double>(
                                 (presenter) => presenter.rating,
                               );
-                              return Text(
-                                '$rating',
-                                style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 2),
+                                child: Text(
+                                  '$rating',
+                                  style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray70),
+                                ),
                               );
                             },
                           ),
@@ -91,7 +95,7 @@ class TastedRecordResultsItem extends StatelessWidget {
                           const Spacer(),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 7),
                       Builder(
                         builder: (context) {
                           final tasteList = context.select<TastedRecordSearchResultPresenter, List<String>>(
@@ -127,10 +131,7 @@ class TastedRecordResultsItem extends StatelessWidget {
                       (presenter) => presenter.imageUrl,
                     );
                     if (imageUrl.isNotEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: MyNetworkImage(imageUrl: imageUrl, height: 64, width: 64),
-                      );
+                      return MyNetworkImage(imageUrl: imageUrl, height: 64, width: 64);
                     } else {
                       return const SizedBox.shrink();
                     }

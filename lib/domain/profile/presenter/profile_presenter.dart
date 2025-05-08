@@ -202,9 +202,10 @@ class ProfilePresenter extends Presenter {
       _isLoadingData = false;
       notifyListeners();
     } else if (_tabIndex == 1) {
-      final nextPage = await repository.fetchPostPage(userId: _id);
+      final nextPage = await repository.fetchPostPage(userId: _id, pageNo: _pageNo);
       _profileItem.addAll(nextPage.results.map((e) => PostInProfileItem(data: e)));
       _hasNext = nextPage.hasNext;
+      _pageNo++;
       _isLoadingData = false;
       notifyListeners();
     } else if (_tabIndex == 2) {

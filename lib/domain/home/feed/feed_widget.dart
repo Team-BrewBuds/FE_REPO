@@ -104,7 +104,7 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
                   Expanded(
                     child: Text(
                       //작성 시간 및 조회수
-                      '$createdAt・조희 $viewCount',
+                      '$createdAt・조회 $viewCount',
                       style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
                     ),
                   )

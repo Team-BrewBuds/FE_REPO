@@ -9,6 +9,7 @@ import 'package:brew_buds/exception/post_exception.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef AppBarState = ({bool isValid, String? errorMessage});
 typedef ImageListViewState = ({List<Photo> images, List<TastedRecordInProfile> tastedRecords});
@@ -122,6 +123,10 @@ final class PostWritePresenter extends Presenter {
       _isLoading = false;
       notifyListeners();
       throw const InvalidContentsException();
+    }
+
+    if (_title.containsBadWords || _content.containsBadWords) {
+      throw const ContainsBadWordsException();
     }
 
     if (_images.isNotEmpty && _tastedRecords.isNotEmpty) {

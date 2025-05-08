@@ -315,7 +315,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                 itemBuilder: (index) {
                   final recommendedBean = recommendedBeanList[index];
                   return (
-                    imgaeUrl: recommendedBean.imageUrl,
+                  imagePath: recommendedBean.imagePath,
                     name: recommendedBean.name,
                     rating: recommendedBean.rating,
                     recordCount: recommendedBean.recordCount,

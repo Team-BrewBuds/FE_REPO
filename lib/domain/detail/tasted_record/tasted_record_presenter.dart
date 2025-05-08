@@ -13,6 +13,7 @@ import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/events/user_follow_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef BottomButtonInfo = ({int likeCount, bool isLiked, bool isSaved});
 typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow});
@@ -291,6 +292,8 @@ final class TastedRecordPresenter extends Presenter {
 
   Future<void> createNewComment({required String content}) async {
     if (content.isEmpty) throw const EmptyCommentException();
+
+    if (content.containsBadWords) throw const ContainsBadWordsCommentException();
 
     try {
       final newComment = await _commentsRepository.createNewComment(

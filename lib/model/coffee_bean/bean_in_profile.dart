@@ -12,5 +12,6 @@ class BeanInProfile with _$BeanInProfile {
     required int roastingPoint,
     required String rating,
     required int tastedRecordsCount,
+    required String imagePath,
   }) = _BeanInProfile;
 }

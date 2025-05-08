@@ -10,6 +10,8 @@ class SearchBeanDTO {
   final String name;
   @JsonKey(name: 'bean_type', defaultValue: '')
   final String type;
+  @JsonKey(name: 'roast_point', defaultValue: 0)
+  final int roastPoint;
   @JsonKey(name: 'is_decaf', defaultValue: false)
   final bool isDecaf;
   @JsonKey(name: 'origin_country', defaultValue: '')
@@ -27,6 +29,7 @@ class SearchBeanDTO {
     required this.id,
     required this.name,
     required this.type,
+    required this.roastPoint,
     required this.isDecaf,
     required this.country,
     required this.imageUrl,
