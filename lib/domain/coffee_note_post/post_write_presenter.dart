@@ -148,8 +148,6 @@ final class PostWritePresenter extends Presenter {
     }
     data['tag'] = _tag;
 
-
-
     if (_images.isNotEmpty) {
       try {
         final imageCreatedResult = await _uploadImages();

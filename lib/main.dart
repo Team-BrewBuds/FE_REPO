@@ -49,14 +49,18 @@ void main() async {
   ]);
 
   if (SharedPreferencesRepository.instance.isFirst) {
-    await AccountRepository.instance.deleteAll();
+    await AccountRepository.instance.logout();
   } else {
     await PermissionRepository.instance.initPermission();
     await Future.wait([
       AccountRepository.instance.init(),
-      NotificationRepository.instance.init(),
+      NotificationRepository.instance.set(),
     ]);
     PhotoRepository.instance.initState();
+  }
+
+  if (AccountRepository.instance.accessToken.isNotEmpty) {
+    await NotificationRepository.instance.registerToken();
   }
 
   await AppRepository.instance.checkUpdateRequired();

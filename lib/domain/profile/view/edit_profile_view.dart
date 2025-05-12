@@ -206,10 +206,8 @@ class _EditProfileViewState extends State<EditProfileView> {
           children: [
             Positioned.fill(
               child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 1, color: const Color(0xff888888)),
-                  shape: BoxShape.circle
-                ),
+                decoration:
+                    BoxDecoration(border: Border.all(width: 1, color: const Color(0xff888888)), shape: BoxShape.circle),
                 child: ProfileImage(imageUrl: imageUrl, height: 98, width: 98),
               ),
             ),

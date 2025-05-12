@@ -395,25 +395,24 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
-                          spacing: 4,
-                          children: List<Widget>.generate(
-                            countryList.length,
-                            (index) => Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                              decoration: const BoxDecoration(
-                                color: ColorStyles.black,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20),
+                            spacing: 4,
+                            children: List<Widget>.generate(
+                              countryList.length,
+                              (index) => Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                                decoration: const BoxDecoration(
+                                  color: ColorStyles.black,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(20),
+                                  ),
+                                ),
+                                child: Text(
+                                  countryList[index],
+                                  style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              child: Text(
-                                countryList[index],
-                                style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.white),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          )
-                        ),
+                            )),
                       ),
                     ),
                     const SizedBox(width: 12),

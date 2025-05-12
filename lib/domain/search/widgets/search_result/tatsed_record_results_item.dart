@@ -21,9 +21,9 @@ class TastedRecordResultsItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureButton(
       onTap: () => ScreenNavigator.showTastedRecordDetail(
-          context: context,
-          id: context.read<TastedRecordSearchResultPresenter>().id,
-        ),
+        context: context,
+        id: context.read<TastedRecordSearchResultPresenter>().id,
+      ),
       child: Container(
         padding: const EdgeInsets.all(16),
         color: Colors.transparent,

@@ -6,10 +6,10 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
 import 'package:brew_buds/domain/comments/comments_presenter.dart';
-import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/domain/comments/presenter/comments_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_presenter.dart';
 import 'package:brew_buds/domain/comments/widget/comment_widget.dart';
+import 'package:brew_buds/model/common/object_type.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -253,19 +253,18 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                   ),
                   contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
                   suffixIcon: Padding(
-                    padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
-                    child: SendButton(
-                      onTap: () => context.read<CommentsBottomSheetPresenter>().createNewComment(
-                        content: _textEditingController.text,
-                      ),
-                      onError: (message) {
-                        EventBus.instance.fire(MessageEvent(message: message));
-                      },
-                      onComplete: () {
-                        _textEditingController.clear();
-                      },
-                    )
-                  ),
+                      padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
+                      child: SendButton(
+                        onTap: () => context.read<CommentsBottomSheetPresenter>().createNewComment(
+                              content: _textEditingController.text,
+                            ),
+                        onError: (message) {
+                          EventBus.instance.fire(MessageEvent(message: message));
+                        },
+                        onComplete: () {
+                          _textEditingController.clear();
+                        },
+                      )),
                   constraints: const BoxConstraints(maxHeight: 112)),
             ),
           ],

@@ -44,29 +44,29 @@ class FollowUserWidget extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             if (!context.read<FollowUserPresenter>().isMe)
-            FutureButton(
-              onTap: () => context.read<FollowUserPresenter>().follow(),
-              child: Builder(builder: (context) {
-                final isFollow = context.select<FollowUserPresenter, bool>((presenter) => presenter.isFollow);
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                      color: isFollow ? ColorStyles.gray30 : ColorStyles.red,
-                      borderRadius: const BorderRadius.all(Radius.circular(20))),
-                  child: Text(
-                    isFollow
-                        ? isMyFollow
-                            ? '팔로우 취소'
-                            : '팔로워'
-                        : '팔로우',
-                    style: TextStyles.labelSmallMedium.copyWith(
-                      color: isFollow ? ColorStyles.black : ColorStyles.white,
+              FutureButton(
+                onTap: () => context.read<FollowUserPresenter>().follow(),
+                child: Builder(builder: (context) {
+                  final isFollow = context.select<FollowUserPresenter, bool>((presenter) => presenter.isFollow);
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                        color: isFollow ? ColorStyles.gray30 : ColorStyles.red,
+                        borderRadius: const BorderRadius.all(Radius.circular(20))),
+                    child: Text(
+                      isFollow
+                          ? isMyFollow
+                              ? '팔로우 취소'
+                              : '팔로워'
+                          : '팔로우',
+                      style: TextStyles.labelSmallMedium.copyWith(
+                        color: isFollow ? ColorStyles.black : ColorStyles.white,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                );
-              }),
-            ),
+                  );
+                }),
+              ),
           ],
         ),
       ),

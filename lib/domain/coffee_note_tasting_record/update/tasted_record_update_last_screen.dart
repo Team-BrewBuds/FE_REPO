@@ -199,7 +199,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               5,
-                  (index) {
+              (index) {
                 final currentRating = index + 1;
                 return SizedBox(
                   width: 36,

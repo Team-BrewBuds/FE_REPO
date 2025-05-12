@@ -11,6 +11,7 @@ import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/gender.dart';
 import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:korean_profanity_filter/korean_profanity_filter.dart';
@@ -28,6 +29,7 @@ typedef YearOfBirthValidState = ({int yearOfBirthLength, bool isValidYearOfBirth
 class SignUpPresenter extends Presenter {
   final AccountRepository _accountRepository = AccountRepository.instance;
   final LoginRepository _loginRepository = LoginRepository.instance;
+  final _deviceInfo = DeviceInfoPlugin();
   final DuplicatedNicknameApi _duplicatedNicknameApi =
       DuplicatedNicknameApi(Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS'))));
   late final Debouncer<String> _nicknameCheckDebouncer;
@@ -310,7 +312,6 @@ class SignUpPresenter extends Presenter {
 
     try {
       await _loginRepository.registerAccount(state: _state);
-      await NotificationRepository.instance.registerToken(accessToken);
       await _accountRepository.login(id: id, accessToken: accessToken, refreshToken: refreshToken);
     } catch (e) {
       throw const SignUpFailedException();

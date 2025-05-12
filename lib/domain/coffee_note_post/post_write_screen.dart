@@ -83,122 +83,119 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Builder(
-        builder: (context) {
-          final isLoading = context.select<PostWritePresenter, bool>((presenter) => presenter.isLoading);
-          return Stack(
-            children: [
-              Scaffold(
-                appBar: _buildAppBar(),
-                body: SafeArea(
-                  top: false,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Selector<PostWritePresenter, PostSubject?>(
-                            selector: (context, presenter) => presenter.subject,
-                            builder: (context, subject, child) {
-                              return _buildSubjectSelector(subject: subject);
-                            }),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildTitleTextField(),
+      child: Builder(builder: (context) {
+        final isLoading = context.select<PostWritePresenter, bool>((presenter) => presenter.isLoading);
+        return Stack(
+          children: [
+            Scaffold(
+              appBar: _buildAppBar(),
+              body: SafeArea(
+                top: false,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Selector<PostWritePresenter, PostSubject?>(
+                          selector: (context, presenter) => presenter.subject,
+                          builder: (context, subject, child) {
+                            return _buildSubjectSelector(subject: subject);
+                          }),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _buildTitleTextField(),
+                      ),
+                      const SizedBox(height: 14),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 100),
+                          child: _buildContentTextField(),
                         ),
-                        const SizedBox(height: 14),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(minHeight: 100),
-                            child: _buildContentTextField(),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: _buildTagTextField(),
-                        ),
-                        Selector<PostWritePresenter, ImageListViewState>(
-                          selector: (context, presenter) => presenter.imageListViewState,
-                          builder: (context, imageListViewState, _) {
-                            if (imageListViewState.images.isNotEmpty) {
-                              return _buildAttachedContent(
-                                itemLength: imageListViewState.images.length,
-                                itemBuilder: (index) {
-                                  final photo = imageListViewState.images[index];
-                                  return _buildGridItem(
-                                    imageWidget: switch (photo) {
-                                      PhotoWithUrl() => ExtendedImage.network(
-                                          photo.url,
-                                          fit: BoxFit.cover,
-                                          border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                                          borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                          printError: false,
-                                        ),
-                                      PhotoWithData() => ExtendedImage.memory(
-                                          photo.data,
-                                          fit: BoxFit.cover,
-                                          border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                                          borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                        ),
-                                    },
-                                    isRepresentative: index == 0,
-                                    onDeleteTap: () {
-                                      context.read<PostWritePresenter>().onDeleteImageAt(index);
-                                    },
-                                  );
-                                },
-                              );
-                            } else if (imageListViewState.tastedRecords.isNotEmpty) {
-                              return _buildAttachedContent(
-                                itemLength: imageListViewState.tastedRecords.length,
-                                itemBuilder: (index) {
-                                  final tastedRecord = imageListViewState.tastedRecords[index];
-                                  return _buildGridItem(
-                                    imageWidget: ExtendedImage.network(
-                                      tastedRecord.imageUrl,
-                                      fit: BoxFit.cover,
-                                      border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
-                                      borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                    ),
-                                    isRepresentative: index == 0,
-                                    onDeleteTap: () {
-                                      context.read<PostWritePresenter>().onDeleteTastedRecordAt(index);
-                                    },
-                                  );
-                                },
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                bottomNavigationBar: SafeArea(
-                  child: Padding(
-                    padding: MediaQuery.of(context).viewInsets,
-                    child: Selector<PostWritePresenter, BottomButtonState>(
-                      selector: (context, presenter) => presenter.bottomsButtonState,
-                      builder: (context, bottomsButtonState, _) {
-                        return _buildBottomButtons(
-                          hasImages: bottomsButtonState.hasImages,
-                          tastedRecords: bottomsButtonState.tastedRecords,
-                        );
-                      },
-                    ),
+                      ),
+                      const SizedBox(height: 14),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _buildTagTextField(),
+                      ),
+                      Selector<PostWritePresenter, ImageListViewState>(
+                        selector: (context, presenter) => presenter.imageListViewState,
+                        builder: (context, imageListViewState, _) {
+                          if (imageListViewState.images.isNotEmpty) {
+                            return _buildAttachedContent(
+                              itemLength: imageListViewState.images.length,
+                              itemBuilder: (index) {
+                                final photo = imageListViewState.images[index];
+                                return _buildGridItem(
+                                  imageWidget: switch (photo) {
+                                    PhotoWithUrl() => ExtendedImage.network(
+                                        photo.url,
+                                        fit: BoxFit.cover,
+                                        border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                        printError: false,
+                                      ),
+                                    PhotoWithData() => ExtendedImage.memory(
+                                        photo.data,
+                                        fit: BoxFit.cover,
+                                        border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                        borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                      ),
+                                  },
+                                  isRepresentative: index == 0,
+                                  onDeleteTap: () {
+                                    context.read<PostWritePresenter>().onDeleteImageAt(index);
+                                  },
+                                );
+                              },
+                            );
+                          } else if (imageListViewState.tastedRecords.isNotEmpty) {
+                            return _buildAttachedContent(
+                              itemLength: imageListViewState.tastedRecords.length,
+                              itemBuilder: (index) {
+                                final tastedRecord = imageListViewState.tastedRecords[index];
+                                return _buildGridItem(
+                                  imageWidget: ExtendedImage.network(
+                                    tastedRecord.imageUrl,
+                                    fit: BoxFit.cover,
+                                    border: index == 0 ? Border.all(color: ColorStyles.red, width: 2) : null,
+                                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                                  ),
+                                  isRepresentative: index == 0,
+                                  onDeleteTap: () {
+                                    context.read<PostWritePresenter>().onDeleteTastedRecordAt(index);
+                                  },
+                                );
+                              },
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
-              if (isLoading)
-              const Positioned.fill(child: LoadingBarrier()),
-            ],
-          );
-        }
-      ),
+              bottomNavigationBar: SafeArea(
+                child: Padding(
+                  padding: MediaQuery.of(context).viewInsets,
+                  child: Selector<PostWritePresenter, BottomButtonState>(
+                    selector: (context, presenter) => presenter.bottomsButtonState,
+                    builder: (context, bottomsButtonState, _) {
+                      return _buildBottomButtons(
+                        hasImages: bottomsButtonState.hasImages,
+                        tastedRecords: bottomsButtonState.tastedRecords,
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+            if (isLoading) const Positioned.fill(child: LoadingBarrier()),
+          ],
+        );
+      }),
     );
   }
 

@@ -31,3 +31,25 @@ class FollowButton extends StatelessWidget {
     );
   }
 }
+
+class FollowButtonSkeleton extends StatelessWidget {
+  const FollowButtonSkeleton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: const BoxDecoration(
+        color: ColorStyles.gray70,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: Text(
+        '      ',
+        style: TextStyles.labelSmallMedium.copyWith(color: Colors.transparent),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+}

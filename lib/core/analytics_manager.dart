@@ -8,7 +8,7 @@ class AnalyticsManager {
   static AnalyticsManager get instance => _instance;
 
   factory AnalyticsManager() => instance;
-  
+
   logButtonTap({required String buttonName}) async {
     await FirebaseAnalytics.instance.logEvent(
       name: 'button_click',
@@ -17,7 +17,7 @@ class AnalyticsManager {
       },
     );
   }
-  
+
   logScreen({required String screenName}) async {
     await FirebaseAnalytics.instance.logScreenView(screenName: screenName);
   }

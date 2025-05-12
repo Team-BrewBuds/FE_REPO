@@ -19,14 +19,14 @@ class PermissionRepository {
     camera = await Permission.camera.request();
     photos = await Permission.photos.request();
     location = await Permission.location.request();
-    await Permission.appTrackingTransparency.request();
   }
 
   Future<void> requestPhotos() async {
     photos = await Permission.photos.request();
   }
 
-  Future<void> requestNotification() async {
+  Future<PermissionStatus> requestNotification() async {
     notification = await Permission.notification.request();
+    return notification;
   }
 }

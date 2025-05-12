@@ -92,7 +92,10 @@ class ProfileRepository {
     return _profileApi.updateMyProfile(body: data);
   }
 
-  Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId, required int pageNo,}) async {
+  Future<DefaultPage<PostInProfile>> fetchPostPage({
+    required int userId,
+    required int pageNo,
+  }) async {
     final jsonString = await _postApi.fetchPostPage(userId: userId, pageNo: pageNo);
     return compute(
       (jsonString) {

@@ -36,7 +36,7 @@ extension SearchTastingRecordMapper on SearchTastingRecordDTO {
   TastedRecordSearchResultModel toDomain() {
     final regex = RegExp(r'^(http|https)://\S+$');
     final String imageUrl;
-    if(this.imageUrl.isNotEmpty && !regex.hasMatch(this.imageUrl)) {
+    if (this.imageUrl.isNotEmpty && !regex.hasMatch(this.imageUrl)) {
       imageUrl = 'https://bucket-brewbuds1.s3.ap-northeast-2.amazonaws.com/media/${this.imageUrl}';
     } else {
       imageUrl = this.imageUrl;
@@ -58,7 +58,7 @@ extension SearchPostMapper on SearchPostDTO {
   PostSearchResultModel toDomain() {
     final regex = RegExp(r'^(http|https)://\S+$');
     final String imageUrl;
-    if(this.imageUrl.isNotEmpty && !regex.hasMatch(this.imageUrl)) {
+    if (this.imageUrl.isNotEmpty && !regex.hasMatch(this.imageUrl)) {
       imageUrl = 'https://bucket-brewbuds1.s3.ap-northeast-2.amazonaws.com/media/${this.imageUrl}';
     } else {
       imageUrl = this.imageUrl;

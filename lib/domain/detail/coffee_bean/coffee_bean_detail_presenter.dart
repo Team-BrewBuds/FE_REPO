@@ -49,7 +49,7 @@ final class CoffeeBeanDetailPresenter extends Presenter {
         name: _coffeeBeanDetail?.name ?? '',
         type: (_coffeeBeanDetail?.type ?? CoffeeBeanType.singleOrigin).toString(),
         isDecaf: _coffeeBeanDetail?.isDecaf ?? false,
-  imagePath: _coffeeBeanDetail?.imagePath ?? '',
+        imagePath: _coffeeBeanDetail?.imagePath ?? '',
         rating: _coffeeBeanDetail?.rating ?? 0,
         flavors: _coffeeBeanDetail?.flavors ?? [],
       );

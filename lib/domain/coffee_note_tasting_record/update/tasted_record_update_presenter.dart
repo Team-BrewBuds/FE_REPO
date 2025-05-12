@@ -23,9 +23,7 @@ final class TastedRecordUpdatePresenter extends Presenter {
       _tastedRecord.tastingReview.bitterness != 0 &&
       _tastedRecord.tastingReview.sweetness != 0;
 
-  bool get isValidLastPage =>
-      _tastedRecord.tastingReview.star > 0 &&
-      _tastedRecord.contents.length > 7;
+  bool get isValidLastPage => _tastedRecord.tastingReview.star > 0 && _tastedRecord.contents.length > 7;
 
   String get contents => _tastedRecord.contents;
 

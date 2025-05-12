@@ -107,7 +107,8 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                                 barrierColor: ColorStyles.white,
                                 barrierDismissible: false,
                                 context: context,
-                                builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f4880d68698c9a8218a5f0c'),
+                                builder: (context) => const WebScreen(
+                                    url: 'https://brewbuds.notion.site/19497baa9f4880d68698c9a8218a5f0c'),
                               );
                             },
                             child: Row(
@@ -146,7 +147,8 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                                 barrierColor: ColorStyles.white,
                                 barrierDismissible: false,
                                 context: context,
-                                builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f48809a9b64e120aeb07b1d'),
+                                builder: (context) => const WebScreen(
+                                    url: 'https://brewbuds.notion.site/19497baa9f48809a9b64e120aeb07b1d'),
                               );
                             },
                             child: Row(
@@ -185,7 +187,8 @@ class _TermsOfUseBottomSheetState extends State<TermsOfUseBottomSheet> {
                                 barrierColor: ColorStyles.white,
                                 barrierDismissible: false,
                                 context: context,
-                                builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/1e797baa9f48803ab48fede661655611'),
+                                builder: (context) => const WebScreen(
+                                    url: 'https://brewbuds.notion.site/1e797baa9f48803ab48fede661655611'),
                               );
                             },
                             child: Row(

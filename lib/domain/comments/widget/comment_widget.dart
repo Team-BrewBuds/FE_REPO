@@ -160,7 +160,8 @@ class _CommentWidgetState extends State<CommentWidget> with TickerProviderStateM
                 child: ThrottleButton(
                   onTap: () {
                     _slidableController.close();
-                    ScreenNavigator.pushToReportScreen(context, id: context.read<CommentPresenter>().id, type: 'comment');
+                    ScreenNavigator.pushToReportScreen(context,
+                        id: context.read<CommentPresenter>().id, type: 'comment');
                   },
                   child: Container(
                     color: ColorStyles.gray30,

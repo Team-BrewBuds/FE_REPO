@@ -2,7 +2,6 @@ import 'package:brew_buds/data/dto/notification/notification_data_dto.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'notification_model_dto.freezed.dart';
-
 part 'notification_model_dto.g.dart';
 
 @Freezed(unionKey: 'notification_type', toJson: false, copyWith: false)

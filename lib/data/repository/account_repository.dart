@@ -1,3 +1,4 @@
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -63,19 +64,11 @@ class AccountRepository extends ChangeNotifier {
   }
 
   Future<void> logout({bool forceLogout = false}) async {
-    if (_id == null && _accessToken.isEmpty && _refreshToken.isEmpty) {
-      return;
-    }
-
-    try {
-      await _storage.deleteAll();
-      _isGuest = false;
-      _id = null;
-      _accessToken = '';
-      _refreshToken = '';
-    } catch (e) {
-      rethrow;
-    }
+    await _storage.deleteAll();
+    _isGuest = false;
+    _id = null;
+    _accessToken = '';
+    _refreshToken = '';
   }
 
   Future<void> login({required int id, required String accessToken, required String refreshToken}) async {
@@ -83,6 +76,14 @@ class AccountRepository extends ChangeNotifier {
       saveToken(accessToken: accessToken, refreshToken: refreshToken),
       saveId(id: id),
     ]);
+
+    try {
+      await NotificationRepository.instance.registerToken();
+    } catch (e) {
+      logout();
+      rethrow;
+    }
+
     if (_isGuest) {
       _isGuest = false;
       notifyListeners();
@@ -91,13 +92,6 @@ class AccountRepository extends ChangeNotifier {
 
   loginWithGuest() {
     _isGuest = true;
-  }
-
-  deleteAll() async {
-    await _storage.deleteAll();
-    _isGuest = false;
-    _id = null;
-    _accessToken = '';
-    _refreshToken = '';
+    notifyListeners();
   }
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
@@ -25,7 +26,6 @@ final class HomePresenter extends Presenter {
   final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
   late final StreamSubscription _postSub;
   late final StreamSubscription _tastedRecordSub;
-  bool _isGuest;
   bool _isLoading = false;
   int _currentTypeIndex = 0;
   PostSubject _currentSubject = PostSubject.all;
@@ -37,7 +37,7 @@ final class HomePresenter extends Presenter {
 
   bool get hasNext => _hasNext && _feedPresenters.isNotEmpty;
 
-  bool get isGuest => _isGuest;
+  bool get isGuest => AccountRepository.instance.isGuest;
 
   List<FeedPresenter> get feedPresenters => List.unmodifiable(_feedPresenters);
 
@@ -47,7 +47,7 @@ final class HomePresenter extends Presenter {
 
   bool get isPostFeed => _currentTab == 2;
 
-  HomePresenter({required bool isGuest}) : _isGuest = isGuest {
+  HomePresenter() {
     AnalyticsManager.instance.logScreen(screenName: 'home_all');
     _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
     _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onTastedRecordEvent);
@@ -104,8 +104,7 @@ final class HomePresenter extends Presenter {
   }
 
   login() {
-    _isGuest = false;
-    onRefresh();
+    fetchMoreData(isPageChanged: true);
   }
 
   Future<void> fetchMoreData({bool isPageChanged = false, bool isRefresh = false}) async {
@@ -188,7 +187,7 @@ final class HomePresenter extends Presenter {
   }
 
   Future<void> fetchRecommendedUsers() async {
-    if (_isGuest) return;
+    if (isGuest) return;
 
     final newPage = await homeRepository
         .fetchRecommendedUserPage()

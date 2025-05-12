@@ -22,8 +22,10 @@ enum SettingCategory {
         SettingCategory.support => [
             SettingItem.notice,
             SettingItem.help,
+            SettingItem.improvements,
             SettingItem.evaluation,
             SettingItem.registrationOfBeans,
+            // SettingItem.inquiry,
           ],
         SettingCategory.information => [SettingItem.terms, SettingItem.policy, SettingItem.version],
         SettingCategory.etc => [SettingItem.logout, SettingItem.signOut],

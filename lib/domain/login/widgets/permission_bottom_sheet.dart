@@ -108,7 +108,7 @@ class _PermissionBottomSheetState extends State<PermissionBottomSheet> {
                     onComplete: (_) async {
                       await Future.wait([
                         AccountRepository.instance.init(),
-                        NotificationRepository.instance.init(),
+                        NotificationRepository.instance.set(),
                         SharedPreferencesRepository.instance.setLogin(),
                       ]);
                       PhotoRepository.instance.initState();

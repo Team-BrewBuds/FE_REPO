@@ -100,7 +100,8 @@ class _CameraScreenState extends State<CameraScreen> {
                                         ThrottleButton(
                                           onTap: () {
                                             if (widget.isTastedRecordFlow) {
-                                              AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_camera_back');
+                                              AnalyticsManager.instance
+                                                  .logButtonTap(buttonName: 'tasted_record_camera_back');
                                             }
                                             widget.onTapAlbum.call(context);
                                           },
@@ -319,7 +320,7 @@ class _CameraScreenState extends State<CameraScreen> {
                             ),
                           ),
                         );
-                        
+
                         if (editedData != null) {
                           imageData.value = editedData;
                         }

@@ -179,11 +179,20 @@ class _SettingScreenState extends State<SettingScreen> with CenterDialogMixin<Se
         );
         break;
       case SettingItem.improvements:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://walla.my/v/Gb9rNERojyPofHfwgPVB'),
+        );
         break;
       case SettingItem.evaluation:
         final uri = Uri.parse('https://apps.apple.com/kr/app/id${await AppRepository.instance.fetchAppId()}');
         if (await canLaunchUrl(uri)) {
-          await launchUrl(uri, mode: LaunchMode.externalApplication,);
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
         }
         break;
       case SettingItem.registrationOfBeans:

@@ -29,7 +29,6 @@ abstract class NotificationApi {
 
   @POST('/notifications/devices/')
   Future<void> registerDeviceToken({
-    @Header('Authorization') required String token,
     @Body() required Map<String, dynamic> data,
   });
 
@@ -42,8 +41,7 @@ abstract class NotificationApi {
   Future<String> fetchNotificationSettings();
 
   @POST('/notifications/settings/')
-  Future<void> createNotificationSettings({
-    @Header('Authorization') required String token,
+  Future<String> createNotificationSettings({
     @Body() required Map<String, dynamic> data,
   });
 

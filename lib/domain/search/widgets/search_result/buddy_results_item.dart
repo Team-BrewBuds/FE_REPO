@@ -24,18 +24,14 @@ class BuddyResultsItem extends StatelessWidget {
                 final imageUrl = context.select<BuddySearchResultPresenter, String>(
                   (presenter) => presenter.profileImageUrl,
                 );
-                if (imageUrl.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: ProfileImage(
-                      imageUrl: imageUrl,
-                      height: 40,
-                      width: 40,
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ProfileImage(
+                    imageUrl: imageUrl,
+                    height: 40,
+                    width: 40,
+                  ),
+                );
               },
             ),
             const SizedBox(width: 8),

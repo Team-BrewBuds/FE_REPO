@@ -129,8 +129,7 @@ final class TastedRecordWritePresenter extends Presenter {
     _coffeeBean = _coffeeBean.copyWith(process: processing);
 
     try {
-      await _tastedRecordRepository
-          .create(
+      await _tastedRecordRepository.create(
         content: _contents,
         isPrivate: false,
         tag: _hashTag,

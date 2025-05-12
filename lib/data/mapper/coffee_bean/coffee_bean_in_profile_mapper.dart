@@ -18,13 +18,13 @@ extension CoffeeBeanInProfileMapper on CoffeeBeanInProfileDTO {
     }
 
     return BeanInProfile(
-        id: id,
-        name: name,
-        imagePath: imagePath,
-        country: country,
-        roastingPoint: roastingPoint,
-        rating: rating,
-        tastedRecordsCount: tastedRecordsCount,
-      );
+      id: id,
+      name: name,
+      imagePath: imagePath,
+      country: country,
+      roastingPoint: roastingPoint,
+      rating: rating,
+      tastedRecordsCount: tastedRecordsCount,
+    );
   }
 }

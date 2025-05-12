@@ -198,7 +198,7 @@ class _BlockingUserManagementViewState extends State<BlockingUserManagementView>
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: Row(
             children: [
-              ProfileImage(imageUrl:  user.profileImageUrl, height: 48, width: 48),
+              ProfileImage(imageUrl: user.profileImageUrl, height: 48, width: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(

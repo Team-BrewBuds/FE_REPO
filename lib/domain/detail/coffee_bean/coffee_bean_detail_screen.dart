@@ -54,98 +54,95 @@ class _CoffeeBeanDetailScreenState extends State<CoffeeBeanDetailScreen> {
               showEmptyDialog().then((value) => context.pop());
             });
           }
-          return Builder(
-            builder: (context) {
-              final isLoading = context.select<CoffeeBeanDetailPresenter, bool>((presenter) => presenter.isLoading);
-              return Stack(
-                children: [
-                  Scaffold(
-                    appBar: _buildAppBar(),
-                    body: SafeArea(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Selector<CoffeeBeanDetailPresenter, BeanInfoState>(
-                              selector: (context, presenter) => presenter.beanInfoState,
-                              builder: (context, state, child) => _buildBeanInformation(
-                                name: state.name,
-                                rating: state.rating,
-                                type: state.type,
-                                isDecaf: state.isDecaf,
-                                imagePath: state.imagePath,
-                                flavors: state.flavors,
-                              ),
+          return Builder(builder: (context) {
+            final isLoading = context.select<CoffeeBeanDetailPresenter, bool>((presenter) => presenter.isLoading);
+            return Stack(
+              children: [
+                Scaffold(
+                  appBar: _buildAppBar(),
+                  body: SafeArea(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Selector<CoffeeBeanDetailPresenter, BeanInfoState>(
+                            selector: (context, presenter) => presenter.beanInfoState,
+                            builder: (context, state, child) => _buildBeanInformation(
+                              name: state.name,
+                              rating: state.rating,
+                              type: state.type,
+                              isDecaf: state.isDecaf,
+                              imagePath: state.imagePath,
+                              flavors: state.flavors,
                             ),
-                            Container(
-                              margin: const EdgeInsets.only(left: 12, right: 12, bottom: 48),
-                              padding: const EdgeInsets.only(top: 20, bottom: 24, left: 16, right: 16),
-                              color: ColorStyles.gray10,
-                              child: Column(
-                                children: [
-                                  Selector<CoffeeBeanDetailPresenter, BeanDetailState>(
-                                    selector: (context, presenter) => presenter.beanDetailState,
-                                    builder: (context, state, child) => BeanDetail(
-                                      country: state.country,
-                                      region: state.region,
-                                      variety: state.variety,
-                                      process: state.process,
-                                      roastPoint: state.roastPoint,
-                                      roastery: state.roastery,
-                                      extraction: state.extraction,
-                                    ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 12, right: 12, bottom: 48),
+                            padding: const EdgeInsets.only(top: 20, bottom: 24, left: 16, right: 16),
+                            color: ColorStyles.gray10,
+                            child: Column(
+                              children: [
+                                Selector<CoffeeBeanDetailPresenter, BeanDetailState>(
+                                  selector: (context, presenter) => presenter.beanDetailState,
+                                  builder: (context, state, child) => BeanDetail(
+                                    country: state.country,
+                                    region: state.region,
+                                    variety: state.variety,
+                                    process: state.process,
+                                    roastPoint: state.roastPoint,
+                                    roastery: state.roastery,
+                                    extraction: state.extraction,
                                   ),
-                                  const SizedBox(height: 32),
-                                  Selector<CoffeeBeanDetailPresenter, BeanTasteState>(
-                                    selector: (context, presenter) => presenter.beanTasteState,
-                                    builder: (context, state, child) => TasteGraph(
-                                      bodyValue: state.body,
-                                      acidityValue: state.acidity,
-                                      bitternessValue: state.bitterness,
-                                      sweetnessValue: state.sweetness,
-                                    ),
+                                ),
+                                const SizedBox(height: 32),
+                                Selector<CoffeeBeanDetailPresenter, BeanTasteState>(
+                                  selector: (context, presenter) => presenter.beanTasteState,
+                                  builder: (context, state, child) => TasteGraph(
+                                    bodyValue: state.body,
+                                    acidityValue: state.acidity,
+                                    bitternessValue: state.bitterness,
+                                    sweetnessValue: state.sweetness,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Container(height: 8, color: ColorStyles.gray20),
-                            Selector<CoffeeBeanDetailPresenter, List<TopFlavor>>(
-                              selector: (context, presenter) => presenter.topFlavors,
-                              builder: (context, topFlavors, child) => _buildTopFlavors(topFlavors: topFlavors),
+                          ),
+                          Container(height: 8, color: ColorStyles.gray20),
+                          Selector<CoffeeBeanDetailPresenter, List<TopFlavor>>(
+                            selector: (context, presenter) => presenter.topFlavors,
+                            builder: (context, topFlavors, child) => _buildTopFlavors(topFlavors: topFlavors),
+                          ),
+                          Selector<TastedRecordInCoffeeBeanListPresenter, List<TastedRecordInCoffeeBeanPresenter>>(
+                            selector: (context, presenter) => presenter.previewPresenters,
+                            builder: (context, presenters, child) => _buildTastedRecords(presenters: presenters),
+                          ),
+                          Selector<TastedRecordInCoffeeBeanListPresenter, bool>(
+                            selector: (context, presenter) => presenter.presenters.length > 4,
+                            builder: (context, hasMoreData, child) =>
+                                hasMoreData ? _buildMoreTastedRecordsButton() : const SizedBox.shrink(),
+                          ),
+                          Container(height: 8, color: ColorStyles.gray20),
+                          Selector<CoffeeBeanDetailPresenter, List<RecommendedCoffeeBean>>(
+                            selector: (context, presenter) => presenter.recommendedCoffeeBeanList,
+                            builder: (context, recommendedCoffeeBeanList, child) => _buildRecommendedCoffeeBeans(
+                              recommendedCoffeeBeans: recommendedCoffeeBeanList,
                             ),
-                            Selector<TastedRecordInCoffeeBeanListPresenter, List<TastedRecordInCoffeeBeanPresenter>>(
-                              selector: (context, presenter) => presenter.previewPresenters,
-                              builder: (context, presenters, child) => _buildTastedRecords(presenters: presenters),
-                            ),
-                            Selector<TastedRecordInCoffeeBeanListPresenter, bool>(
-                              selector: (context, presenter) => presenter.presenters.length > 4,
-                              builder: (context, hasMoreData, child) =>
-                                  hasMoreData ? _buildMoreTastedRecordsButton() : const SizedBox.shrink(),
-                            ),
-                            Container(height: 8, color: ColorStyles.gray20),
-                            Selector<CoffeeBeanDetailPresenter, List<RecommendedCoffeeBean>>(
-                              selector: (context, presenter) => presenter.recommendedCoffeeBeanList,
-                              builder: (context, recommendedCoffeeBeanList, child) => _buildRecommendedCoffeeBeans(
-                                recommendedCoffeeBeans: recommendedCoffeeBeanList,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    bottomNavigationBar: SafeArea(
-                      child: Selector<CoffeeBeanDetailPresenter, bool>(
-                        selector: (context, presenter) => presenter.isSaved,
-                        builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  if (isLoading)
-                    const Positioned.fill(child: LoadingBarrier()),
-                ],
-              );
-            }
-          );
+                  bottomNavigationBar: SafeArea(
+                    child: Selector<CoffeeBeanDetailPresenter, bool>(
+                      selector: (context, presenter) => presenter.isSaved,
+                      builder: (context, isSaved, child) => _buildBottomButtons(isSaved: isSaved),
+                    ),
+                  ),
+                ),
+                if (isLoading) const Positioned.fill(child: LoadingBarrier()),
+              ],
+            );
+          });
         });
   }
 

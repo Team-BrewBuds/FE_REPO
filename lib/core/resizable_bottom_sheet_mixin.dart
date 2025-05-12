@@ -119,8 +119,9 @@ mixin ResizableBottomSheetMixin<T extends StatefulWidget> on State<T> {
                   if (_height < minimumHeight * 0.5) {
                     context.pop();
                   } else {
-                    final target =
-                        (_height - minimumHeight).abs() < (_height - maximumHeight).abs() ? minimumHeight : maximumHeight;
+                    final target = (_height - minimumHeight).abs() < (_height - maximumHeight).abs()
+                        ? minimumHeight
+                        : maximumHeight;
 
                     setState(() {
                       _height = target;
