@@ -2,7 +2,6 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/domain/setting/presenter/notification_setting_presenter.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
 import 'package:flutter/cupertino.dart';

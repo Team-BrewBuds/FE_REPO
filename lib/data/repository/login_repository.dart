@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:brew_buds/data/api/sign_up_api.dart';
 import 'package:brew_buds/data/dto/social_login_dto.dart';
-import 'package:brew_buds/data/mapper/sign_up/sign_up_mapper.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/domain/signup/state/signup_state.dart';
+import 'package:brew_buds/domain/signup/model/sign_up_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -61,7 +60,7 @@ class LoginRepository {
   }
 
   Future<void> registerAccount({
-    required SignUpState state,
+    required SignUpModel model,
   }) async {
     final dio = Dio(BaseOptions(baseUrl: dotenv.get('API_ADDRESS')));
     dio.interceptors.add(
@@ -117,7 +116,7 @@ class LoginRepository {
     try {
       final response = await dio.post(
         '/profiles/signup/',
-        data: state.toJson(),
+        data: model.toJson(),
       );
       if (response.statusCode != 200) {
         throw Exception();

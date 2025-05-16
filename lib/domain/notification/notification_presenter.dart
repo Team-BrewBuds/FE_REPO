@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/notification/notification_item_presenter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 final class NotificationPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;
   final List<NotificationItemPresenter> _notificationList = List.empty(growable: true);
+  late final StreamSubscription _firebaseSub;
   bool _hasNext = true;
   int _pageNo = 1;
   bool _isLoading = false;
 
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isLoading && _notificationList.isEmpty;
 
   bool get hasNext => _hasNext && _notificationList.isNotEmpty;
 
@@ -18,32 +22,35 @@ final class NotificationPresenter extends Presenter {
   bool get hasNotification => _notificationList.where((notification) => !notification.isRead).isNotEmpty;
 
   NotificationPresenter() {
-    fetchMoreData();
+    _firebaseSub = FirebaseMessaging.onMessage.listen((_) {
+      onRefresh();
+    });
+  }
+
+  @override
+  dispose() {
+    _firebaseSub.cancel();
+    super.dispose();
   }
 
   Future<void> onRefresh() async {
     _notificationList.clear();
     _hasNext = true;
     _pageNo = 1;
-    await fetchMoreData(isRefresh: true);
+    await fetchMoreData();
   }
 
-  Future<void> fetchMoreData({bool isRefresh = false}) async {
-    if (!_hasNext) return;
+  Future<void> fetchMoreData() async {
+    if (!_hasNext || _isLoading) return;
+    _isLoading = true;
+    notifyListeners();
 
-    if (!_isLoading) {
-      _isLoading = true;
-      if (!isRefresh) {
-        notifyListeners();
-      }
-
-      final newPage = await _notificationRepository.fetchNotificationPage(pageNo: _pageNo);
-      _notificationList.addAll(newPage.results.map((model) => NotificationItemPresenter(notificationModel: model)));
-      _hasNext = newPage.hasNext;
-      _pageNo++;
-      _isLoading = false;
-      notifyListeners();
-    }
+    final newPage = await _notificationRepository.fetchNotificationPage(pageNo: _pageNo);
+    _notificationList.addAll(newPage.results.map((model) => NotificationItemPresenter(notificationModel: model)));
+    _hasNext = newPage.hasNext;
+    _pageNo++;
+    _isLoading = false;
+    notifyListeners();
   }
 
   Future<void> deleteAll() async {

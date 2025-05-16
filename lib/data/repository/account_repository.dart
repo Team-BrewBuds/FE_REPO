@@ -86,7 +86,6 @@ class AccountRepository extends ChangeNotifier {
 
     if (_isGuest) {
       _isGuest = false;
-      notifyListeners();
     }
   }
 

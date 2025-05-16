@@ -15,10 +15,19 @@ class PermissionRepository {
   late PermissionStatus notification;
 
   Future<void> initPermission() async {
+    await _requestAllPermission();
+  }
+
+  Future<void> _requestAllPermission() async {
+    Future.delayed(const Duration(milliseconds: 500));
     notification = await Permission.notification.request();
-    camera = await Permission.camera.request();
-    photos = await Permission.photos.request();
+    Future.delayed(const Duration(milliseconds: 500));
     location = await Permission.location.request();
+    Future.delayed(const Duration(milliseconds: 500));
+    camera = await Permission.camera.request();
+    Future.delayed(const Duration(milliseconds: 500));
+    photos = await Permission.photos.request();
+    Future.delayed(const Duration(milliseconds: 500));
   }
 
   Future<void> requestPhotos() async {

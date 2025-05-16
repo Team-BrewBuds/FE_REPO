@@ -5,6 +5,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
@@ -30,7 +31,6 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'data/repository/app_repository.dart';
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -48,19 +48,15 @@ void main() async {
     FirebaseAnalytics.instance.logAppOpen(),
   ]);
 
-  if (SharedPreferencesRepository.instance.isFirst) {
+  if (!SharedPreferencesRepository.instance.isCompletePermission) {
     await AccountRepository.instance.logout();
   } else {
     await PermissionRepository.instance.initPermission();
     await Future.wait([
       AccountRepository.instance.init(),
-      NotificationRepository.instance.set(),
+      NotificationRepository.instance.init(),
     ]);
     PhotoRepository.instance.initState();
-  }
-
-  if (AccountRepository.instance.accessToken.isNotEmpty) {
-    await NotificationRepository.instance.registerToken();
   }
 
   await AppRepository.instance.checkUpdateRequired();
@@ -73,7 +69,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => AccountRepository.instance),
         ChangeNotifierProvider<NotificationPresenter>(create: (_) => NotificationPresenter()),
       ],
       child: const MyApp(),

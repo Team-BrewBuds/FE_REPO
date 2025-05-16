@@ -109,22 +109,23 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                 ),
               ),
               const Spacer(),
-              Builder(
-                builder: (context) {
-                  final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
-                  final hasNotification =
-                      context.select<NotificationPresenter, bool>((presenter) => presenter.hasNotification);
-                  return isGuest
-                      ? const SizedBox.shrink()
-                      : FutureButton(
-                          onTap: () => showNotificationPage(context: context),
-                          child: SvgPicture.asset(
-                            hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
-                            width: 24,
-                            height: 24,
-                          ),
-                        );
+              ThrottleButton(
+                onTap: () {
+                  if (!context.read<HomePresenter>().isGuest) {
+                    return showNotificationPage(context: context);
+                  }
                 },
+                child: Builder(
+                  builder: (context) {
+                    final hasNotification =
+                        context.select<NotificationPresenter, bool>((presenter) => presenter.hasNotification);
+                    return SvgPicture.asset(
+                      hasNotification ? 'assets/icons/alarm_active.svg' : 'assets/icons/alarm.svg',
+                      width: 24,
+                      height: 24,
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -214,7 +215,6 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                   );
                 } else {
                   return Builder(builder: (context) {
-                    final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
                     return SliverPadding(
                       padding: const EdgeInsets.only(top: 12),
                       sliver: SliverList.separated(
@@ -224,7 +224,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                           if (feedPresenter is PostFeedPresenter) {
                             return PostFeedWidget.buildWithPresenter(
                               feedPresenter,
-                              isGuest: isGuest,
+                              isGuest: context.read<HomePresenter>().isGuest,
                               onGuest: () => showLoginBottomSheet(),
                               onTapComments: (isPost, id, author) => showCommentsBottomSheet(
                                 objectType: ObjectType.post,
@@ -235,7 +235,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                           } else if (feedPresenter is TastedRecordFeedPresenter) {
                             return TastedRecordFeedWidget.buildWithPresenter(
                               feedPresenter,
-                              isGuest: isGuest,
+                              isGuest: context.read<HomePresenter>().isGuest,
                               onGuest: () => showLoginBottomSheet(),
                               onTapComments: (isPost, id, author) => showCommentsBottomSheet(
                                 objectType: ObjectType.tastingRecord,
@@ -247,20 +247,20 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                             return const SizedBox.shrink();
                           }
                         },
-                        separatorBuilder: (context, index) => index % 12 == 11 && !isGuest
-                            ? Builder(
-                                builder: (context) {
-                                  final pageIndex = (index / 12).toInt();
-                                  final presenter =
-                                      context.read<HomePresenter>().getRecommendedBuddiesPresenter(pageIndex);
-                                  if (presenter != null) {
-                                    return RecommendedBuddiesWidget.buildWithPresenter(presenter);
-                                  } else {
-                                    return Container(height: 12, color: ColorStyles.gray20);
-                                  }
-                                },
-                              )
-                            : Container(height: 12, color: ColorStyles.gray20),
+                        separatorBuilder: (context, index) {
+                          final isGuest = context.read<HomePresenter>().isGuest;
+                          if (!isGuest && (index % 12 == 11)) {
+                            final pageIndex = (index / 12).toInt();
+                            final presenter = context.read<HomePresenter>().getRecommendedBuddiesPresenter(pageIndex);
+                            if (presenter != null) {
+                              return RecommendedBuddiesWidget.buildWithPresenter(presenter);
+                            } else {
+                              return Container(height: 12, color: ColorStyles.gray20);
+                            }
+                          } else {
+                            return Container(height: 12, color: ColorStyles.gray20);
+                          }
+                        },
                       ),
                     );
                   });
@@ -325,35 +325,30 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
             subjectList.length + 1,
             (index) {
               if (index == 0) {
-                return Builder(
-                  builder: (context) {
-                    final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
-                    return FutureButton(
-                      onTap: () async {
-                        if (isGuest) {
-                          await showLoginBottomSheet(
-                            onLogin: () {
-                              context.push('/home/popular_post');
-                            },
-                          );
-                        } else {
+                return FutureButton(
+                  onTap: () async {
+                    if (context.read<HomePresenter>().isGuest) {
+                      await showLoginBottomSheet(
+                        onLogin: () {
                           context.push('/home/popular_post');
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: ColorStyles.background,
-                          border: Border.all(color: ColorStyles.red),
-                          borderRadius: const BorderRadius.all(Radius.circular(20)),
-                        ),
-                        child: Text(
-                          '인기',
-                          style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red),
-                        ),
-                      ),
-                    );
+                        },
+                      );
+                    } else {
+                      context.push('/home/popular_post');
+                    }
                   },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: ColorStyles.background,
+                      border: Border.all(color: ColorStyles.red),
+                      borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    ),
+                    child: Text(
+                      '인기',
+                      style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.red),
+                    ),
+                  ),
                 );
               } else {
                 final subject = subjectList[index - 1];

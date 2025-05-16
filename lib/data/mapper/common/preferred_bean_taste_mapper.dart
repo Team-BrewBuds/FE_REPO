@@ -11,5 +11,11 @@ extension PreferredBeanTasteMapper on PreferredBeanTasteDTO {
 }
 
 extension PreferredBeanTastedToJson on PreferredBeanTaste {
-  Map<String, dynamic> toJson() => {'body': body, 'bitterness': bitterness, 'acidity': acidity, 'sweetness': sweetness};
+  Map<String, dynamic> toJson() {
+    if (body != 0 && bitterness != 0 && acidity != 0 && sweetness != 0) {
+      return {'body': body, 'bitterness': bitterness, 'acidity': acidity, 'sweetness': sweetness};
+    } else {
+      return {};
+    }
+  }
 }

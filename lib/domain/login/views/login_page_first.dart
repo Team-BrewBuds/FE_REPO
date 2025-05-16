@@ -40,7 +40,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (SharedPreferencesRepository.instance.isFirstTimeLogin && !_isDialogShown) {
+      if (!SharedPreferencesRepository.instance.isCompletePermission && !_isDialogShown) {
         _isDialogShown = true;
         _showPermissionDialog();
       }
@@ -116,7 +116,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                     ThrottleButton(
                       onTap: () {
                         AccountRepository.instance.loginWithGuest();
-                        context.go('/home?is_guest=true');
+                        context.go('/home');
                       },
                       child: Container(
                         decoration: const BoxDecoration(border: Border(bottom: BorderSide())),

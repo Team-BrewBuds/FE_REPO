@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:brew_buds/data/api/notification_api.dart';
@@ -7,19 +8,16 @@ import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/exception/login_exception.dart';
+import 'package:brew_buds/exception/notification_exeption.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 final class NotificationRepository {
   final NotificationApi _notificationApi = NotificationApi();
-  String _token = '';
-
-  String get token => _token;
 
   NotificationRepository._();
 
@@ -29,96 +27,96 @@ final class NotificationRepository {
 
   factory NotificationRepository() => instance;
 
-  Future<void> set() async {
-    switch (PermissionRepository.instance.notification) {
-      case PermissionStatus.granted:
-        await FirebaseMessaging.instance.getAPNSToken();
-        _token = await FirebaseMessaging.instance.getToken() ?? '';
-        await FirebaseMessaging.instance.requestPermission(
-          alert: true,
-          announcement: false,
-          badge: true,
-          carPlay: false,
-          criticalAlert: false,
-          provisional: false,
-          sound: true,
-        );
-        await FirebaseMessaging.instance
-            .setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
-        break;
-      default:
-        break;
-    }
+  Future<void> init() async {
+    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
   }
 
   Future<void> registerToken() async {
-    switch (PermissionRepository.instance.notification) {
-      case PermissionStatus.granted:
-        try {
-          if (_token.isNotEmpty) {
-            await _notificationApi.registerDeviceToken(data: {'device_token': _token, 'device_type': 'ios'});
-          } else {
-            throw DeviceRegistrationException();
-          }
-        } catch (e) {
-          throw DeviceRegistrationException();
-        }
-        break;
-      default:
-        break;
+    try {
+      await FirebaseMessaging.instance.getAPNSToken();
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null && token.isNotEmpty) {
+        await _notificationApi.registerDeviceToken(data: {'device_token': token, 'device_type': 'ios'});
+      } else {
+        throw DeviceRegistrationException();
+      }
+    } catch (e) {
+      throw DeviceRegistrationException();
     }
   }
 
   Future<void> deleteToken() async {
-    switch (PermissionRepository.instance.notification) {
-      case PermissionStatus.granted:
-        try {
-          await _notificationApi.deleteDeviceToken(
-            data: {'device_token': _token, 'device_type': 'ios'},
-          );
-        } catch (e) {
-          rethrow;
-        }
-        break;
-      default:
-        break;
+    try {
+      await FirebaseMessaging.instance.getAPNSToken();
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token != null && token.isNotEmpty) {
+        await _notificationApi.deleteDeviceToken(
+          data: {'device_token': token, 'device_type': 'ios'},
+        );
+      }
+    } catch (e) {
+      return Future.value();
     }
   }
 
   Future<NotificationSetting> createdSettings() async {
-    final data = const NotificationSettingDTO(
-      like: true,
-      comment: true,
-      follow: true,
-      marketing: true,
-    ).toJson();
-    final json = jsonDecode(await _notificationApi.createNotificationSettings(data: data)) as Map<String, dynamic>;
-    return NotificationSettingDTO.fromJson(json).toDomain();
+    switch (PermissionRepository.instance.notification) {
+      case PermissionStatus.granted:
+        try {
+          final data = const NotificationSettingDTO(
+            like: true,
+            comment: true,
+            follow: true,
+            marketing: true,
+          ).toJson();
+          final json =
+              jsonDecode(await _notificationApi.createNotificationSettings(data: data)) as Map<String, dynamic>;
+          return NotificationSettingDTO.fromJson(json).toDomain();
+        } catch (_) {
+          rethrow;
+        }
+      default:
+        throw const UnauthorizedException();
+    }
   }
 
   Future<NotificationSetting> fetchSettings() async {
-    try {
-      final json = jsonDecode(await _notificationApi.fetchNotificationSettings()) as Map<String, dynamic>;
-      return NotificationSettingDTO.fromJson(json).toDomain();
-    } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        return await createdSettings();
-      } else {
-        rethrow;
-      }
-    } catch (_) {
-      rethrow;
+    switch (PermissionRepository.instance.notification) {
+      case PermissionStatus.granted:
+        try {
+          final json = jsonDecode(await _notificationApi.fetchNotificationSettings()) as Map<String, dynamic>;
+          return NotificationSettingDTO.fromJson(json).toDomain();
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 404) {
+            return await createdSettings();
+          } else {
+            rethrow;
+          }
+        } catch (_) {
+          rethrow;
+        }
+      default:
+        throw const UnauthorizedException();
     }
   }
 
   Future<NotificationSetting> updateSettings({required NotificationSetting notificationSetting}) async {
-    try {
-      final json = await _notificationApi.updateNotificationSettings(
-        data: notificationSetting.toDTO().toJson(),
-      ) as Map<String, dynamic>;
-      return NotificationSettingDTO.fromJson(json).toDomain();
-    } catch (_) {
-      rethrow;
+    switch (PermissionRepository.instance.notification) {
+      case PermissionStatus.granted:
+        try {
+          final json = await _notificationApi.updateNotificationSettings(
+            data: notificationSetting.toDTO().toJson(),
+          ) as Map<String, dynamic>;
+          return NotificationSettingDTO.fromJson(json).toDomain();
+        } catch (_) {
+          rethrow;
+        }
+      default:
+        throw const UnauthorizedException();
     }
   }
 

@@ -11,6 +11,7 @@ import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
+import 'package:brew_buds/domain/notification/notification_presenter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -51,12 +52,12 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
       if (SharedPreferencesRepository.instance.isFirst) {
         ShowCaseWidget.of(context).startShowCase([_one, _two, _three]);
       }
+      context.read<NotificationPresenter>().onRefresh();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final isGuest = context.select<AccountRepository, bool>((repository) => repository.isGuest);
     return Scaffold(
       body: widget.child,
       bottomNavigationBar: widget.isHideBottomBar
@@ -124,6 +125,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                             targetPadding: const EdgeInsets.all(8),
                             child: ThrottleButton(
                               onTap: () async {
+                                final isGuest = AccountRepository.instance.isGuest;
                                 AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_search');
                                 if (isGuest) {
                                   showLoginBottomSheet(onLogin: () {
@@ -180,6 +182,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                             targetPadding: const EdgeInsets.all(8),
                             child: ThrottleButton(
                               onTap: () async {
+                                final isGuest = AccountRepository.instance.isGuest;
                                 AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_records');
                                 if (isGuest) {
                                   showLoginBottomSheet(onLogin: () {
@@ -236,6 +239,7 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                             targetPadding: const EdgeInsets.all(8),
                             child: ThrottleButton(
                               onTap: () async {
+                                final isGuest = AccountRepository.instance.isGuest;
                                 AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_profile');
                                 if (isGuest) {
                                   showLoginBottomSheet(onLogin: () {

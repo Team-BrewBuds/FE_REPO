@@ -197,7 +197,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('태어난 연도', style: TextStyles.title01SemiBold),
+            Text('태어난 연도 (선택)', style: TextStyles.title01SemiBold),
             const SizedBox(height: 8),
             TextFormField(
               focusNode: _yearOfAgeFocusNode,
@@ -291,7 +291,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('성별', style: TextStyles.title01SemiBold),
+        Text('성별 (선택)', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         Row(
           spacing: 8,

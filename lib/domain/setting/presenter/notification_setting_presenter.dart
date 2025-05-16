@@ -1,6 +1,7 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/exception/notification_exeption.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -52,8 +53,10 @@ final class NotificationSettingPresenter extends Presenter {
     if (_isGranted != newState) {
       _isGranted = newState;
       if (_isGranted) {
+        await _notificationRepository.registerToken();
         await _fetchSettings();
       } else {
+        await _notificationRepository.deleteToken();
         _notificationSetting = null;
       }
     }
@@ -64,74 +67,74 @@ final class NotificationSettingPresenter extends Presenter {
     }
   }
 
-  onChangeLikeNotifyState() async {
+  Future<void> onChangeLikeNotifyState() async {
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(like: !setting.like);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(like: !setting.like),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(like: !setting.like),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(like: setting.like);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }
 
-  onChangeCommentNotifyState() async {
+  Future<void> onChangeCommentNotifyState() async {
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(comment: !setting.comment);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(comment: !setting.comment),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(comment: !setting.comment),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(comment: setting.comment);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }
 
-  onChangeFollowNotifyState() async {
+  Future<void> onChangeFollowNotifyState() async {
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(follow: !setting.follow);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(follow: !setting.follow),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(follow: !setting.follow),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(follow: setting.follow);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }
 
-  onChangeMarketingNotifyState() async {
+  Future<void> onChangeMarketingNotifyState() async {
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(marketing: !setting.marketing);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(marketing: !setting.marketing),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(marketing: !setting.marketing),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(marketing: setting.marketing);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }

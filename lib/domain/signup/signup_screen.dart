@@ -44,9 +44,11 @@ class _SignupScreenState extends State<SignupScreen> {
     final pageIndex = widget.navigationShell.currentIndex;
     if (pageIndex == 1) {
       AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_life_skip');
+      context.read<SignUpPresenter>().resetCertificated();
       widget.navigationShell.goBranch(pageIndex + 1);
     } else if (pageIndex == 2) {
       AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_cert_skip');
+      context.read<SignUpPresenter>().resetPreferredBeanTaste();
       widget.navigationShell.goBranch(pageIndex + 1);
     } else if (pageIndex == 3) {
       AnalyticsManager.instance.logButtonTap(buttonName: 'signup_userprefer_taste_skip');
