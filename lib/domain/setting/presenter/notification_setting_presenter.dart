@@ -7,23 +7,25 @@ import 'package:permission_handler/permission_handler.dart';
 
 final class NotificationSettingPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;
+  final PermissionRepository _permissionRepository = PermissionRepository.instance;
   NotificationSetting? _notificationSetting;
-  bool _isGranted;
   bool _isLoading = false;
 
-  NotificationSettingPresenter({
-    required bool isGranted,
-  }) : _isGranted = isGranted {
+  NotificationSettingPresenter() {
     _fetchSettings();
   }
 
-  bool get isGranted => _isGranted;
+  Future<PermissionStatus> get notificationStatus => _permissionRepository.notification;
 
   NotificationSetting? get notificationSetting => _notificationSetting;
 
   bool get isLoading => _isLoading;
 
   _fetchSettings() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     if (!_isLoading) {
       _isLoading = true;
       notifyListeners();
@@ -43,16 +45,16 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   requestPermission() async {
+    final previousStatus = await _permissionRepository.notification;
+    final newState = await _permissionRepository.requestNotificationPermission();
+
     if (!_isLoading) {
       _isLoading = true;
       notifyListeners();
     }
 
-    final newState = (await PermissionRepository.instance.requestNotification()).isGranted;
-
-    if (_isGranted != newState) {
-      _isGranted = newState;
-      if (_isGranted) {
+    if (previousStatus != newState) {
+      if (newState.isGranted) {
         await _notificationRepository.registerToken();
         await _fetchSettings();
       } else {
@@ -68,6 +70,10 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   Future<void> onChangeLikeNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
       _notificationSetting = setting.copyWith(like: !setting.like);
@@ -86,6 +92,10 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   Future<void> onChangeCommentNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
       _notificationSetting = setting.copyWith(comment: !setting.comment);
@@ -104,6 +114,10 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   Future<void> onChangeFollowNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
       _notificationSetting = setting.copyWith(follow: !setting.follow);
@@ -122,6 +136,10 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   Future<void> onChangeMarketingNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
       _notificationSetting = setting.copyWith(marketing: !setting.marketing);

@@ -245,7 +245,7 @@ class _LocalSearchViewState extends State<LocalSearchView> with ResizableBottomS
       return Future.error('Location services are disabled.');
     }
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -294,15 +294,12 @@ class _LocalSearchViewState extends State<LocalSearchView> with ResizableBottomS
   bool get hasTextField => false;
 
   @override
-  // TODO: implement initialHeight
   double get initialHeight => widget.maxHeight;
 
   @override
-  // TODO: implement maximumHeight
   double get maximumHeight => widget.maxHeight;
 
   @override
-  // TODO: implement minimumHeight
   double get minimumHeight => widget.maxHeight * 0.7;
 
   @override

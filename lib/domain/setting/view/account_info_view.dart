@@ -62,7 +62,7 @@ class _AccountInfoViewState extends State<AccountInfoView> {
                 ),
               ),
               Selector<AccountInfoPresenter, String>(
-                selector: (context, presenter) => '${presenter.yearOfBirth}',
+                selector: (context, presenter) => presenter.yearOfBirth,
                 builder: (context, yearOfBirth, child) => Container(
                   padding: const EdgeInsets.all(16),
                   decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),

@@ -5,7 +5,6 @@ import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
@@ -187,7 +186,8 @@ class _SettingScreenState extends State<SettingScreen> with CenterDialogMixin<Se
         );
         break;
       case SettingItem.evaluation:
-        final uri = Uri.parse('https://apps.apple.com/kr/app/id${await AppRepository.instance.fetchAppId()}');
+        final uri =
+            Uri.parse('https://apps.apple.com/kr/app/%EB%B8%8C%EB%A3%A8%EB%B2%84%EC%A6%88-brewbuds/id6670744490');
         if (await canLaunchUrl(uri)) {
           await launchUrl(
             uri,

@@ -14,8 +14,6 @@ class PhotoRepository {
 
   factory PhotoRepository() => instance;
 
-  PermissionStatus get permission => PermissionRepository.instance.photos;
-
   List<AssetAlbum> _albumList = List.empty(growable: true);
 
   List<AssetAlbum> get albumList => List.unmodifiable(_albumList);
@@ -29,6 +27,7 @@ class PhotoRepository {
   }
 
   fetchAssetPathList() async {
+    final permission = await PermissionRepository.instance.photos;
     switch (permission) {
       case PermissionStatus.granted:
         final assetPathList =

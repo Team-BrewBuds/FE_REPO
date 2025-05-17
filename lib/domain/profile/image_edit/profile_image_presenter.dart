@@ -6,9 +6,11 @@ import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
 import 'package:brew_buds/model/events/profile_update_event.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 final class ProfileImagePresenter extends Presenter {
   final PhotoRepository _photoRepository = PhotoRepository.instance;
@@ -24,6 +26,8 @@ final class ProfileImagePresenter extends Presenter {
   AssetAlbum? get selectedAlbum => _albumList.elementAtOrNull(_selectedAlbumIndex);
 
   bool get isLoading => _isLoading;
+
+  Future<PermissionStatus> get status => PermissionRepository.instance.photos;
 
   Future<Uint8List?> get preView {
     final selectedIndex = _selectedImageIndex;

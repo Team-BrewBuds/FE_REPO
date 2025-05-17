@@ -105,17 +105,10 @@ class _PermissionBottomSheetState extends State<PermissionBottomSheet> {
                       });
                       return PermissionRepository.instance.initPermission();
                     },
-                    onError: (_) async {
-                      await PermissionRepository.instance.initPermission();
-                      await NotificationRepository.instance.init();
-                      await Future.wait([
-                        AccountRepository.instance.init(),
-                        SharedPreferencesRepository.instance.completePermission(),
-                      ]);
-                      PhotoRepository.instance.initState();
-                      if (context.mounted) {
-                        context.pop();
-                      }
+                    onError: (_) {
+                      setState(() {
+                        _isLoading = false;
+                      });
                     },
                     onComplete: (_) async {
                       await NotificationRepository.instance.init();

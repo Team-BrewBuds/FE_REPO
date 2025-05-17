@@ -40,22 +40,20 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
 
   @override
   Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        final isLoading = context.select<NotificationSettingPresenter, bool>(
-              (presenter) => presenter.isLoading,
-        );
-        return Stack(
-          children: [
-            Scaffold(
-              appBar: _buildAppBar(),
-              body: _buildBody(),
-            ),
-            if (isLoading) const Positioned.fill(child: LoadingBarrier()),
-          ],
-        );
-      }
-    );
+    return Builder(builder: (context) {
+      final isLoading = context.select<NotificationSettingPresenter, bool>(
+        (presenter) => presenter.isLoading,
+      );
+      return Stack(
+        children: [
+          Scaffold(
+            appBar: _buildAppBar(),
+            body: _buildBody(),
+          ),
+          if (isLoading) const Positioned.fill(child: LoadingBarrier()),
+        ],
+      );
+    });
   }
 
   AppBar _buildAppBar() {
@@ -94,29 +92,79 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
 
   Widget _buildBody() {
     return SingleChildScrollView(
-      child: Builder(
-        builder: (context) {
-          final isGranted = context.select<NotificationSettingPresenter, bool>(
-                (presenter) => presenter.isGranted,
-          );
-          final settings = context.select<NotificationSettingPresenter, NotificationSetting?>(
-                (presenter) => presenter.notificationSetting,
-          );
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      child: Builder(builder: (context) {
+        final isGranted = context.select<NotificationSettingPresenter, Future<bool>>(
+          (presenter) => presenter.notificationStatus.then((status) => status.isGranted).onError((_, __) => false),
+        );
+        final settings = context.select<NotificationSettingPresenter, NotificationSetting?>(
+          (presenter) => presenter.notificationSetting,
+        );
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
+                        const SizedBox(height: 8),
+                        Text(
+                          '모든 알림 차단',
+                          style: TextStyles.captionMediumMedium.copyWith(
+                            color: ColorStyles.gray50,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                  SizedBox(
+                    width: 50,
+                    height: 30,
+                    child: FutureBuilder<bool>(
+                      future: isGranted,
+                      initialData: false,
+                      builder: (context, snapshot) {
+                        return CupertinoSwitch(
+                          value: snapshot.data ?? false,
+                          activeTrackColor: ColorStyles.red,
+                          onChanged: (value) {
+                            openAppSettings();
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (settings != null) ...[
+              const SizedBox(height: 48),
               Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('팔로우', style: TextStyles.labelSmallSemiBold),
+              ),
+              const SizedBox(height: 8),
+              Container(
                 padding: const EdgeInsets.all(16.0),
+                decoration: const BoxDecoration(
+                  border:
+                      Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text('기기 알림 설정', style: TextStyles.labelMediumMedium),
+                          Text('새로운 팔로워', style: TextStyles.labelMediumMedium),
                           const SizedBox(height: 8),
                           Text(
-                            '모든 알림 차단',
+                            '나를 팔로우하는 버디 안내',
                             style: TextStyles.captionMediumMedium.copyWith(
                               color: ColorStyles.gray50,
                             ),
@@ -128,190 +176,145 @@ class _NotificationSettingViewState extends State<NotificationSettingView> with 
                     SizedBox(
                       width: 50,
                       height: 30,
-                      child: Builder(builder: (context) {
-                        return CupertinoSwitch(
-                          value: isGranted,
-                          activeTrackColor: ColorStyles.red,
-                          onChanged: (value) {
-                            openAppSettings();
-                          },
-                        );
-                      }),
+                      child: CupertinoSwitch(
+                        value: settings.follow,
+                        activeTrackColor: ColorStyles.red,
+                        onChanged: (value) {
+                          context.read<NotificationSettingPresenter>().onChangeFollowNotifyState();
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('커피노트', style: TextStyles.labelSmallSemiBold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20))),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('좋아요', style: TextStyles.labelMediumMedium),
+                          const SizedBox(height: 8),
+                          Text(
+                            '내가 작성한 커피노트 좋아요 안내',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.gray50,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 48),
+                    SizedBox(
+                      width: 50,
+                      height: 30,
+                      child: CupertinoSwitch(
+                        value: settings.like,
+                        activeTrackColor: ColorStyles.red,
+                        onChanged: (value) {
+                          context.read<NotificationSettingPresenter>().onChangeLikeNotifyState();
+                        },
+                      ),
                     ),
                   ],
                 ),
               ),
-              if (isGranted && settings != null) ...[
-                const SizedBox(height: 48),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('팔로우', style: TextStyles.labelSmallSemiBold),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: const BoxDecoration(
+                  border:
+                      Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('새로운 팔로워', style: TextStyles.labelMediumMedium),
-                            const SizedBox(height: 8),
-                            Text(
-                              '나를 팔로우하는 버디 안내',
-                              style: TextStyles.captionMediumMedium.copyWith(
-                                color: ColorStyles.gray50,
-                              ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('댓글', style: TextStyles.labelMediumMedium),
+                          const SizedBox(height: 8),
+                          Text(
+                            '내가 작성한 커피노트의 댓글 또는 댓글의 답글 안내',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.gray50,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 48),
-                      SizedBox(
-                        width: 50,
-                        height: 30,
-                        child: CupertinoSwitch(
-                          value: settings.follow,
-                          activeTrackColor: ColorStyles.red,
-                          onChanged: (value) {
-                            context.read<NotificationSettingPresenter>().onChangeFollowNotifyState();
-                          },
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 48),
+                    SizedBox(
+                      width: 50,
+                      height: 30,
+                      child: CupertinoSwitch(
+                        value: settings.comment,
+                        activeTrackColor: ColorStyles.red,
+                        onChanged: (value) {
+                          context.read<NotificationSettingPresenter>().onChangeCommentNotifyState();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('커피노트', style: TextStyles.labelSmallSemiBold),
+              ),
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('마케팅', style: TextStyles.labelSmallSemiBold),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: const BoxDecoration(
+                  border:
+                      Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(border: Border(top: BorderSide(color: ColorStyles.gray20))),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('좋아요', style: TextStyles.labelMediumMedium),
-                            const SizedBox(height: 8),
-                            Text(
-                              '내가 작성한 커피노트 좋아요 안내',
-                              style: TextStyles.captionMediumMedium.copyWith(
-                                color: ColorStyles.gray50,
-                              ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('혜택 정보 수신', style: TextStyles.labelMediumMedium),
+                          const SizedBox(height: 8),
+                          Text(
+                            '개인 맞춤 혜택과 이벤트 소식을 안내',
+                            style: TextStyles.captionMediumMedium.copyWith(
+                              color: ColorStyles.gray50,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 48),
-                      SizedBox(
-                        width: 50,
-                        height: 30,
-                        child: CupertinoSwitch(
-                          value: settings.like,
-                          activeTrackColor: ColorStyles.red,
-                          onChanged: (value) {
-                            context.read<NotificationSettingPresenter>().onChangeLikeNotifyState();
-                          },
-                        ),
+                    ),
+                    const SizedBox(width: 48),
+                    SizedBox(
+                      width: 50,
+                      height: 30,
+                      child: CupertinoSwitch(
+                        value: settings.marketing,
+                        activeTrackColor: ColorStyles.red,
+                        onChanged: (value) {
+                          context.read<NotificationSettingPresenter>().onChangeMarketingNotifyState();
+                        },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('댓글', style: TextStyles.labelMediumMedium),
-                            const SizedBox(height: 8),
-                            Text(
-                              '내가 작성한 커피노트의 댓글 또는 댓글의 답글 안내',
-                              style: TextStyles.captionMediumMedium.copyWith(
-                                color: ColorStyles.gray50,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                      SizedBox(
-                        width: 50,
-                        height: 30,
-                        child: CupertinoSwitch(
-                          value: settings.comment,
-                          activeTrackColor: ColorStyles.red,
-                          onChanged: (value) {
-                            context.read<NotificationSettingPresenter>().onChangeCommentNotifyState();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('마케팅', style: TextStyles.labelSmallSemiBold),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: ColorStyles.gray20), bottom: BorderSide(color: ColorStyles.gray20)),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Text('혜택 정보 수신', style: TextStyles.labelMediumMedium),
-                            const SizedBox(height: 8),
-                            Text(
-                              '개인 맞춤 혜택과 이벤트 소식을 안내',
-                              style: TextStyles.captionMediumMedium.copyWith(
-                                color: ColorStyles.gray50,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                      SizedBox(
-                        width: 50,
-                        height: 30,
-                        child: CupertinoSwitch(
-                          value: settings.marketing,
-                          activeTrackColor: ColorStyles.red,
-                          onChanged: (value) {
-                            context.read<NotificationSettingPresenter>().onChangeMarketingNotifyState();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]
-            ],
-          );
-        }
-      ),
+              ),
+            ]
+          ],
+        );
+      }),
     );
   }
 }

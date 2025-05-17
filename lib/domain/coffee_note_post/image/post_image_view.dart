@@ -5,7 +5,6 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/coffee_note_post/image/post_image_presenter.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
@@ -49,8 +48,6 @@ class PostImageView extends StatefulWidget {
 class _PostImageViewState extends State<PostImageView> {
   late final ValueNotifier<bool> isFirstNotifier;
 
-  PermissionStatus get permissionStatus => PermissionRepository.instance.photos;
-
   @override
   void initState() {
     isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeAlbum);
@@ -76,18 +73,25 @@ class _PostImageViewState extends State<PostImageView> {
             },
           );
         } else {
-          switch (permissionStatus) {
-            case PermissionStatus.granted || PermissionStatus.limited:
-              return Scaffold(
-                backgroundColor: ColorStyles.white,
-                appBar: buildAppBar(context),
-                body: SafeArea(
-                  child: buildBody(context),
-                ),
-              );
-            default:
-              return PermissionDeniedView.photo();
-          }
+          return FutureBuilder(
+            future: context.read<PostImagePresenter>().status,
+            initialData: PermissionStatus.denied,
+            builder: (context, snapshot) {
+              final status = snapshot.data;
+              switch (status) {
+                case PermissionStatus.granted || PermissionStatus.limited:
+                  return Scaffold(
+                    backgroundColor: ColorStyles.white,
+                    appBar: buildAppBar(context),
+                    body: SafeArea(
+                      child: buildBody(context, isLimited: status == PermissionStatus.limited),
+                    ),
+                  );
+                default:
+                  return PermissionDeniedView.photo();
+              }
+            },
+          );
         }
       },
     );
@@ -324,10 +328,10 @@ class _PostImageViewState extends State<PostImageView> {
     }
   }
 
-  Widget buildBody(BuildContext context) {
+  Widget buildBody(BuildContext context, {required bool isLimited}) {
     return Column(
       children: [
-        if (permissionStatus == PermissionStatus.limited) ...[
+        if (isLimited) ...[
           buildManagementButton(context),
           const SizedBox(height: 1),
         ],

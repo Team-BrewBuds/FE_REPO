@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 
 final class TastedRecordImagePresenter extends Presenter {
@@ -19,6 +21,8 @@ final class TastedRecordImagePresenter extends Presenter {
   AssetAlbum? get selectedAlbum => _albumList.elementAtOrNull(_selectedAlbumIndex);
 
   AssetEntity? get preView => selectedAlbum?.images.elementAtOrNull(_selectedPhotoIndexList.lastOrNull ?? 0);
+
+  Future<PermissionStatus> get status => PermissionRepository.instance.photos;
 
   TastedRecordImagePresenter() {
     initState();

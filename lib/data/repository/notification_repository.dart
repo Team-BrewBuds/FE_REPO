@@ -8,7 +8,6 @@ import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/exception/login_exception.dart';
-import 'package:brew_buds/exception/notification_exeption.dart';
 import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/notification/notification_model.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
@@ -36,6 +35,8 @@ final class NotificationRepository {
   }
 
   Future<void> registerToken() async {
+    if ((await PermissionRepository.instance.notification).isGranted) return;
+
     try {
       await FirebaseMessaging.instance.getAPNSToken();
       final token = await FirebaseMessaging.instance.getToken();
@@ -50,6 +51,8 @@ final class NotificationRepository {
   }
 
   Future<void> deleteToken() async {
+    if ((await PermissionRepository.instance.notification).isGranted) return;
+
     try {
       await FirebaseMessaging.instance.getAPNSToken();
       final token = await FirebaseMessaging.instance.getToken();
@@ -64,59 +67,43 @@ final class NotificationRepository {
   }
 
   Future<NotificationSetting> createdSettings() async {
-    switch (PermissionRepository.instance.notification) {
-      case PermissionStatus.granted:
-        try {
-          final data = const NotificationSettingDTO(
-            like: true,
-            comment: true,
-            follow: true,
-            marketing: true,
-          ).toJson();
-          final json =
-              jsonDecode(await _notificationApi.createNotificationSettings(data: data)) as Map<String, dynamic>;
-          return NotificationSettingDTO.fromJson(json).toDomain();
-        } catch (_) {
-          rethrow;
-        }
-      default:
-        throw const UnauthorizedException();
+    try {
+      final data = const NotificationSettingDTO(
+        like: true,
+        comment: true,
+        follow: true,
+        marketing: true,
+      ).toJson();
+      final json = jsonDecode(await _notificationApi.createNotificationSettings(data: data)) as Map<String, dynamic>;
+      return NotificationSettingDTO.fromJson(json).toDomain();
+    } catch (_) {
+      rethrow;
     }
   }
 
   Future<NotificationSetting> fetchSettings() async {
-    switch (PermissionRepository.instance.notification) {
-      case PermissionStatus.granted:
-        try {
-          final json = jsonDecode(await _notificationApi.fetchNotificationSettings()) as Map<String, dynamic>;
-          return NotificationSettingDTO.fromJson(json).toDomain();
-        } on DioException catch (e) {
-          if (e.response?.statusCode == 404) {
-            return await createdSettings();
-          } else {
-            rethrow;
-          }
-        } catch (_) {
-          rethrow;
-        }
-      default:
-        throw const UnauthorizedException();
+    try {
+      final json = jsonDecode(await _notificationApi.fetchNotificationSettings()) as Map<String, dynamic>;
+      return NotificationSettingDTO.fromJson(json).toDomain();
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return await createdSettings();
+      } else {
+        rethrow;
+      }
+    } catch (_) {
+      rethrow;
     }
   }
 
   Future<NotificationSetting> updateSettings({required NotificationSetting notificationSetting}) async {
-    switch (PermissionRepository.instance.notification) {
-      case PermissionStatus.granted:
-        try {
-          final json = await _notificationApi.updateNotificationSettings(
-            data: notificationSetting.toDTO().toJson(),
-          ) as Map<String, dynamic>;
-          return NotificationSettingDTO.fromJson(json).toDomain();
-        } catch (_) {
-          rethrow;
-        }
-      default:
-        throw const UnauthorizedException();
+    try {
+      final json = await _notificationApi.updateNotificationSettings(
+        data: notificationSetting.toDTO().toJson(),
+      ) as Map<String, dynamic>;
+      return NotificationSettingDTO.fromJson(json).toDomain();
+    } catch (_) {
+      rethrow;
     }
   }
 

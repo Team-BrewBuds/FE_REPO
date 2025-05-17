@@ -7,7 +7,6 @@ import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/event_bus.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/image/tasted_record_image_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/write/tasted_record_write_flow.dart';
@@ -63,8 +62,6 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
 
   double get previewOffset => (1.0 - _previewController.value) * -widget.previewHeight;
 
-  PermissionStatus get permissionStatus => PermissionRepository.instance.photos;
-
   @override
   void initState() {
     isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeAlbum);
@@ -98,27 +95,34 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
             },
           );
         } else {
-          switch (permissionStatus) {
-            case PermissionStatus.granted || PermissionStatus.limited:
-              return ValueListenableBuilder(
-                  valueListenable: _isLoadingNotifier,
-                  builder: (context, isLoading, _) {
-                    return Stack(
-                      children: [
-                        Scaffold(
-                          backgroundColor: ColorStyles.black,
-                          appBar: _buildAppBar(context),
-                          body: SafeArea(
-                            child: _buildBody(context),
-                          ),
-                        ),
-                        if (isLoading) const Positioned.fill(child: LoadingBarrier()),
-                      ],
-                    );
-                  });
-            default:
-              return PermissionDeniedView.photo();
-          }
+          return FutureBuilder(
+            future: context.read<TastedRecordImagePresenter>().status,
+            initialData: PermissionStatus.denied,
+            builder: (context, snapshot) {
+              final status = snapshot.data;
+              switch (status) {
+                case PermissionStatus.granted || PermissionStatus.limited:
+                  return ValueListenableBuilder(
+                      valueListenable: _isLoadingNotifier,
+                      builder: (context, isLoading, _) {
+                        return Stack(
+                          children: [
+                            Scaffold(
+                              backgroundColor: ColorStyles.black,
+                              appBar: _buildAppBar(context),
+                              body: SafeArea(
+                                child: _buildBody(context, isLimited: status == PermissionStatus.limited),
+                              ),
+                            ),
+                            if (isLoading) const Positioned.fill(child: LoadingBarrier()),
+                          ],
+                        );
+                      });
+                default:
+                  return PermissionDeniedView.photo();
+              }
+            },
+          );
         }
       },
     );
@@ -191,7 +195,7 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, {required bool isLimited}) {
     final width = MediaQuery.of(context).size.width;
     return Builder(
       builder: (context) {
@@ -324,7 +328,7 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
                                   : currentAlbum?.assetPathEntity.name ?? '',
                             ),
                           ),
-                          if (permissionStatus == PermissionStatus.limited) ...[
+                          if (isLimited) ...[
                             SliverAppBar(
                               pinned: true,
                               automaticallyImplyLeading: false,

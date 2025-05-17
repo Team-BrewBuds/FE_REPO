@@ -39,7 +39,6 @@ class _ProfileImageNavigatorState extends State<ProfileImageNavigator> {
           pages: [
             for (final step in flow.steps)
               switch (step) {
-                // TODO: Handle this case.
                 ProfileImageFlow.album => MaterialPage(
                     child: ProfileImageView(
                       previewHeight: MediaQuery.of(context).size.width,
@@ -48,7 +47,6 @@ class _ProfileImageNavigatorState extends State<ProfileImageNavigator> {
                       },
                     ),
                   ),
-                // TODO: Handle this case.
                 ProfileImageFlow.camera => MaterialPage(
                     child: CameraScreen(
                       onDone: (_, imageData) => context.read<ProfileImagePresenter>().onSave(imageData),

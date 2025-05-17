@@ -1,8 +1,10 @@
 import 'dart:typed_data';
 
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/photo_repository.dart';
 import 'package:brew_buds/domain/photo/model/asset_album.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 final class PostImagePresenter extends Presenter {
   final int maximumSelectCount = 5;
@@ -18,6 +20,8 @@ final class PostImagePresenter extends Presenter {
   AssetAlbum? get selectedAlbum => _albumList.elementAtOrNull(_selectedAlbumIndex);
 
   bool get isSelect => selectedPhotoIndexList.isNotEmpty;
+
+  Future<PermissionStatus> get status => PermissionRepository.instance.photos;
 
   PostImagePresenter() {
     initState();

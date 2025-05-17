@@ -7,7 +7,6 @@ import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/event_bus.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/permission/permission_denied_view.dart';
 import 'package:brew_buds/domain/photo/core/custom_circle_crop_layer_painter.dart';
@@ -54,8 +53,6 @@ class _ProfileImageViewState extends State<ProfileImageView> with TickerProvider
 
   double get previewOffset => (1.0 - _previewController.value) * -widget.previewHeight;
 
-  PermissionStatus get permissionStatus => PermissionRepository.instance.photos;
-
   @override
   void initState() {
     isFirstNotifier = ValueNotifier(SharedPreferencesRepository.instance.isFirstTimeAlbum);
@@ -64,7 +61,6 @@ class _ProfileImageViewState extends State<ProfileImageView> with TickerProvider
       duration: const Duration(milliseconds: 300),
       value: 1.0,
     );
-
     super.initState();
   }
 
@@ -87,28 +83,35 @@ class _ProfileImageViewState extends State<ProfileImageView> with TickerProvider
             },
           );
         } else {
-          switch (permissionStatus) {
-            case PermissionStatus.granted || PermissionStatus.limited:
-              return Builder(
-                builder: (context) {
-                  final isLoading = context.select<ProfileImagePresenter, bool>((presenter) => presenter.isLoading);
-                  return Stack(
-                    children: [
-                      Scaffold(
-                        backgroundColor: ColorStyles.black,
-                        appBar: _buildAppBar(context),
-                        body: SafeArea(
-                          child: _buildBody(context),
-                        ),
-                      ),
-                      if (isLoading) const Positioned.fill(child: LoadingBarrier()),
-                    ],
+          return FutureBuilder(
+            future: context.read<ProfileImagePresenter>().status,
+            initialData: PermissionStatus.denied,
+            builder: (context, snapshot) {
+              final status = snapshot.data;
+              switch (status) {
+                case PermissionStatus.granted || PermissionStatus.limited:
+                  return Builder(
+                    builder: (context) {
+                      final isLoading = context.select<ProfileImagePresenter, bool>((presenter) => presenter.isLoading);
+                      return Stack(
+                        children: [
+                          Scaffold(
+                            backgroundColor: ColorStyles.black,
+                            appBar: _buildAppBar(context),
+                            body: SafeArea(
+                              child: _buildBody(context, isLimited: status == PermissionStatus.limited),
+                            ),
+                          ),
+                          if (isLoading) const Positioned.fill(child: LoadingBarrier()),
+                        ],
+                      );
+                    },
                   );
-                },
-              );
-            default:
-              return PermissionDeniedView.photo();
-          }
+                default:
+                  return PermissionDeniedView.photo();
+              }
+            },
+          );
         }
       },
     );
@@ -176,7 +179,7 @@ class _ProfileImageViewState extends State<ProfileImageView> with TickerProvider
     );
   }
 
-  Widget _buildBody(BuildContext context) {
+  Widget _buildBody(BuildContext context, {required bool isLimited}) {
     final width = MediaQuery.of(context).size.width;
     return AnimatedBuilder(
       animation: _previewController,
@@ -304,7 +307,7 @@ class _ProfileImageViewState extends State<ProfileImageView> with TickerProvider
                         ),
                       );
                     }),
-                    if (permissionStatus == PermissionStatus.limited) ...[
+                    if (isLimited) ...[
                       SliverAppBar(
                         pinned: true,
                         automaticallyImplyLeading: false,

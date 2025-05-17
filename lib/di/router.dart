@@ -1,6 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/home/home_presenter.dart';
 import 'package:brew_buds/domain/home/home_screen.dart';
@@ -34,7 +33,6 @@ import 'package:brew_buds/domain/signup/views/signup_third_page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:uuid/v4.dart';
@@ -209,7 +207,7 @@ GoRouter createRouter(bool hasToken, GlobalKey<NavigatorState> navigatorKey) {
                   GoRoute(
                     path: 'notification',
                     builder: (context, state) => ChangeNotifierProvider(
-                      create: (_) => NotificationSettingPresenter(isGranted: PermissionRepository.instance.notification.isGranted),
+                      create: (_) => NotificationSettingPresenter(),
                       child: const NotificationSettingView(),
                     ),
                   ),

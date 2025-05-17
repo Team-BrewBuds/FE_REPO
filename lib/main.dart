@@ -31,7 +31,6 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -217,7 +216,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
                 ),
                 onPressed: () async {
-                  final uri = Uri.parse('https://apps.apple.com/kr/app/id$id');
+                  final uri = Uri.parse(
+                      'https://apps.apple.com/kr/app/%EB%B8%8C%EB%A3%A8%EB%B2%84%EC%A6%88-brewbuds/id6670744490');
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(
                       uri,

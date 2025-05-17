@@ -76,7 +76,7 @@ final class TastedRecordFeedPresenter extends FeedPresenter<TastedRecordFeed> {
     notifyListeners();
 
     try {
-      await _tastedRecordRepository.follow(id: previousTastedRecord.id, isFollow: isFollow);
+      await _tastedRecordRepository.follow(id: previousTastedRecord.author.id, isFollow: isFollow);
       EventBus.instance.fire(
         UserFollowEvent(
           senderId: presenterId,

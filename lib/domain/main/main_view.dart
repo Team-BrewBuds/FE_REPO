@@ -52,7 +52,9 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
       if (SharedPreferencesRepository.instance.isFirst) {
         ShowCaseWidget.of(context).startShowCase([_one, _two, _three]);
       }
-      context.read<NotificationPresenter>().onRefresh();
+      if (!AccountRepository.instance.isGuest) {
+        context.read<NotificationPresenter>().onRefresh();
+      }
     });
   }
 
@@ -128,7 +130,8 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                                 final isGuest = AccountRepository.instance.isGuest;
                                 AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_search');
                                 if (isGuest) {
-                                  showLoginBottomSheet(onLogin: () {
+                                  showLoginBottomSheet(onLogin: () async {
+                                    await context.read<NotificationPresenter>().onRefresh();
                                     context.go('/search');
                                   });
                                 } else {
@@ -185,7 +188,8 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                                 final isGuest = AccountRepository.instance.isGuest;
                                 AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_records');
                                 if (isGuest) {
-                                  showLoginBottomSheet(onLogin: () {
+                                  showLoginBottomSheet(onLogin: () async {
+                                    await context.read<NotificationPresenter>().onRefresh();
                                     showCoffeeNoteBottomSheet();
                                   });
                                 } else {
@@ -242,7 +246,8 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
                                 final isGuest = AccountRepository.instance.isGuest;
                                 AnalyticsManager.instance.logButtonTap(buttonName: 'gnb_profile');
                                 if (isGuest) {
-                                  showLoginBottomSheet(onLogin: () {
+                                  showLoginBottomSheet(onLogin: () async {
+                                    await context.read<NotificationPresenter>().onRefresh();
                                     context.go('/profile');
                                   });
                                 } else {
