@@ -8,18 +8,40 @@ import 'package:brew_buds/domain/search/models/search_result_model.dart';
 
 extension SearchBeanMapper on SearchBeanDTO {
   CoffeeBeanSearchResultModel toDomain() {
+    final String imagePath;
+
+    if (type == 'single') {
+      if (roastPoint > 0 && roastPoint <= 5) {
+        imagePath = 'assets/images/coffee_bean/single_$roastPoint.png';
+      } else {
+        imagePath = 'assets/images/coffee_bean/single_3.png';
+      }
+    } else if (type == 'blend') {
+      imagePath = 'assets/images/coffee_bean/blend.png';
+    } else {
+      imagePath = '';
+    }
+
     return CoffeeBeanSearchResultModel(
       id: id,
       name: name,
       rating: rating,
       recordedCount: tastingRecordCount,
-      imageUrl: imageUrl,
+      imagePath: imagePath,
     );
   }
 }
 
 extension SearchTastingRecordMapper on SearchTastingRecordDTO {
   TastedRecordSearchResultModel toDomain() {
+    final regex = RegExp(r'^(http|https)://\S+$');
+    final String imageUrl;
+    if (this.imageUrl.isNotEmpty && !regex.hasMatch(this.imageUrl)) {
+      imageUrl = 'https://bucket-brewbuds1.s3.ap-northeast-2.amazonaws.com/media/${this.imageUrl}';
+    } else {
+      imageUrl = this.imageUrl;
+    }
+
     return TastedRecordSearchResultModel(
       id: id,
       title: beanName,
@@ -27,13 +49,21 @@ extension SearchTastingRecordMapper on SearchTastingRecordDTO {
       beanType: beanType,
       taste: beanTaste.split(','),
       contents: content,
-      imageUri: imageUrl,
+      imageUrl: imageUrl,
     );
   }
 }
 
 extension SearchPostMapper on SearchPostDTO {
   PostSearchResultModel toDomain() {
+    final regex = RegExp(r'^(http|https)://\S+$');
+    final String imageUrl;
+    if (this.imageUrl.isNotEmpty && !regex.hasMatch(this.imageUrl)) {
+      imageUrl = 'https://bucket-brewbuds1.s3.ap-northeast-2.amazonaws.com/media/${this.imageUrl}';
+    } else {
+      imageUrl = this.imageUrl;
+    }
+
     return PostSearchResultModel(
       id: id,
       title: title,
@@ -44,7 +74,7 @@ extension SearchPostMapper on SearchPostDTO {
       createdAt: (DateTime.tryParse(createdAt) ?? DateTime.now()).timeAgo(),
       authorNickname: authorNickname,
       subject: subject.toDomain().toString(),
-      imageUri: imageUrl,
+      imageUrl: imageUrl,
     );
   }
 }
@@ -53,7 +83,7 @@ extension SearchUserMapper on SearchUserDTO {
   BuddySearchResultModel toDomain() {
     return BuddySearchResultModel(
       id: id,
-      profileImageUri: imageUrl,
+      profileImageUrl: imageUrl,
       nickname: nickname,
       followerCount: followerCount,
       tastedRecordsCount: tastingRecordCount,

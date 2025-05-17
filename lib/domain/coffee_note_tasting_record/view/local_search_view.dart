@@ -1,9 +1,11 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/resizable_bottom_sheet_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_presenter.dart';
 import 'package:brew_buds/model/common/local.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -29,21 +31,18 @@ class LocalSearchView extends StatefulWidget {
       );
 }
 
-class _LocalSearchViewState extends State<LocalSearchView> {
+class _LocalSearchViewState extends State<LocalSearchView> with ResizableBottomSheetMixin<LocalSearchView> {
   late final Debouncer<String> searchDebouncer;
   late final Throttle paginationThrottle;
   late final ValueNotifier<String> searchWord;
   late double height;
-  late final maxHeight;
+  late final double maxHeight;
   late final TextEditingController textEditingController;
   final FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
     textEditingController = TextEditingController();
-    textEditingController.addListener(() {
-      _onChangeNewWord(textEditingController.text);
-    });
     maxHeight = widget.maxHeight;
     height = widget.maxHeight;
     searchWord = ValueNotifier('');
@@ -55,7 +54,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
       },
     );
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -64,17 +63,10 @@ class _LocalSearchViewState extends State<LocalSearchView> {
     );
 
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<LocalSearchPresenter>().initState();
-    });
   }
 
   @override
   void dispose() {
-    textEditingController.removeListener(() {
-      _onChangeNewWord(textEditingController.text);
-    });
     searchDebouncer.cancel();
     paginationThrottle.cancel();
     textEditingController.dispose();
@@ -93,106 +85,15 @@ class _LocalSearchViewState extends State<LocalSearchView> {
   }
 
   _onChangeNewWordDebounce(String newWord) {
-    if (newWord.isNotEmpty) {
-      context.read<LocalSearchPresenter>().search(newWord);
-    }
+    context.read<LocalSearchPresenter>().search(newWord);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final bool keyboardVisible = MediaQuery.of(context).viewInsets.vertical > 0;
-    return Stack(
-      children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Material(
-            color: Colors.transparent,
-            child: GestureDetector(
-              onTap: () {
-                if (focusNode.hasFocus) {
-                  focusNode.unfocus();
-                }
-              },
-              onVerticalDragEnd: (details) {
-                if (!keyboardVisible) {
-                  if (height > maxHeight * 0.85) {
-                    setState(() {
-                      height = maxHeight;
-                    });
-                  } else if (height > maxHeight * 0.3) {
-                    setState(() {
-                      height = maxHeight * 0.5;
-                    });
-                  } else {
-                    context.pop();
-                  }
-                }
-              },
-              onVerticalDragUpdate: (details) {
-                final double? delta = details.primaryDelta;
-                setState(() {
-                  if (delta != null && !keyboardVisible) {
-                    height -= delta;
-                  }
-                });
-              },
-              child: AnimatedContainer(
-                curve: Curves.bounceOut,
-                duration: const Duration(milliseconds: 100),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(top: BorderSide(color: ColorStyles.gray40)),
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(12),
-                  ),
-                ),
-                width: MediaQuery.of(context).size.width,
-                height: keyboardVisible ? maxHeight : height,
-                padding: MediaQuery.of(context).viewInsets,
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        _buildAppBar(),
-                        const SizedBox(height: 24),
-                        _buildSearchBar(context),
-                        const SizedBox(height: 12),
-                        Expanded(
-                          child: Selector<LocalSearchPresenter, List<Local>>(
-                            selector: (context, presenter) => presenter.page.results,
-                            builder: (context, localList, child) => _buildLocalResults(localList: localList),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAppBar() {
+  Widget buildTitle(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 16.0),
+      padding: const EdgeInsets.only(top: 16.0, left: 16, right: 16, bottom: 12),
       child: Column(
         children: [
-          Container(
-            width: 30,
-            height: 5,
-            decoration: const BoxDecoration(
-              color: Color(0xFFC7C7CC),
-              borderRadius: BorderRadius.all(Radius.circular(2.5)),
-            ),
-          ),
-          const SizedBox(height: 24),
           Row(
             children: [
               ThrottleButton(
@@ -221,87 +122,89 @@ class _LocalSearchViewState extends State<LocalSearchView> {
               ),
             ],
           ),
+          _buildSearchBar(context),
         ],
       ),
     );
   }
 
   Widget _buildSearchBar(BuildContext context) {
-    return TextFormField(
-      focusNode: focusNode,
-      controller: textEditingController,
-      keyboardType: TextInputType.text,
-      inputFormatters: [
-        FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9 ]'), allow: true),
-      ],
-      decoration: InputDecoration(
-        isDense: true,
-        hintText: '시음 장소를 검색하세요',
-        hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
-        contentPadding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 4),
-        filled: true,
-        fillColor: ColorStyles.white,
-        enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: ColorStyles.gray40),
-          borderRadius: BorderRadius.all(Radius.circular(34)),
-          gapPadding: 8,
-        ),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: ColorStyles.gray40),
-          borderRadius: BorderRadius.all(Radius.circular(34)),
-          gapPadding: 8,
-        ),
-        prefixIconConstraints: const BoxConstraints(maxWidth: 36, maxHeight: 44),
-        prefixIcon: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 4, top: 12, bottom: 12),
-          child: SvgPicture.asset(
-            'assets/icons/search.svg',
-            height: 20,
-            width: 20,
-            colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: TextFormField(
+        focusNode: focusNode,
+        controller: textEditingController,
+        keyboardType: TextInputType.text,
+        inputFormatters: [
+          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9 ]'), allow: true),
+        ],
+        decoration: InputDecoration(
+          isDense: true,
+          hintText: '시음 장소를 검색하세요',
+          hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+          contentPadding: const EdgeInsets.only(left: 12, top: 12, bottom: 12, right: 4),
+          filled: true,
+          fillColor: ColorStyles.white,
+          enabledBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+            borderRadius: BorderRadius.all(Radius.circular(34)),
+            gapPadding: 8,
+          ),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: ColorStyles.gray40),
+            borderRadius: BorderRadius.all(Radius.circular(34)),
+            gapPadding: 8,
+          ),
+          prefixIconConstraints: const BoxConstraints(maxWidth: 36, maxHeight: 44),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 12, right: 4, top: 12, bottom: 12),
+            child: SvgPicture.asset(
+              'assets/icons/search.svg',
+              height: 20,
+              width: 20,
+              colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+            ),
+          ),
+          suffixIconConstraints: const BoxConstraints(maxWidth: 36, maxHeight: 44),
+          suffixIcon: ValueListenableBuilder<String>(
+            valueListenable: searchWord,
+            builder: (context, searchWord, child) {
+              return searchWord.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.only(right: 12, left: 4, top: 12, bottom: 12),
+                      child: ThrottleButton(
+                        onTap: () {
+                          textEditingController.value = const TextEditingValue();
+                          _onChangeNewWord('');
+                        },
+                        child: SvgPicture.asset(
+                          'assets/icons/x_round.svg',
+                          height: 24,
+                          width: 24,
+                          colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
+                        ),
+                      ))
+                  : const SizedBox.shrink();
+            },
           ),
         ),
-        suffixIconConstraints: const BoxConstraints(maxWidth: 36, maxHeight: 44),
-        suffixIcon: ValueListenableBuilder<String>(
-          valueListenable: searchWord,
-          builder: (context, searchWord, child) {
-            return searchWord.isNotEmpty
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 12, left: 4, top: 12, bottom: 12),
-                    child: ThrottleButton(
-                      onTap: () {
-                        textEditingController.value = const TextEditingValue();
-                      },
-                      child: SvgPicture.asset(
-                        'assets/icons/x_round.svg',
-                        height: 24,
-                        width: 24,
-                        colorFilter: const ColorFilter.mode(ColorStyles.gray50, BlendMode.srcIn),
-                      ),
-                    ))
-                : const SizedBox.shrink();
-          },
-        ),
+        style: TextStyles.labelSmallMedium,
+        maxLines: 1,
+        cursorColor: ColorStyles.black,
+        cursorErrorColor: ColorStyles.black,
+        cursorHeight: 16,
+        cursorWidth: 1,
+        onChanged: (text) {
+          _onChangeNewWord(textEditingController.text);
+        },
       ),
-      style: TextStyles.labelSmallMedium,
-      maxLines: 1,
-      cursorColor: ColorStyles.black,
-      cursorErrorColor: ColorStyles.black,
-      cursorHeight: 16,
-      cursorWidth: 1,
     );
   }
 
   Widget _buildLocalResults({required List<Local> localList}) {
-    return NotificationListener<ScrollNotification>(
-      onNotification: (ScrollNotification scroll) {
-        if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-          paginationThrottle.setValue(null);
-        }
-        return false;
-      },
-      child: ListView.separated(
-        padding: EdgeInsets.zero,
+    return SliverPadding(
+      padding: const EdgeInsets.only(top: 14),
+      sliver: SliverList.separated(
         itemCount: localList.length,
         itemBuilder: (context, index) {
           final local = localList[index];
@@ -311,6 +214,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
             },
             child: Container(
               color: ColorStyles.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -341,7 +245,7 @@ class _LocalSearchViewState extends State<LocalSearchView> {
       return Future.error('Location services are disabled.');
     }
 
-    LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
@@ -354,5 +258,55 @@ class _LocalSearchViewState extends State<LocalSearchView> {
     if (context.mounted) {
       context.read<LocalSearchPresenter>().setMyLocation(x: '${position.longitude}', y: '${position.latitude}');
     }
+  }
+
+  @override
+  Widget buildBottomWidget(BuildContext context) => const SizedBox.shrink();
+
+  @override
+  List<Widget> buildContents(BuildContext context) {
+    return [
+      Selector<LocalSearchPresenter, List<Local>>(
+        selector: (context, presenter) => presenter.localList,
+        builder: (context, localList, child) => _buildLocalResults(localList: localList),
+      ),
+      Builder(
+        builder: (context) {
+          final hasNext = context.select<LocalSearchPresenter, bool>((presenter) => presenter.hasNext);
+          return hasNext
+              ? const SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 80,
+                    child: Center(
+                      child: CupertinoActivityIndicator(
+                        color: ColorStyles.gray70,
+                      ),
+                    ),
+                  ),
+                )
+              : const SliverToBoxAdapter(child: SizedBox(height: 14));
+        },
+      ),
+    ];
+  }
+
+  @override
+  bool get hasTextField => false;
+
+  @override
+  double get initialHeight => widget.maxHeight;
+
+  @override
+  double get maximumHeight => widget.maxHeight;
+
+  @override
+  double get minimumHeight => widget.maxHeight * 0.7;
+
+  @override
+  bool onScrollNotification(ScrollNotification notification) {
+    if (notification.metrics.pixels > notification.metrics.maxScrollExtent * 0.7) {
+      paginationThrottle.setValue(null);
+    }
+    return false;
   }
 }

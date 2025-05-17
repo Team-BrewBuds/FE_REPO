@@ -101,7 +101,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: nicknameValidState.isChangeNickname
-                        ? (nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname)
+                        ? (nicknameValidState.isValidNickname &&
+                                !nicknameValidState.isDuplicatingNickname &&
+                                nicknameValidState.isValidNicknameLength)
                             ? ColorStyles.gray50
                             : ColorStyles.red
                         : ColorStyles.gray50,
@@ -114,7 +116,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
                   padding: const EdgeInsets.all(12),
                   child: _buildNickNameSuffixIcon(
                     hasNickname: nicknameValidState.hasNickname,
-                    isValidNickname: nicknameValidState.isValidNickname && !nicknameValidState.isDuplicatingNickname,
+                    isValidNickname: nicknameValidState.isValidNickname &&
+                        !nicknameValidState.isDuplicatingNickname &&
+                        nicknameValidState.isValidNicknameLength,
                     isCheckingDuplicateNicknames: nicknameValidState.isNicknameChecking,
                   ),
                 ),
@@ -127,8 +131,11 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               cursorHeight: 16,
               cursorWidth: 1,
               maxLines: 1,
+              onTapOutside: (_) {
+                _nickNameFocusNode.unfocus();
+              },
             ),
-            if (nicknameValidState.hasNickname && !nicknameValidState.isValidNickname) ...[
+            if (nicknameValidState.hasNickname && !nicknameValidState.isValidNicknameLength) ...[
               const SizedBox(height: 4),
               Text(
                 '2자 이상 입력해 주세요.',
@@ -139,6 +146,13 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               const SizedBox(height: 4),
               Text(
                 '이미 사용 중인 닉네임이에요.',
+                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
+              ),
+              const SizedBox(height: 17),
+            ] else if (nicknameValidState.hasNickname && !nicknameValidState.isValidNickname) ...[
+              const SizedBox(height: 4),
+              Text(
+                '닉네임은 영문, 한글, 숫자만 사용할 수 있어요.',
                 style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
               ),
               const SizedBox(height: 17),
@@ -183,7 +197,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('태어난 연도', style: TextStyles.title01SemiBold),
+            Text('태어난 연도 (선택)', style: TextStyles.title01SemiBold),
             const SizedBox(height: 8),
             TextFormField(
               focusNode: _yearOfAgeFocusNode,
@@ -233,6 +247,9 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
               cursorErrorColor: ColorStyles.black,
               cursorHeight: 16,
               cursorWidth: 1,
+              onTapOutside: (_) {
+                _yearOfAgeFocusNode.unfocus();
+              },
             ),
             if (yearOfBirthValidState.yearOfBirthLength > 0 && yearOfBirthValidState.yearOfBirthLength < 4) ...[
               const SizedBox(height: 8),
@@ -274,7 +291,7 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('성별', style: TextStyles.title01SemiBold),
+        Text('성별 (선택)', style: TextStyles.title01SemiBold),
         const SizedBox(height: 8),
         Row(
           spacing: 8,
@@ -320,9 +337,10 @@ class NicknameFormatter extends TextInputFormatter {
     String text = newValue.text;
     int cursorPosition = newValue.selection.baseOffset;
 
-    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+    // 한글(완성형), 영문, 숫자만 허용
+    text = text.replaceAll(RegExp(r'[^\u3131-\u314E\u314F-\u3163가-힣a-zA-Z0-9]'), '');
 
-    // 6️⃣ 커서 위치 보정
+    // 커서 위치 보정
     int diff = text.length - newValue.text.length;
     int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
 

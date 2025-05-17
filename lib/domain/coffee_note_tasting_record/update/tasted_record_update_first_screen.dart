@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/center_dialog_mixin.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_update_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_last_screen.dart';
@@ -21,7 +22,7 @@ class TastedRecordUpdateFirstScreen extends StatefulWidget {
 }
 
 class _TastedRecordUpdateFirstScreenState extends State<TastedRecordUpdateFirstScreen>
-    with TastedRecordUpdateMixin<TastedRecordUpdateFirstScreen> {
+    with TastedRecordUpdateMixin<TastedRecordUpdateFirstScreen>, CenterDialogMixin<TastedRecordUpdateFirstScreen> {
   final List<String> _body = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
   final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];

@@ -7,6 +7,8 @@ part 'recommended_page.freezed.dart';
 
 @freezed
 class RecommendedPage with _$RecommendedPage {
-  const factory RecommendedPage({required List<RecommendedUser> users, required RecommendedCategory category}) =
-      _RecommendedPage;
+  const factory RecommendedPage({
+    required List<RecommendedUser> users,
+    required RecommendedCategory category,
+  }) = _RecommendedPage;
 }

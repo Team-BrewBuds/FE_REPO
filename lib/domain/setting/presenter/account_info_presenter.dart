@@ -12,7 +12,7 @@ final class AccountInfoPresenter extends Presenter {
 
   bool get isLoading => _isLoading;
 
-  String get signUpInfo => '$signUpAt ($signUpPeriod)';
+  String get signUpInfo => signUpPeriod.isNotEmpty ? '$signUpAt ($signUpPeriod)' : signUpAt;
 
   String get signUpAt => _accountInfo?.signUpAt ?? '';
 
@@ -22,7 +22,16 @@ final class AccountInfoPresenter extends Presenter {
 
   String get gender => _accountInfo?.gender ?? '';
 
-  int get yearOfBirth => _accountInfo?.yearOfBirth ?? 0;
+  String get yearOfBirth {
+    final yearOfBirth = '${_accountInfo?.yearOfBirth ?? 0}';
+    if (yearOfBirth.length == 4) {
+      return yearOfBirth;
+    } else {
+      return '알 수 없음';
+    }
+  }
+
+  String get email => _accountInfo?.email ?? '';
 
   initState() {
     _fetchInfo();

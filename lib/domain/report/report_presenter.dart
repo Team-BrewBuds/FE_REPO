@@ -1,6 +1,6 @@
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/report_api.dart';
+import 'package:brew_buds/exception/report_exception.dart';
 
 final class ReportPresenter extends Presenter {
   final ReportApi _reportApi = ReportApi();
@@ -35,14 +35,15 @@ final class ReportPresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<Result<String>> report() {
+  Future<void> report() async {
     if (_reason.isNotEmpty) {
-      return _reportApi
-          .report(type: type, id: id, data: {'reason': _reason})
-          .then((value) => Result.success('신고를 완료했어요.'))
-          .onError((error, stackTrace) => Result.error('신고를 실패했어요.'));
+      try {
+        await _reportApi.report(type: type, id: id, data: {'reason': _reason});
+      } catch (_) {
+        throw const ReportFailedException();
+      }
     } else {
-      return Future.value(Result.error('신고 사유를 선택해 주세요.'));
+      throw const EmptyReasonReportException();
     }
   }
 }

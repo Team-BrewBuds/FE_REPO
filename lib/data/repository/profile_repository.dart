@@ -13,7 +13,6 @@ import 'package:brew_buds/data/dto/profile/profile_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/noted_tasted_record_dto.dart';
 import 'package:brew_buds/data/dto/tasted_record/tasted_record_in_profile_dto.dart';
 import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_in_profile_mapper.dart';
-import 'package:brew_buds/data/mapper/common/preferred_bean_taste_mapper.dart';
 import 'package:brew_buds/data/mapper/post/noted_post_mapper.dart';
 import 'package:brew_buds/data/mapper/post/post_in_profile_mapper.dart';
 import 'package:brew_buds/data/mapper/profile/account_info_mapper.dart';
@@ -21,9 +20,7 @@ import 'package:brew_buds/data/mapper/profile/profile_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/noted_tasted_record_mapper.dart';
 import 'package:brew_buds/data/mapper/tasted_record/tasted_record_in_profile_mapper.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/common/coffee_life.dart';
 import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/common/preferred_bean_taste.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
 import 'package:brew_buds/model/profile/account_info.dart';
@@ -90,51 +87,16 @@ class ProfileRepository {
   }
 
   Future<void> updateProfile({
-    String? nickname,
-    String? introduction,
-    String? profileLink,
-    List<CoffeeLife>? coffeeLife,
-    PreferredBeanTaste? preferredBeanTaste,
-    bool? isCertificated,
+    required Map<String, dynamic> data,
   }) {
-    final Map<String, dynamic> data = {};
-    if (nickname != null) {
-      data['nickname'] = nickname;
-    }
-    final Map<String, dynamic> userDetail = {};
-    writeNotNull(String key, dynamic value) {
-      if (value != null) {
-        userDetail[key] = value;
-      }
-    }
-
-    writeNotNull('introduction', introduction);
-    writeNotNull('profile_link', profileLink);
-    if (coffeeLife != null) {
-      writeNotNull('coffee_life', _coffeeLifeToJson(coffeeLife));
-    }
-    writeNotNull('preferred_bean_taste', preferredBeanTaste?.toJson());
-    writeNotNull('is_certificated', isCertificated);
-    if (userDetail.isNotEmpty) {
-      data['user_detail'] = userDetail;
-    }
-
     return _profileApi.updateMyProfile(body: data);
   }
 
-  Map<String, dynamic> _coffeeLifeToJson(List<CoffeeLife> coffeeLife) {
-    return {
-      'cafe_alba': coffeeLife.contains(CoffeeLife.cafeAlba),
-      'cafe_tour': coffeeLife.contains(CoffeeLife.cafeTour),
-      'cafe_work': coffeeLife.contains(CoffeeLife.cafeWork),
-      'coffee_study': coffeeLife.contains(CoffeeLife.coffeeStudy),
-      'cafe_operation': coffeeLife.contains(CoffeeLife.cafeOperation),
-      'coffee_extraction': coffeeLife.contains(CoffeeLife.coffeeExtraction),
-    };
-  }
-
-  Future<DefaultPage<PostInProfile>> fetchPostPage({required int userId}) async {
-    final jsonString = await _postApi.fetchPostPage(userId: userId);
+  Future<DefaultPage<PostInProfile>> fetchPostPage({
+    required int userId,
+    required int pageNo,
+  }) async {
+    final jsonString = await _postApi.fetchPostPage(userId: userId, pageNo: pageNo);
     return compute(
       (jsonString) {
         try {
@@ -151,7 +113,7 @@ class ProfileRepository {
   }
 
   Future<AccountInfo> fetchInfo({required int id}) async {
-    final jsonString = await _profileApi.fetchUserInfo(id: id);
+    final jsonString = await _profileApi.fetchUserInfo();
     return compute(
       (jsonString) {
         try {

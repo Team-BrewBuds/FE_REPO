@@ -49,25 +49,15 @@ class CommentsRepository {
     required String content,
     int? parentId,
   }) async {
-    final jsonString = await _api.createComment(
+    final json = jsonDecode(await _api.createComment(
       feedType: feedType,
       id: id,
       data: parentId == null
           ? <String, dynamic>{"content": content}
           : <String, dynamic>{"content": content, "parent": parentId},
-    );
+    )) as Map<String, dynamic>;
 
-    return compute(
-      (jsonString) {
-        try {
-          final json = jsonDecode(jsonString) as Map<String, dynamic>;
-          return CommentDTO.fromJson(json).toDomain();
-        } catch (e) {
-          rethrow;
-        }
-      },
-      jsonString,
-    );
+    return CommentDTO.fromJson(json).toDomain();
   }
 
   Future<void> deleteComment({required int id}) => _api.deleteComment(id: id);

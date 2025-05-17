@@ -8,7 +8,7 @@ class RecommendedCoffeeBean with _$RecommendedCoffeeBean {
   const factory RecommendedCoffeeBean({
     required int id,
     required String name,
-    required String imageUrl,
+    required String imagePath,
     required double rating,
     required int recordCount,
   }) = _RecommendedCoffeeBean;

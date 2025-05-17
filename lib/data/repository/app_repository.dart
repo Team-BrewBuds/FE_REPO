@@ -1,5 +1,6 @@
+import 'package:brew_buds/core/event_bus.dart';
+import 'package:brew_buds/model/events/need_update_event.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:notification_center/notification_center.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:version/version.dart';
 
@@ -12,10 +13,6 @@ class AppRepository {
 
   factory AppRepository() => instance;
 
-  bool _isUpdateRequired = false;
-
-  bool get isUpdateRequired => _isUpdateRequired;
-
   Future<void> checkUpdateRequired() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.fetchAndActivate();
@@ -26,16 +23,15 @@ class AppRepository {
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = Version.parse(packageInfo.version);
 
-    _isUpdateRequired = currentVersion < minVersion;
-    if (_isUpdateRequired) {
-      NotificationCenter().notify('need_update');
+    if (currentVersion < minVersion) {
+      EventBus.instance.fire(NeedUpdateEvent(id: await fetchAppId()));
     }
   }
 
-  Future<String> fetchAppStoreUrl() async {
+  Future<String> fetchAppId() async {
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.fetchAndActivate();
 
-    return remoteConfig.getString('app_store_url');
+    return remoteConfig.getString('ios_app_id');
   }
 }

@@ -1,11 +1,11 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CommentButton extends StatelessWidget {
-  final void Function() onTap;
+  final Future<void> Function() onTap;
   final int commentCount;
 
   const CommentButton({
@@ -16,10 +16,8 @@ class CommentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThrottleButton(
-      onTap: () {
-        onTap.call();
-      },
+    return FutureButton(
+      onTap: () => onTap.call(),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 2),
         child: Row(

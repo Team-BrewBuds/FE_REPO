@@ -1,13 +1,14 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/core/tasted_record_update_mixin.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/update/tasted_record_update_presenter.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/date_picker_bottom_sheet.dart';
 import 'package:brew_buds/domain/coffee_note_tasting_record/view/local_search_view.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,7 +31,7 @@ class TastedRecordUpdateLastScreen extends StatefulWidget {
 }
 
 class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScreen>
-    with TastedRecordUpdateMixin<TastedRecordUpdateLastScreen>, SnackBarMixin<TastedRecordUpdateLastScreen> {
+    with TastedRecordUpdateMixin<TastedRecordUpdateLastScreen> {
   late final TextEditingController _contentsController;
   late final TextEditingController _hashTagController;
   final FocusNode _focusNode = FocusNode();
@@ -84,7 +85,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
           const SizedBox(height: 32),
           buildTitle(),
           const SizedBox(height: 8),
-          Selector<TastedRecordUpdatePresenter, int>(
+          Selector<TastedRecordUpdatePresenter, double>(
             selector: (context, presenter) => presenter.star,
             builder: (context, star, child) => _buildRating(star: star),
           ),
@@ -112,13 +113,6 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
                   child: Selector<TastedRecordUpdatePresenter, String>(
                     selector: (context, presenter) => presenter.place,
                     builder: (context, place, child) => _buildPlace(place: place),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Selector<TastedRecordUpdatePresenter, bool>(
-                    selector: (context, presenter) => presenter.isPrivate,
-                    builder: (context, isPrivate, child) => _buildPrivate(isPrivate: isPrivate),
                   ),
                 ),
               ],
@@ -159,15 +153,14 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
               builder: (context, isValidLastPage, child) {
                 return AbsorbPointer(
                   absorbing: !isValidLastPage,
-                  child: ThrottleButton(
-                    onTap: () {
-                      context.read<TastedRecordUpdatePresenter>().update().then((value) {
-                        if (value) {
-                          _onSuccessWrite();
-                        } else {
-                          showSnackBar(message: '시음기록 수정에 실패했습니다.');
-                        }
-                      });
+                  child: FutureButton(
+                    onTap: () => context.read<TastedRecordUpdatePresenter>().update(),
+                    onError: (exception) {
+                      EventBus.instance.fire(MessageEvent(message: exception.toString()));
+                    },
+                    onComplete: (_) {
+                      EventBus.instance.fire(const MessageEvent(message: '시음기록 수정을 완료했어요.'));
+                      context.pop();
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -193,7 +186,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
     );
   }
 
-  Widget _buildRating({required int star}) {
+  Widget _buildRating({required double star}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -202,22 +195,70 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
           Text('원두 평가', style: TextStyles.title01SemiBold),
           const SizedBox(height: 12),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             spacing: 8,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
               5,
-              (index) => ThrottleButton(
-                onTap: () {
-                  context.read<TastedRecordUpdatePresenter>().onChangeStar(index + 1);
-                },
-                child: SvgPicture.asset(
-                  'assets/icons/star_fill.svg',
-                  height: 36,
+              (index) {
+                final currentRating = index + 1;
+                return SizedBox(
                   width: 36,
-                  colorFilter: ColorFilter.mode(index < star ? ColorStyles.red : ColorStyles.gray50, BlendMode.srcIn),
-                ),
-              ),
-            ).toList(),
+                  height: 36,
+                  child: Stack(
+                    children: [
+                      if (currentRating <= star)
+                        Positioned.fill(
+                          child: SvgPicture.asset(
+                            'assets/icons/star_fill.svg',
+                            colorFilter: const ColorFilter.mode(
+                              ColorStyles.red,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        )
+                      else if (index < star)
+                        Positioned.fill(
+                          child: SvgPicture.asset(
+                            'assets/icons/star_half.svg',
+                          ),
+                        )
+                      else
+                        Positioned.fill(
+                          child: SvgPicture.asset(
+                            'assets/icons/star_fill.svg',
+                            colorFilter: const ColorFilter.mode(
+                              ColorStyles.gray40,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                      Positioned.fill(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ThrottleButton(
+                                onTap: () {
+                                  context.read<TastedRecordUpdatePresenter>().onChangeStar(index + 0.5);
+                                },
+                                child: Container(color: Colors.transparent),
+                              ),
+                            ),
+                            Expanded(
+                              child: ThrottleButton(
+                                onTap: () {
+                                  context.read<TastedRecordUpdatePresenter>().onChangeStar(index + 1);
+                                },
+                                child: Container(color: Colors.transparent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -236,7 +277,7 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
           child: TextFormField(
             focusNode: _focusNode,
             controller: _contentsController,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.multiline,
             decoration: InputDecoration(
               isDense: true,
               hintText: '원두와 시음 경험에 대한 이야기를 자유롭게 나눠주세요.',
@@ -380,26 +421,6 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
     );
   }
 
-  Widget _buildPrivate({required bool isPrivate}) {
-    return Row(
-      children: [
-        Text('나만 보기', style: TextStyles.title01SemiBold),
-        const Spacer(),
-        SizedBox(
-          width: 50,
-          height: 30,
-          child: CupertinoSwitch(
-            value: isPrivate,
-            activeTrackColor: ColorStyles.red,
-            onChanged: (value) {
-              context.read<TastedRecordUpdatePresenter>().onChangePrivate(value);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   showDatePicker({required DateTime dateTime}) async {
     final result = await showBarrierDialog<DateTime>(
       context: context,
@@ -432,10 +453,6 @@ class _TastedRecordUpdateLastScreenState extends State<TastedRecordUpdateLastScr
 
   _onChangeTastedTime(DateTime dateTime) {
     context.read<TastedRecordUpdatePresenter>().onChangeTastedAt(dateTime);
-  }
-
-  _onSuccessWrite() {
-    context.pop(true);
   }
 }
 

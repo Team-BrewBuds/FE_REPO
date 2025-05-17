@@ -2,11 +2,14 @@ import 'dart:math';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/setting/presenter/account_detail_presenter.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:brew_buds/model/events/message_event.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -21,7 +24,7 @@ class AccountDetailView extends StatefulWidget {
   State<AccountDetailView> createState() => _AccountDetailViewState();
 }
 
-class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixin<AccountDetailView> {
+class _AccountDetailViewState extends State<AccountDetailView> {
   final List<String> _body = ['가벼운', '약간 가벼운', '보통', '약간 무거운', '무거운'];
   final List<String> _acidity = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
   final List<String> _bitterness = ['약한', '약간 약한', '보통', '약간 강한', '강한'];
@@ -104,13 +107,14 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                 builder: (context, canEdit, child) {
                   return AbsorbPointer(
                     absorbing: !canEdit,
-                    child: ThrottleButton(
-                      onTap: () {
-                        context
-                            .read<AccountDetailPresenter>()
-                            .onSave()
-                            .then((_) => context.pop('맞춤정보 저장을 완료했어요.'))
-                            .onError((error, stackTrace) => showSnackBar(message: '맞춤정보 저장에 실패했어요.'));
+                    child: FutureButton(
+                      onTap: () => context.read<AccountDetailPresenter>().onSave(),
+                      onError: (_) {
+                        EventBus.instance.fire(const MessageEvent(message: '맞춤정보 저장에 실패했어요.'));
+                      },
+                      onComplete: (_) {
+                        EventBus.instance.fire(const MessageEvent(message: '맞춤정보를 저장했어요.'));
+                        context.pop();
                       },
                       child: Text(
                         '저장',
@@ -164,7 +168,8 @@ class _AccountDetailViewState extends State<AccountDetailView> with SnackBarMixi
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset(CoffeeLife.values[index].imagePath, width: 90, height: 90, fit: BoxFit.cover),
+                    ExtendedImage.asset(CoffeeLife.values[index].imagePath,
+                        width: 90.w, height: 90.h, fit: BoxFit.cover),
                     const SizedBox(height: 4),
                     Text(
                       CoffeeLife.values[index].title,

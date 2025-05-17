@@ -2,10 +2,12 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/api/profile_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
+import 'package:brew_buds/model/events/message_event.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +19,7 @@ class SignOutView extends StatefulWidget {
   State<SignOutView> createState() => _SignOutViewState();
 }
 
-class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOutView>, SnackBarMixin<SignOutView> {
+class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOutView> {
   final ProfileApi _api = ProfileApi();
   final List<String> _reason = [
     '시음 기록 과정이 복잡해요.',
@@ -110,7 +112,20 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
               children: _getSpans('탈퇴 후 30일 동안 브루버즈에 다시 가입할 수 없어요.', '30일', TextStyles.title01SemiBold),
             ),
           ),
-          const Spacer(),
+          Expanded(
+            child: Row(
+              children: [
+                const Spacer(),
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: ExtendedImage.asset(
+                    'assets/images/sign_out.png',
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ],
+            ),
+          ),
           Row(
             children: [
               ThrottleButton(
@@ -230,25 +245,24 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
           ThrottleButton(
             onTap: () async {
               final context = this.context;
-              final result = await _showSignOutDialog().then((value) => value ?? false).onError((_, __) => false);
-              if (result) {
-                final notificationResult =
-                    await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
-                if (notificationResult) {
-                  final signOutResult = await _api.signOut().then((_) => true).onError((_, __) => false);
-                  if (signOutResult) {
+              showCenterDialog(
+                title: '정말 탈퇴 하시겠어요?',
+                centerTitle: true,
+                cancelText: '취소',
+                doneText: '탈퇴하기',
+                onDone: () async {
+                  try {
+                    await NotificationRepository.instance.deleteToken();
+                    await _api.signOut();
                     await AccountRepository.instance.logout();
                     if (context.mounted) {
                       context.go('/');
                     }
-                    return;
-                  } else {
-                    await NotificationRepository.instance.registerToken(AccountRepository.instance.accessToken);
+                  } catch (e) {
+                    EventBus.instance.fire(const MessageEvent(message: '회원탈퇴에 실패했어요.'));
                   }
-                }
-                showSnackBar(message: '회원탈퇴에 실패했습니다.');
-                return;
-              }
+                },
+              );
             },
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
@@ -267,15 +281,6 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
           )
         ],
       ),
-    );
-  }
-
-  Future<bool?> _showSignOutDialog() {
-    return showCenterDialog(
-      title: '정말 탈퇴 하시겠어요?',
-      centerTitle: true,
-      cancelText: '취소',
-      doneText: '탈퇴하기',
     );
   }
 

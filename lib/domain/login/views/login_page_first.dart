@@ -1,10 +1,9 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
-import 'package:brew_buds/data/repository/app_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
+import 'package:brew_buds/domain/login/widgets/permission_bottom_sheet.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +20,9 @@ class LoginPageFirst extends StatefulWidget {
 
 class _LoginPageFirstState extends State<LoginPageFirst> {
   final List<String> images = [
-    'assets/images/cafe.png',
-    'assets/images/coffeeEnjoy.png',
-    'assets/images/maker.png',
+    'assets/images/banner/tasted_record.png',
+    'assets/images/banner/search.png',
+    'assets/images/banner/recommend.png',
   ];
   final List<String> titleList = [
     "시음 기록",
@@ -41,10 +40,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (AppRepository.instance.isUpdateRequired && !_isDialogShown) {
-        _isDialogShown = true;
-        _showForceUpdateDialog();
-      } else if (SharedPreferencesRepository.instance.isFirstTimeLogin && !_isDialogShown) {
+      if (!SharedPreferencesRepository.instance.isCompletePermission && !_isDialogShown) {
         _isDialogShown = true;
         _showPermissionDialog();
       }
@@ -68,8 +64,8 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
               ),
               Center(
                 child: SizedBox(
-                  height: 240.h,
-                  width: 240.w,
+                  height: 260.h,
+                  width: 260.w,
                   child: CarouselSlider.builder(
                     itemCount: images.length,
                     itemBuilder: (context, _, index) => ExtendedImage.asset(images[index], fit: BoxFit.cover),
@@ -120,7 +116,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
                     ThrottleButton(
                       onTap: () {
                         AccountRepository.instance.loginWithGuest();
-                        context.go('/home?is_guest=true');
+                        context.go('/home');
                       },
                       child: Container(
                         decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
@@ -162,118 +158,25 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
     );
   }
 
-  _showPermissionDialog() async {
-    await showBarrierDialog(
+  _showPermissionDialog() {
+    showGeneralDialog(
+      barrierLabel: "Barrier",
+      barrierDismissible: false,
+      barrierColor: ColorStyles.black50,
+      transitionDuration: const Duration(milliseconds: 300),
       context: context,
       pageBuilder: (context, _, __) {
-        return Stack(
-          alignment: Alignment.center,
-          children: [
-            Center(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                padding: const EdgeInsets.all(24),
-                decoration:
-                    const BoxDecoration(color: ColorStyles.white, borderRadius: BorderRadius.all(Radius.circular(8))),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    DefaultTextStyle(
-                      style: TextStyles.title02Bold.copyWith(color: ColorStyles.black, decoration: null),
-                      child: const Text('브루버즈를 사용하기 위해 필요한\n접근권한을 안내해 드릴게요.', textAlign: TextAlign.center),
-                    ),
-                    const SizedBox(height: 32),
-                    DefaultTextStyle(
-                      style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black, decoration: null),
-                      child: const Text('카메라 (선택)', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 2),
-                    DefaultTextStyle(
-                      style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.gray50),
-                      child: const Text('커피 노트 작성 시 사진 촬영', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 16),
-                    DefaultTextStyle(
-                      style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black, decoration: null),
-                      child: const Text('사진 권한 (선택)', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 2),
-                    DefaultTextStyle(
-                      style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.gray50),
-                      child: const Text('프로필 설정, 커피 노트 작성 시 사진 첨부', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 16),
-                    DefaultTextStyle(
-                      style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black, decoration: null),
-                      child: const Text('위치 권한 (선택)', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 2),
-                    DefaultTextStyle(
-                      style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.gray50),
-                      child: const Text('커피 노트 작성 시 장소 검색', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 16),
-                    DefaultTextStyle(
-                      style: TextStyles.title01SemiBold.copyWith(color: ColorStyles.black, decoration: null),
-                      child: const Text('알림 (선택)', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 2),
-                    DefaultTextStyle(
-                      style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.gray50),
-                      child: const Text('좋아요, 댓글 등 반응 및 이벤트 혜택 알림', textAlign: TextAlign.start),
-                    ),
-                    const SizedBox(height: 16),
-                    DefaultTextStyle(
-                      style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.gray50),
-                      child: const Text(
-                        '브루버즈는  더 나은 서비스를 제공하기 위해 서비스에 꼭 필요한 기능들에 접근하고 있습니다. 서비스 제공에 접근 권한이 꼭 필요한 경우에만 동의를 받고 있으며, 해당 기능을 허용하지 않으셔도 브루버즈를 이용하실 수 있습니다. ',
-                        textAlign: TextAlign.start,
-                        maxLines: null,
-                      ),
-                    ),
-                    const SizedBox(height: 26),
-                    ThrottleButton(
-                      onTap: () {
-                        context.pop();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                        decoration: const BoxDecoration(
-                          color: ColorStyles.black,
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                        ),
-                        child: DefaultTextStyle(
-                          style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
-                          child: const Text('확인', textAlign: TextAlign.center),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
+        return const PermissionBottomSheet();
       },
-    );
-    await SharedPreferencesRepository.instance.setLogin();
-  }
-
-  void _showForceUpdateDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('업데이트 필요'),
-          content: const Text('최신 버전의 앱을 설치해야 계속 사용할 수 있습니다.'),
-          actions: [
-            TextButton(
-              onPressed: () {},
-              child: const Text('업데이트 하기'),
+      transitionBuilder: (_, animation, __, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween(begin: 0.9, end: 1.0).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOut),
             ),
-          ],
+            child: child,
+          ),
         );
       },
     );

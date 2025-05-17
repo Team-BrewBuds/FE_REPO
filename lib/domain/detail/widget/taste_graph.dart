@@ -24,7 +24,7 @@ class TasteGraph extends StatelessWidget {
       children: [
         Text('테이스팅', style: TextStyles.title02SemiBold),
         const SizedBox(height: 24),
-        _buildTasteSlider(minText: '트로피칼', maxText: '무거운', value: bodyValue),
+        _buildTasteSlider(minText: '가벼운', maxText: '무거운', value: bodyValue),
         const SizedBox(height: 20),
         _buildTasteSlider(minText: '산미약한', maxText: '산미강한', value: acidityValue),
         const SizedBox(height: 20),

@@ -4,19 +4,19 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-typedef RecentSearchWordsItem = ({String word, void Function() onTap, void Function() onDelete});
+typedef SearchHistoryItem = ({String word, void Function() onTap, void Function() onDelete});
 
-class RecentSearchWordsList extends StatelessWidget {
+class SearchHistoryList extends StatelessWidget {
   final int _itemLength;
   final bool _isLoading;
-  final RecentSearchWordsItem Function(int index) _itemBuilder;
+  final SearchHistoryItem Function(int index) _itemBuilder;
   final void Function() _onAllDelete;
 
-  const RecentSearchWordsList({
+  const SearchHistoryList({
     super.key,
     required int itemLength,
     required bool isLoading,
-    required RecentSearchWordsItem Function(int index) itemBuilder,
+    required SearchHistoryItem Function(int index) itemBuilder,
     required void Function() onAllDelete,
   })  : _itemLength = itemLength,
         _isLoading = isLoading,

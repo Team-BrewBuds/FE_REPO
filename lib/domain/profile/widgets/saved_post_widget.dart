@@ -8,11 +8,11 @@ class SavedPostWidget extends StatelessWidget {
   final String subject;
   final String createdAt;
   final String author;
-  final String? imageUri;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    final imageUri = this.imageUri;
+    final imageUrl = this.imageUrl;
     return Container(
       padding: const EdgeInsets.all(16.0),
       color: Colors.transparent,
@@ -57,10 +57,10 @@ class SavedPostWidget extends StatelessWidget {
               ],
             ),
           ),
-          if (imageUri != null) ...[
+          if (imageUrl != null) ...[
             const SizedBox(width: 24),
             MyNetworkImage(
-              imageUrl: imageUri,
+              imageUrl: imageUrl,
               height: 64,
               width: 64,
             ),
@@ -76,6 +76,6 @@ class SavedPostWidget extends StatelessWidget {
     required this.subject,
     required this.createdAt,
     required this.author,
-    this.imageUri,
+    this.imageUrl,
   });
 }

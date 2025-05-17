@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/presenter.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/taste_report_repository.dart';
 import 'package:brew_buds/model/common/top_flavor.dart';
 import 'package:brew_buds/model/taste_report/activity_item.dart';
@@ -68,10 +70,11 @@ final class TasteReportPresenter extends Presenter {
         selectedDay: _selectedDay,
       );
 
-  ActivityListState get activityListState => (
-        currentActivityType: ActivityType.values[_activityTypeIndex].toString(),
-        items: _activityItems[_selectedDay.toDefaultString()] ?? [],
-      );
+  String get currentActivityType => ActivityType.values[_activityTypeIndex].toString();
+
+  int get itemsLength => (_activityItems[_selectedDay.toDefaultString()] ?? []).length;
+
+  List<ActivityItem> get items => List.unmodifiable(_activityItems[_selectedDay.toDefaultString()] ?? []);
 
   RatingDistribution? get ratingDistribution => _ratingDistribution;
 
@@ -87,6 +90,12 @@ final class TasteReportPresenter extends Presenter {
   initState() async {
     _isLoading = true;
     notifyListeners();
+
+    if (_id == AccountRepository.instance.id) {
+      AnalyticsManager.instance.logScreen(screenName: 'profiles_a_taste_report');
+    } else {
+      AnalyticsManager.instance.logScreen(screenName: 'profiles_b_taste_report');
+    }
 
     await Future.wait([
       fetchActivitySummary(),
@@ -194,6 +203,23 @@ final class TasteReportPresenter extends Presenter {
       return DateTime(date.year - 1, 12);
     } else {
       return DateTime(date.year, date.month - 1);
+    }
+  }
+
+  String getImagePath() {
+    final tastedRecordCount = _activitySummary?.tastedRecordCount ?? 0;
+
+    if (tastedRecordCount >= 5) {
+      final postCount = _activitySummary?.postCount ?? 0;
+      final savedBeanCount = _activitySummary?.savedBeanCount ?? 0;
+      final savedNoteCount = _activitySummary?.savedNoteCount ?? 0;
+      if (postCount >= 5 && savedBeanCount >= 5 && savedNoteCount >= 5) {
+        return 'assets/images/taste_report/taste_explorer.png';
+      } else {
+        return 'assets/images/taste_report/taste_novice.png';
+      }
+    } else {
+      return 'assets/images/taste_report/new_buddy.png';
     }
   }
 }

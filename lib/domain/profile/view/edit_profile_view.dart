@@ -1,18 +1,18 @@
+import 'package:animations/animations.dart';
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
-import 'package:brew_buds/data/repository/permission_repository.dart';
-import 'package:brew_buds/domain/photo/check_selected_images_screen.dart';
-import 'package:brew_buds/domain/photo/view/photo_grid_view_with_preview.dart';
+import 'package:brew_buds/domain/profile/image_edit/profile_image_navigator.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/domain/profile/presenter/edit_profile_presenter.dart';
 import 'package:brew_buds/domain/profile/widgets/coffee_life_bottom_sheet.dart';
+import 'package:brew_buds/exception/profile_update_exception.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
-import 'package:extended_image/extended_image.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +36,7 @@ class EditProfileView extends StatefulWidget {
   State<EditProfileView> createState() => _EditProfileViewState();
 }
 
-class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<EditProfileView> {
+class _EditProfileViewState extends State<EditProfileView> {
   late final TextEditingController _nicknameEditingController;
   late final TextEditingController _introductionEditingController;
   late final TextEditingController _linkEditingController;
@@ -53,14 +53,8 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     _nicknameFocusNode = FocusNode();
     _introductionFocusNode = FocusNode();
     _linkFocusNode = FocusNode();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<EditProfilePresenter>().initState();
-      _linkEditingController.addListener(() {
-        context.read<EditProfilePresenter>().onChangeLink(_linkEditingController.text);
-      });
-      _linkFocusNode.addListener(() {
-        _handleFocusChange();
-      });
+    _linkFocusNode.addListener(() {
+      _handleFocusChange();
     });
     super.initState();
   }
@@ -69,9 +63,6 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   void dispose() {
     _nicknameEditingController.dispose();
     _introductionEditingController.dispose();
-    _linkEditingController.removeListener(() {
-      context.read<EditProfilePresenter>().onChangeLink(_linkEditingController.text);
-    });
     _linkEditingController.dispose();
     _nicknameFocusNode.dispose();
     _introductionFocusNode.dispose();
@@ -85,17 +76,23 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   void _handleFocusChange() {
     if (_linkFocusNode.hasFocus) {
       if (_linkEditingController.text.isEmpty) {
-        _linkEditingController.value =
-            const TextEditingValue(text: 'https://', selection: TextSelection.collapsed(offset: 'https://'.length));
+        _linkEditingController.value = const TextEditingValue(
+          text: 'https://',
+          selection: TextSelection.collapsed(offset: 'https://'.length),
+        );
+      }
+    } else {
+      if (_linkEditingController.text == 'https://') {
+        _clearLink();
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return ThrottleButton(
+    return GestureDetector(
       onTap: () {
-        _unFocus();
+        FocusManager.instance.primaryFocus?.unfocus();
       },
       child: Scaffold(
         appBar: _buildAppBar(),
@@ -106,12 +103,9 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Selector<EditProfilePresenter, ProfileImageState>(
-                    selector: (context, presenter) => presenter.profileImageState,
-                    builder: (context, state, child) => _buildProfileImage(
-                      imageUri: state.imageUrl,
-                      imageData: state.imageData,
-                    ),
+                  Selector<EditProfilePresenter, String>(
+                    selector: (context, presenter) => presenter.imageUrl,
+                    builder: (context, imageUrl, child) => _buildProfileImage(imageUrl: imageUrl),
                   ),
                   const SizedBox(height: 16),
                   _buildNickname(),
@@ -132,12 +126,6 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         ),
       ),
     );
-  }
-
-  _unFocus() {
-    if (_nicknameFocusNode.hasFocus) _nicknameFocusNode.unfocus();
-    if (_introductionFocusNode.hasFocus) _introductionFocusNode.unfocus();
-    if (_linkFocusNode.hasFocus) _linkFocusNode.unfocus();
   }
 
   AppBar _buildAppBar() {
@@ -172,27 +160,25 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 child: Selector<EditProfilePresenter, bool>(
                     selector: (context, presenter) => presenter.canEdit,
                     builder: (context, canEdit, _) {
-                      return AbsorbPointer(
-                        absorbing: !canEdit,
-                        child: ThrottleButton(
-                          onTap: () {
-                            context.read<EditProfilePresenter>().onSave().then((value) {
-                              switch (value) {
-                                case Success<String>():
-                                  context.pop(value.data);
-                                  break;
-                                case Error<String>():
-                                  showSnackBar(message: value.e);
-                                  break;
-                              }
-                            });
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Text(
-                              '저장',
-                              style: TextStyles.title02SemiBold
-                                  .copyWith(color: canEdit ? ColorStyles.red : ColorStyles.gray30),
+                      return FutureButton<bool, ProfileUpdateException>(
+                        onTap: () => context.read<EditProfilePresenter>().onSave(),
+                        onError: (exception) {
+                          EventBus.instance.fire(
+                            MessageEvent(message: exception?.toString() ?? '알 수 없는 오류가 발생했어요.'),
+                          );
+                        },
+                        onComplete: (result) {
+                          if (result) {
+                            EventBus.instance.fire(const MessageEvent(message: '프로필을 수정했어요.'));
+                            context.pop();
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 8),
+                          child: Text(
+                            '저장',
+                            style: TextStyles.title02SemiBold.copyWith(
+                              color: canEdit ? ColorStyles.red : ColorStyles.gray30,
                             ),
                           ),
                         ),
@@ -206,57 +192,52 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
     );
   }
 
-  Widget _buildProfileImage({required String imageUri, Uint8List? imageData}) {
-    return SizedBox(
-      width: 98,
-      height: 98,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: imageData != null
-                ? ExtendedImage.memory(
-                    imageData,
-                    fit: BoxFit.cover,
-                    width: 98,
-                    height: 98,
-                    shape: BoxShape.circle,
-                    border: Border.all(width: 1, color: const Color(0xff888888)),
-                  )
-                : MyNetworkImage(
-                    imageUrl: imageUri,
-                    height: 98,
-                    width: 98,
-                    shape: BoxShape.circle,
-                    border: Border.all(width: 1, color: const Color(0xff888888)),
-                  ),
-          ),
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: ThrottleButton(
-              onTap: () {
-                _showAlbumModal();
-              },
+  Widget _buildProfileImage({required String imageUrl}) {
+    return OpenContainer(
+      openElevation: 0,
+      openColor: Colors.transparent,
+      closedElevation: 0,
+      closedColor: Colors.transparent,
+      openBuilder: (context, _) => ProfileImageNavigator.buildWithPresenter(imageUrl: imageUrl),
+      closedBuilder: (context, _) => SizedBox(
+        width: 98,
+        height: 98,
+        child: Stack(
+          children: [
+            Positioned.fill(
               child: Container(
-                height: 28.17,
-                width: 28.17,
+                decoration:
+                    BoxDecoration(border: Border.all(width: 1, color: const Color(0xff888888)), shape: BoxShape.circle),
+                child: ProfileImage(imageUrl: imageUrl, height: 98, width: 98),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                height: 28,
+                width: 28,
+                padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
                   color: const Color(0xffd9d9d9),
                   shape: BoxShape.circle,
                   border: Border.all(width: 1, color: const Color(0xff888888)),
                 ),
-                child: const Icon(Icons.camera_alt_rounded, color: ColorStyles.black, size: 19),
+                child: const FittedBox(
+                  fit: BoxFit.cover,
+                  child: Icon(Icons.camera_alt_rounded, color: ColorStyles.black),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildNickname() {
-    return Selector<EditProfilePresenter, NicknameState>(
-        selector: (context, presenter) => presenter.nicknameState,
+    return Selector<EditProfilePresenter, NicknameValidState>(
+        selector: (context, presenter) => presenter.nicknameValidState,
         builder: (context, state, _) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,7 +261,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: state.isEditing
-                          ? state.isValid && !state.isDuplicating
+                          ? state.isValidNickname && !state.isDuplicatingNickname && state.isValidNicknameLength
                               ? ColorStyles.gray50
                               : ColorStyles.red
                           : ColorStyles.gray50,
@@ -292,7 +273,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
                       color: state.isEditing
-                          ? state.isValid && !state.isDuplicating
+                          ? state.isValidNickname && !state.isDuplicatingNickname && state.isValidNicknameLength
                               ? ColorStyles.gray50
                               : ColorStyles.red
                           : ColorStyles.gray50,
@@ -301,7 +282,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                     borderRadius: BorderRadius.zero,
                     gapPadding: 0,
                   ),
-                  suffixIcon: state.isChecking
+                  suffixIcon: state.isNicknameChecking
                       ? Container(
                           padding: const EdgeInsets.all(16),
                           width: 40,
@@ -321,24 +302,29 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                   context.read<EditProfilePresenter>().onChangeNickname(newNickName);
                 },
               ),
-              if (state.isEditing && !state.isValid) ...[
-                const SizedBox(height: 8),
+              if (state.hasNickname && !state.isValidNicknameLength) ...[
+                const SizedBox(height: 4),
                 Text(
                   '2자 이상 입력해 주세요.',
                   style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
                 ),
-              ] else if (state.isEditing && state.isDuplicating) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 17),
+              ] else if (state.hasNickname && state.isDuplicatingNickname) ...[
+                const SizedBox(height: 4),
                 Text(
                   '이미 사용 중인 닉네임이에요.',
                   style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
                 ),
-              ] else ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 17),
+              ] else if (state.hasNickname && !state.isValidNickname) ...[
+                const SizedBox(height: 4),
                 Text(
-                  '닉네임은 14일 동안 최대 2번까지 변경할 수 있어요.',
-                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.gray50),
+                  '닉네임은 영문, 한글, 숫자만 사용할 수 있어요.',
+                  style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
                 ),
+                const SizedBox(height: 17),
+              ] else ...[
+                const SizedBox(height: 36),
               ],
             ],
           );
@@ -426,18 +412,12 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
                 contentPadding: const EdgeInsets.all(12),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color:
-                          linkState.isStartWithHttpOrHttps && linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
-                      width: 1),
+                  borderSide: BorderSide(color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red, width: 1),
                   borderRadius: BorderRadius.zero,
                   gapPadding: 0,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                      color:
-                          linkState.isStartWithHttpOrHttps && linkState.isValid ? ColorStyles.gray50 : ColorStyles.red,
-                      width: 1),
+                  borderSide: BorderSide(color: linkState.isValid ? ColorStyles.gray50 : ColorStyles.red, width: 1),
                   borderRadius: BorderRadius.zero,
                   gapPadding: 0,
                 ),
@@ -464,14 +444,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
                 context.read<EditProfilePresenter>().onChangeLink(newLink);
               },
             ),
-            if (!linkState.isStartWithHttpOrHttps) ...[
-              const SizedBox(height: 4),
-              Text(
-                '주소는 http:// 또는 https://로 시작해야 합니다.',
-                style: TextStyles.captionSmallMedium.copyWith(color: ColorStyles.red),
-              ),
-              const SizedBox(height: 20),
-            ] else if (!linkState.isValid) ...[
+            if (!linkState.isValid) ...[
               const SizedBox(height: 4),
               Text(
                 '주소가 유효하지 않습니다.',
@@ -572,6 +545,7 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
   }
 
   _showCoffeeLifeBottomSheet({required List<CoffeeLife> coffeeLifeList}) async {
+    final context = this.context;
     final result = await showBarrierDialog<List<CoffeeLife>>(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) {
@@ -581,52 +555,15 @@ class _EditProfileViewState extends State<EditProfileView> with SnackBarMixin<Ed
         );
       },
     );
+
     if (result != null && context.mounted) {
       context.read<EditProfilePresenter>().onChangeSelectedCoffeeLife(result);
     }
   }
 
-  _showAlbumModal() async {
-    final result = await showCupertinoModalPopup<Uint8List>(
-      barrierColor: ColorStyles.white,
-      barrierDismissible: false,
-      context: context,
-      builder: (context) {
-        return GridPhotoViewWithPreview.build(
-          permissionStatus: PermissionRepository.instance.photos,
-          previewShape: BoxShape.circle,
-          canMultiSelect: false,
-          onDone: (context, images) async {
-            final result = await Navigator.of(context).push<Uint8List>(
-              MaterialPageRoute(
-                builder: (context) => CheckSelectedImagesScreen(
-                  image: images,
-                  onNext: (context, imageDataList) {
-                    context.pop(imageDataList.firstOrNull);
-                  },
-                  shape: BoxShape.circle,
-                ),
-              ),
-            );
-            if (result != null && context.mounted) {
-              context.pop(result);
-            }
-          },
-        );
-      },
-    );
-
-    if (result != null) {
-      _onChangeImageData(result);
-    }
-  }
-
-  _onChangeImageData(Uint8List imageData) {
-    context.read<EditProfilePresenter>().onChangeImageData(imageData);
-  }
-
   _clearLink() {
     _linkEditingController.value = TextEditingValue.empty;
+    context.read<EditProfilePresenter>().onChangeLink('');
   }
 }
 
@@ -636,9 +573,10 @@ class NicknameFormatter extends TextInputFormatter {
     String text = newValue.text;
     int cursorPosition = newValue.selection.baseOffset;
 
-    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}]', unicode: true), '');
+    // 한글(완성형), 영문, 숫자만 허용
+    text = text.replaceAll(RegExp(r'[^\u3131-\u314E\u314F-\u3163가-힣a-zA-Z0-9]'), '');
 
-    // 6️⃣ 커서 위치 보정
+    // 커서 위치 보정
     int diff = text.length - newValue.text.length;
     int newCursorPosition = (cursorPosition + diff).clamp(0, text.length);
 

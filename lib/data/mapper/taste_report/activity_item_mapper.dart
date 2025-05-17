@@ -26,5 +26,21 @@ extension TastedRecordActivityMapper on TastedRecordInCalendarDTO {
 }
 
 extension CoffeeBeanActivityMapper on CoffeeBeanInCalendarDTO {
-  ActivityItem toDomain() => ActivityItem.coffeeBean(id: id, name: name, rating: rating, thumbnail: thumbnail);
+  ActivityItem toDomain() {
+    final String imagePath;
+
+    if (type == 'single') {
+      if (roastingPoint > 0 && roastingPoint <= 5) {
+        imagePath = 'assets/images/coffee_bean/single_$roastingPoint.png';
+      } else {
+        imagePath = 'assets/images/coffee_bean/single_3.png';
+      }
+    } else if (type == 'blend') {
+      imagePath = 'assets/images/coffee_bean/blend.png';
+    } else {
+      imagePath = '';
+    }
+
+    return ActivityItem.coffeeBean(id: id, name: name, rating: rating, imagePath: imagePath);
+  }
 }

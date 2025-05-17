@@ -8,6 +8,10 @@ class RecommendedCoffeeBeanDTO {
   final int id;
   @JsonKey(defaultValue: '')
   final String name;
+  @JsonKey(name: 'bean_type', defaultValue: '')
+  final String type;
+  @JsonKey(name: 'roast_point', defaultValue: 0)
+  final int roastPoint;
   @JsonKey(name: 'image_url', defaultValue: '')
   final String imageUrl;
   @JsonKey(name: 'avg_star', defaultValue: 0.0)
@@ -20,6 +24,8 @@ class RecommendedCoffeeBeanDTO {
   const RecommendedCoffeeBeanDTO({
     required this.id,
     required this.name,
+    required this.type,
+    required this.roastPoint,
     required this.imageUrl,
     required this.rating,
     required this.recordCount,

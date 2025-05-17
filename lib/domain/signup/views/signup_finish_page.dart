@@ -1,8 +1,10 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
 class SignupFinishPage extends StatefulWidget {
@@ -19,6 +21,14 @@ class SignupFinishPage extends StatefulWidget {
 
 class _SignupFinishPageState extends State<SignupFinishPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AnalyticsManager.instance.logScreen(screenName: 'signup_complete');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -33,9 +43,9 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     ExtendedImage.asset(
-                      'assets/images/sign_up_finish.png',
-                      width: 260,
-                      height: 260,
+                      'assets/images/sign_up.png',
+                      width: 260.w,
+                      height: 260.h,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(height: 16),
@@ -57,6 +67,7 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
                 padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
                 child: ThrottleButton(
                   onTap: () {
+                    AnalyticsManager.instance.logButtonTap(buttonName: 'signup_complete_done');
                     context.go('/home');
                   },
                   child: Container(

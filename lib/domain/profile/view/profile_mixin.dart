@@ -2,10 +2,12 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/expandable_coffee_life.dart';
 import 'package:brew_buds/common/widgets/expandable_text.dart';
-import 'package:brew_buds/common/widgets/my_network_image.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
+import 'package:brew_buds/common/widgets/loading_barrier.dart';
+import 'package:brew_buds/common/widgets/profile_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/domain/detail/show_detail.dart';
 import 'package:brew_buds/domain/filter/filter_bottom_sheet.dart';
 import 'package:brew_buds/domain/filter/filter_presenter.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
@@ -18,19 +20,23 @@ import 'package:brew_buds/domain/profile/widgets/saved_tasting_record_widget.dar
 import 'package:brew_buds/domain/profile/widgets/tasting_record_item_widget.dart';
 import 'package:brew_buds/domain/web_view/web_screen.dart';
 import 'package:brew_buds/model/coffee_bean/bean_in_profile.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/noted/noted_object.dart';
 import 'package:brew_buds/model/post/post_in_profile.dart';
+import 'package:brew_buds/model/profile/item_in_profile.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter> on State<T> {
   late final Throttle paginationThrottle;
   final GlobalKey<NestedScrollViewState> scrollKey = GlobalKey<NestedScrollViewState>();
+  final TextStyle emptyTextStyle = TextStyle(
+      fontWeight: FontWeight.w500, fontSize: 16.sp, height: 1.2, letterSpacing: -0.02, color: ColorStyles.gray70);
 
   bool isExpandedIntro = false;
 
@@ -45,7 +51,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   @override
   void initState() {
     paginationThrottle = Throttle(
-      const Duration(seconds: 3),
+      const Duration(milliseconds: 300),
       initialValue: null,
       checkEquality: false,
       onChanged: (_) {
@@ -70,9 +76,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
 
   Widget buildProfileBottomButtons();
 
-  pushFollowList(int index);
-
-  onTappedSettingDetailButton();
+  Future<void> pushFollowList(int index);
 
   AppBar buildTitle();
 
@@ -81,87 +85,125 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
     return DefaultTabController(
       length: 4,
       initialIndex: 0,
-      child: Scaffold(
-        appBar: buildTitle(),
-        body: context.select<Presenter, bool>((presenter) => presenter.isLoading)
-            ? const Center(child: CupertinoActivityIndicator(color: ColorStyles.gray70))
-            : NestedScrollView(
-          key: scrollKey,
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            Selector<Presenter, ProfileState>(
-              selector: (context, presenter) => presenter.profileState,
-              builder: (context, profileState, child) => _buildProfile(
-                imageUri: profileState.imageUrl,
-                tastingRecordCount: profileState.tastingRecordCount,
-                followerCount: profileState.followerCount,
-                followingCount: profileState.followingCount,
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 20)),
-            Selector<Presenter, ProfileDetailState>(
-              selector: (context, presenter) => presenter.profileDetailState,
-              builder: (context, profileDetailState, child) => _buildDetail(
-                coffeeLife: profileDetailState.coffeeLife,
-                introduction: profileDetailState.introduction,
-                profileLink: profileDetailState.profileLink,
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              sliver: buildProfileBottomButtons(),
-            ),
-          ],
-          body: SafeArea(
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (ScrollNotification scroll) {
-                if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
-                  paginationThrottle.setValue(null);
-                }
-                return false;
-              },
-              child: CustomScrollView(
-                controller: scrollKey.currentState?.innerController,
-                slivers: [
-                  _buildTabBar(),
-                  Selector<Presenter, FilterBarState>(
-                    selector: (context, presenter) => presenter.filterBarState,
-                    builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
-                        ? _buildFilterBar(
-                      sortCriteriaList: filterBarState.sortCriteriaList,
-                      currentIndex: filterBarState.currentIndex,
-                      filters: filterBarState.filters,
-                    )
-                        : const SliverToBoxAdapter(child: SizedBox.shrink()),
+      child: Stack(
+        children: [
+          Scaffold(
+            appBar: buildTitle(),
+            body: NestedScrollView(
+              key: scrollKey,
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                Selector<Presenter, ProfileState>(
+                  selector: (context, presenter) => presenter.profileState,
+                  builder: (context, profileState, child) => _buildProfile(
+                    imageUrl: profileState.imageUrl,
+                    tastingRecordCount: profileState.tastingRecordCount,
+                    followerCount: profileState.followerCount,
+                    followingCount: profileState.followingCount,
                   ),
-                  if (context.select<Presenter, bool>((presenter) => presenter.isLoadingData))
-                    const SliverFillRemaining(
-                      child: Center(
-                        child: CupertinoActivityIndicator(
-                          color: ColorStyles.gray70,
-                        ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                Selector<Presenter, ProfileDetailState>(
+                  selector: (context, presenter) => presenter.profileDetailState,
+                  builder: (context, profileDetailState, child) => _buildDetail(
+                    coffeeLife: profileDetailState.coffeeLife,
+                    introduction: profileDetailState.introduction,
+                    profileLink: profileDetailState.profileLink,
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: buildProfileBottomButtons(),
+                ),
+              ],
+              body: SafeArea(
+                top: false,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scroll) {
+                    if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
+                      paginationThrottle.setValue(null);
+                    }
+                    return false;
+                  },
+                  child: CustomScrollView(
+                    controller: scrollKey.currentState?.innerController,
+                    slivers: [
+                      _buildTabBar(),
+                      Selector<Presenter, FilterBarState>(
+                        selector: (context, presenter) => presenter.filterBarState,
+                        builder: (context, filterBarState, child) => filterBarState.canShowFilterBar
+                            ? _buildFilterBar(
+                                sortCriteriaList: filterBarState.sortCriteriaList,
+                                currentIndex: filterBarState.currentIndex,
+                                filters: filterBarState.filters,
+                              )
+                            : const SliverToBoxAdapter(child: SizedBox.shrink()),
                       ),
-                    )
-                  else
-                    buildContentsList(),
-                ],
+                      Builder(
+                        builder: (context) {
+                          final isLoading = context.select<Presenter, bool>(
+                            (presenter) => presenter.isLoadingData && presenter.items.isEmpty && !presenter.isLoading,
+                          );
+                          return isLoading
+                              ? const SliverFillRemaining(
+                                  child: Center(
+                                    child: CupertinoActivityIndicator(
+                                      color: ColorStyles.gray70,
+                                    ),
+                                  ),
+                                )
+                              : buildContentsList();
+                        },
+                      ),
+                      Builder(
+                        builder: (context) {
+                          final hasNext = context.select<Presenter, bool>(
+                            (presenter) => presenter.hasNext && presenter.items.isNotEmpty,
+                          );
+                          return SliverToBoxAdapter(
+                            child: hasNext
+                                ? const SizedBox(
+                                    height: 100,
+                                    child: Center(
+                                      child: CupertinoActivityIndicator(
+                                        color: ColorStyles.gray70,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
+          Positioned.fill(
+            child: Builder(
+              builder: (context) {
+                final isLoading = context.select<Presenter, bool>(
+                  (presenter) => presenter.isLoading && presenter.items.isEmpty,
+                );
+                return isLoading ? const LoadingBarrier() : const SizedBox.shrink();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 
   SliverToBoxAdapter _buildProfile({
-    required String imageUri,
+    required String imageUrl,
     required int tastingRecordCount,
     required int followerCount,
     required int followingCount,
   }) {
     String countToString(int count) {
       if (count == 0) {
-        return '000';
+        return '0';
       } else if (count >= 1000 && count < 1000000) {
         return '${count / 1000}.${count / 100}K';
       } else if (count >= 1000000 && count < 1000000000) {
@@ -180,11 +222,10 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
           children: [
             Row(
               children: [
-                MyNetworkImage(
-                  imageUrl: imageUri,
+                ProfileImage(
+                  imageUrl: imageUrl,
                   height: 80,
                   width: 80,
-                  shape: BoxShape.circle,
                   border: Border.all(color: ColorStyles.gray20, width: 1),
                 ),
                 const SizedBox(width: 8),
@@ -201,10 +242,8 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             Text('시음기록', style: TextStyles.captionMediumRegular),
                           ],
                         ),
-                        ThrottleButton(
-                          onTap: () {
-                            pushFollowList(0);
-                          },
+                        FutureButton(
+                          onTap: () => pushFollowList(0),
                           child: Column(
                             children: [
                               Text(countToString(followerCount), style: TextStyles.captionMediumMedium),
@@ -213,10 +252,8 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                             ],
                           ),
                         ),
-                        ThrottleButton(
-                          onTap: () {
-                            pushFollowList(1);
-                          },
+                        FutureButton(
+                          onTap: () => pushFollowList(1),
                           child: Column(
                             children: [
                               Text(countToString(followingCount), style: TextStyles.captionMediumMedium),
@@ -299,15 +336,13 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   Widget _buildProfileLink({required String profileLink}) {
     return Row(
       children: [
-        ThrottleButton(
-          onTap: () {
-            showCupertinoModalPopup(
-              barrierColor: ColorStyles.white,
-              barrierDismissible: false,
-              context: context,
-              builder: (context) => WebScreen(url: profileLink),
-            );
-          },
+        FutureButton(
+          onTap: () => showCupertinoModalPopup(
+            barrierColor: ColorStyles.white,
+            barrierDismissible: false,
+            context: context,
+            builder: (context) => WebScreen(url: profileLink),
+          ),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: const BoxDecoration(
@@ -456,176 +491,243 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
   }
 
   Widget buildContentsList() {
-    return Selector<Presenter, DefaultPage?>(
-      selector: (context, presenter) => presenter.currentPage,
-      builder: (context, page, child) {
-        final currentPage = page;
-        if (currentPage != null) {
-          final result = currentPage.results;
-          if (result is List<TastedRecordInProfile>) {
-            return _buildTastedRecordsList(tastingRecords: result);
-          } else if (result is List<PostInProfile>) {
-            return _buildPostsList(posts: result);
-          } else if (result is List<BeanInProfile>) {
-            return _buildSavedCoffeeBeansList(beans: result);
-          } else if (result is List<NotedObject>) {
-            return _buildSavedPostsList(savedNotes: result);
+    return Selector<Presenter, List<ItemInProfile>>(
+      selector: (context, presenter) => presenter.items,
+      builder: (context, items, child) {
+        final currentTabIndex = context.select<Presenter, int>((presenter) => presenter.currentTabIndex);
+        final result = items.map((item) {
+          switch (item) {
+            case TastedRecordInProfileItem():
+              return item.data;
+            case PostInProfileItem():
+              return item.data;
+            case SavedBeanInProfileItem():
+              return item.data;
+            case SavedNoteInProfileItem():
+              return item.data;
           }
+        }).toList();
+
+        try {
+          if (currentTabIndex == 0) {
+            return _buildTastedRecordsList(tastingRecords: result.cast<TastedRecordInProfile>());
+          } else if (currentTabIndex == 1) {
+            return _buildPostsList(posts: result.cast<PostInProfile>());
+          } else if (currentTabIndex == 2) {
+            return _buildSavedCoffeeBeansList(beans: result.cast<BeanInProfile>());
+          } else {
+            return _buildSavedPostsList(savedNotes: result.cast<NotedObject>());
+          }
+        } catch (_) {
+          return const SliverToBoxAdapter();
         }
-        return const SliverToBoxAdapter(child: SizedBox.shrink());
       },
     );
   }
 
   Widget _buildTastedRecordsList({required List<TastedRecordInProfile> tastingRecords}) {
-    return tastingRecords.isEmpty
-        ? SliverFillRemaining(
-            child: Center(
-              child: Text(tastingRecordsEmptyText, style: TextStyles.title02SemiBold),
-            ),
-          )
-        : SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 4,
-                crossAxisSpacing: 4,
-              ),
-              itemCount: tastingRecords.length,
-              itemBuilder: (context, index) {
-                final tastingRecord = tastingRecords[index];
-                return ThrottleButton(
-                  onTap: () {
-                    showTastingRecordDetail(context: context, id: tastingRecords[index].id).then((value) {
-                      if (value != null) {
-                        showSnackBar(message: value);
-                      }
-                    });
-                  },
-                  child: TastingRecordItemWidget(
-                    imageUri: tastingRecord.imageUrl,
-                    rating: tastingRecord.rating,
+    return Builder(builder: (context) {
+      return tastingRecords.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
+              )
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_coffee_note.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(tastingRecordsEmptyText, style: emptyTextStyle),
+                    ],
                   ),
-                );
-              },
-            ),
-          );
+                ),
+              ),
+            )
+          : SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 4,
+                  crossAxisSpacing: 4,
+                ),
+                itemCount: tastingRecords.length,
+                itemBuilder: (context, index) {
+                  final tastingRecord = tastingRecords[index];
+                  return FutureButton(
+                    onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id),
+                    child: TastingRecordItemWidget(
+                      imageUrl: tastingRecord.imageUrl,
+                      rating: tastingRecord.rating,
+                    ),
+                  );
+                },
+              ),
+            );
+    });
   }
 
   Widget _buildPostsList({required List<PostInProfile> posts}) {
-    return posts.isEmpty
-        ? SliverFillRemaining(
-            child: Center(
-              child: Text(postsEmptyText, style: TextStyles.title02SemiBold),
-            ),
-          )
-        : SliverList.separated(
-            itemCount: posts.length,
-            itemBuilder: (context, index) {
-              final post = posts[index];
-              return ThrottleButton(
-                onTap: () {
-                  showPostDetail(context: context, id: post.id).then((value) {
-                    if (value != null) {
-                      showSnackBar(message: value);
-                    }
-                  });
-                },
-                child: ProfilePostItemWidget(
-                  title: post.title,
-                  author: post.author,
-                  createdAt: post.createdAt,
-                  subject: post.subject,
+    return Builder(builder: (context) {
+      return posts.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
+              )
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_coffee_note.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(postsEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
                 ),
-              );
-            },
-            separatorBuilder: (context, index) {
-              return Container(height: 1, color: ColorStyles.gray20);
-            },
-          );
+              ),
+            )
+          : SliverList.separated(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                final post = posts[index];
+                return FutureButton(
+                  onTap: () => ScreenNavigator.showPostDetail(context: context, id: post.id),
+                  child: ProfilePostItemWidget(
+                    title: post.title,
+                    author: post.author,
+                    createdAt: post.createdAt,
+                    subject: post.subject,
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Container(height: 1, color: ColorStyles.gray20);
+              },
+            );
+    });
   }
 
   Widget _buildSavedCoffeeBeansList({required List<BeanInProfile> beans}) {
-    return beans.isEmpty
-        ? SliverFillRemaining(
-            child: Center(
-              child: Text(beansEmptyText, style: TextStyles.title02SemiBold),
-            ),
-          )
-        : SliverList.separated(
-            itemCount: beans.length,
-            itemBuilder: (context, index) {
-              final bean = beans[index];
-              return ThrottleButton(
-                onTap: () {
-                  showCoffeeBeanDetail(context: context, id: bean.id);
-                },
-                child: SavedCoffeeBeanWidget(
-                  name: bean.name,
-                  rating: bean.rating,
-                  tastedRecordsCount: bean.tastedRecordsCount,
-                  imageUri: '',
+    return Builder(builder: (context) {
+      return beans.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
+              )
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_default.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(beansEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
                 ),
-              );
-            },
-            separatorBuilder: (context, index) {
-              return Container(height: 1, color: ColorStyles.gray20);
-            },
-          );
+              ),
+            )
+          : SliverList.separated(
+              itemCount: beans.length,
+              itemBuilder: (context, index) {
+                final bean = beans[index];
+                return FutureButton(
+                  onTap: () => ScreenNavigator.showCoffeeBeanDetail(context: context, id: bean.id),
+                  child: SavedCoffeeBeanWidget(
+                    name: bean.name,
+                    rating: bean.rating,
+                    tastedRecordsCount: bean.tastedRecordsCount,
+                    imagePath: bean.imagePath,
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return Container(height: 1, color: ColorStyles.gray20);
+              },
+            );
+    });
   }
 
   _buildSavedPostsList({required List<NotedObject> savedNotes}) {
-    return savedNotes.isEmpty
-        ? SliverFillRemaining(
-            child: Center(
-              child: Text(savedNotesEmptyText, style: TextStyles.title02SemiBold),
-            ),
-          )
-        : SliverList.separated(
-            itemCount: savedNotes.length,
-            itemBuilder: (context, index) {
-              final note = savedNotes[index];
-              switch (note) {
-                case NotedPost():
-                  return ThrottleButton(
-                    onTap: () {
-                      showPostDetail(context: context, id: note.id).then((value) {
-                        if (value != null) {
-                          showSnackBar(message: value);
-                        }
-                      });
-                    },
-                    child: SavedPostWidget(
-                      title: note.title,
-                      subject: note.subject.toString(),
-                      createdAt: note.createdAt,
-                      author: note.author,
-                      imageUri: note.imageUrl,
-                    ),
-                  );
-                case NotedTastedRecord():
-                  return ThrottleButton(
-                    onTap: () {
-                      showTastingRecordDetail(context: context, id: note.id).then((value) {
-                        if (value != null) {
-                          showSnackBar(message: value);
-                        }
-                      });
-                    },
-                    child: SavedTastingRecordWidget(
-                      beanName: note.beanName,
-                      rating: '${note.rating}',
-                      flavor: note.flavor,
-                      imageUri: note.imageUrl,
-                    ),
-                  );
-              }
-            },
-            separatorBuilder: (context, index) {
-              return Container(height: 1, color: ColorStyles.gray20);
-            },
-          );
+    return Builder(builder: (context) {
+      return savedNotes.isEmpty &&
+              context.select<Presenter, bool>(
+                (presenter) => !presenter.isLoading && !presenter.isLoadingData,
+              )
+          ? SliverToBoxAdapter(
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Center(
+                  child: Column(
+                    spacing: 1,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ExtendedImage.asset(
+                        'assets/images/profile/empty_default.png',
+                        width: 140.w,
+                        height: 140.h,
+                        fit: BoxFit.cover,
+                      ),
+                      Text(savedNotesEmptyText, style: emptyTextStyle),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : SliverList.separated(
+              itemCount: savedNotes.length,
+              itemBuilder: (context, index) {
+                final note = savedNotes[index];
+                switch (note) {
+                  case NotedPost():
+                    return FutureButton(
+                      onTap: () => ScreenNavigator.showPostDetail(context: context, id: note.id),
+                      child: SavedPostWidget(
+                        title: note.title,
+                        subject: note.subject.toString(),
+                        createdAt: note.createdAt,
+                        author: note.author,
+                        imageUrl: note.imageUrl,
+                      ),
+                    );
+                  case NotedTastedRecord():
+                    return FutureButton(
+                      onTap: () => ScreenNavigator.showTastedRecordDetail(context: context, id: note.id),
+                      child: SavedTastingRecordWidget(
+                        beanName: note.beanName,
+                        rating: '${note.rating}',
+                        flavor: note.flavor,
+                        imageUrl: note.imageUrl,
+                      ),
+                    );
+                }
+              },
+              separatorBuilder: (context, index) {
+                return Container(height: 1, color: ColorStyles.gray20);
+              },
+            );
+    });
   }
 
   _showCoffeeBeanFilterBottomSheet({required List<CoffeeBeanFilter> filters, initialIndex = 0}) {
@@ -708,29 +810,6 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
             isLeftIcon ? textWidget : iconWidget,
           ],
         ),
-      ),
-    );
-  }
-
-  showSnackBar({required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black90,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
     );
   }

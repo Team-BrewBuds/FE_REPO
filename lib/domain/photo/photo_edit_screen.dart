@@ -1,12 +1,11 @@
-import 'dart:typed_data';
-
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/domain/photo/core/custom_circle_crop_layer_painter.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_editor/image_editor.dart';
 
 class PhotoEditScreen extends StatefulWidget {
@@ -40,6 +39,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(backgroundColor: ColorStyles.black, toolbarHeight: 0),
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
@@ -70,7 +70,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
   }
 
   Widget _buildTopButtons() {
-    final canUndo = widget._originData == imageData;
+    final canUndo = listEquals(widget._originData, imageData);
     return Row(
       children: [
         ThrottleButton(
@@ -164,7 +164,7 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
           image: rawImageData,
           imageEditorOption: editorOption,
         );
-
+        //수정필요
         Navigator.of(context).pop(result);
       }
     }
@@ -175,26 +175,4 @@ class _PhotoEditScreenState extends State<PhotoEditScreen> {
       imageData = widget._originData;
     });
   }
-}
-
-class CustomCircleCropLayerPainter extends EditorCropLayerPainter {
-  @override
-  void paintMask(Canvas canvas, Rect rect, ExtendedImageCropLayerPainter painter) {
-    final paint = Paint()..color = ColorStyles.black30;
-    final path = Path()..addRect(rect);
-
-    path.addOval(Rect.fromCircle(
-      center: painter.cropRect.center,
-      radius: painter.cropRect.size.width * 0.49, // 원 크기 조절
-    ));
-
-    path.fillType = PathFillType.evenOdd; // 내부 원을 투명하게 만듦
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  void paintCorners(Canvas canvas, Size size, ExtendedImageCropLayerPainter painter) {}
-
-  @override
-  void paintLines(Canvas canvas, Size size, ExtendedImageCropLayerPainter painter) {}
 }

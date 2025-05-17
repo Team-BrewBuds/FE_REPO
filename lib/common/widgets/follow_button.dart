@@ -1,10 +1,10 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
-import 'package:brew_buds/common/widgets/throttle_button.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:flutter/material.dart';
 
 class FollowButton extends StatelessWidget {
-  final void Function() onTap;
+  final Future<void> Function() onTap;
   final bool isFollowed;
 
   const FollowButton({
@@ -15,10 +15,8 @@ class FollowButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ThrottleButton(
-      onTap: () {
-        onTap.call();
-      },
+    return FutureButton(
+      onTap: () => onTap.call(),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
@@ -29,6 +27,28 @@ class FollowButton extends StatelessWidget {
           style: TextStyles.labelSmallMedium.copyWith(color: isFollowed ? ColorStyles.black : ColorStyles.white),
           textAlign: TextAlign.center,
         ),
+      ),
+    );
+  }
+}
+
+class FollowButtonSkeleton extends StatelessWidget {
+  const FollowButtonSkeleton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: const BoxDecoration(
+        color: ColorStyles.gray70,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
+      child: Text(
+        '      ',
+        style: TextStyles.labelSmallMedium.copyWith(color: Colors.transparent),
+        textAlign: TextAlign.center,
       ),
     );
   }

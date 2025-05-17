@@ -29,6 +29,7 @@ class ManagementBottomSheet extends StatelessWidget {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: SafeArea(
+                top: false,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 24),
                   child: Column(

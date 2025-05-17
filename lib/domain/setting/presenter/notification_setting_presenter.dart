@@ -1,121 +1,158 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
+import 'package:brew_buds/exception/notification_exeption.dart';
 import 'package:brew_buds/model/notification/notification_setting.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 final class NotificationSettingPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;
+  final PermissionRepository _permissionRepository = PermissionRepository.instance;
   NotificationSetting? _notificationSetting;
-  late bool _isGranted;
   bool _isLoading = false;
+
+  NotificationSettingPresenter() {
+    _fetchSettings();
+  }
+
+  Future<PermissionStatus> get notificationStatus => _permissionRepository.notification;
 
   NotificationSetting? get notificationSetting => _notificationSetting;
 
   bool get isLoading => _isLoading;
 
-  initState() async {
-    _isLoading = true;
-    notifyListeners();
+  _fetchSettings() async {
+    final status = await _permissionRepository.notification;
 
-    _isGranted = PermissionRepository.instance.notification.isGranted;
-    if (_isGranted) {
-      await _fetchSettings();
+    if (!status.isGranted) return;
+
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
     }
 
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  _fetchSettings() async {
-    final setting = await _notificationRepository.fetchSettings();
-    _notificationSetting = setting;
+    try {
+      final setting = await _notificationRepository.fetchSettings();
+      _notificationSetting = setting;
+    } catch (_) {
+      _notificationSetting = null;
+    } finally {
+      if (_isLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
+    }
   }
 
   requestPermission() async {
-    _isLoading = true;
-    notifyListeners();
+    final previousStatus = await _permissionRepository.notification;
+    final newState = await _permissionRepository.requestNotificationPermission();
 
-    await PermissionRepository.instance.requestNotification();
-    final newState = PermissionRepository.instance.notification.isGranted;
-
-    if (_isGranted != newState) {
-      _isGranted = newState;
-      await _fetchSettings();
-    }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  onChangeLikeNotifyState() async {
-    final setting = _notificationSetting;
-    if (setting != null) {
+    if (!_isLoading) {
       _isLoading = true;
       notifyListeners();
+    }
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(like: !setting.like),
-      );
+    if (previousStatus != newState) {
+      if (newState.isGranted) {
+        await _notificationRepository.registerToken();
+        await _fetchSettings();
+      } else {
+        await _notificationRepository.deleteToken();
+        _notificationSetting = null;
+      }
+    }
 
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+    if (_isLoading) {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> onChangeLikeNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
+    final setting = _notificationSetting;
+    if (setting != null) {
+      _notificationSetting = setting.copyWith(like: !setting.like);
+      notifyListeners();
+
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(like: !setting.like),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(like: setting.like);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }
 
-  onChangeCommentNotifyState() async {
+  Future<void> onChangeCommentNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(comment: !setting.comment);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(comment: !setting.comment),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(comment: !setting.comment),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(comment: setting.comment);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }
 
-  onChangeFollowNotifyState() async {
+  Future<void> onChangeFollowNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(follow: !setting.follow);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(follow: !setting.follow),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(follow: !setting.follow),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(follow: setting.follow);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }
 
-  onChangeMarketingNotifyState() async {
+  Future<void> onChangeMarketingNotifyState() async {
+    final status = await _permissionRepository.notification;
+
+    if (!status.isGranted) return;
+
     final setting = _notificationSetting;
     if (setting != null) {
-      _isLoading = true;
+      _notificationSetting = setting.copyWith(marketing: !setting.marketing);
       notifyListeners();
 
-      final newSetting = await _notificationRepository.updateSettings(
-        notificationSetting: setting.copyWith(marketing: !setting.marketing),
-      );
-
-      if (newSetting != null) {
-        _notificationSetting = newSetting;
-        _isLoading = false;
+      try {
+        await _notificationRepository.updateSettings(
+          notificationSetting: setting.copyWith(marketing: !setting.marketing),
+        );
+      } catch (e) {
+        _notificationSetting = setting.copyWith(marketing: setting.marketing);
         notifyListeners();
+        throw const NotificationUpdateException();
       }
     }
   }

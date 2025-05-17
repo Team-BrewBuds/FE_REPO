@@ -1,7 +1,12 @@
 import 'package:brew_buds/common/extension/date_time_ext.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
+import 'package:brew_buds/domain/coffee_note_tasting_record/model/tasted_record_update_model.dart';
+import 'package:brew_buds/exception/tasted_record_exception.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 final class TastedRecordUpdatePresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
@@ -18,10 +23,7 @@ final class TastedRecordUpdatePresenter extends Presenter {
       _tastedRecord.tastingReview.bitterness != 0 &&
       _tastedRecord.tastingReview.sweetness != 0;
 
-  bool get isValidLastPage =>
-      _tastedRecord.tastingReview.star > 0 &&
-      _tastedRecord.contents.length > 7 &&
-      _tastedRecord.tastingReview.place.isNotEmpty;
+  bool get isValidLastPage => _tastedRecord.tastingReview.star > 0 && _tastedRecord.contents.length > 7;
 
   String get contents => _tastedRecord.contents;
 
@@ -41,17 +43,32 @@ final class TastedRecordUpdatePresenter extends Presenter {
 
   String get tastedAt => _tastedRecord.tastingReview.tastedAt;
 
-  bool get isPrivate => _tastedRecord.isPrivate;
-
   String get place => _tastedRecord.tastingReview.place;
 
-  int get star => _tastedRecord.tastingReview.star.toInt();
+  double get star => _tastedRecord.tastingReview.star;
 
-  Future<bool> update() {
-    return _tastedRecordRepository
-        .update(id: _tastedRecord.id, tastedRecord: _tastedRecord)
-        .then((value) => true)
-        .onError((error, stackTrace) => false);
+  Future<void> update() async {
+    if (contents.containsBadWords) {
+      throw const ContentsContainsBadWordsException();
+    }
+
+    try {
+      final updateModel = TastedRecordUpdateModel(
+        contents: contents,
+        tag: tag,
+        tasteReview: _tastedRecord.tastingReview,
+      );
+      await _tastedRecordRepository.update(id: _tastedRecord.id, data: updateModel.toJson());
+      EventBus.instance.fire(
+        TastedRecordUpdateEvent(
+          senderId: presenterId,
+          id: _tastedRecord.id,
+          updateModel: updateModel,
+        ),
+      );
+    } catch (e) {
+      throw const TastingRecordUpdateFailedException();
+    }
   }
 
   onChangeTaste(List<String> taste) {
@@ -123,8 +140,8 @@ final class TastedRecordUpdatePresenter extends Presenter {
     notifyListeners();
   }
 
-  onChangeStar(int star) {
-    _tastedRecord = _tastedRecord.copyWith(tastingReview: _tastedRecord.tastingReview.copyWith(star: star.toDouble()));
+  onChangeStar(double star) {
+    _tastedRecord = _tastedRecord.copyWith(tastingReview: _tastedRecord.tastingReview.copyWith(star: star));
     notifyListeners();
   }
 }

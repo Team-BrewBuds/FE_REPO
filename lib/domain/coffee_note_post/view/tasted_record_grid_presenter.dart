@@ -1,7 +1,6 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
-import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 
 typedef GridViewState = ({
@@ -11,58 +10,67 @@ typedef GridViewState = ({
 
 final class TastedRecordGridPresenter extends Presenter {
   final TastedRecordRepository _tastedRecordRepository = TastedRecordRepository.instance;
-  List<TastedRecordInProfile> _selectedTastedRecords;
-  DefaultPage<TastedRecordInProfile> _tastedRecordsPage = DefaultPage.initState();
+  final List<TastedRecordInProfile> _tastedRecords = List.empty(growable: true);
+  final List<TastedRecordInProfile> _selectedTastedRecords;
   int _currentPage = 1;
+  bool _hasNext = true;
+  bool _isLoading = false;
 
   bool get hasSelectedItem => _selectedTastedRecords.isNotEmpty;
 
-  List<TastedRecordInProfile> get selectedTastedRecords => _selectedTastedRecords;
+  List<TastedRecordInProfile> get selectedTastedRecords => List.unmodifiable(_selectedTastedRecords);
 
   GridViewState get gridViewState => (
-        tastedRecords: _tastedRecordsPage.results,
-        selectedTastedRecords: _selectedTastedRecords,
+        tastedRecords: List.unmodifiable(_tastedRecords),
+        selectedTastedRecords: List.unmodifiable(_selectedTastedRecords),
       );
 
-  initState() {
-    fetchMoreData();
-  }
+  bool get hasNext => _hasNext;
+
+  bool get isLoading => _isLoading;
 
   refresh() {
-    _tastedRecordsPage = DefaultPage.initState();
+    _tastedRecords.clear();
     _currentPage = 1;
     fetchMoreData();
   }
 
   fetchMoreData() async {
     final id = AccountRepository.instance.id;
-    if (id != null) {
+    if (id != null && _hasNext) {
+      _isLoading = true;
+      notifyListeners();
+
       final newPage = await _tastedRecordRepository.fetchTastedRecordPage(userId: id, pageNo: _currentPage);
-      _tastedRecordsPage = newPage.copyWith(results: _tastedRecordsPage.results + newPage.results);
+      _tastedRecords.addAll(newPage.results);
+      _hasNext = newPage.hasNext;
+      _currentPage++;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  bool onSelected(TastedRecordInProfile tastedRecord) {
+  Future<void> onSelected(TastedRecordInProfile tastedRecord) async {
     if (_selectedTastedRecords.contains(tastedRecord)) {
-      _selectedTastedRecords = List.from(_selectedTastedRecords)..remove(tastedRecord);
+      _selectedTastedRecords.remove(tastedRecord);
     } else {
       if (_selectedTastedRecords.length < 10) {
-        _selectedTastedRecords = List.from(_selectedTastedRecords)..add(tastedRecord);
+        _selectedTastedRecords.add(tastedRecord);
       } else {
-        return false;
+        throw Exception();
       }
     }
     notifyListeners();
-    return true;
   }
 
   onDeletedAt(int index) {
-    _selectedTastedRecords = List.from(_selectedTastedRecords)..removeAt(index);
+    _selectedTastedRecords.removeAt(index);
     notifyListeners();
   }
 
   TastedRecordGridPresenter({
     required List<TastedRecordInProfile> selectedTastedRecords,
-  }) : _selectedTastedRecords = selectedTastedRecords;
+  }) : _selectedTastedRecords = selectedTastedRecords {
+    fetchMoreData();
+  }
 }

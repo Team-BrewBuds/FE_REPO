@@ -1,11 +1,13 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/loading_barrier.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
-import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
+import 'package:brew_buds/exception/login_exception.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -66,34 +68,17 @@ class LoginBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24, width: double.infinity),
-                    ThrottleButton(
-                      onTap: () async {
-                        final result = await context.read<LoginPresenter>().login(SocialLogin.kakao);
-                        if (context.mounted) {
-                          switch (result) {
-                            case Success<LoginResult>():
-                              switch (result.data) {
-                                case LoginResult.login:
-                                  context.pop(result);
-                                case LoginResult.needSignUp:
-                                  final checkResult = await _checkModal(context)
-                                      .then((value) => value ?? false)
-                                      .onError((_, __) => false);
-                                  if (checkResult && context.mounted) {
-                                    final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                    if (saveResult) {
-                                      context.pop(result);
-                                    }
-                                  }
-                              }
-                            case Error<LoginResult>():
-                              context.pop(result);
-                          }
-
-                          if (context.mounted) {
-                            context.pop(Result.error('알 수 없는 오류로 로그인에 실패했습니다.'));
-                          }
-                        }
+                    FutureButton<LoginResult, LoginException>(
+                      onTap: () => context.read<LoginPresenter>().login(SocialLogin.kakao),
+                      onComplete: (result) {
+                        context.pop(result);
+                      },
+                      onError: (exception) {
+                        EventBus.instance.fire(
+                          MessageEvent(
+                            message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                          ),
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15.5),
@@ -127,32 +112,17 @@ class LoginBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 7, width: double.infinity),
-                    ThrottleButton(
-                      onTap: () async {
-                        final result = await context.read<LoginPresenter>().login(SocialLogin.naver);
-                        if (context.mounted) {
-                          switch (result) {
-                            case Success<LoginResult>():
-                              switch (result.data) {
-                                case LoginResult.login:
-                                  context.pop(result);
-                                case LoginResult.needSignUp:
-                                  final checkResult = await _checkModal(context)
-                                      .then((value) => value ?? false)
-                                      .onError((_, __) => false);
-                                  if (checkResult && context.mounted) {
-                                    final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                    if (saveResult) {
-                                      context.pop(result);
-                                    } else {
-                                      context.pop(Result.error('알 수 없는 오류로 로그인에 실패했습니다.'));
-                                    }
-                                  }
-                              }
-                            case Error<LoginResult>():
-                              context.pop(result);
-                          }
-                        }
+                    FutureButton<LoginResult, LoginException>(
+                      onTap: () => context.read<LoginPresenter>().login(SocialLogin.naver),
+                      onComplete: (result) {
+                        context.pop(result);
+                      },
+                      onError: (exception) {
+                        EventBus.instance.fire(
+                          MessageEvent(
+                            message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                          ),
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15.5),
@@ -186,34 +156,17 @@ class LoginBottomSheet extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 7, width: double.infinity),
-                    ThrottleButton(
-                      onTap: () async {
-                        final result = await context.read<LoginPresenter>().login(SocialLogin.apple);
-                        if (context.mounted) {
-                          switch (result) {
-                            case Success<LoginResult>():
-                              switch (result.data) {
-                                case LoginResult.login:
-                                  context.pop(result);
-                                case LoginResult.needSignUp:
-                                  final checkResult = await _checkModal(context)
-                                      .then((value) => value ?? false)
-                                      .onError((_, __) => false);
-                                  if (checkResult && context.mounted) {
-                                    final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                    if (saveResult) {
-                                      context.pop(result);
-                                    }
-                                  }
-                              }
-                            case Error<LoginResult>():
-                              context.pop(result);
-                          }
-
-                          if (context.mounted) {
-                            context.pop(Result.error('알 수 없는 오류로 로그인에 실패했습니다.'));
-                          }
-                        }
+                    FutureButton<LoginResult, LoginException>(
+                      onTap: () => context.read<LoginPresenter>().login(SocialLogin.apple),
+                      onComplete: (result) {
+                        context.pop(result);
+                      },
+                      onError: (exception) {
+                        EventBus.instance.fire(
+                          MessageEvent(
+                            message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                          ),
+                        );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15.5),
@@ -261,21 +214,6 @@ class LoginBottomSheet extends StatelessWidget {
         if (context.select<LoginPresenter, bool>((presenter) => presenter.isLoading))
           const LoadingBarrier(hasOpacity: false),
       ],
-    );
-  }
-
-  Future<bool?> _checkModal(BuildContext context) async {
-    return showModalBottomSheet<bool>(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
-      ),
-      constraints: const BoxConstraints(maxHeight: 421),
-      backgroundColor: ColorStyles.white,
-      elevation: 0,
-      builder: (BuildContext context) {
-        return const TermsOfUseBottomSheet();
-      },
     );
   }
 }

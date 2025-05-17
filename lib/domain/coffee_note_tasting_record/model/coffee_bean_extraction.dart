@@ -26,7 +26,7 @@ enum CoffeeBeanExtraction {
       case CoffeeBeanExtraction.coldBrew:
         return '콜드 브루';
       case CoffeeBeanExtraction.writtenByUser:
-        return '직적 입력';
+        return '직접 입력';
     }
   }
 }

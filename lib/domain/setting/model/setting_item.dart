@@ -22,7 +22,7 @@ enum SettingItem {
         SettingItem.block => '차단 관리',
         SettingItem.account => '계정 정보',
         SettingItem.detail => '맞춤 정보',
-        SettingItem.notice => '공지 사항',
+        SettingItem.notice => '공지사항',
         SettingItem.help => '도움말',
         SettingItem.improvements => '개선 및 의견 남기기',
         SettingItem.evaluation => '앱 평가하기',

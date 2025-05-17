@@ -1,10 +1,15 @@
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/common/widgets/future_button.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
-import 'package:brew_buds/core/result.dart';
+import 'package:brew_buds/core/event_bus.dart';
+import 'package:brew_buds/core/show_bottom_sheet.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
+import 'package:brew_buds/exception/login_exception.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -37,30 +42,32 @@ class SNSLogin extends StatelessWidget {
                         const SizedBox(height: 48),
                         Column(
                           children: [
-                            ThrottleButton(
-                              onTap: () async {
-                                final result = await context.read<LoginPresenter>().login(SocialLogin.kakao);
-                                if (context.mounted) {
-                                  switch (result) {
-                                    case Success<LoginResult>():
-                                      switch (result.data) {
-                                        case LoginResult.login:
-                                          context.go('/home');
-                                        case LoginResult.needSignUp:
-                                          final result = await _checkModal(context)
-                                              .then((value) => value ?? false)
-                                              .onError((_, __) => false);
-                                          if (result && context.mounted) {
-                                            final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                            if (saveResult) {
-                                              context.push('/login/signup/1');
-                                            }
-                                          }
-                                      }
-                                    case Error<LoginResult>():
-                                      showSnackBar(context, message: result.e);
-                                  }
+                            FutureButton<LoginResult, LoginException>(
+                              onTap: () => context.read<LoginPresenter>().login(SocialLogin.kakao),
+                              onComplete: (result) async {
+                                switch (result) {
+                                  case LoginSuccess():
+                                    context.go('/home');
+                                    break;
+                                  case NeedToSignUp():
+                                    final checkResult = await _checkModal(context);
+                                    if (checkResult != null && checkResult && context.mounted) {
+                                      AccountRepository.instance.saveTokenAndIdInMemory(
+                                        id: result.id,
+                                        accessToken: result.accessToken,
+                                        refreshToken: result.refreshToken,
+                                      );
+                                      context.push('/login/signup/1');
+                                    }
+                                    break;
                                 }
+                              },
+                              onError: (exception) {
+                                EventBus.instance.fire(
+                                  MessageEvent(
+                                    message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                                  ),
+                                );
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -92,30 +99,32 @@ class SNSLogin extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 7),
-                            ThrottleButton(
-                              onTap: () async {
-                                final result = await context.read<LoginPresenter>().login(SocialLogin.naver);
-                                if (context.mounted) {
-                                  switch (result) {
-                                    case Success<LoginResult>():
-                                      switch (result.data) {
-                                        case LoginResult.login:
-                                          context.go('/home');
-                                        case LoginResult.needSignUp:
-                                          final result = await _checkModal(context)
-                                              .then((value) => value ?? false)
-                                              .onError((_, __) => false);
-                                          if (result && context.mounted) {
-                                            final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                            if (saveResult) {
-                                              context.push('/login/signup/1');
-                                            }
-                                          }
-                                      }
-                                    case Error<LoginResult>():
-                                      showSnackBar(context, message: result.e);
-                                  }
+                            FutureButton<LoginResult, LoginException>(
+                              onTap: () => context.read<LoginPresenter>().login(SocialLogin.naver),
+                              onComplete: (result) async {
+                                switch (result) {
+                                  case LoginSuccess():
+                                    context.go('/home');
+                                    break;
+                                  case NeedToSignUp():
+                                    final checkResult = await _checkModal(context);
+                                    if (checkResult != null && checkResult && context.mounted) {
+                                      AccountRepository.instance.saveTokenAndIdInMemory(
+                                        id: result.id,
+                                        accessToken: result.accessToken,
+                                        refreshToken: result.refreshToken,
+                                      );
+                                      context.push('/login/signup/1');
+                                    }
+                                    break;
                                 }
+                              },
+                              onError: (exception) {
+                                EventBus.instance.fire(
+                                  MessageEvent(
+                                    message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                                  ),
+                                );
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -149,30 +158,32 @@ class SNSLogin extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 7),
-                            ThrottleButton(
-                              onTap: () async {
-                                final result = await context.read<LoginPresenter>().login(SocialLogin.apple);
-                                if (context.mounted) {
-                                  switch (result) {
-                                    case Success<LoginResult>():
-                                      switch (result.data) {
-                                        case LoginResult.login:
-                                          context.go('/home');
-                                        case LoginResult.needSignUp:
-                                          final result = await _checkModal(context)
-                                              .then((value) => value ?? false)
-                                              .onError((_, __) => false);
-                                          if (result && context.mounted) {
-                                            final saveResult = context.read<LoginPresenter>().saveTokenInMemory();
-                                            if (saveResult) {
-                                              context.push('/login/signup/1');
-                                            }
-                                          }
-                                      }
-                                    case Error<LoginResult>():
-                                      showSnackBar(context, message: result.e);
-                                  }
+                            FutureButton<LoginResult, LoginException>(
+                              onTap: () => context.read<LoginPresenter>().login(SocialLogin.apple),
+                              onComplete: (result) async {
+                                switch (result) {
+                                  case LoginSuccess():
+                                    context.go('/home');
+                                    break;
+                                  case NeedToSignUp():
+                                    final checkResult = await _checkModal(context);
+                                    if (checkResult != null && checkResult && context.mounted) {
+                                      AccountRepository.instance.saveTokenAndIdInMemory(
+                                        id: result.id,
+                                        accessToken: result.accessToken,
+                                        refreshToken: result.refreshToken,
+                                      );
+                                      context.push('/login/signup/1');
+                                    }
+                                    break;
                                 }
+                              },
+                              onError: (exception) {
+                                EventBus.instance.fire(
+                                  MessageEvent(
+                                    message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                                  ),
+                                );
                               },
                               child: Container(
                                 height: height, // 버튼 높이 통일
@@ -244,41 +255,12 @@ class SNSLogin extends StatelessWidget {
     );
   }
 
-  Future<bool?> _checkModal(BuildContext context) async {
-    return showModalBottomSheet<bool>(
+  Future<bool?> _checkModal(BuildContext context) {
+    return showBarrierDialog<bool>(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8.0)),
-      ),
-      constraints: const BoxConstraints(maxHeight: 421),
-      backgroundColor: ColorStyles.white,
-      elevation: 0,
-      builder: (BuildContext context) {
+      pageBuilder: (context, _, __) {
         return const TermsOfUseBottomSheet();
       },
-    );
-  }
-
-  showSnackBar(BuildContext context, {required String message}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Container(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: ColorStyles.black.withAlpha(90),
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          child: Center(
-            child: Text(
-              message,
-              style: TextStyles.captionMediumNarrowMedium.copyWith(color: ColorStyles.white),
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
     );
   }
 }

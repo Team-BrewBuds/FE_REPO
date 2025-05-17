@@ -12,7 +12,7 @@ class CoffeeBeanDetail with _$CoffeeBeanDetail {
     required CoffeeBeanType type,
     required String name,
     required List<String> country,
-    required String imageUrl,
+    required String imagePath,
     required bool isDecaf,
     required double rating,
     required int recordCount,

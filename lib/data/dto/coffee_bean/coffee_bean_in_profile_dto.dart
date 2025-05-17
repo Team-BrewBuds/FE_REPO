@@ -10,6 +10,8 @@ class CoffeeBeanInProfileDTO {
   final String name;
   @JsonKey(name: 'origin_country', defaultValue: '')
   final String country;
+  @JsonKey(name: 'bean_type', defaultValue: '')
+  final String type;
   @JsonKey(name: 'roast_point', defaultValue: 0)
   final int roastingPoint;
   @JsonKey(name: 'avg_star', defaultValue: '')
@@ -23,6 +25,7 @@ class CoffeeBeanInProfileDTO {
     required this.id,
     required this.name,
     required this.country,
+    required this.type,
     required this.roastingPoint,
     required this.rating,
     required this.tastedRecordsCount,

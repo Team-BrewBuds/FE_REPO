@@ -26,10 +26,10 @@ enum ProfileSortCriteria {
       };
 
   String toJson() => switch (this) {
-        ProfileSortCriteria.createdAt => 'created_at',
-        ProfileSortCriteria.tastedReviewStar => 'taste_review__star',
-        ProfileSortCriteria.noteCreatedAt => 'note__created_at',
-        ProfileSortCriteria.avgStar => 'avg_star',
-        ProfileSortCriteria.tastedRecordsCnt => 'tasted_records_cnt',
+        ProfileSortCriteria.createdAt => '-created_at',
+        ProfileSortCriteria.tastedReviewStar => '-taste_review__star',
+        ProfileSortCriteria.noteCreatedAt => '-note__created_at',
+        ProfileSortCriteria.avgStar => '-avg_star',
+        ProfileSortCriteria.tastedRecordsCnt => '-tasted_records_cnt',
       };
 }

@@ -14,7 +14,7 @@ class TastedRecordInCoffeeBeanDTO {
   @JsonKey(name: 'bean_name', defaultValue: '')
   final String beanName;
   @JsonKey(name: 'star', defaultValue: 0)
-  final int rating;
+  final double rating;
   @JsonKey(name: 'bean_type', defaultValue: CoffeeBeanTypeDTO.singleOrigin)
   final CoffeeBeanTypeDTO beanType;
   @JsonKey(name: 'bean_taste', fromJson: _flavorFromJson, defaultValue: [])

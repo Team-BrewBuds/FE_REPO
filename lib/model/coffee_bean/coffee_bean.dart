@@ -12,7 +12,7 @@ class CoffeeBean with _$CoffeeBean {
     String? name,
     String? region,
     List<String>? country,
-    String? imageUri,
+    String? imagePath,
     bool? isDecaf,
     String? extraction,
     int? roastPoint,
@@ -26,9 +26,3 @@ class CoffeeBean with _$CoffeeBean {
 
   factory CoffeeBean.empty() => const _CoffeeBean(id: 0);
 }
-
-String? _countryToJson(List<String>? country) {
-  return country?.where((element) => element.isNotEmpty).join(',');
-}
-
-String? _nullableStringToJson(String? text) => (text ?? '').isEmpty ? null : text;

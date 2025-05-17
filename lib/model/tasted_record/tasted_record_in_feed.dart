@@ -1,6 +1,7 @@
 import 'package:brew_buds/model/common/user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
 part 'tasted_record_in_feed.freezed.dart';
 
 @freezed
@@ -26,5 +27,5 @@ class TastedRecordInFeed with _$TastedRecordInFeed {
 
   const TastedRecordInFeed._();
 
-  String get thumbnailUri => imagesUrl.firstOrNull ?? '';
+  String get thumbnailUrl => imagesUrl.firstOrNull ?? '';
 }

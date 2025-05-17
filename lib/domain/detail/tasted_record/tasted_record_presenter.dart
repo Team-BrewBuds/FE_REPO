@@ -1,16 +1,22 @@
+import 'dart:async';
+
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/block_api.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
-import 'package:brew_buds/model/comments.dart';
-import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/exception/comments_exception.dart';
+import 'package:brew_buds/model/common/user.dart';
+import 'package:brew_buds/model/events/comment_event.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
+import 'package:brew_buds/model/events/user_follow_event.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record.dart';
 import 'package:brew_buds/model/tasted_record/tasted_review.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
 typedef BottomButtonInfo = ({int likeCount, bool isLiked, bool isSaved});
-typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow, bool isMine});
+typedef ProfileInfo = ({String nickName, int? authorId, String profileImageUrl, bool isFollow});
 typedef ContentsInfo = ({double rating, List<String> flavors, String tastedAt, String contents, String location});
 typedef BeanInfo = ({
   String? beanType,
@@ -22,7 +28,6 @@ typedef BeanInfo = ({
   String? roastery,
   String? roastingPoint,
 });
-typedef CommentsInfo = ({int? authorId, DefaultPage<Comment> page});
 typedef CommentTextFieldState = ({String? prentCommentAuthorNickname, String authorNickname});
 
 final class TastedRecordPresenter extends Presenter {
@@ -30,17 +35,24 @@ final class TastedRecordPresenter extends Presenter {
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   final BlockApi _blockApi = BlockApi();
   final int id;
+  late final StreamSubscription _tastedRecordSub;
+  late final StreamSubscription _followEventSub;
   bool _isEmpty = false;
-  Comment? _parentComment;
   TastedRecord? _tastedRecord;
-  DefaultPage<Comment> _page = DefaultPage.initState();
-  int _pageNo = 1;
+  User? _replyUser;
+  int? _parentsId;
+
+  int? get beanId => _tastedRecord?.bean.id;
+
+  bool? get isOfficial => _tastedRecord?.bean.isOfficial;
+
+  int? get authorId => _tastedRecord?.author.id;
+
+  String? get authorNickname => _tastedRecord?.author.nickname;
 
   bool get isEmpty => _isEmpty;
 
   TastedRecord? get tastedRecord => _tastedRecord;
-
-  bool get isMine => AccountRepository.instance.id == _tastedRecord?.author.id;
 
   List<String> get imageUrlList => _tastedRecord?.imagesUrl ?? [];
 
@@ -57,13 +69,12 @@ final class TastedRecordPresenter extends Presenter {
         authorId: _tastedRecord?.author.id,
         profileImageUrl: _tastedRecord?.author.profileImageUrl ?? '',
         isFollow: _tastedRecord?.isAuthorFollowing ?? false,
-        isMine: isMine,
       );
 
   ContentsInfo get contentsInfo => (
         rating: _tastedRecord?.tastingReview.star ?? 0,
         flavors: _tastedRecord?.tastingReview.flavors ?? [],
-        tastedAt: _tastedRecord?.createdAt ?? '',
+        tastedAt: _tastedRecord?.tastingReview.tastedAt ?? '',
         contents: _tastedRecord?.contents ?? '',
         location: _tastedRecord?.tastingReview.place ?? '',
       );
@@ -93,31 +104,70 @@ final class TastedRecordPresenter extends Presenter {
         roastingPoint: roastingPointToString(_tastedRecord?.bean.roastPoint),
       );
 
-  CommentsInfo get commentsInfo => (authorId: _tastedRecord?.author.id, page: _page);
-
   CommentTextFieldState get commentTextFieldState => (
-        prentCommentAuthorNickname: _parentComment?.author.nickname,
+        prentCommentAuthorNickname: _replyUser?.nickname,
         authorNickname: _tastedRecord?.author.nickname ?? '',
       );
 
   TastedRecordPresenter({
     required this.id,
-  });
-
-  init() async {
-    _page = DefaultPage.initState();
-    _pageNo = 1;
-    notifyListeners();
+  }) {
+    _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onTastedRecordEvent);
+    _followEventSub = EventBus.instance.on<UserFollowEvent>().listen(_onFollowEvent);
     _fetchTastedRecord();
-    fetchMoreComments();
   }
 
-  onRefresh() async {
-    _page = DefaultPage.initState();
-    _pageNo = 1;
-    notifyListeners();
+  @override
+  dispose() {
+    _tastedRecordSub.cancel();
+    _followEventSub.cancel();
+    super.dispose();
+  }
+
+  _onFollowEvent(UserFollowEvent event) {
+    if (event.senderId != presenterId && event.userId == _tastedRecord?.author.id) {
+      _tastedRecord = _tastedRecord?.copyWith(isAuthorFollowing: event.isFollow);
+      notifyListeners();
+    }
+  }
+
+  _onTastedRecordEvent(TastedRecordEvent event) {
+    if (event.senderId != presenterId) {
+      switch (event) {
+        case TastedRecordDeleteEvent():
+          if (event.id == id) {}
+          break;
+        case TastedRecordUpdateEvent():
+          if (event.id == id) {
+            final updateModel = event.updateModel;
+            _tastedRecord = _tastedRecord?.copyWith(
+              contents: updateModel.contents,
+              tag: updateModel.tag,
+              tastingReview: updateModel.tasteReview,
+            );
+            notifyListeners();
+          }
+          break;
+        case TastedRecordLikeEvent():
+          if (event.id == id) {
+            _tastedRecord = _tastedRecord?.copyWith(isLiked: event.isLiked, likeCount: event.likeCount);
+            notifyListeners();
+          }
+          break;
+        case TastedRecordSaveEvent():
+          if (event.id == id) {
+            _tastedRecord = _tastedRecord?.copyWith(isSaved: event.isSaved);
+            notifyListeners();
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  onRefresh() {
     _fetchTastedRecord();
-    fetchMoreComments();
   }
 
   _fetchTastedRecord() async {
@@ -131,118 +181,160 @@ final class TastedRecordPresenter extends Presenter {
     notifyListeners();
   }
 
-  fetchMoreComments() async {
-    if (!_page.hasNext) return;
-    final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'tasted_record', id: id, pageNo: _pageNo);
-    _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
-    _pageNo += 1;
-    notifyListeners();
-  }
+  Future<void> onDelete() => _tastedRecordRepository.delete(id: id);
 
-  Future<Result<String>> onDelete() {
-    return _tastedRecordRepository
-        .delete(id: id)
-        .then((value) => Result.success('게시글 삭제를 완료했어요.'))
-        .onError((error, stackTrace) => Result.error('게시글 삭제에 실패했어요.'));
-  }
-
-  Future<Result<String>> onBlock() {
+  Future<void> onBlock() {
     final authorId = _tastedRecord?.author.id;
     if (authorId != null) {
-      return _blockApi
-          .block(id: authorId)
-          .then((value) => Result.success('차단을 완료했어요.'))
-          .onError((error, stackTrace) => Result.error('차단에 실패했어요.'));
+      return _blockApi.block(id: authorId);
     } else {
-      return Future.value(Result.error('차단에 실패했어요.'));
+      throw Exception();
     }
   }
 
-  onTappedFollowButton() {
-    final currentTastingRecord = _tastedRecord;
-    if (currentTastingRecord != null) {
-      _tastedRecordRepository
-          .follow(id: currentTastingRecord.author.id, isFollow: currentTastingRecord.isAuthorFollowing)
-          .then((value) => _fetchTastedRecord());
+  onTappedFollowButton() async {
+    final currentTastedRecord = _tastedRecord;
+    if (currentTastedRecord != null) {
+      final isFollow = currentTastedRecord.isAuthorFollowing;
+      _tastedRecord = currentTastedRecord.copyWith(isAuthorFollowing: !isFollow);
+      notifyListeners();
+
+      try {
+        await _tastedRecordRepository.follow(id: currentTastedRecord.author.id, isFollow: isFollow);
+        EventBus.instance.fire(
+          UserFollowEvent(
+            senderId: presenterId,
+            userId: currentTastedRecord.author.id,
+            isFollow: !isFollow,
+          ),
+        );
+      } catch (e) {
+        _tastedRecord = currentTastedRecord.copyWith(isAuthorFollowing: isFollow);
+        notifyListeners();
+      }
     }
   }
 
-  onTappedLikeButton() {
-    final currentTastingRecord = _tastedRecord;
-    if (currentTastingRecord != null) {
-      _tastedRecordRepository
-          .like(id: currentTastingRecord.id, isLiked: currentTastingRecord.isLiked)
-          .then((value) => _fetchTastedRecord());
+  onTappedLikeButton() async {
+    final currentTastedRecord = _tastedRecord;
+    if (currentTastedRecord != null) {
+      final isLiked = currentTastedRecord.isLiked;
+      final likeCount = currentTastedRecord.likeCount;
+      _tastedRecord = currentTastedRecord.copyWith(
+        isLiked: !isLiked,
+        likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+      );
+      notifyListeners();
+
+      try {
+        await _tastedRecordRepository.like(id: id, isLiked: isLiked);
+        EventBus.instance.fire(
+          TastedRecordLikeEvent(
+            senderId: presenterId,
+            id: id,
+            isLiked: !isLiked,
+            likeCount: isLiked ? likeCount - 1 : likeCount + 1,
+          ),
+        );
+      } catch (e) {
+        _tastedRecord = currentTastedRecord.copyWith(isLiked: isLiked, likeCount: likeCount);
+        notifyListeners();
+      }
     }
   }
 
-  onTappedCommentLikeButton(Comment targetComment, {Comment? parentComment}) {
-    if (targetComment.isLiked) {
-      _commentsRepository.likeComment(id: targetComment.id).then((_) {
-        reloadComments();
-      });
-    } else {
-      _commentsRepository.unLikeComment(id: targetComment.id).then((_) {
-        reloadComments();
-      });
+  onTappedSaveButton() async {
+    final currentTastedRecord = _tastedRecord;
+    if (currentTastedRecord != null) {
+      final isSaved = currentTastedRecord.isSaved;
+      _tastedRecord = currentTastedRecord.copyWith(isSaved: !isSaved);
+      notifyListeners();
+
+      try {
+        await _tastedRecordRepository.save(id: id, isSaved: isSaved);
+        EventBus.instance.fire(
+          TastedRecordSaveEvent(
+            senderId: presenterId,
+            id: id,
+            isSaved: !isSaved,
+          ),
+        );
+      } catch (e) {
+        _tastedRecord = currentTastedRecord.copyWith(isSaved: isSaved);
+        notifyListeners();
+      }
     }
   }
 
-  onTappedDeleteCommentButton(Comment comment) {
-    _commentsRepository.deleteComment(id: comment.id).then((_) => reloadComments());
+  bool isWriter(int authorId) {
+    return authorId == _tastedRecord?.author.id;
   }
 
-  bool canDeleteComment({required int authorId}) {
-    return authorId == AccountRepository.instance.id || isMine;
+  bool isMine(int authorId) {
+    return authorId == AccountRepository.instance.id;
   }
 
-  reloadComments() async {
-    final List<Comment> newComments = [];
-    for (int pageNo = 1; pageNo < _pageNo; pageNo++) {
-      final newPage = await _commentsRepository.fetchCommentsPage(feedType: 'tasted_record', id: id, pageNo: pageNo);
-      newComments.addAll(newPage.results);
-    }
-    _page = _page.copyWith(results: newComments);
-    notifyListeners();
+  bool isMyObject() {
+    return _tastedRecord?.author.id == AccountRepository.instance.id;
   }
 
-  onTappedSaveButton() {
-    final currentTastingRecord = _tastedRecord;
-    if (currentTastingRecord != null) {
-      _tastedRecordRepository
-          .save(id: currentTastingRecord.id, isSaved: currentTastingRecord.isSaved)
-          .then((value) => _fetchTastedRecord());
-    }
-  }
-
-  Future<void> createComment(String text) {
-    final parentComment = _parentComment;
-    if (parentComment != null) {
-      return _commentsRepository
-          .createNewComment(feedType: 'tasted_record', id: id, content: text, parentId: parentComment.id)
-          .then((_) {
-        _parentComment = null;
-        reloadComments();
-      });
-    } else {
-      return _commentsRepository.createNewComment(feedType: 'tasted_record', id: id, content: text).then((_) {
-        reloadComments();
-      });
-    }
-  }
-
-  bool isMineComment(Comment comment) {
-    return comment.author.id == AccountRepository.instance.id;
-  }
-
-  onTappedReply(Comment comment) {
-    _parentComment = comment;
+  selectedReply(User user, int id) {
+    _replyUser = user;
+    _parentsId = id;
     notifyListeners();
   }
 
   cancelReply() {
-    _parentComment = null;
+    _replyUser = null;
+    _parentsId = null;
     notifyListeners();
+  }
+
+  Future<void> createNewComment({required String content}) async {
+    if (content.isEmpty) throw const EmptyCommentException();
+
+    if (content.containsBadWords) throw const ContainsBadWordsCommentException();
+
+    try {
+      final newComment = await _commentsRepository.createNewComment(
+        feedType: 'tasted_record',
+        id: id,
+        content: content,
+        parentId: _parentsId,
+      );
+
+      final parentId = _parentsId;
+
+      if (parentId != null) {
+        EventBus.instance.fire(
+          CreateReCommentEvent(
+            senderId: presenterId,
+            parentId: parentId,
+            objectId: id,
+            newReComment: newComment,
+            objectType: 'tasted_record',
+          ),
+        );
+      } else {
+        EventBus.instance.fire(
+          CreateCommentEvent(
+            senderId: presenterId,
+            objectId: id,
+            newComment: newComment,
+            objectType: 'tasted_record',
+          ),
+        );
+      }
+      _replyUser = null;
+      _parentsId = null;
+      notifyListeners();
+    } catch (_) {
+      if (_parentsId != null) {
+        throw const CommentCreateFailedException();
+      } else {
+        throw const ReCommentCreateFailedException();
+      }
+    }
   }
 
   String? roastingPointToString(int? roastingPoint) {
@@ -251,7 +343,7 @@ final class TastedRecordPresenter extends Presenter {
     } else if (roastingPoint == 2) {
       return '라이트 미디엄';
     } else if (roastingPoint == 3) {
-      return '미디';
+      return '미디엄';
     } else if (roastingPoint == 4) {
       return '미디엄 다크';
     } else if (roastingPoint == 5) {

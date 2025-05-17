@@ -4,7 +4,7 @@ import 'package:brew_buds/model/common/coffee_life.dart';
 final class CoffeeLifeBottomSheetPresenter extends Presenter {
   final List<CoffeeLife> _selectedCoffeeLifeList;
 
-  List<CoffeeLife> get selectedCoffeeLifeList => _selectedCoffeeLifeList;
+  List<CoffeeLife> get selectedCoffeeLifeList => List.unmodifiable(_selectedCoffeeLifeList);
 
   CoffeeLifeBottomSheetPresenter({
     required List<CoffeeLife> selectedCoffeeLifeList,

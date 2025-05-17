@@ -1,10 +1,9 @@
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:notification_center/notification_center.dart';
 
 class AccountRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  bool _hasNotification = false;
   bool _isGuest = false;
   String _refreshToken = '';
   String _accessToken = '';
@@ -27,8 +26,6 @@ class AccountRepository extends ChangeNotifier {
 
   bool get isGuest => _isGuest;
 
-  bool get hasNotification => _hasNotification;
-
   AccountRepository._();
 
   static final AccountRepository _instance = AccountRepository._();
@@ -37,7 +34,7 @@ class AccountRepository extends ChangeNotifier {
 
   factory AccountRepository() => instance;
 
-  init() async {
+  Future<void> init() async {
     _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
     _id = int.tryParse(await _storage.read(key: 'id') ?? '');
@@ -67,23 +64,11 @@ class AccountRepository extends ChangeNotifier {
   }
 
   Future<void> logout({bool forceLogout = false}) async {
-    if (_id == null && _accessToken.isEmpty && _refreshToken.isEmpty) {
-      return;
-    }
-
-    try {
-      await _storage.deleteAll();
-      _isGuest = false;
-      _id = null;
-      _accessToken = '';
-      _refreshToken = '';
-      if (forceLogout) {
-        NotificationCenter().notify('force_logout');
-      }
-      notifyListeners();
-    } catch (e) {
-      rethrow;
-    }
+    await _storage.deleteAll();
+    _isGuest = false;
+    _id = null;
+    _accessToken = '';
+    _refreshToken = '';
   }
 
   Future<void> login({required int id, required String accessToken, required String refreshToken}) async {
@@ -91,23 +76,21 @@ class AccountRepository extends ChangeNotifier {
       saveToken(accessToken: accessToken, refreshToken: refreshToken),
       saveId(id: id),
     ]);
+
+    try {
+      await NotificationRepository.instance.registerToken();
+    } catch (e) {
+      logout();
+      rethrow;
+    }
+
     if (_isGuest) {
       _isGuest = false;
-      notifyListeners();
     }
   }
 
   loginWithGuest() {
     _isGuest = true;
-  }
-
-  notify() {
-    _hasNotification = true;
-    notifyListeners();
-  }
-
-  readNotification() {
-    _hasNotification = false;
     notifyListeners();
   }
 }

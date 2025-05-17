@@ -15,7 +15,7 @@ class SharedPreferencesRepository {
 
   bool get isFirst => _prefs.getBool('is_first') ?? true;
 
-  bool get isFirstTimeLogin => _prefs.getBool('login') ?? true;
+  bool get isCompletePermission => _prefs.getBool('permission') ?? false;
 
   bool get isFirstTimeCamera => _prefs.getBool('camera') ?? true;
 
@@ -23,7 +23,7 @@ class SharedPreferencesRepository {
 
   bool get isFirstTimeLocation => _prefs.getBool('location') ?? true;
 
-  init() async {
+  Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
 
@@ -39,8 +39,8 @@ class SharedPreferencesRepository {
     return _prefs.setBool('is_first', false);
   }
 
-  Future<void> setLogin() {
-    return _prefs.setBool('login', false);
+  Future<void> completePermission() {
+    return _prefs.setBool('permission', true);
   }
 
   Future<void> useCamera() {

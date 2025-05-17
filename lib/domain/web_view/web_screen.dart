@@ -86,6 +86,7 @@ class _WebScreenState extends State<WebScreen> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: SafeArea(
+        top: false,
         child: Column(
           children: [
             _buildProgressBar(),

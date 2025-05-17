@@ -14,7 +14,7 @@ class CountryBottomSheet extends StatelessWidget {
     super.key,
     required List<String> initialCountry,
     required this.isSingleOrigin,
-  })  : selectedCountry = ValueNotifier(initialCountry);
+  }) : selectedCountry = ValueNotifier(initialCountry);
 
   @override
   Widget build(BuildContext context) {

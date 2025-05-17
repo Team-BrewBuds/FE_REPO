@@ -3,6 +3,7 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/profile/presenter/coffee_life_bottom_sheet_presenter.dart';
 import 'package:brew_buds/model/common/coffee_life.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -32,18 +33,15 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
               ),
               child: SafeArea(
                 top: false,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
-                    return Column(
-                      children: [
-                        _buildTitle(context),
-                        Expanded(child: _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList)),
-                        _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
-                      ],
-                    );
-                  }),
-                ),
+                child: Consumer<CoffeeLifeBottomSheetPresenter>(builder: (context, presenter, child) {
+                  return Column(
+                    children: [
+                      _buildTitle(context),
+                      Expanded(child: _buildCoffeeLife(context, coffeeLifeList: presenter.selectedCoffeeLifeList)),
+                      _buildBottomButtons(context, canSave: presenter.selectedCoffeeLifeList.isNotEmpty),
+                    ],
+                  );
+                }),
               ),
             ),
           ),
@@ -98,10 +96,10 @@ class CoffeeLifeBottomSheet extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
+                ExtendedImage.asset(
                   CoffeeLife.values[index].imagePath,
-                  width: 90,
-                  height: 90,
+                  width: 90.w,
+                  height: 90.h,
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 4),

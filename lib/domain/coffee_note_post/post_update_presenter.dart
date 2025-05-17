@@ -1,40 +1,33 @@
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
-import 'package:brew_buds/core/result.dart';
 import 'package:brew_buds/data/api/post_api.dart';
-import 'package:brew_buds/data/mapper/post/post_mapper.dart';
+import 'package:brew_buds/domain/coffee_note_post/coffee_note_post_exception.dart';
+import 'package:brew_buds/domain/coffee_note_post/model/post_update_model.dart';
+import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/post/post.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_post.dart';
+import 'package:korean_profanity_filter/korean_profanity_filter.dart';
 
-typedef AppBarState = ({bool isValid, String? errorMessage});
+typedef AppBarState = ({bool canUpdate, String? errorMessage});
 typedef ImageListViewState = ({List<String> images, List<TastedRecordInPost> tastedRecords});
 
 final class PostUpdatePresenter extends Presenter {
   final PostApi postApi = PostApi();
   Post _post;
+  bool _isLoading = false;
 
-  PostUpdatePresenter({
-    required Post post,
-  }) : _post = post;
+  bool get isLoading => _isLoading;
 
-  String? get _errorMessage {
-    if (_post.title.length < 2) {
-      return '제목을 2자 이상 입력해 주세요.';
-    } else if (_post.contents.length < 8) {
-      return '내용을 8자 이상 입력해주세요.';
-    } else {
-      return null;
-    }
-  }
-
-  AppBarState get appBarState => (
-        isValid: _post.title.length >= 2 && _post.contents.length >= 8,
-        errorMessage: _errorMessage,
-      );
+  bool get canUpdate => _post.title.length >= 2 && _post.contents.length >= 8;
 
   PostSubject get subject => _post.subject;
 
   ImageListViewState get imageListViewState => (images: _post.imagesUrl, tastedRecords: _post.tastingRecords);
+
+  PostUpdatePresenter({
+    required Post post,
+  }) : _post = post;
 
   onChangeSubject(PostSubject subject) {
     _post = _post.copyWith(subject: subject);
@@ -56,10 +49,38 @@ final class PostUpdatePresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<Result<String>> update() async {
-    return postApi
-        .updatePost(id: _post.id, data: _post.toJson())
-        .then((_) => Result.success('게시글이 작성되었습니다.'))
-        .onError((error, stackTrace) => Result.error('게시글 작성에 실패했습니다.'));
+  Future<void> update() async {
+    if (_post.title.length < 2) {
+      throw ShortTitleLength();
+    }
+    if (_post.contents.length < 8) {
+      throw ShortContentsLength();
+    }
+
+    if (_post.title.containsBadWords || _post.contents.containsBadWords) {
+      throw ContainsBadWordsException();
+    }
+
+    if (_isLoading) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    final PostUpdateModel updateModel = PostUpdateModel(
+      title: _post.title,
+      contents: _post.contents,
+      subject: _post.subject,
+      tag: _post.tag,
+    );
+
+    try {
+      await postApi.updatePost(id: _post.id, data: updateModel.toJson());
+      EventBus.instance.fire(PostUpdateEvent(senderId: presenterId, id: _post.id, updateModel: updateModel));
+    } catch (e) {
+      throw ApiError();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -18,7 +18,7 @@ class CoffeeBeanDTO {
   @JsonKey(name: 'origin_country', fromJson: _stringFromJson, defaultValue: [])
   final List<String> country;
   @JsonKey(name: 'image_url', defaultValue: '')
-  final String imageUri;
+  final String imageUrl;
   @JsonKey(name: 'is_decaf', defaultValue: false)
   final bool isDecaf;
   @JsonKey(name: 'region', includeIfNull: false)
@@ -57,7 +57,7 @@ class CoffeeBeanDTO {
         type: CoffeeBeanTypeDTO.singleOrigin,
         name: '',
         country: [],
-        imageUri: '',
+        imageUrl: '',
         isDecaf: false,
         isUserCreated: false,
         isOfficial: false,
@@ -68,7 +68,7 @@ class CoffeeBeanDTO {
     required this.type,
     required this.name,
     required this.country,
-    required this.imageUri,
+    required this.imageUrl,
     required this.isDecaf,
     this.region,
     this.extraction,

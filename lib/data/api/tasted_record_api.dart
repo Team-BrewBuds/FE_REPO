@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/dio_client.dart';
+import 'package:brew_buds/data/dto/tasted_record/tasted_record_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -22,7 +23,7 @@ abstract class TastedRecordApi {
   });
 
   @PATCH('/records/tasted_record/{id}/')
-  Future<void> updateTastedRecord({
+  Future<TastedRecordDTO> updateTastedRecord({
     @Path('id') required int id,
     @Body() required Map<String, dynamic> data,
   });

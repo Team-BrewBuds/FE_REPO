@@ -2,18 +2,20 @@ import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
-import 'package:brew_buds/core/snack_bar_mixin.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/domain/setting/model/setting_category.dart';
 import 'package:brew_buds/domain/setting/model/setting_item.dart';
-import 'package:brew_buds/domain/setting/view/sign_out_view.dart';
+import 'package:brew_buds/domain/web_view/web_screen.dart';
+import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -22,8 +24,7 @@ class SettingScreen extends StatefulWidget {
   State<SettingScreen> createState() => _SettingScreenState();
 }
 
-class _SettingScreenState extends State<SettingScreen>
-    with CenterDialogMixin<SettingScreen>, SnackBarMixin<SettingScreen> {
+class _SettingScreenState extends State<SettingScreen> with CenterDialogMixin<SettingScreen> {
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
@@ -50,7 +51,7 @@ class _SettingScreenState extends State<SettingScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      backgroundColor: ColorStyles.gray20,
+      backgroundColor: ColorStyles.white,
       body: SafeArea(
         child: ListView.separated(
           itemCount: SettingCategory.values.length,
@@ -105,7 +106,7 @@ class _SettingScreenState extends State<SettingScreen>
               }),
             ]);
           },
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) => Container(height: 12, color: ColorStyles.gray20),
         ),
       ),
     );
@@ -149,71 +150,101 @@ class _SettingScreenState extends State<SettingScreen>
     final context = this.context;
     switch (item) {
       case SettingItem.notification:
-        context.go('/profile/setting/notification');
+        context.push('/profile/setting/notification');
         break;
       case SettingItem.block:
-        context.go('/profile/setting/block');
+        context.push('/profile/setting/block');
         break;
       case SettingItem.account:
-        context.go('/profile/setting/account_info');
+        context.push('/profile/setting/account_info');
         break;
       case SettingItem.detail:
-        context.push<String>('/profile/setting/account_detail').then((value) {
-          if (value != null) {
-            showSnackBar(message: value);
-          }
-        });
+        context.push('/profile/setting/account_detail');
         break;
       case SettingItem.notice:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/1e397baa9f48807f95bbc192f6e63fc9'),
+        );
         break;
       case SettingItem.help:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f488017beadc47fe298099b'),
+        );
         break;
       case SettingItem.improvements:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://walla.my/v/Gb9rNERojyPofHfwgPVB'),
+        );
         break;
       case SettingItem.evaluation:
+        final uri =
+            Uri.parse('https://apps.apple.com/kr/app/%EB%B8%8C%EB%A3%A8%EB%B2%84%EC%A6%88-brewbuds/id6670744490');
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+          );
+        }
         break;
       case SettingItem.registrationOfBeans:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f4880d484e3c47606a9d1cc'),
+        );
         break;
       case SettingItem.inquiry:
         break;
       case SettingItem.terms:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f4880d68698c9a8218a5f0c'),
+        );
         break;
       case SettingItem.policy:
+        showCupertinoModalPopup(
+          barrierColor: ColorStyles.white,
+          barrierDismissible: false,
+          context: context,
+          builder: (context) => const WebScreen(url: 'https://brewbuds.notion.site/19497baa9f48809a9b64e120aeb07b1d'),
+        );
         break;
       case SettingItem.openSourceLicense:
         break;
       case SettingItem.version:
         break;
       case SettingItem.logout:
-        final result = await showLogoutBottomSheet().then((value) => value ?? false).onError((_, __) => false);
+        try {
+          final result = await showLogoutBottomSheet() ?? false;
+          if (!result) return;
 
-        if (result) {
-          final notificationResult = await NotificationRepository.instance.deleteToken().then((_) => true).onError((_, __) => false);
-          if (notificationResult) {
-            final logoutResult = await AccountRepository.instance.logout().then((_) => true).onError((_, __) => false);
-            if (logoutResult) {
-              if (context.mounted) {
-                context.go('/');
-                break;
-              }
-            }
+          await NotificationRepository.instance.deleteToken();
+          await AccountRepository.instance.logout();
+          if (context.mounted) {
+            context.go('/');
           }
-          showSnackBar(message: '로그아웃에 실패했습니다.');
+          break;
+        } catch (e) {
+          EventBus.instance.fire(const MessageEvent(message: '로그아웃에 실패했어요.'));
           break;
         }
-        break;
       case SettingItem.signOut:
         final result = await showSignOutBottomSheet();
 
         if (result != null && result && context.mounted) {
-          showCupertinoModalPopup(
-            barrierColor: ColorStyles.white,
-            barrierDismissible: false,
-            context: context,
-            builder: (context) {
-              return const SignOutView();
-            },
-          );
+          context.push('/profile/setting/sign_out');
         }
         break;
     }

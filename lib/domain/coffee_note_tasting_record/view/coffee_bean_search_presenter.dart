@@ -1,39 +1,66 @@
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/coffee_bean_repository.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean.dart';
-import 'package:brew_buds/model/common/default_page.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 
-typedef CoffeeBeanSearchResult = ({String searchWord, List<CoffeeBean> coffeebeans});
+typedef CoffeeBeanSearchState = ({bool isLoading, List<CoffeeBean> coffeebeans});
 
 final class CoffeeBeanSearchPresenter extends Presenter {
+  late final Debouncer<String> _searchDebouncer;
   final CoffeeBeanRepository _coffeeBeanRepository = CoffeeBeanRepository.instance;
-  DefaultPage<CoffeeBean> _page = DefaultPage.initState();
+  final List<CoffeeBean> _coffeeBeanList = List.empty(growable: true);
   String _searchWord = '';
   int _currentPage = 1;
+  bool _hasNext = true;
+  bool _isLoading = false;
 
-  CoffeeBeanSearchResult get result => (searchWord: _searchWord, coffeebeans: _page.results);
+  CoffeeBeanSearchState get coffeeBeanSearchState => (
+        isLoading: _isLoading && _coffeeBeanList.isNotEmpty,
+        coffeebeans: List.unmodifiable(_coffeeBeanList),
+      );
 
-  List<CoffeeBean> get coffeeBeans => _page.results;
+  bool get hasNext => _hasNext;
+
+  CoffeeBeanSearchPresenter() {
+    _searchDebouncer = Debouncer(
+      const Duration(milliseconds: 300),
+      initialValue: '',
+      checkEquality: true,
+      onChanged: (value) => search(value),
+    );
+  }
 
   search(String word) async {
-    _page = DefaultPage.initState();
+    _hasNext = true;
     _currentPage = 1;
     _searchWord = word;
-    _page = await _coffeeBeanRepository.fetchCoffeeBeans(word: _searchWord, pageNo: _currentPage);
+    _coffeeBeanList.clear();
+    _isLoading = true;
+    notifyListeners();
+    final newPage = await _coffeeBeanRepository.fetchCoffeeBeans(word: _searchWord, pageNo: _currentPage);
+    _coffeeBeanList.addAll(newPage.results);
+    _hasNext = newPage.hasNext;
     _currentPage++;
+    _isLoading = false;
     notifyListeners();
   }
 
   fetchMoreData() async {
-    if (_page.hasNext) {
+    if (_hasNext && !_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+
       final newPage = await _coffeeBeanRepository.fetchCoffeeBeans(word: _searchWord, pageNo: _currentPage);
-      _page = _page.copyWith(results: _page.results + newPage.results, hasNext: newPage.hasNext, count: newPage.count);
+      _coffeeBeanList.addAll(newPage.results);
+      _hasNext = newPage.hasNext;
       _currentPage++;
+      _isLoading = false;
       notifyListeners();
     }
   }
 
   onChangeSearchWord(String newSearchWord) {
     _searchWord = newSearchWord;
+    _searchDebouncer.setValue(newSearchWord);
   }
 }

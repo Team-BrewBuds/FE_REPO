@@ -4,16 +4,18 @@ part 'account_info_dto.g.dart';
 
 @JsonSerializable(createToJson: false)
 class AccountInfoDTO {
-  @JsonKey(name: '가입일', defaultValue: '')
+  @JsonKey(name: 'joined_at', defaultValue: '')
   final String signUpAt;
-  @JsonKey(name: '가입기간', defaultValue: '')
-  final String signUpPeriod;
-  @JsonKey(name: '로그인 유형', defaultValue: '')
+  @JsonKey(name: 'joined_duration', defaultValue: 0)
+  final int signUpPeriod;
+  @JsonKey(name: 'login_type', defaultValue: '')
   final String loginKind;
-  @JsonKey(name: '성별', defaultValue: '')
+  @JsonKey(name: 'gender', defaultValue: '')
   final String gender;
-  @JsonKey(name: '태어난 연도', defaultValue: 0)
+  @JsonKey(name: 'birth_year', defaultValue: 0)
   final int yearOfBirth;
+  @JsonKey(name: 'email', defaultValue: '')
+  final String email;
 
   factory AccountInfoDTO.fromJson(Map<String, dynamic> json) => _$AccountInfoDTOFromJson(json);
 
@@ -23,5 +25,6 @@ class AccountInfoDTO {
     required this.loginKind,
     required this.gender,
     required this.yearOfBirth,
+    required this.email,
   });
 }

@@ -10,7 +10,7 @@ abstract class ReportApi {
   Future<void> report({
     @Path('type') required String type,
     @Path('id') required int id,
-    required Map<String, dynamic> data,
+    @Body() required Map<String, dynamic> data,
   });
 
   factory ReportApi() => _ReportApi(DioClient.instance.dio);

@@ -1,4 +1,5 @@
 import 'package:brew_buds/core/dio_client.dart';
+import 'package:brew_buds/data/dto/coffee_bean/coffee_bean_simple_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -24,6 +25,7 @@ abstract class BeansApi {
   Future<String> searchBeans({
     @Query('name') String? name,
     @Query('page') required int pageNo,
+    @Query('is_official') bool isOfficial = true,
   });
 
   @GET('/beans/{id}/')
@@ -35,6 +37,9 @@ abstract class BeansApi {
   Future<String> fetchTastedRecordsForCoffeeBean({
     @Path('id') required int id,
   });
+
+  @GET('beans/ranking/')
+  Future<List<CoffeeBeanSimpleDTO>> fetchCoffeeBeanRanking();
 
   factory BeansApi() => _BeansApi(DioClient.instance.dio);
 }

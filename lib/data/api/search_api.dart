@@ -36,6 +36,7 @@ abstract class SearchApi {
     @Query('min_star') double? minRating,
     @Query('max_star') double? maxRating,
     @Query('sort_by') String? sortBy,
+    @Query('is_official') bool isOfficial = true,
   });
 
   @GET('/search/buddy/')

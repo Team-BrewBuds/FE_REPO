@@ -1,92 +1,81 @@
+import 'dart:async';
+
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
-import 'package:brew_buds/model/common/default_page.dart';
-import 'package:brew_buds/model/notification/notification_model.dart';
+import 'package:brew_buds/domain/notification/notification_item_presenter.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 final class NotificationPresenter extends Presenter {
   final NotificationRepository _notificationRepository = NotificationRepository.instance;
-  DefaultPage<NotificationModel> _page = DefaultPage.initState();
+  final List<NotificationItemPresenter> _notificationList = List.empty(growable: true);
+  late final StreamSubscription _firebaseSub;
+  bool _hasNext = true;
   int _pageNo = 1;
   bool _isLoading = false;
 
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isLoading && _notificationList.isEmpty;
 
-  List<NotificationModel> get notificationList => _page.results;
+  bool get hasNext => _hasNext && _notificationList.isNotEmpty;
 
-  initState() {
-    fetchMoreData();
+  List<NotificationItemPresenter> get notificationList => List.unmodifiable(_notificationList);
+
+  bool get hasNotification => _notificationList.where((notification) => !notification.isRead).isNotEmpty;
+
+  NotificationPresenter() {
+    _firebaseSub = FirebaseMessaging.onMessage.listen((_) {
+      onRefresh();
+    });
   }
 
-  onRefresh() {
+  @override
+  dispose() {
+    _firebaseSub.cancel();
+    super.dispose();
+  }
+
+  Future<void> onRefresh() async {
+    _notificationList.clear();
+    _hasNext = true;
     _pageNo = 1;
-    fetchMoreData();
+    await fetchMoreData();
   }
 
-  fetchMoreData() async {
-    if (!_page.hasNext) return;
-
+  Future<void> fetchMoreData() async {
+    if (!_hasNext || _isLoading) return;
     _isLoading = true;
     notifyListeners();
 
     final newPage = await _notificationRepository.fetchNotificationPage(pageNo: _pageNo);
-    _page = newPage.copyWith(results: _page.results + newPage.results);
+    _notificationList.addAll(newPage.results.map((model) => NotificationItemPresenter(notificationModel: model)));
+    _hasNext = newPage.hasNext;
     _pageNo++;
     _isLoading = false;
     notifyListeners();
   }
 
-  readAll() async {
-    _isLoading = true;
+  Future<void> deleteAll() async {
+    final previous = List<NotificationItemPresenter>.from(_notificationList);
+    _notificationList.clear();
     notifyListeners();
 
-    final result = await _notificationRepository.readAllNotification();
-    if (result) {
-      _page = _page.copyWith(results: notificationList.map((e) => e.copyWith(isRead: true)).toList());
+    try {
+      await _notificationRepository.deleteAllNotification();
+    } catch (e) {
+      _notificationList.addAll(previous);
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
-  readAt(int index) async {
-    _isLoading = true;
+  Future<void> deleteAt(int index) async {
+    final removedNotification = _notificationList.removeAt(index);
     notifyListeners();
 
-    final targetNotification = notificationList[index];
-    final previousList = List<NotificationModel>.from(notificationList);
-    final result = await _notificationRepository.readNotification(id: targetNotification.id);
-    if (result) {
-      previousList[index] = targetNotification.copyWith(isRead: true);
-      _page = _page.copyWith(results: previousList);
+    try {
+      await _notificationRepository.deleteNotification(id: removedNotification.id);
+    } catch (e) {
+      _notificationList.insert(index, removedNotification);
+      notifyListeners();
+      rethrow;
     }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  deleteAll() async {
-    _isLoading = true;
-    notifyListeners();
-
-    final result = await _notificationRepository.deleteAllNotification();
-    if (result) {
-      _page = _page.copyWith(results: List.empty(growable: true));
-    }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  deleteAt(int index) async {
-    _isLoading = true;
-    notifyListeners();
-
-    final result = await _notificationRepository.deleteNotification(id: notificationList[index].id);
-    if (result) {
-      _page = _page.copyWith(results: _page.results..removeAt(index));
-    }
-
-    _isLoading = false;
-    notifyListeners();
   }
 }

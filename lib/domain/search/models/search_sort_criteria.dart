@@ -1,5 +1,6 @@
 enum SearchSortCriteria {
   recordCount,
+  recordCountBuddy,
   avgStar,
   followerCnt,
   latest,
@@ -13,7 +14,7 @@ enum SearchSortCriteria {
 
   static List<SearchSortCriteria> buddy() => [
         SearchSortCriteria.followerCnt,
-        SearchSortCriteria.recordCount,
+        SearchSortCriteria.recordCountBuddy,
       ];
 
   static List<SearchSortCriteria> tastedRecord() => [
@@ -31,6 +32,7 @@ enum SearchSortCriteria {
   String toString() => switch (this) {
         SearchSortCriteria.avgStar => '별점 높은 순',
         SearchSortCriteria.recordCount => '시음기록 많은 순',
+        SearchSortCriteria.recordCountBuddy => '시음기록 많은 순',
         SearchSortCriteria.followerCnt => '팔로워 많은 순',
         SearchSortCriteria.latest => '최신순',
         SearchSortCriteria.likeRank => '좋아요 많은 순',
@@ -39,6 +41,7 @@ enum SearchSortCriteria {
 
   String toJson() => switch (this) {
         SearchSortCriteria.recordCount => 'record_count',
+        SearchSortCriteria.recordCountBuddy => 'record_cnt',
         SearchSortCriteria.avgStar => 'avg_star',
         SearchSortCriteria.followerCnt => 'follower_cnt',
         SearchSortCriteria.latest => 'latest',

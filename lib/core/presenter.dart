@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 abstract class Presenter extends ChangeNotifier {
+  final String presenterId = const Uuid().v4();
   bool _disposed = false;
 
   @override

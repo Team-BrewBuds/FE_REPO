@@ -187,8 +187,10 @@ class TastedRecordRepository {
     return _tastedRecordApi.createTastedRecord(data: data);
   }
 
-  Future<void> update({required int id, required TastedRecord tastedRecord}) => _tastedRecordApi.updateTastedRecord(
+  Future<TastedRecord> update({required int id, required Map<String, dynamic> data}) => _tastedRecordApi
+      .updateTastedRecord(
         id: id,
-        data: tastedRecord.toJson(),
-      );
+        data: data,
+      )
+      .then((dto) => dto.toDomain());
 }
