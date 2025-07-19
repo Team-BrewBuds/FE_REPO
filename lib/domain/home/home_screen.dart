@@ -134,6 +134,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
       body: Container(
         color: ColorStyles.gray20,
         child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           controller: _scrollController,
           slivers: [
             Builder(builder: (context) {

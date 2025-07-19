@@ -124,6 +124,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       return false;
                     },
                     child: CustomScrollView(
+                      physics: const BouncingScrollPhysics(),
                       slivers: [
                         MyRefreshControl(onRefresh: () => context.read<NotificationPresenter>().onRefresh()),
                         Selector<NotificationPresenter, List<NotificationItemPresenter>>(

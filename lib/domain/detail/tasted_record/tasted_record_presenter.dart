@@ -181,7 +181,14 @@ final class TastedRecordPresenter extends Presenter {
     notifyListeners();
   }
 
-  Future<void> onDelete() => _tastedRecordRepository.delete(id: id);
+  Future<void> onDelete() async {
+    try {
+      await _tastedRecordRepository.delete(id: id);
+      EventBus.instance.fire(TastedRecordDeleteEvent(senderId: presenterId, id: id));
+    } catch (_) {
+      rethrow;
+    }
+  }
 
   Future<void> onBlock() {
     final authorId = _tastedRecord?.author.id;
