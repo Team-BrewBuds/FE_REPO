@@ -92,7 +92,7 @@ android {
 
         def naverClientSecret = dotenv['NAVER_CLIENT_SECRET']
         if (kakaoKey == null) {
-            throw new GradleException("NAVER_CLIENT_SECRET not found in .env file")ㅈㅂ
+            throw new GradleException("NAVER_CLIENT_SECRET not found in .env file")
         }
         manifestPlaceholders += [NAVER_CLIENT_SECRET: naverClientSecret]
     }
