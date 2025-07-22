@@ -6,7 +6,9 @@ import 'package:brew_buds/data/mapper/coffee_bean/coffee_bean_type_mapper.dart';
 import 'package:brew_buds/data/repository/profile_repository.dart';
 import 'package:brew_buds/domain/filter/model/coffee_bean_filter.dart';
 import 'package:brew_buds/domain/profile/model/profile_sort_criteria.dart';
+import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/events/profile_update_event.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/profile/item_in_profile.dart';
 import 'package:brew_buds/model/profile/profile.dart';
 
@@ -22,6 +24,8 @@ typedef FilterBarState = ({
 class ProfilePresenter extends Presenter {
   final ProfileRepository repository = ProfileRepository.instance;
   late final StreamSubscription _profileUpdateSub;
+  late final StreamSubscription _postSub;
+  late final StreamSubscription _tastedRecordSub;
   final int _id;
   Profile? profile;
   final List<ItemInProfile> _profileItem = List.empty(growable: true);
@@ -36,6 +40,8 @@ class ProfilePresenter extends Presenter {
 
   ProfilePresenter({required int id}) : _id = id {
     _profileUpdateSub = EventBus.instance.on<ProfileUpdateEvent>().listen(onProfileUpdateEvent);
+    _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
+    _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onTastedRecordEvent);
   }
 
   int get currentSortCriteriaIndex => _currentSortCriteriaIndex;
@@ -104,6 +110,8 @@ class ProfilePresenter extends Presenter {
   @override
   dispose() {
     _profileUpdateSub.cancel();
+    _postSub.cancel();
+    _tastedRecordSub.cancel();
     super.dispose();
   }
 
@@ -118,6 +126,42 @@ class ProfilePresenter extends Presenter {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  _onPostEvent(PostEvent event) async {
+    final currentProfile = profile;
+    if (currentProfile != null) {
+      switch (event) {
+        case PostCreateEvent() || PostDeleteEvent():
+          if (_tabIndex == 1) {
+            await paginate(isPageChanged: true);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  _onTastedRecordEvent(TastedRecordEvent event) async {
+    final currentProfile = profile;
+    if (currentProfile != null) {
+      switch (event) {
+        case TastedRecordCreateEvent():
+          profile = currentProfile.copyWith(tastedRecordCnt: currentProfile.tastedRecordCnt + 1);
+          if (_tabIndex == 0) {
+            await paginate(isPageChanged: true);
+          }
+          break;
+        case TastedRecordDeleteEvent():
+          profile = currentProfile.copyWith(tastedRecordCnt: currentProfile.tastedRecordCnt - 1);
+          if (_tabIndex == 0) {
+            await paginate(isPageChanged: true);
+          }
+        default:
+          break;
+      }
+    }
   }
 
   onProfileUpdateEvent(ProfileUpdateEvent event) {

@@ -4,6 +4,8 @@ import 'package:brew_buds/data/repository/login_repository.dart';
 import 'package:brew_buds/domain/login/models/social_login.dart';
 import 'package:brew_buds/exception/login_exception.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:flutter_naver_login/interface/types/naver_login_result.dart';
+import 'package:flutter_naver_login/interface/types/naver_login_status.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
@@ -89,6 +91,7 @@ class LoginPresenter extends Presenter {
   }
 
   Future<String?> _loginWithKakao() async {
+    print(await KakaoSdk.origin);
     try {
       final String? token;
       if (await isKakaoTalkInstalled()) {
@@ -98,6 +101,7 @@ class LoginPresenter extends Presenter {
       }
       return token;
     } catch (e) {
+      print(e);
       return null;
     }
   }
@@ -106,12 +110,12 @@ class LoginPresenter extends Presenter {
     try {
       NaverLoginResult res = await FlutterNaverLogin.logIn();
       if (res.status == NaverLoginStatus.loggedIn) {
-        NaverAccessToken resAccess = await FlutterNaverLogin.currentAccessToken;
-        return resAccess.accessToken;
+        return res.accessToken?.accessToken ?? await FlutterNaverLogin.getCurrentAccessToken().then((token) => token.accessToken);
       } else {
         return null;
       }
     } catch (e) {
+      print('Error $e');
       return null;
     }
   }

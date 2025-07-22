@@ -81,6 +81,9 @@ final class HomePresenter extends Presenter {
         });
         notifyListeners();
         break;
+      case PostCreateEvent():
+        onRefresh();
+        break;
       default:
         break;
     }
@@ -97,6 +100,9 @@ final class HomePresenter extends Presenter {
           }
         });
         notifyListeners();
+        break;
+      case TastedRecordCreateEvent():
+        onRefresh();
         break;
       default:
         break;

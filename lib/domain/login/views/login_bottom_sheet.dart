@@ -9,12 +9,15 @@ import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/exception/login_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class LoginBottomSheet extends StatelessWidget {
+  bool get isiOS => foundation.defaultTargetPlatform == foundation.TargetPlatform.iOS;
+
   const LoginBottomSheet._();
 
   static Widget buildWithPresenter() => ChangeNotifierProvider(
@@ -155,55 +158,57 @@ class LoginBottomSheet extends StatelessWidget {
                     //     ),
                     //   ),
                     // ),
-                    const SizedBox(height: 7, width: double.infinity),
-                    FutureButton<LoginResult, LoginException>(
-                      onTap: () => context.read<LoginPresenter>().login(SocialLogin.apple),
-                      onComplete: (result) {
-                        context.pop(result);
-                      },
-                      onError: (exception) {
-                        EventBus.instance.fire(
-                          MessageEvent(
-                            message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                    if (isiOS) ...[
+                      const SizedBox(height: 7, width: double.infinity),
+                      FutureButton<LoginResult, LoginException>(
+                        onTap: () => context.read<LoginPresenter>().login(SocialLogin.apple),
+                        onComplete: (result) {
+                          context.pop(result);
+                        },
+                        onError: (exception) {
+                          EventBus.instance.fire(
+                            MessageEvent(
+                              message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15.5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF000000),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15.5),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF000000),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                SvgPicture.asset(
-                                  'assets/icons/apple_logo.svg',
-                                  width: 18,
-                                  height: 18,
-                                  colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Apple로 로그인',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15.sp,
-                                    height: 1.5,
-                                    color: ColorStyles.white,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset(
+                                    'assets/icons/apple_logo.svg',
+                                    width: 18,
+                                    height: 18,
+                                    colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Apple로 로그인',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15.sp,
+                                      height: 1.5,
+                                      color: ColorStyles.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                     SizedBox(height: 80.h, width: double.infinity),
                   ],
                 ),

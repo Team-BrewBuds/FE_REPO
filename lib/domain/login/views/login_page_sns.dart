@@ -11,12 +11,15 @@ import 'package:brew_buds/domain/login/widgets/terms_of_use_bottom_sheet.dart';
 import 'package:brew_buds/exception/login_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SNSLogin extends StatelessWidget {
+  bool get isiOS => foundation.defaultTargetPlatform == foundation.TargetPlatform.iOS;
+
   const SNSLogin({super.key});
 
   @override
@@ -98,68 +101,9 @@ class SNSLogin extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            // const SizedBox(height: 7),
-                            // FutureButton<LoginResult, LoginException>(
-                            //   onTap: () => context.read<LoginPresenter>().login(SocialLogin.naver),
-                            //   onComplete: (result) async {
-                            //     switch (result) {
-                            //       case LoginSuccess():
-                            //         context.go('/home');
-                            //         break;
-                            //       case NeedToSignUp():
-                            //         final checkResult = await _checkModal(context);
-                            //         if (checkResult != null && checkResult && context.mounted) {
-                            //           AccountRepository.instance.saveTokenAndIdInMemory(
-                            //             id: result.id,
-                            //             accessToken: result.accessToken,
-                            //             refreshToken: result.refreshToken,
-                            //           );
-                            //           context.push('/login/signup/1');
-                            //         }
-                            //         break;
-                            //     }
-                            //   },
-                            //   onError: (exception) {
-                            //     EventBus.instance.fire(
-                            //       MessageEvent(
-                            //         message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
-                            //       ),
-                            //     );
-                            //   },
-                            //   child: Container(
-                            //     height: height, // 버튼 높이 통일
-                            //     padding: const EdgeInsets.symmetric(horizontal: 14),
-                            //     decoration: BoxDecoration(
-                            //       color: const Color(0xFF03C75A),
-                            //       borderRadius: BorderRadius.circular(6),
-                            //     ),
-                            //     child: Center(
-                            //       child: Padding(
-                            //         padding: const EdgeInsets.symmetric(horizontal: 35),
-                            //         child: Row(
-                            //           mainAxisAlignment: MainAxisAlignment.center,
-                            //           crossAxisAlignment: CrossAxisAlignment.center,
-                            //           children: [
-                            //             SvgPicture.asset('assets/icons/naver.svg', width: 16, height: 16),
-                            //             const SizedBox(width: 15),
-                            //             Text(
-                            //               '네이버로 로그인',
-                            //               style: TextStyle(
-                            //                 fontWeight: FontWeight.w600,
-                            //                 fontSize: 15.sp,
-                            //                 height: 22.5 / 15,
-                            //                 color: ColorStyles.white,
-                            //               ),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
                             const SizedBox(height: 7),
                             FutureButton<LoginResult, LoginException>(
-                              onTap: () => context.read<LoginPresenter>().login(SocialLogin.apple),
+                              onTap: () => context.read<LoginPresenter>().login(SocialLogin.naver),
                               onComplete: (result) async {
                                 switch (result) {
                                   case LoginSuccess():
@@ -189,25 +133,20 @@ class SNSLogin extends StatelessWidget {
                                 height: height, // 버튼 높이 통일
                                 padding: const EdgeInsets.symmetric(horizontal: 14),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF000000),
+                                  color: const Color(0xFF03C75A),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Center(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                                    padding: const EdgeInsets.symmetric(horizontal: 35),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        SvgPicture.asset(
-                                          'assets/icons/apple_logo.svg',
-                                          width: 13,
-                                          height: 13,
-                                          colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
-                                        ),
-                                        const SizedBox(width: 5),
+                                        SvgPicture.asset('assets/icons/naver.svg', width: 16, height: 16),
+                                        const SizedBox(width: 15),
                                         Text(
-                                          'Apple로 로그인',
+                                          '네이버로 로그인',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 15.sp,
@@ -221,6 +160,72 @@ class SNSLogin extends StatelessWidget {
                                 ),
                               ),
                             ),
+                            if (isiOS) ...[
+                              const SizedBox(height: 7),
+                              FutureButton<LoginResult, LoginException>(
+                                onTap: () => context.read<LoginPresenter>().login(SocialLogin.apple),
+                                onComplete: (result) async {
+                                  switch (result) {
+                                    case LoginSuccess():
+                                      context.go('/home');
+                                      break;
+                                    case NeedToSignUp():
+                                      final checkResult = await _checkModal(context);
+                                      if (checkResult != null && checkResult && context.mounted) {
+                                        AccountRepository.instance.saveTokenAndIdInMemory(
+                                          id: result.id,
+                                          accessToken: result.accessToken,
+                                          refreshToken: result.refreshToken,
+                                        );
+                                        context.push('/login/signup/1');
+                                      }
+                                      break;
+                                  }
+                                },
+                                onError: (exception) {
+                                  EventBus.instance.fire(
+                                    MessageEvent(
+                                      message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  height: height, // 버튼 높이 통일
+                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF000000),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.asset(
+                                            'assets/icons/apple_logo.svg',
+                                            width: 13,
+                                            height: 13,
+                                            colorFilter: const ColorFilter.mode(ColorStyles.white, BlendMode.srcIn),
+                                          ),
+                                          const SizedBox(width: 5),
+                                          Text(
+                                            'Apple로 로그인',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 15.sp,
+                                              height: 22.5 / 15,
+                                              color: ColorStyles.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ],

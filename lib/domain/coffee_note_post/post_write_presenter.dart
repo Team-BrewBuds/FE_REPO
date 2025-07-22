@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/image_compress.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/api/photo_api.dart';
 import 'package:brew_buds/data/api/post_api.dart';
 import 'package:brew_buds/exception/post_exception.dart';
+import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/photo.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
@@ -171,6 +173,7 @@ final class PostWritePresenter extends Presenter {
 
     try {
       await postApi.createPost(data: data);
+      EventBus.instance.fire(PostCreateEvent(senderId: presenterId));
     } catch (e) {
       throw const PostWriteFailedException();
     } finally {

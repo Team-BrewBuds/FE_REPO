@@ -73,7 +73,7 @@ class _PopularPostsViewState extends State<PopularPostsView> {
       body: Container(
         color: ColorStyles.gray20,
         child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
+          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           controller: scrollController,
           slivers: [
             buildSubjectFilter(),

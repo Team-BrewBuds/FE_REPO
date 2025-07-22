@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/search_history_repository.dart';
 import 'package:brew_buds/data/repository/search_repository.dart';
@@ -8,6 +11,8 @@ import 'package:brew_buds/domain/search/models/search_subject.dart';
 import 'package:brew_buds/domain/search/widgets/search_result/search_result_presenter.dart';
 import 'package:brew_buds/model/coffee_bean/coffee_bean_simple.dart';
 import 'package:brew_buds/model/common/default_page.dart';
+import 'package:brew_buds/model/events/post_event.dart';
+import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
@@ -35,6 +40,8 @@ final class SearchPresenter extends Presenter {
   final SearchHistoryRepository _searchHistoryRepository = SearchHistoryRepository.instance;
   final SearchRepository _searchRepository = SearchRepository.instance;
   late final Debouncer _debouncer;
+  late final StreamSubscription _postSub;
+  late final StreamSubscription _tastedRecordSub;
 
   //Common State
   SearchState _viewState = SearchState.main;
@@ -141,7 +148,17 @@ final class SearchPresenter extends Presenter {
         _fetchSuggestWordList();
       },
     );
+    _postSub = EventBus.instance.on<PostEvent>().listen(_onPostEvent);
+    _tastedRecordSub = EventBus.instance.on<TastedRecordEvent>().listen(_onTastedRecordEvent);
     initState();
+  }
+
+  @override
+  dispose() {
+    _postSub.cancel();
+    _tastedRecordSub.cancel();
+    super.dispose();
+
   }
 
   initState() async {
@@ -150,6 +167,31 @@ final class SearchPresenter extends Presenter {
       fetchRecommendedBeanList(),
       // fetchCoffeeBeanRanking(),
     ]);
+  }
+
+
+  _onPostEvent(PostEvent event) {
+    if (viewState == SearchState.result && _tabIndex == 3) {
+      switch (event) {
+        case PostCreateEvent():
+          onRefreshResult();
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  _onTastedRecordEvent(TastedRecordEvent event) {
+    if (viewState == SearchState.result && _tabIndex == 2) {
+      switch (event) {
+        case TastedRecordCreateEvent():
+          onRefreshResult();
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   Future<void> onRefreshMain() async {

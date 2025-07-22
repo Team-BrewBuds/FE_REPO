@@ -7,6 +7,8 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def dotenv = new Properties()
+def envFile =  file("${rootProject.projectDir}/../.env")
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
@@ -40,6 +42,18 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0.0'
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+if (envFile.exists()) {
+    envFile.withInputStream { stream -> dotenv.load(stream) }
+} else {
+    throw new FileNotFoundException("Could not find .env file at: ${envFile.path}")
+}
+
 android {
     namespace "com.coffee.brew_buds"
     compileSdkVersion flutterCompileSdkVersion.toInteger()
@@ -64,11 +78,37 @@ android {
         targetSdkVersion flutterTargetSdkVersion.toInteger()
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        def kakaoKey = dotenv['KAKAO_NATIVE_APP_KEY']
+        if (kakaoKey == null) {
+            throw new GradleException("KAKAO_NATIVE_APP_KEY not found in .env file")
+        }
+        manifestPlaceholders += [KAKAO_NATIVE_APP_KEY: kakaoKey]
+
+        def naverClientId = dotenv['NAVER_CLIENT_ID']
+        if (kakaoKey == null) {
+            throw new GradleException("NAVER_CLIENT_ID not found in .env file")
+        }
+        manifestPlaceholders += [NAVER_CLIENT_ID: naverClientId]
+
+        def naverClientSecret = dotenv['NAVER_CLIENT_SECRET']
+        if (kakaoKey == null) {
+            throw new GradleException("NAVER_CLIENT_SECRET not found in .env file")ㅈㅂ
+        }
+        manifestPlaceholders += [NAVER_CLIENT_SECRET: naverClientSecret]
+    }
+
+    signingConfigs {
+        release {
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword = keystoreProperties['storePassword']
+        }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }

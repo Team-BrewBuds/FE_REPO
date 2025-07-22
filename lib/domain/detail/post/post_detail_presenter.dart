@@ -158,7 +158,14 @@ final class PostDetailPresenter extends Presenter {
     }
   }
 
-  Future<void> onDelete() => _postRepository.delete(id: id);
+  Future<void> onDelete() async {
+    try {
+      await _postRepository.delete(id: id);
+      EventBus.instance.fire(PostDeleteEvent(senderId: presenterId, id: id));
+    } catch (_) {
+      rethrow;
+    }
+  }
 
   Future<void> onBlock() {
     final authorId = _post?.author.id;

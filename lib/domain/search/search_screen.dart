@@ -262,7 +262,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
 
   Widget _buildMainView() {
     return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       slivers: [
         MyRefreshControl(
           onRefresh: () {
@@ -391,6 +391,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                   return false;
                 },
                 child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
                   slivers: [
                     MyRefreshControl(onRefresh: () => context.read<SearchPresenter>().onRefreshResult()),
                     if (isLoading && searchResultList.isEmpty)
