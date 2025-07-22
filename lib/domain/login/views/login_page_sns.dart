@@ -101,65 +101,65 @@ class SNSLogin extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            // const SizedBox(height: 7),
-                            // FutureButton<LoginResult, LoginException>(
-                            //   onTap: () => context.read<LoginPresenter>().login(SocialLogin.naver),
-                            //   onComplete: (result) async {
-                            //     switch (result) {
-                            //       case LoginSuccess():
-                            //         context.go('/home');
-                            //         break;
-                            //       case NeedToSignUp():
-                            //         final checkResult = await _checkModal(context);
-                            //         if (checkResult != null && checkResult && context.mounted) {
-                            //           AccountRepository.instance.saveTokenAndIdInMemory(
-                            //             id: result.id,
-                            //             accessToken: result.accessToken,
-                            //             refreshToken: result.refreshToken,
-                            //           );
-                            //           context.push('/login/signup/1');
-                            //         }
-                            //         break;
-                            //     }
-                            //   },
-                            //   onError: (exception) {
-                            //     EventBus.instance.fire(
-                            //       MessageEvent(
-                            //         message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
-                            //       ),
-                            //     );
-                            //   },
-                            //   child: Container(
-                            //     height: height, // 버튼 높이 통일
-                            //     padding: const EdgeInsets.symmetric(horizontal: 14),
-                            //     decoration: BoxDecoration(
-                            //       color: const Color(0xFF03C75A),
-                            //       borderRadius: BorderRadius.circular(6),
-                            //     ),
-                            //     child: Center(
-                            //       child: Padding(
-                            //         padding: const EdgeInsets.symmetric(horizontal: 35),
-                            //         child: Row(
-                            //           mainAxisAlignment: MainAxisAlignment.center,
-                            //           crossAxisAlignment: CrossAxisAlignment.center,
-                            //           children: [
-                            //             SvgPicture.asset('assets/icons/naver.svg', width: 16, height: 16),
-                            //             const SizedBox(width: 15),
-                            //             Text(
-                            //               '네이버로 로그인',
-                            //               style: TextStyle(
-                            //                 fontWeight: FontWeight.w600,
-                            //                 fontSize: 15.sp,
-                            //                 height: 22.5 / 15,
-                            //                 color: ColorStyles.white,
-                            //               ),
-                            //             ),
-                            //           ],
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
+                            const SizedBox(height: 7),
+                            FutureButton<LoginResult, LoginException>(
+                              onTap: () => context.read<LoginPresenter>().login(SocialLogin.naver),
+                              onComplete: (result) async {
+                                switch (result) {
+                                  case LoginSuccess():
+                                    context.go('/home');
+                                    break;
+                                  case NeedToSignUp():
+                                    final checkResult = await _checkModal(context);
+                                    if (checkResult != null && checkResult && context.mounted) {
+                                      AccountRepository.instance.saveTokenAndIdInMemory(
+                                        id: result.id,
+                                        accessToken: result.accessToken,
+                                        refreshToken: result.refreshToken,
+                                      );
+                                      context.push('/login/signup/1');
+                                    }
+                                    break;
+                                }
+                              },
+                              onError: (exception) {
+                                EventBus.instance.fire(
+                                  MessageEvent(
+                                    message: exception?.message ?? '알 수 없는 오류가 발생했어요.',
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: height, // 버튼 높이 통일
+                                padding: const EdgeInsets.symmetric(horizontal: 14),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF03C75A),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 35),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset('assets/icons/naver.svg', width: 16, height: 16),
+                                        const SizedBox(width: 15),
+                                        Text(
+                                          '네이버로 로그인',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 15.sp,
+                                            height: 22.5 / 15,
+                                            color: ColorStyles.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                             if (isiOS) ...[
                               const SizedBox(height: 7),
                               FutureButton<LoginResult, LoginException>(

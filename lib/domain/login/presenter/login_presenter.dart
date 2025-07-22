@@ -110,12 +110,12 @@ class LoginPresenter extends Presenter {
     try {
       NaverLoginResult res = await FlutterNaverLogin.logIn();
       if (res.status == NaverLoginStatus.loggedIn) {
-        final token = await FlutterNaverLogin.getCurrentAccessToken();
-        return token.accessToken;
+        return res.accessToken?.accessToken ?? await FlutterNaverLogin.getCurrentAccessToken().then((token) => token.accessToken);
       } else {
         return null;
       }
     } catch (e) {
+      print('Error $e');
       return null;
     }
   }
