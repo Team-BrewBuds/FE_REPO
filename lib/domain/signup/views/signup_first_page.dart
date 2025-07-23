@@ -334,6 +334,10 @@ class _SignUpFirstPageState extends State<SignUpFirstPage> {
 class NicknameFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.composing.isValid && !newValue.composing.isCollapsed) {
+      return newValue;
+    }
+
     String text = newValue.text;
     int cursorPosition = newValue.selection.baseOffset;
 

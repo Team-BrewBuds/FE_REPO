@@ -17,13 +17,11 @@ import 'package:brew_buds/model/recommended/recommended_page.dart';
 import 'package:flutter/foundation.dart';
 
 enum FeedType {
-  following,
   common,
   random;
 
   @override
   String toString() => switch (this) {
-        FeedType.following => 'following',
         FeedType.common => 'common',
         FeedType.random => 'refresh',
       };
@@ -44,9 +42,10 @@ final class HomeRepository {
 
   factory HomeRepository() => instance;
 
-  Future<DefaultPage<Feed>> fetchFeedPage({required FeedType feedType, required int pageNo}) async {
-    final jsonString =
-        await _feedApi.fetchFeedPage(feedType: feedType.toString(), pageNo: pageNo).onError((_, __) => '');
+  Future<DefaultPage<Feed>> fetchFeedPage({String? feedType, required int pageNo}) async {
+    final jsonString = await _feedApi
+        .fetchFeedPage(queries: feedType != null ? {'feed_type': feedType, 'page': pageNo} : {'page': pageNo})
+        .onError((_, __) => '');
 
     if (jsonString.isNotEmpty) {
       return await compute<String, DefaultPage<Feed>>(

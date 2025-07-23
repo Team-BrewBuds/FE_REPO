@@ -57,7 +57,7 @@ if (envFile.exists()) {
 android {
     namespace "com.coffee.brew_buds"
     compileSdkVersion flutterCompileSdkVersion.toInteger()
-    ndkVersion flutter.ndkVersion
+    ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

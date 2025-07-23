@@ -20,10 +20,15 @@ class AppRepository {
     final minVersionStr = remoteConfig.getString('min_required_version');
     final minVersion = Version.parse(minVersionStr);
 
+    print(minVersion.toString());
+
     final packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = Version.parse(packageInfo.version);
 
+    print(currentVersion.toString());
+
     if (currentVersion < minVersion) {
+      print("<");
       EventBus.instance.fire(NeedUpdateEvent(id: await fetchAppId()));
     }
   }

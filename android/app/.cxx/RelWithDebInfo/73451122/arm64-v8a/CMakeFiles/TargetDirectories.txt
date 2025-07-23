@@ -1,0 +1,2 @@
+/Users/ayaan/Desktop/brew_buds/android/app/.cxx/RelWithDebInfo/73451122/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/ayaan/Desktop/brew_buds/android/app/.cxx/RelWithDebInfo/73451122/arm64-v8a/CMakeFiles/rebuild_cache.dir

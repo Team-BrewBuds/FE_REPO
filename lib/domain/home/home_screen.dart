@@ -215,56 +215,54 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                     ),
                   );
                 } else {
-                  return Builder(builder: (context) {
-                    return SliverPadding(
-                      padding: const EdgeInsets.only(top: 12),
-                      sliver: SliverList.separated(
-                        itemCount: feedPresenters.length,
-                        itemBuilder: (context, index) {
-                          final feedPresenter = feedPresenters[index];
-                          if (feedPresenter is PostFeedPresenter) {
-                            return PostFeedWidget.buildWithPresenter(
-                              feedPresenter,
-                              isGuest: context.read<HomePresenter>().isGuest,
-                              onGuest: () => showLoginBottomSheet(),
-                              onTapComments: (isPost, id, author) => showCommentsBottomSheet(
-                                objectType: ObjectType.post,
-                                objectId: feedPresenter.feed.data.id,
-                                objectAuthor: feedPresenter.feed.data.author,
-                              ),
-                            );
-                          } else if (feedPresenter is TastedRecordFeedPresenter) {
-                            return TastedRecordFeedWidget.buildWithPresenter(
-                              feedPresenter,
-                              isGuest: context.read<HomePresenter>().isGuest,
-                              onGuest: () => showLoginBottomSheet(),
-                              onTapComments: (isPost, id, author) => showCommentsBottomSheet(
-                                objectType: ObjectType.tastingRecord,
-                                objectId: feedPresenter.feed.data.id,
-                                objectAuthor: feedPresenter.feed.data.author,
-                              ),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                        separatorBuilder: (context, index) {
-                          final isGuest = context.read<HomePresenter>().isGuest;
-                          if (!isGuest && (index % 12 == 11)) {
-                            final pageIndex = (index / 12).toInt();
-                            final presenter = context.read<HomePresenter>().getRecommendedBuddiesPresenter(pageIndex);
-                            if (presenter != null) {
-                              return RecommendedBuddiesWidget.buildWithPresenter(presenter);
-                            } else {
-                              return Container(height: 12, color: ColorStyles.gray20);
-                            }
+                  return SliverPadding(
+                    padding: const EdgeInsets.only(top: 12),
+                    sliver: SliverList.separated(
+                      itemCount: feedPresenters.length,
+                      itemBuilder: (context, index) {
+                        final feedPresenter = feedPresenters[index];
+                        if (feedPresenter is PostFeedPresenter) {
+                          return PostFeedWidget.buildWithPresenter(
+                            feedPresenter,
+                            isGuest: context.read<HomePresenter>().isGuest,
+                            onGuest: () => showLoginBottomSheet(),
+                            onTapComments: (isPost, id, author) => showCommentsBottomSheet(
+                              objectType: ObjectType.post,
+                              objectId: feedPresenter.feed.data.id,
+                              objectAuthor: feedPresenter.feed.data.author,
+                            ),
+                          );
+                        } else if (feedPresenter is TastedRecordFeedPresenter) {
+                          return TastedRecordFeedWidget.buildWithPresenter(
+                            feedPresenter,
+                            isGuest: context.read<HomePresenter>().isGuest,
+                            onGuest: () => showLoginBottomSheet(),
+                            onTapComments: (isPost, id, author) => showCommentsBottomSheet(
+                              objectType: ObjectType.tastingRecord,
+                              objectId: feedPresenter.feed.data.id,
+                              objectAuthor: feedPresenter.feed.data.author,
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                      separatorBuilder: (context, index) {
+                        final isGuest = context.read<HomePresenter>().isGuest;
+                        if (!isGuest && (index % 12 == 11)) {
+                          final pageIndex = (index / 12).toInt();
+                          final presenter = context.read<HomePresenter>().getRecommendedBuddiesPresenter(pageIndex);
+                          if (presenter != null) {
+                            return RecommendedBuddiesWidget.buildWithPresenter(presenter);
                           } else {
                             return Container(height: 12, color: ColorStyles.gray20);
                           }
-                        },
-                      ),
-                    );
-                  });
+                        } else {
+                          return Container(height: 12, color: ColorStyles.gray20);
+                        }
+                      },
+                    ),
+                  );
                 }
               },
             ),

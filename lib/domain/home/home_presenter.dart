@@ -8,9 +8,9 @@ import 'package:brew_buds/data/repository/home_repository.dart';
 import 'package:brew_buds/data/repository/post_repository.dart';
 import 'package:brew_buds/data/repository/tasted_record_repository.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
-import 'package:brew_buds/domain/home/feed/presenter/post_feed_presenter.dart';
-import 'package:brew_buds/domain/home/feed/presenter/tasted_record_feed_presenter.dart';
+import 'package:brew_buds/domain/home/model/feed_page.dart';
 import 'package:brew_buds/domain/home/recommended_buddies/recommended_buddies_presenter.dart';
+import 'package:brew_buds/model/common/default_page.dart';
 import 'package:brew_buds/model/events/post_event.dart';
 import 'package:brew_buds/model/events/tasted_record_event.dart';
 import 'package:brew_buds/model/feed/feed.dart';
@@ -23,23 +23,19 @@ final class HomePresenter extends Presenter {
   final HomeRepository homeRepository = HomeRepository.instance;
   final PostRepository postRepository = PostRepository.instance;
   final TastedRecordRepository tastedRecordRepository = TastedRecordRepository.instance;
-  final List<FeedType> _feedTypeList = [FeedType.following, FeedType.common, FeedType.random];
   late final StreamSubscription _postSub;
   late final StreamSubscription _tastedRecordSub;
+  FeedPage _feedPage = FeedPage.total();
   bool _isLoading = false;
-  int _currentTypeIndex = 0;
   PostSubject _currentSubject = PostSubject.all;
   List<RecommendedBuddiesPresenter> _recommendedBuddiesPresenter = [];
   int _currentTab = 0;
-  int _pageNo = 1;
-  bool _hasNext = true;
-  List<FeedPresenter> _feedPresenters = [];
 
-  bool get hasNext => _hasNext && _feedPresenters.isNotEmpty;
+  bool get hasNext => _feedPage.hasNext && _feedPage.feeds.isNotEmpty;
 
   bool get isGuest => AccountRepository.instance.isGuest;
 
-  List<FeedPresenter> get feedPresenters => List.unmodifiable(_feedPresenters);
+  List<FeedPresenter> get feedPresenters => _feedPage.feeds;
 
   List<RecommendedBuddiesPresenter> get recommendedUserPage => List.unmodifiable(_recommendedBuddiesPresenter);
 
@@ -66,21 +62,12 @@ final class HomePresenter extends Presenter {
   }
 
   Future<void> onRefresh() async {
+    _feedPage.onRefresh();
     await fetchMoreData(isPageChanged: true, isRefresh: true);
   }
 
   _onPostEvent(PostEvent event) {
     switch (event) {
-      case PostDeleteEvent():
-        _feedPresenters.removeWhere((presenter) {
-          if (presenter is PostFeedPresenter) {
-            return presenter.feed.data.id == event.id;
-          } else {
-            return false;
-          }
-        });
-        notifyListeners();
-        break;
       case PostCreateEvent():
         onRefresh();
         break;
@@ -91,16 +78,6 @@ final class HomePresenter extends Presenter {
 
   _onTastedRecordEvent(TastedRecordEvent event) {
     switch (event) {
-      case TastedRecordDeleteEvent():
-        _feedPresenters.removeWhere((presenter) {
-          if (presenter is TastedRecordFeedPresenter) {
-            return presenter.feed.data.id == event.id;
-          } else {
-            return false;
-          }
-        });
-        notifyListeners();
-        break;
       case TastedRecordCreateEvent():
         onRefresh();
         break;
@@ -116,10 +93,6 @@ final class HomePresenter extends Presenter {
   Future<void> fetchMoreData({bool isPageChanged = false, bool isRefresh = false}) async {
     if (isPageChanged) {
       _recommendedBuddiesPresenter = List.empty(growable: true);
-      _feedPresenters = List.empty(growable: true);
-      _currentTypeIndex = 0;
-      _pageNo = 1;
-      _hasNext = true;
       _isLoading = false;
       if (!isRefresh) {
         notifyListeners();
@@ -128,9 +101,7 @@ final class HomePresenter extends Presenter {
 
     if (_isLoading) return;
 
-    if (!_hasNext) {
-      if (_currentTab != 0 || (_currentTab == 0 && _currentTypeIndex == 2)) return;
-    }
+    if (!_feedPage.hasNext) return;
 
     _isLoading = true;
     if (!isRefresh) {
@@ -147,49 +118,35 @@ final class HomePresenter extends Presenter {
   }
 
   Future<void> fetchFeeds() async {
-    if (_currentTab == 0) {
-      final nextPage = await homeRepository.fetchFeedPage(feedType: _feedTypeList[_currentTypeIndex], pageNo: _pageNo);
+    final currentPage = _feedPage;
+    final DefaultPage<Feed> nextPage;
+    switch (currentPage) {
+      case TotalFeedPage():
+        if (currentPage.hasNextCommonFeeds) {
+          nextPage = await homeRepository.fetchFeedPage(pageNo: _feedPage.currentPageNumber + 1);
 
-      _addAllFeeds(nextPage.results);
-      _hasNext = nextPage.hasNext;
-
-      if (!_hasNext && _currentTypeIndex < 2 && (feedPresenters.length / 12).toInt() < _pageNo) {
-        _currentTypeIndex++;
-        _pageNo = 1;
-        return await fetchFeeds();
-      } else {
-        _pageNo++;
-      }
-    } else if (_currentTab == 1) {
-      final nextPage = await tastedRecordRepository.fetchTastedRecordFeedPage(pageNo: _pageNo);
-      _addAllFeeds(nextPage.results);
-      _hasNext = nextPage.hasNext;
-      _pageNo++;
-    } else {
-      final nextPage = await postRepository.fetchPostPage(
-        subjectFilter: _currentSubject.toJsonValue(),
-        pageNo: _pageNo,
-      );
-
-      _addAllFeeds(nextPage.results);
-      _hasNext = nextPage.hasNext;
-      _pageNo++;
-    }
-  }
-
-  void _addAllFeeds(List<Feed> feeds) {
-    _feedPresenters.addAll(
-      feeds.map(
-        (e) {
-          switch (e) {
-            case PostFeed():
-              return PostFeedPresenter(feed: e);
-            case TastedRecordFeed():
-              return TastedRecordFeedPresenter(feed: e);
+          if (!nextPage.hasNext) {
+            _feedPage.addItems(newItems: nextPage.results, hasNext: nextPage.hasNext);
+            final nextRandomPage = await homeRepository.fetchFeedPage(feedType: 'refresh', pageNo: _feedPage.currentPageNumber + 1);
+            _feedPage.addItems(newItems: nextRandomPage.results, hasNext: nextRandomPage.hasNext);
+            return;
           }
-        },
-      ),
-    );
+         } else {
+          nextPage = await homeRepository.fetchFeedPage(feedType: 'refresh', pageNo: _feedPage.currentPageNumber + 1);
+         }
+        break;
+      case PostFeedPage():
+        nextPage = await postRepository.fetchPostPage(
+          subjectFilter: _currentSubject.toJsonValue(),
+          pageNo: _feedPage.currentPageNumber + 1,
+        );
+        break;
+      case TastedRecordFeedPage():
+        nextPage = await tastedRecordRepository.fetchTastedRecordFeedPage(pageNo: _feedPage.currentPageNumber + 1);
+        break;
+    }
+
+    _feedPage.addItems(newItems: nextPage.results, hasNext: nextPage.hasNext);
   }
 
   Future<void> fetchRecommendedUsers() async {
@@ -207,17 +164,19 @@ final class HomePresenter extends Presenter {
   onChangeTab(int index) {
     if (index == 0 && _currentTab != index) {
       AnalyticsManager.instance.logScreen(screenName: 'home_all');
-      _currentTypeIndex = 0;
       _currentTab = index;
+      _feedPage = FeedPage.total();
       fetchMoreData(isPageChanged: true);
     } else if (index == 2 && _currentTab != index) {
       AnalyticsManager.instance.logScreen(screenName: 'home_tasted_record');
       _currentSubject = PostSubject.all;
       _currentTab = index;
+      _feedPage = FeedPage.post();
       fetchMoreData(isPageChanged: true);
     } else if (index == 1 && _currentTab != index) {
       AnalyticsManager.instance.logScreen(screenName: 'home_post');
       _currentTab = index;
+      _feedPage = FeedPage.tastedRecord();
       fetchMoreData(isPageChanged: true);
     } else {
       onRefresh();
@@ -228,6 +187,7 @@ final class HomePresenter extends Presenter {
     _currentSubject = subject;
     notifyListeners();
 
+    _feedPage.onRefresh();
     fetchMoreData(isPageChanged: true);
   }
 

@@ -1,0 +1,2 @@
+/Users/ayaan/Desktop/brew_buds/android/app/.cxx/RelWithDebInfo/5e4i2120/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/ayaan/Desktop/brew_buds/android/app/.cxx/RelWithDebInfo/5e4i2120/armeabi-v7a/CMakeFiles/rebuild_cache.dir

@@ -21,6 +21,8 @@ final class ApiInterceptor extends Interceptor {
       options.headers['Authorization'] = 'Bearer $token';
     }
 
+    print(options.uri);
+
     return super.onRequest(options, handler);
   }
 
