@@ -76,7 +76,7 @@ android {
         applicationId "com.coffee.brew_buds"
         minSdkVersion flutterMinSdkVersion.toInteger()
         targetSdkVersion flutterTargetSdkVersion.toInteger()
-        versionCode flutterVersionCode.toInteger()
+        versionCode 2
         versionName flutterVersionName
         def kakaoKey = dotenv['KAKAO_NATIVE_APP_KEY']
         if (kakaoKey == null) {
