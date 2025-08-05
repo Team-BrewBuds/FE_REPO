@@ -9,7 +9,7 @@ class MyNetworkImage extends StatelessWidget {
   final BoxBorder? border;
   final bool showGradient;
 
-  const MyNetworkImage({
+  MyNetworkImage({
     super.key,
     required this.imageUrl,
     required this.height,
@@ -17,7 +17,9 @@ class MyNetworkImage extends StatelessWidget {
     this.shape,
     this.border,
     this.showGradient = false,
-  });
+  }) {
+    ExtendedNetworkImageProvider(imageUrl, cache: true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,9 @@ class MyNetworkImage extends StatelessWidget {
             border: border,
             fit: BoxFit.cover,
             printError: false,
+            cache: true,
+            cacheRawData: true,
+            clearMemoryCacheWhenDispose: false,
             loadStateChanged: (state) {
               switch (state.extendedImageLoadState) {
                 case LoadState.loading:

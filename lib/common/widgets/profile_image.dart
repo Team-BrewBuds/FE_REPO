@@ -26,6 +26,9 @@ class ProfileImage extends StatelessWidget {
             fit: BoxFit.cover,
             border: border,
             printError: false,
+            cache: true,
+            cacheRawData: true,
+            clearMemoryCacheWhenDispose: false,
             loadStateChanged: (state) {
               switch (state.extendedImageLoadState) {
                 case LoadState.loading:

@@ -69,7 +69,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
   }
 
   _scrollListener() {
-    if (_scrollController.position.pixels > _scrollController.position.maxScrollExtent * 0.7) {
+    if (_scrollController.position.extentAfter < 1500) {
       paginationThrottle.setValue(null);
     }
   }
@@ -136,6 +136,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           controller: _scrollController,
+          cacheExtent: 2000,
           slivers: [
             Builder(builder: (context) {
               final isPostFeed = context.select<HomePresenter, bool>((presenter) => presenter.isPostFeed);
