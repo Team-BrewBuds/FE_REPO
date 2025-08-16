@@ -98,6 +98,7 @@ class LoginPresenter extends Presenter {
         token = await UserApi.instance.loginWithKakaoTalk().then((value) => value.accessToken);
       } else {
         token = await UserApi.instance.loginWithKakaoAccount().then((value) => value.accessToken);
+        print(token);
       }
       return token;
     } catch (e) {
@@ -109,9 +110,13 @@ class LoginPresenter extends Presenter {
   Future<String?> _loginWithNaver() async {
     try {
       NaverLoginResult res = await FlutterNaverLogin.logIn();
+      print(res.accessToken);
+      print(await FlutterNaverLogin.getCurrentAccessToken().then((token) => token.accessToken));
+      print(res.errorMessage);
       if (res.status == NaverLoginStatus.loggedIn) {
         return res.accessToken?.accessToken ?? await FlutterNaverLogin.getCurrentAccessToken().then((token) => token.accessToken);
       } else {
+        print('here?');
         return null;
       }
     } catch (e) {
