@@ -35,7 +35,7 @@ final class NotificationRepository {
   }
 
   Future<void> registerToken() async {
-    if ((await PermissionRepository.instance.notification).isGranted) return;
+    if (!(await PermissionRepository.instance.notification).isGranted) return;
 
     try {
       await FirebaseMessaging.instance.getAPNSToken();
