@@ -33,6 +33,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../model/common/user.dart';
+
 enum TastedRecordDetailAction {
   update,
   delete,
@@ -239,11 +241,11 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                                         objectAuthorId: authorId,
                                         isMyObject: isMyObject,
                                         isMyComment: isMyComment,
-                                        onTapReply: () {
+                                        onTapReply: (User user, int id) {
                                           _focusNode.requestFocus();
                                           context.read<TastedRecordPresenter>().selectedReply(
-                                                presenter.author,
-                                                presenter.id,
+                                                user,
+                                                id,
                                               );
                                         },
                                       ),
@@ -479,7 +481,7 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       },
                     ),
                   ),
-                  suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.h), maxWidth: 63.w),
+                  suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.w), maxWidth: 63.w),
                   constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
                 ),
               ),
@@ -694,27 +696,28 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           const SizedBox(height: 12),
           Text(contents, style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black)),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: ColorStyles.gray10,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Row(
-              children: <Widget>[
-                SvgPicture.asset(
-                  'assets/icons/location.svg',
-                  height: 16,
-                  width: 16,
-                ),
-                const SizedBox(width: 4),
-                Text('장소', style: TextStyles.labelSmallSemiBold),
-                const SizedBox(width: 8),
-                Text(location, style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black)),
-                const Spacer(),
-              ],
-            ),
-          )
+          if (location.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: ColorStyles.gray10,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                children: <Widget>[
+                  SvgPicture.asset(
+                    'assets/icons/location.svg',
+                    height: 16,
+                    width: 16,
+                  ),
+                  const SizedBox(width: 4),
+                  Text('장소', style: TextStyles.labelSmallSemiBold),
+                  const SizedBox(width: 8),
+                  Text(location, style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black)),
+                  const Spacer(),
+                ],
+              ),
+            )
         ],
       ),
     );

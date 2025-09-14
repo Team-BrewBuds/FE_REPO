@@ -32,63 +32,68 @@ class _SignupFinishPageState extends State<SignupFinishPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: SizedBox(
-          height: double.infinity,
-          width: double.infinity,
-          child: Column(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    ExtendedImage.asset(
-                      'assets/images/sign_up.png',
-                      width: 260.w,
-                      height: 260.h,
-                      fit: BoxFit.cover,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '${widget.nickname} 님\n 환영합니다.',
-                      style: TextStyles.title04SemiBold,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '지금부터 커피 생활을 쉽게 공유하고\n버디님의 커피 취향을 빠르게 알아가세요.',
-                      style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 24, bottom: 46, left: 16, right: 16),
-                child: ThrottleButton(
-                  onTap: () {
-                    AnalyticsManager.instance.logButtonTap(buttonName: 'signup_complete_done');
-                    context.go('/home');
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-                    decoration: const BoxDecoration(
-                      color: ColorStyles.black,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8),
-                      ),
-                    ),
+        child: Column(
+          children: [
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  SliverFillRemaining(
+                    // hasScrollBody: 기본값(true) → 내용이 크면 스크롤, 작으면 남는 공간 채움
                     child: Center(
-                      child: Text(
-                        '홈으로 가기',
-                        style: TextStyles.bodyRegular.copyWith(color: ColorStyles.white),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,      // 내용물 크기만큼만
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ExtendedImage.asset(
+                            'assets/images/sign_up.png',
+                            width: 260.w,
+                            height: 260.w,
+                            fit: BoxFit.cover,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            '${widget.nickname} 님\n 환영합니다.',
+                            style: TextStyles.title04SemiBold,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '지금부터 커피 생활을 쉽게 공유하고\n버디님의 커피 취향을 빠르게 알아가세요.',
+                            style: TextStyles.bodyRegular.copyWith(color: ColorStyles.gray50),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 24, bottom: 24, left: 16, right: 16),
+              child: ThrottleButton(
+                onTap: () {
+                  AnalyticsManager.instance.logButtonTap(buttonName: 'signup_complete_done');
+                  context.go('/home');
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                  decoration: const BoxDecoration(
+                    color: ColorStyles.black,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(8),
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '홈으로 가기',
+                      style: TextStyles.bodyRegular.copyWith(color: ColorStyles.white),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

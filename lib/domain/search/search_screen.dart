@@ -25,6 +25,7 @@ import 'package:brew_buds/model/recommended/recommended_coffee_bean.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -134,7 +135,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
       leadingWidth: 0,
       titleSpacing: 0,
       centerTitle: false,
-      toolbarHeight: 72,
+      toolbarHeight: 72.w,
       title: Padding(
         padding: const EdgeInsets.only(top: 24, left: 16, right: 16),
         child: Row(
@@ -485,7 +486,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
         tabs: SearchSubject.values
             .map(
               (subject) => Tab(
-                height: 16.8,
+                height: 16.8.w,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     return SizedBox(

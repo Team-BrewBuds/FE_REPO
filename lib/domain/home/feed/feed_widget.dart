@@ -9,6 +9,7 @@ import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/domain/home/feed/presenter/feed_presenter.dart';
 import 'package:brew_buds/model/common/user.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidget {
@@ -81,7 +82,7 @@ abstract class FeedWidget<Presenter extends FeedPresenter> extends StatelessWidg
         }
       },
       child: Container(
-        height: 36,
+        height: 36.w,
         margin: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

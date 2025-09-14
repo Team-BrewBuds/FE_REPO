@@ -148,11 +148,11 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                                     objectAuthorId: authorId,
                                     isMyObject: isMyObject,
                                     isMyComment: isMyComment,
-                                    onTapReply: () {
+                                    onTapReply: (User user, int id) {
                                       _textEditingFocusNode.requestFocus();
                                       context.read<CommentsBottomSheetPresenter>().selectedReply(
-                                            presenter.author,
-                                            presenter.id,
+                                            user,
+                                            id,
                                           );
                                     },
                                   ),

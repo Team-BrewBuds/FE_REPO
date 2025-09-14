@@ -1,3 +1,4 @@
+import 'package:brew_buds/core/device_info.dart';
 import 'package:brew_buds/core/presenter.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
@@ -45,6 +46,8 @@ final class NotificationSettingPresenter extends Presenter {
   }
 
   requestPermission() async {
+    if (await isEmulator()) return;
+
     final previousStatus = await _permissionRepository.notification;
     final newState = await _permissionRepository.requestNotificationPermission();
 
@@ -54,7 +57,7 @@ final class NotificationSettingPresenter extends Presenter {
     }
 
     if (previousStatus != newState) {
-      if (newState.isGranted) {
+      if (newState.isGranted ) {
         await _notificationRepository.registerToken();
         await _fetchSettings();
       } else {

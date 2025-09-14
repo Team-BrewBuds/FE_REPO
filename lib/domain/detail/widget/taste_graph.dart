@@ -39,7 +39,7 @@ class TasteGraph extends StatelessWidget {
     final activeStyle = TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.red);
     final inactiveStyle = TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray60);
     return SizedBox(
-      height: 16,
+      height: 16.w,
       width: double.infinity,
       child: Row(
         children: [

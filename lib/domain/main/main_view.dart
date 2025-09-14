@@ -4,9 +4,11 @@ import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
 import 'package:brew_buds/core/analytics_manager.dart';
 import 'package:brew_buds/core/center_dialog_mixin.dart';
+import 'package:brew_buds/core/device_info.dart';
 import 'package:brew_buds/core/screen_navigator.dart';
 import 'package:brew_buds/core/show_bottom_sheet.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
+import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:brew_buds/data/repository/shared_preferences_repository.dart';
 import 'package:brew_buds/domain/login/presenter/login_presenter.dart';
 import 'package:brew_buds/domain/login/views/login_bottom_sheet.dart';
@@ -38,7 +40,7 @@ class MainView extends StatefulWidget {
   State<MainView> createState() => _MainViewState();
 }
 
-class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
+class _MainViewState extends State<MainView> with CenterDialogMixin<MainView>, WidgetsBindingObserver {
   final GlobalKey _one = GlobalKey();
   final GlobalKey _two = GlobalKey();
   final GlobalKey _three = GlobalKey();
@@ -48,14 +50,35 @@ class _MainViewState extends State<MainView> with CenterDialogMixin<MainView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (SharedPreferencesRepository.instance.isFirst) {
         ShowCaseWidget.of(context).startShowCase([_one, _two, _three]);
       }
-      if (!AccountRepository.instance.isGuest) {
+      if (!AccountRepository.instance.isGuest && !await isEmulator()) {
         context.read<NotificationPresenter>().onRefresh();
+        NotificationRepository.instance.registerToken();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (!AccountRepository.instance.isGuest && !await isEmulator()) {
+          NotificationRepository.instance.registerToken();
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   @override

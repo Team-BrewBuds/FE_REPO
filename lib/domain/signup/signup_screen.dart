@@ -9,6 +9,7 @@ import 'package:brew_buds/domain/signup/sign_up_presenter.dart';
 import 'package:brew_buds/exception/signup_exception.dart';
 import 'package:brew_buds/model/events/message_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -216,7 +217,6 @@ class _SignupScreenState extends State<SignupScreen> {
           }
         },
         child: Container(
-          height: 47,
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),

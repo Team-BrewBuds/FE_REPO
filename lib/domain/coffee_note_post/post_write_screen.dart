@@ -17,6 +17,7 @@ import 'package:brew_buds/model/tasted_record/tasted_record_in_profile.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -204,10 +205,10 @@ class _PostWriteScreenState extends State<PostWriteScreen> with CenterDialogMixi
       leading: const SizedBox.shrink(),
       leadingWidth: 0,
       titleSpacing: 0,
-      toolbarHeight: 50,
+      toolbarHeight: 50.w,
       backgroundColor: ColorStyles.white,
       title: Container(
-        height: 49,
+        height: 49.w,
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         decoration: const BoxDecoration(
           border: Border(bottom: BorderSide(color: ColorStyles.gray20, width: 1)),
@@ -652,7 +653,7 @@ class HashLimiterFormatter extends TextInputFormatter {
     }
 
     // 2️⃣ 특수문자 제한 (한글, 영문, 숫자, `#`, 띄어쓰기만 허용)
-    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}#\s]', unicode: true), '');
+    text = text.replaceAll(RegExp(r'[^a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ#\s]'), '');
 
     // 3️⃣ 공백(` `)을 `#`으로 변환
     text = text.replaceAll(' ', '#');

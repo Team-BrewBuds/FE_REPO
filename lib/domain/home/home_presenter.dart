@@ -23,6 +23,7 @@ final class HomePresenter extends Presenter {
   final HomeRepository homeRepository = HomeRepository.instance;
   final PostRepository postRepository = PostRepository.instance;
   final TastedRecordRepository tastedRecordRepository = TastedRecordRepository.instance;
+  final StreamController<int> _revisionController = StreamController.broadcast();
   late final StreamSubscription _postSub;
   late final StreamSubscription _tastedRecordSub;
   FeedPage _feedPage = FeedPage.total();
@@ -42,6 +43,8 @@ final class HomePresenter extends Presenter {
   PostSubject get currentSubject => _currentSubject;
 
   bool get isPostFeed => _currentTab == 2;
+
+  Stream<int> get revisionStream => _revisionController.stream;
 
   HomePresenter() {
     AnalyticsManager.instance.logScreen(screenName: 'home_all');
@@ -68,8 +71,11 @@ final class HomePresenter extends Presenter {
 
   _onPostEvent(PostEvent event) {
     switch (event) {
-      case PostCreateEvent():
-        onRefresh();
+      case PostCreateEvent() || PostDeleteEvent():
+        _revisionController.add(0);
+        _currentTab = 0;
+        _feedPage = FeedPage.total();
+        fetchMoreData(isPageChanged: true);
         break;
       default:
         break;
@@ -78,8 +84,11 @@ final class HomePresenter extends Presenter {
 
   _onTastedRecordEvent(TastedRecordEvent event) {
     switch (event) {
-      case TastedRecordCreateEvent():
-        onRefresh();
+      case TastedRecordCreateEvent() || TastedRecordDeleteEvent():
+        _revisionController.add(0);
+        _currentTab = 0;
+        _feedPage = FeedPage.total();
+        fetchMoreData(isPageChanged: true);
         break;
       default:
         break;
@@ -168,13 +177,13 @@ final class HomePresenter extends Presenter {
       _feedPage = FeedPage.total();
       fetchMoreData(isPageChanged: true);
     } else if (index == 2 && _currentTab != index) {
-      AnalyticsManager.instance.logScreen(screenName: 'home_tasted_record');
+      AnalyticsManager.instance.logScreen(screenName: 'home_post');
       _currentSubject = PostSubject.all;
       _currentTab = index;
       _feedPage = FeedPage.post();
       fetchMoreData(isPageChanged: true);
     } else if (index == 1 && _currentTab != index) {
-      AnalyticsManager.instance.logScreen(screenName: 'home_post');
+      AnalyticsManager.instance.logScreen(screenName: 'home_tasted_record');
       _currentTab = index;
       _feedPage = FeedPage.tastedRecord();
       fetchMoreData(isPageChanged: true);

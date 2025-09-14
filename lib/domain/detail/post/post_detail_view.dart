@@ -34,6 +34,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../model/common/user.dart';
+
 enum PostDetailAction {
   update,
   delete,
@@ -168,11 +170,11 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                                         objectAuthorId: authorId,
                                         isMyObject: isMyObject,
                                         isMyComment: isMyComment,
-                                        onTapReply: () {
+                                        onTapReply: (User user, int id) {
                                           _focusNode.requestFocus();
                                           context.read<PostDetailPresenter>().selectedReply(
-                                                presenter.author,
-                                                presenter.id,
+                                                user,
+                                                id,
                                               );
                                         },
                                       ),
@@ -328,7 +330,7 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           }
         },
         child: Container(
-          height: 36,
+          height: 36.w,
           margin: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -598,7 +600,7 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                     },
                   ),
                 ),
-                suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.h), maxWidth: 63.w),
+                suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.w), maxWidth: 63.w),
                 constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
               ),
             ),

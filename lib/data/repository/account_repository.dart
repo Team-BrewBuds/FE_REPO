@@ -1,10 +1,11 @@
+import 'package:brew_buds/core/device_info.dart';
 import 'package:brew_buds/data/repository/notification_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AccountRepository extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  bool _isGuest = false;
+  bool _isGuest = true;
   String _refreshToken = '';
   String _accessToken = '';
   int? _id;
@@ -78,7 +79,9 @@ class AccountRepository extends ChangeNotifier {
     ]);
 
     try {
-      await NotificationRepository.instance.registerToken();
+      if (!await isEmulator()) {
+        await NotificationRepository.instance.registerToken();
+      }
     } catch (e) {
       logout();
       rethrow;

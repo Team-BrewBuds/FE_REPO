@@ -169,7 +169,7 @@ class _AccountDetailViewState extends State<AccountDetailView> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     ExtendedImage.asset(CoffeeLife.values[index].imagePath,
-                        width: 90.w, height: 90.h, fit: BoxFit.cover),
+                        width: 90.w, height: 90.w, fit: BoxFit.cover),
                     const SizedBox(height: 4),
                     Text(
                       CoffeeLife.values[index].title,

@@ -54,7 +54,7 @@ class _SignUpSecondPageState extends State<SignUpSecondPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ExtendedImage.asset(coffeeLife.imagePath, width: 90.w, height: 90.h, fit: BoxFit.cover),
+                        ExtendedImage.asset(coffeeLife.imagePath, width: 90.w, height: 90.w, fit: BoxFit.cover),
                         const SizedBox(height: 4),
                         Text(
                           coffeeLife.title,

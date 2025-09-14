@@ -11,10 +11,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../../../model/common/user.dart';
+
 class ReCommentWidget extends StatefulWidget {
   final int objectAuthorId;
   final bool isMyComment;
   final bool isMyObject;
+  final void Function(User user, int id) onTapReply;
   final Future<void> Function() onDelete;
 
   const ReCommentWidget({
@@ -22,6 +25,7 @@ class ReCommentWidget extends StatefulWidget {
     required this.objectAuthorId,
     required this.isMyComment,
     required this.isMyObject,
+    required this.onTapReply,
     required this.onDelete,
   });
 
@@ -124,6 +128,7 @@ class _ReCommentWidgetState extends State<ReCommentWidget> with TickerProviderSt
       padding: const EdgeInsets.only(left: 60, top: 12, bottom: 12, right: 16),
       color: ColorStyles.gray10,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,6 +197,18 @@ class _ReCommentWidgetState extends State<ReCommentWidget> with TickerProviderSt
                         style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black),
                       );
                     }),
+                    const SizedBox(height: 6),
+                    ThrottleButton(
+                      onTap: () {
+                        final author = context.read<ReCommentPresenter>().author;
+                        final id = context.read<ReCommentPresenter>().id;
+                        widget.onTapReply.call(author, id);
+                      },
+                      child: Text(
+                        '답글 달기',
+                        style: TextStyles.captionSmallSemiBold.copyWith(color: ColorStyles.gray60),
+                      ),
+                    ),
                   ],
                 ),
               ),

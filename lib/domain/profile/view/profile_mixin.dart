@@ -87,38 +87,38 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
       initialIndex: 0,
       child: Stack(
         children: [
-          Scaffold(
-            appBar: buildTitle(),
-            body: NestedScrollView(
-              key: scrollKey,
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                Selector<Presenter, ProfileState>(
-                  selector: (context, presenter) => presenter.profileState,
-                  builder: (context, profileState, child) => _buildProfile(
-                    imageUrl: profileState.imageUrl,
-                    tastingRecordCount: profileState.tastingRecordCount,
-                    followerCount: profileState.followerCount,
-                    followingCount: profileState.followingCount,
+          SafeArea(
+            top: false,
+            child: Scaffold(
+              appBar: buildTitle(),
+              body: NestedScrollView(
+                key: scrollKey,
+                headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                  Selector<Presenter, ProfileState>(
+                    selector: (context, presenter) => presenter.profileState,
+                    builder: (context, profileState, child) => _buildProfile(
+                      imageUrl: profileState.imageUrl,
+                      tastingRecordCount: profileState.tastingRecordCount,
+                      followerCount: profileState.followerCount,
+                      followingCount: profileState.followingCount,
+                    ),
                   ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
-                Selector<Presenter, ProfileDetailState>(
-                  selector: (context, presenter) => presenter.profileDetailState,
-                  builder: (context, profileDetailState, child) => _buildDetail(
-                    coffeeLife: profileDetailState.coffeeLife,
-                    introduction: profileDetailState.introduction,
-                    profileLink: profileDetailState.profileLink,
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  Selector<Presenter, ProfileDetailState>(
+                    selector: (context, presenter) => presenter.profileDetailState,
+                    builder: (context, profileDetailState, child) => _buildDetail(
+                      coffeeLife: profileDetailState.coffeeLife,
+                      introduction: profileDetailState.introduction,
+                      profileLink: profileDetailState.profileLink,
+                    ),
                   ),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: buildProfileBottomButtons(),
-                ),
-              ],
-              body: SafeArea(
-                top: false,
-                child: NotificationListener<ScrollNotification>(
+                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: buildProfileBottomButtons(),
+                  ),
+                ],
+                body: NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scroll) {
                     if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent * 0.7) {
                       paginationThrottle.setValue(null);
@@ -170,7 +170,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                                       ),
                                     ),
                                   )
-                                : const SizedBox.shrink(),
+                                : const SizedBox(height: 8),
                           );
                         },
                       ),
@@ -382,11 +382,11 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
         dividerHeight: 1,
         dividerColor: ColorStyles.gray20,
         overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-        tabs: const [
-          Tab(text: '시음기록', height: 31),
-          Tab(text: '게시글', height: 31),
-          Tab(text: '찜한 원두', height: 31),
-          Tab(text: '저장한 노트', height: 31),
+        tabs: [
+          Tab(text: '시음기록', height: 31.w),
+          Tab(text: '게시글', height: 31.w),
+          Tab(text: '찜한 원두', height: 31.w),
+          Tab(text: '저장한 노트', height: 31.w),
         ],
         onTap: (index) {
           context.read<Presenter>().onChangeTabIndex(index);
@@ -542,7 +542,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       ExtendedImage.asset(
                         'assets/images/profile/empty_coffee_note.png',
                         width: 140.w,
-                        height: 140.h,
+                        height: 140.w,
                         fit: BoxFit.cover,
                       ),
                       Text(tastingRecordsEmptyText, style: emptyTextStyle),
@@ -592,7 +592,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       ExtendedImage.asset(
                         'assets/images/profile/empty_coffee_note.png',
                         width: 140.w,
-                        height: 140.h,
+                        height: 140.w,
                         fit: BoxFit.cover,
                       ),
                       Text(postsEmptyText, style: emptyTextStyle),
@@ -639,7 +639,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       ExtendedImage.asset(
                         'assets/images/profile/empty_default.png',
                         width: 140.w,
-                        height: 140.h,
+                        height: 140.w,
                         fit: BoxFit.cover,
                       ),
                       Text(beansEmptyText, style: emptyTextStyle),
@@ -686,7 +686,7 @@ mixin ProfileMixin<T extends StatefulWidget, Presenter extends ProfilePresenter>
                       ExtendedImage.asset(
                         'assets/images/profile/empty_default.png',
                         width: 140.w,
-                        height: 140.h,
+                        height: 140.w,
                         fit: BoxFit.cover,
                       ),
                       Text(savedNotesEmptyText, style: emptyTextStyle),

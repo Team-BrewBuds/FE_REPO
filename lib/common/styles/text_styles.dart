@@ -51,7 +51,7 @@ final class TextStyles {
   static TextStyle labelMediumMedium = TextStyle(
     fontWeight: FontWeight.w500,
     fontSize: 14.sp,
-    height: 1.2,
+    height: 1.2.h,
     letterSpacing: -0.01,
   );
   static TextStyle labelSmallSemiBold = TextStyle(

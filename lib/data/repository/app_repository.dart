@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/model/events/need_update_event.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -17,7 +19,9 @@ class AppRepository {
     final remoteConfig = FirebaseRemoteConfig.instance;
     await remoteConfig.fetchAndActivate();
 
-    final minVersionStr = remoteConfig.getString('min_required_version');
+    final minVersionStr = Platform.isIOS
+        ? remoteConfig.getString('min_required_version')
+        : remoteConfig.getString('min_required_version_aos');
     final minVersion = Version.parse(minVersionStr);
 
     print(minVersion.toString());
@@ -38,5 +42,14 @@ class AppRepository {
     await remoteConfig.fetchAndActivate();
 
     return remoteConfig.getString('ios_app_id');
+  }
+
+  Future<String> fetchStoreURL() async {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.fetchAndActivate();
+
+    return Platform.isIOS
+        ? remoteConfig.getString('app_store_url')
+        : remoteConfig.getString('play_store_url');
   }
 }

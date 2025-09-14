@@ -25,6 +25,7 @@ import 'package:brew_buds/model/post/post_subject.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -56,6 +57,13 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
     );
     _tabController = TabController(length: 3, vsync: this);
     _scrollController.addListener(_scrollListener);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final presenter = context.read<HomePresenter>();
+      presenter.revisionStream.listen((_) {
+        _tabController.animateTo(0, duration: const Duration(milliseconds: 300));
+        _scrollToTop();
+      });
+    });
     super.initState();
   }
 
@@ -76,6 +84,14 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
 
   _fetchMoreData() {
     context.read<HomePresenter>().fetchMoreData();
+  }
+
+  _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
   }
 
   @override
@@ -143,7 +159,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
               return SliverAppBar(
                 floating: true,
                 titleSpacing: 0,
-                toolbarHeight: isPostFeed ? 116 : kToolbarHeight,
+                toolbarHeight: isPostFeed ? 116.w : kToolbarHeight.w,
                 title: Column(
                   children: [
                     TabBar(
@@ -162,10 +178,10 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                       unselectedLabelColor: ColorStyles.gray50,
                       dividerColor: Colors.white,
                       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                      tabs: const [
-                        Tab(text: '전체', height: 31),
-                        Tab(text: '시음기록', height: 31),
-                        Tab(text: '게시글', height: 31),
+                      tabs: [
+                        Tab(text: '전체', height: 31.w),
+                        Tab(text: '시음기록', height: 31.w),
+                        Tab(text: '게시글', height: 31.w),
                       ],
                       onTap: (index) {
                         if (index == 0) {
@@ -177,11 +193,7 @@ class _HomeViewState extends State<HomeView> with SingleTickerProviderStateMixin
                         }
 
                         if (_tabController.index == _tabController.previousIndex) {
-                          _scrollController.animateTo(
-                            0,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.ease,
-                          );
+                          _scrollToTop();
                         } else {
                           _scrollController.jumpTo(0);
                           context.read<HomePresenter>().onChangeTab(index);

@@ -342,7 +342,7 @@ class NicknameFormatter extends TextInputFormatter {
     int cursorPosition = newValue.selection.baseOffset;
 
     // 한글(완성형), 영문, 숫자만 허용
-    text = text.replaceAll(RegExp(r'[^\u3131-\u314E\u314F-\u3163가-힣a-zA-Z0-9]'), '');
+    text = text.replaceAll(RegExp(r'[^\u3131-\u314E\u314F-\u3163a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ]'), '');
 
     // 커서 위치 보정
     int diff = text.length - newValue.text.length;

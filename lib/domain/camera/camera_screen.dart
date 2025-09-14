@@ -301,76 +301,84 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget _buildPreviewView({required Uint8List data}) {
     return Column(
       children: [
+        // 상단 툴바
+        Container(
+          color: Colors.black,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          child: SafeArea(
+            bottom: false,
+            child: Row(
+              children: [
+                ThrottleButton(
+                  onTap: () {
+                    if (widget.isTastedRecordFlow) {
+                      AnalyticsManager.instance
+                          .logButtonTap(buttonName: 'tasted_record_camera_close');
+                    }
+                    context.pop();
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/x.svg',
+                    height: 24,
+                    width: 24,
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                ),
+                const Spacer(),
+                ThrottleButton(
+                  onTap: () async {
+                    final origin = originData;
+                    if (origin != null) {
+                      final editedData = await Navigator.of(context).push<Uint8List>(
+                        MaterialPageRoute(
+                          builder: (context) => PhotoEditScreen(
+                            shape: widget._previewShape,
+                            imageData: data,
+                            originData: origin,
+                          ),
+                        ),
+                      );
+                      if (editedData != null) {
+                        imageData.value = editedData;
+                      }
+                    }
+                  },
+                  child: SvgPicture.asset(
+                    'assets/icons/edit.svg',
+                    height: 28,
+                    width: 28,
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        // 미리보기 영역
         Expanded(
           child: Container(
             color: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            child: Center(
-              child: Row(
+            alignment: Alignment.center,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: widget._previewShape == BoxShape.rectangle
+                  ? ExtendedImage.memory(data, fit: BoxFit.cover)
+                  : Stack(
                 children: [
-                  ThrottleButton(
-                    onTap: () {
-                      if (widget.isTastedRecordFlow) {
-                        AnalyticsManager.instance.logButtonTap(buttonName: 'tasted_record_camera_close');
-                      }
-                      context.pop();
-                    },
-                    child: SvgPicture.asset(
-                      'assets/icons/x.svg',
-                      height: 24,
-                      width: 24,
-                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                    ),
-                  ),
-                  const Spacer(),
-                  ThrottleButton(
-                    onTap: () async {
-                      final origin = originData;
-                      if (origin != null) {
-                        final editedData = await Navigator.of(context).push<Uint8List>(
-                          MaterialPageRoute(
-                            builder: (context) => PhotoEditScreen(
-                              shape: widget._previewShape,
-                              imageData: data,
-                              originData: origin,
-                            ),
-                          ),
-                        );
-
-                        if (editedData != null) {
-                          imageData.value = editedData;
-                        }
-                      }
-                    },
-                    child: Center(
-                      child: SvgPicture.asset(
-                        'assets/icons/edit.svg',
-                        height: 28,
-                        width: 28,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                    ),
-                  ),
+                  Positioned.fill(
+                      child: ExtendedImage.memory(data, fit: BoxFit.cover)),
+                  Positioned.fill(child: CustomPaint(painter: CircleCropOverlayPainter())),
                 ],
               ),
             ),
           ),
         ),
-        AspectRatio(
-          aspectRatio: 1,
-          child: widget._previewShape == BoxShape.rectangle
-              ? ExtendedImage.memory(data, fit: BoxFit.cover)
-              : Stack(
-                  children: [
-                    Positioned.fill(child: ExtendedImage.memory(data, fit: BoxFit.cover)),
-                    Positioned.fill(child: CustomPaint(painter: CircleCropOverlayPainter())),
-                  ],
-                ),
-        ),
-        Expanded(child: Container(color: Colors.black)),
+
+        // 하단 버튼
         Container(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24),
-          height: 145,
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 24, top: 12),
+          color: Colors.black,
           child: Row(
             children: [
               Expanded(

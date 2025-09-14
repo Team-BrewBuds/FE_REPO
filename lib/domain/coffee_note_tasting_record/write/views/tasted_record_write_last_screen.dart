@@ -474,7 +474,7 @@ class HashLimiterFormatter extends TextInputFormatter {
     }
 
     // 2️⃣ 특수문자 제한 (한글, 영문, 숫자, `#`, 띄어쓰기만 허용)
-    text = text.replaceAll(RegExp(r'[^\p{L}\p{N}#\s]', unicode: true), '');
+    text = text.replaceAll(RegExp(r'[^a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ#\s]', unicode: true), '');
 
     // 3️⃣ 공백(` `)을 `#`으로 변환
     text = text.replaceAll(' ', '#');

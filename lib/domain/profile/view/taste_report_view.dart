@@ -108,8 +108,8 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                   automaticallyImplyLeading: false,
                   pinned: true,
                   backgroundColor: ColorStyles.white,
-                  expandedHeight: 140.h + 64 + 45 + 120,
-                  toolbarHeight: 64,
+                  expandedHeight: 140.w + 64.w + 45 + 120.w,
+                  toolbarHeight: 64.w,
                   titleSpacing: 0,
                   leadingWidth: 0,
                   title: Padding(
@@ -167,7 +167,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
                               ExtendedImage.asset(
                                 pathPath,
                                 width: 200.w,
-                                height: 140.h,
+                                height: 140.w,
                                 fit: BoxFit.contain,
                               ),
                               Expanded(
@@ -282,6 +282,7 @@ class _TasteReportViewState extends State<TasteReportView> with SingleTickerProv
     }
 
     return Container(
+      height: 120.w,
       color: Colors.white,
       child: Column(
         children: [

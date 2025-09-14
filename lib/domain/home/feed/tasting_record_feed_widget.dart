@@ -1,3 +1,4 @@
+import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
 import 'package:brew_buds/common/widgets/my_network_image.dart';
 import 'package:brew_buds/common/widgets/throttle_button.dart';
@@ -66,6 +67,21 @@ class TastedRecordFeedWidget extends FeedWidget<TastedRecordFeedPresenter> {
                 style: TextStyles.bodyRegular,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              ThrottleButton(
+                onTap: () {
+                  if (isGuest) {
+                    onGuest.call();
+                  } else {
+                    final id = context.read<TastedRecordFeedPresenter>().feed.data.id;
+                    ScreenNavigator.showTastedRecordDetail(context: context, id: id);
+                  }
+                },
+                child: Text(
+                  '더보기',
+                  style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.gray50),
+                ),
               ),
             ],
           ),

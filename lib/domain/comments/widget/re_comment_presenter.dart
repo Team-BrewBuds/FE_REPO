@@ -7,10 +7,14 @@ import 'package:brew_buds/data/repository/comments_repository.dart';
 import 'package:brew_buds/model/comments.dart';
 import 'package:brew_buds/model/events/comment_event.dart';
 
+import '../../../model/common/user.dart';
+
 final class ReCommentPresenter extends Presenter {
   final CommentsRepository _commentsRepository = CommentsRepository.instance;
   late final StreamSubscription _eventSub;
   Comment _comment;
+
+  User get author => _comment.author;
 
   int get id => _comment.id;
 

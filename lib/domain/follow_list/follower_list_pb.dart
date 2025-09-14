@@ -6,6 +6,7 @@ import 'package:brew_buds/domain/follow_list/follow_user_widget.dart';
 import 'package:brew_buds/domain/follow_list/follower_list_pb_presenter.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -146,9 +147,9 @@ class _FollowerListPBState extends State<FollowerListPB> {
       dividerHeight: 1,
       dividerColor: ColorStyles.gray20,
       overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-      tabs: const [
-        Tab(text: '팔로워', height: 31),
-        Tab(text: '팔로잉', height: 31),
+      tabs: [
+        Tab(text: '팔로워', height: 31.w),
+        Tab(text: '팔로잉', height: 31.w),
       ],
       onTap: (index) {
         context.read<FollowerListPBPresenter>().onChangeTab(index);

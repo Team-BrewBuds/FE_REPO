@@ -14,11 +14,13 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
+import '../../../model/common/user.dart';
+
 class CommentWidget extends StatefulWidget {
   final int objectAuthorId;
   final bool isMyComment;
   final bool isMyObject;
-  final void Function() onTapReply;
+  final void Function(User user, int id) onTapReply;
 
   const CommentWidget({
     super.key,
@@ -69,6 +71,9 @@ class _CommentWidgetState extends State<CommentWidget> with TickerProviderStateM
                         objectAuthorId: widget.objectAuthorId,
                         isMyComment: presenter.authorId == AccountRepository.instance.id,
                         isMyObject: widget.isMyObject,
+                        onTapReply: (User user, int id) {
+                          widget.onTapReply.call(user, id);
+                        },
                         onDelete: () => context.read<CommentPresenter>().onTapDeleteReCommentAt(index),
                       ),
                     );
@@ -264,7 +269,9 @@ class _CommentWidgetState extends State<CommentWidget> with TickerProviderStateM
                     const SizedBox(height: 6),
                     ThrottleButton(
                       onTap: () {
-                        widget.onTapReply.call();
+                        final author = context.read<CommentPresenter>().author;
+                        final id = context.read<CommentPresenter>().id;
+                        widget.onTapReply.call(author, id);
                       },
                       child: Text(
                         '답글 달기',

@@ -135,7 +135,7 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
       titleSpacing: 0,
       centerTitle: false,
       backgroundColor: ColorStyles.black,
-      toolbarHeight: 52,
+      toolbarHeight: 52.w,
       title: Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 12, left: 16, right: 16),
         child: Row(
@@ -320,7 +320,7 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
                             automaticallyImplyLeading: false,
                             backgroundColor: ColorStyles.black,
                             titleSpacing: 0,
-                            toolbarHeight: 40.h,
+                            toolbarHeight: 40.w,
                             title: _buildAlbumTitle(
                               context: context,
                               albumTitle: (currentAlbum?.assetPathEntity.isAll ?? true)
@@ -334,7 +334,7 @@ class _TastedRecordImageViewState extends State<TastedRecordImageView> with Tick
                               automaticallyImplyLeading: false,
                               backgroundColor: ColorStyles.black,
                               titleSpacing: 0,
-                              toolbarHeight: 67.h,
+                              toolbarHeight: 67.w,
                               title: buildManagementButton(context: context),
                             ),
                             const SliverToBoxAdapter(child: SizedBox(height: 1)),

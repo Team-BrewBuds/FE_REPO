@@ -12,6 +12,7 @@ import 'package:brew_buds/domain/notification/notification_tap_action.dart';
 import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -231,7 +232,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       leading: const SizedBox.shrink(),
       titleSpacing: 0,
       centerTitle: false,
-      toolbarHeight: 65,
+      toolbarHeight: 65.w,
       title: Container(
         padding: const EdgeInsets.only(left: 16, right: 16, top: 28, bottom: 12),
         decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray20))),

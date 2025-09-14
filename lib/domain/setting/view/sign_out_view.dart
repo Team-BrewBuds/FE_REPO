@@ -95,37 +95,64 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('브루버즈와 함께하며\n내 커피 취향을 찾으셨나요?', style: TextStyles.title05Bold),
-          const SizedBox(height: 16),
-          Text('아직 버디님의 커피 취향을 못 찾았다면\n브루버즈와 다시 함께해봐요!', style: TextStyles.title01SemiBold),
-          const SizedBox(height: 64),
-          Text('버디님 탈퇴하기 전 아래 내용을 확인해 주세요.', style: TextStyles.bodyNarrowRegular),
-          const SizedBox(height: 12),
-          Text(
-            '버디님의 모든 활동 정보는 다른 회원이 식별할 수 없도록 바로 삭제되며, 삭제된 데이터는 복구할 수 없어요. (닉네임, 프로필 사진, 작성한 커피 노트, 찜한 원두, 저장한 커피 노트, 취향 리포트, 팔로워, 팔로잉, 댓글, 좋아요 내역 등 ',
-            style: TextStyles.bodyNarrowRegular,
-          ),
-          const SizedBox(height: 12),
-          RichText(
-            text: TextSpan(
-              style: TextStyles.bodyNarrowRegular,
-              children: _getSpans('탈퇴 후 30일 동안 브루버즈에 다시 가입할 수 없어요.', '30일', TextStyles.title01SemiBold),
-            ),
-          ),
+          // 스크롤 되는 본문
           Expanded(
-            child: Row(
-              children: [
-                const Spacer(),
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: ExtendedImage.asset(
-                    'assets/images/sign_out.png',
-                    fit: BoxFit.fill,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    '브루버즈와 함께하며\n내 커피 취향을 찾으셨나요?',
+                    style: TextStyles.title05Bold,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Text(
+                    '아직 버디님의 커피 취향을 못 찾았다면\n브루버즈와 다시 함께해봐요!',
+                    style: TextStyles.title01SemiBold,
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 64),
+                  Text(
+                    '버디님 탈퇴하기 전 아래 내용을 확인해 주세요.',
+                    style: TextStyles.bodyNarrowRegular,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    '버디님의 모든 활동 정보는 다른 회원이 식별할 수 없도록 바로 삭제되며, '
+                    '삭제된 데이터는 복구할 수 없어요. (닉네임, 프로필 사진, 작성한 커피 노트, 찜한 원두, '
+                    '저장한 커피 노트, 취향 리포트, 팔로워, 팔로잉, 댓글, 좋아요 내역 등)',
+                    style: TextStyles.bodyNarrowRegular,
+                  ),
+                  const SizedBox(height: 12),
+                  RichText(
+                    text: TextSpan(
+                      style: TextStyles.bodyNarrowRegular,
+                      children: _getSpans(
+                        '탈퇴 후 30일 동안 브루버즈에 다시 가입할 수 없어요.',
+                        '30일',
+                        TextStyles.title01SemiBold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // ⬇️ SingleChildScrollView 안에서는 Expanded 금지 -> Align로 대체
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: ExtendedImage.asset(
+                        'assets/images/sign_out.png',
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
+
+          // 동의 체크
           Row(
             children: [
               ThrottleButton(
@@ -143,36 +170,51 @@ class _SignOutViewState extends State<SignOutView> with CenterDialogMixin<SignOu
                     : Container(
                         width: 18,
                         height: 18,
-                        decoration:
-                            BoxDecoration(shape: BoxShape.circle, border: Border.all(color: ColorStyles.gray50)),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: ColorStyles.gray50),
+                        ),
                       ),
               ),
               const SizedBox(width: 8),
-              Text('안내 사항을 확인하였으며, 이에 동의합니다.', style: TextStyles.labelMediumMedium),
+              Expanded(
+                child: Text(
+                  '안내 사항을 확인하였으며, 이에 동의합니다.',
+                  style: TextStyles.labelMediumMedium,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 32),
+
+          // 다음 버튼 (동의 전엔 비활성)
           ThrottleButton(
-            onTap: () {
-              setState(() {
-                _index = 1;
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-              decoration: BoxDecoration(
-                color: _isAgreeSignOut ? ColorStyles.black : ColorStyles.gray20,
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-              ),
-              child: Text(
-                '다음',
-                style: TextStyles.labelMediumMedium.copyWith(
-                  color: _isAgreeSignOut ? ColorStyles.white : ColorStyles.gray40,
+            onTap: _isAgreeSignOut
+                ? () {
+                    setState(() {
+                      _index = 1;
+                    });
+                  }
+                : () {}, // 비활성 처리
+            child: Opacity(
+              opacity: _isAgreeSignOut ? 1 : 0.6,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: _isAgreeSignOut ? ColorStyles.black : ColorStyles.gray20,
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
                 ),
-                textAlign: TextAlign.center,
+                alignment: Alignment.center,
+                child: Text(
+                  '다음',
+                  style: TextStyles.labelMediumMedium.copyWith(
+                    color: _isAgreeSignOut ? ColorStyles.white : ColorStyles.gray40,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

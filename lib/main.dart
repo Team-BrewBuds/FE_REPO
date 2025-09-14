@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:brew_buds/common/styles/color_styles.dart';
 import 'package:brew_buds/common/styles/text_styles.dart';
+import 'package:brew_buds/core/device_info.dart';
 import 'package:brew_buds/core/dio_client.dart';
 import 'package:brew_buds/core/event_bus.dart';
 import 'package:brew_buds/data/repository/account_repository.dart';
@@ -58,7 +60,7 @@ void main() async {
     PhotoRepository.instance.initState();
   }
 
-  await AppRepository.instance.checkUpdateRequired();
+  // await AppRepository.instance.checkUpdateRequired();
 
   KakaoSdk.init(
     nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
@@ -103,7 +105,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         _showLoginAlert();
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      print(await AppRepository.instance.fetchStoreURL());
       AppRepository.instance.checkUpdateRequired();
     });
     super.initState();
@@ -118,8 +121,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {
-      await AppRepository.instance.checkUpdateRequired();
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (!AccountRepository.instance.isGuest && !await isEmulator()) {
+          await AppRepository.instance.checkUpdateRequired();
+          NotificationRepository.instance.registerToken();
+        }
+        break;
+      default:
+        break;
     }
   }
 
@@ -216,8 +226,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   style: TextStyles.captionMediumMedium.copyWith(color: CupertinoColors.activeBlue),
                 ),
                 onPressed: () async {
-                  final uri = Uri.parse(
-                      'https://apps.apple.com/kr/app/%EB%B8%8C%EB%A3%A8%EB%B2%84%EC%A6%88-brewbuds/id6670744490');
+                  final uri = Uri.parse(await AppRepository.instance.fetchStoreURL());
                   if (await canLaunchUrl(uri)) {
                     await launchUrl(
                       uri,

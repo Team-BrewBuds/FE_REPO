@@ -104,9 +104,9 @@ class _PostImageViewState extends State<PostImageView> {
       titleSpacing: 0,
       centerTitle: false,
       backgroundColor: ColorStyles.white,
-      toolbarHeight: 52,
+      toolbarHeight: 52.w,
       title: Container(
-        height: 52,
+        height: 52.w,
         width: double.infinity,
         padding: const EdgeInsets.only(top: 8, bottom: 12, left: 16, right: 16),
         child: Stack(

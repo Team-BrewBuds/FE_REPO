@@ -42,7 +42,7 @@ final class RecommendedBuddyPresenter extends Presenter {
     notifyListeners();
 
     try {
-      if (user.isFollow) {
+      if (isFollow) {
         await _followApi.unFollow(id: user.id);
       } else {
         await _followApi.follow(id: user.id);

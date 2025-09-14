@@ -513,7 +513,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
         controller: _areaController,
         keyboardType: TextInputType.text,
         inputFormatters: [
-          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9, ]'), allow: true),
+          FilteringTextInputFormatter(RegExp(r'[a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ, ]'), allow: true),
         ],
         decoration: InputDecoration(
           isDense: true,
@@ -550,7 +550,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
         controller: _varietyController,
         keyboardType: TextInputType.text,
         inputFormatters: [
-          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9, ]'), allow: true),
+          FilteringTextInputFormatter(RegExp(r'[a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ, ]'), allow: true),
         ],
         decoration: InputDecoration(
           isDense: true,
@@ -629,7 +629,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
               controller: _processingController,
               keyboardType: TextInputType.text,
               inputFormatters: [
-                FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣 ]'), allow: true),
+                FilteringTextInputFormatter(RegExp(r'[a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ ]'), allow: true),
               ],
               decoration: InputDecoration(
                 isDense: true,
@@ -745,7 +745,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
         controller: _roasteryController,
         keyboardType: TextInputType.text,
         inputFormatters: [
-          FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣0-9, ]'), allow: true),
+          FilteringTextInputFormatter(RegExp(r'[a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ, ]'), allow: true),
         ],
         decoration: InputDecoration(
           isDense: true,
@@ -823,7 +823,7 @@ class _TastedRecordWriteFirstScreenState extends State<TastedRecordWriteFirstScr
               controller: _extractionController,
               keyboardType: TextInputType.text,
               inputFormatters: [
-                FilteringTextInputFormatter(RegExp(r'[a-zA-Zㄱ-ㅎ가-힣 ]'), allow: true),
+                FilteringTextInputFormatter(RegExp(r'[a-z|A-Z|0-9|ㄱ-ㅎ|ㅏ-ㅣ|가-힣|ᆞ|ᆢ|ㆍ|ᆢ|ᄀᆞ|ᄂᆞ|ᄃᆞ|ᄅᆞ|ᄆᆞ|ᄇᆞ|ᄉᆞ|ᄋᆞ|ᄌᆞ|ᄎᆞ|ᄏᆞ|ᄐᆞ|ᄑᆞ|ᄒᆞ ]'), allow: true),
               ],
               decoration: InputDecoration(
                 isDense: true,
