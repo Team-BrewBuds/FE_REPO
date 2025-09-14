@@ -30,7 +30,7 @@ class _LoginPageFirstState extends State<LoginPageFirst> {
     "원두 추천",
   ];
   final List<String> contentList = [
-    "오늘 경함한 원두의 맛을 기록해 보세요.",
+    "오늘 경험한 원두의 맛을 기록해 보세요.",
     "오늘 경험할 원두를 필터로 검색해 보세요.",
     "내 커피 취향에 맞는 원두 추천을 받아보세요.",
   ];

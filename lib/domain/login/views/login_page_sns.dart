@@ -256,7 +256,7 @@ class SNSLogin extends StatelessWidget {
           ],
         ),
       ),
-      toolbarHeight: 67,
+      toolbarHeight: 67.w,
     );
   }
 

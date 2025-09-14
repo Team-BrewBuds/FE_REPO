@@ -62,7 +62,6 @@ dependencies:
   url_launcher: ^6.3.1
   firebase_analytics: ^11.4.5
   korean_profanity_filter: ^1.0.0
-  flutter_naver_login: ^2.1.1
 
 flutter_native_splash:
   color: "#FFFFFF"

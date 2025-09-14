@@ -17,6 +17,7 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		D346EE542D6F43BC00F6BAF7 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = D346EE532D6F43BC00F6BAF7 /* Settings.bundle */; };
+		D394ADBA2E76B4D000CBFCEA /* NidThirdPartyLogin in Frameworks */ = {isa = PBXBuildFile; productRef = D394ADB92E76B4D000CBFCEA /* NidThirdPartyLogin */; };
 		F8D61B120F1F156FB66F3BCA /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A43455B430E95831088E9862 /* GoogleService-Info.plist */; };
 		FFC7A298875F052E8A323FAA /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6BC77D72B4500EE8B940E65 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
@@ -83,6 +84,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FFC7A298875F052E8A323FAA /* Pods_Runner.framework in Frameworks */,
+				D394ADBA2E76B4D000CBFCEA /* NidThirdPartyLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +256,9 @@
 				Base,
 			);
 			mainGroup = 97C146E51CF9000F007C117D;
+			packageReferences = (
+				D394ADB82E76B4D000CBFCEA /* XCRemoteSwiftPackageReference "naveridlogin-sdk-ios-swift" */,
+			);
 			productRefGroup = 97C146EF1CF9000F007C117D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -536,7 +541,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3VU798C7CV;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.0.4;
+				FLUTTER_BUILD_NAME = 1.0.5;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -737,7 +742,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3VU798C7CV;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.0.4;
+				FLUTTER_BUILD_NAME = 1.0.5;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -774,7 +779,7 @@
 				DEVELOPMENT_TEAM = "";
 				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3VU798C7CV;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 1.0.4;
+				FLUTTER_BUILD_NAME = 1.0.5;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -829,6 +834,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D394ADB82E76B4D000CBFCEA /* XCRemoteSwiftPackageReference "naveridlogin-sdk-ios-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/naver/naveridlogin-sdk-ios-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D394ADB92E76B4D000CBFCEA /* NidThirdPartyLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D394ADB82E76B4D000CBFCEA /* XCRemoteSwiftPackageReference "naveridlogin-sdk-ios-swift" */;
+			productName = NidThirdPartyLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 97C146E61CF9000F007C117D /* Project object */;
 }
