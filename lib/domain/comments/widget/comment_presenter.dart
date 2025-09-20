@@ -80,9 +80,7 @@ final class CommentPresenter extends Presenter {
           }
           break;
         case CreateReCommentEvent():
-          if (event.parentId == _comment.id) {
-            _reCommentPresenters.add(ReCommentPresenter(comment: event.newReComment));
-            notifyListeners();
+          if (event.superParentId == _comment.id) {
             updateComment();
           }
           break;

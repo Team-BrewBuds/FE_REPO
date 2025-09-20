@@ -41,6 +41,7 @@ final class TastedRecordPresenter extends Presenter {
   TastedRecord? _tastedRecord;
   User? _replyUser;
   int? _parentsId;
+  int? _superParentsId;
 
   int? get beanId => _tastedRecord?.bean.id;
 
@@ -285,15 +286,17 @@ final class TastedRecordPresenter extends Presenter {
     return _tastedRecord?.author.id == AccountRepository.instance.id;
   }
 
-  selectedReply(User user, int id) {
+  selectedReply(User user, int parentId, int superParentId) {
     _replyUser = user;
-    _parentsId = id;
+    _parentsId = parentId;
+    _superParentsId = superParentId;
     notifyListeners();
   }
 
   cancelReply() {
     _replyUser = null;
     _parentsId = null;
+    _superParentsId = null;
     notifyListeners();
   }
 
@@ -303,20 +306,20 @@ final class TastedRecordPresenter extends Presenter {
     if (content.containsBadWords) throw const ContainsBadWordsCommentException();
 
     try {
+      final superParentId = _superParentsId;
+      final parentId = _parentsId;
       final newComment = await _commentsRepository.createNewComment(
         feedType: 'tasted_record',
         id: id,
         content: content,
-        parentId: _parentsId,
+        parentId: parentId,
       );
 
-      final parentId = _parentsId;
-
-      if (parentId != null) {
+      if (parentId != null && superParentId != null) {
         EventBus.instance.fire(
           CreateReCommentEvent(
             senderId: presenterId,
-            parentId: parentId,
+            superParentId: superParentId,
             objectId: id,
             newReComment: newComment,
             objectType: 'tasted_record',

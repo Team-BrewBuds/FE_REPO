@@ -29,14 +29,8 @@ class FutureButton<T, E extends Exception> extends StatelessWidget {
                 final result = await onTap();
                 onComplete?.call(result);
               } on E catch (exception) {
-                print('////////////////////////////////////////////////////////////////////////////////////');
-                print(exception);
-                print('////////////////////////////////////////////////////////////////////////////////////');
                 onError?.call(exception);
               } catch (e) {
-                print('////////////////////////////////////////////////////////////////////////////////////');
-                print(e);
-                print('////////////////////////////////////////////////////////////////////////////////////');
                 onError?.call(null);
               } finally {
                 if (context.mounted) _isProcessingNotifier.value = false;

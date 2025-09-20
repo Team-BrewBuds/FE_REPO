@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:brew_buds/data/api/notification_api.dart';
 import 'package:brew_buds/data/dto/notification/notification_model_dto.dart';
 import 'package:brew_buds/data/dto/notification/notification_setting_dto.dart';
 import 'package:brew_buds/data/mapper/notification/notification_mapper.dart';
 import 'package:brew_buds/data/mapper/notification/notification_setting_mapper.dart';
+import 'package:brew_buds/data/repository/account_repository.dart';
 import 'package:brew_buds/data/repository/permission_repository.dart';
 import 'package:brew_buds/exception/login_exception.dart';
 import 'package:brew_buds/model/common/default_page.dart';
@@ -27,7 +29,8 @@ final class NotificationRepository {
   factory NotificationRepository() => instance;
 
   Future<void> init() async {
-    await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
       alert: true,
       badge: true,
       sound: true,
@@ -37,15 +40,25 @@ final class NotificationRepository {
   Future<void> registerToken() async {
     if (!(await PermissionRepository.instance.notification).isGranted) return;
 
+    if (AccountRepository.instance.id == null) return;
+
     try {
-      await FirebaseMessaging.instance.getAPNSToken();
+      if (Platform.isIOS) {
+        await FirebaseMessaging.instance.getAPNSToken();
+      }
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null && token.isNotEmpty) {
-        await _notificationApi.registerDeviceToken(data: {'device_token': token, 'device_type': 'ios'});
+        await _notificationApi.registerDeviceToken(
+          data: {
+            'device_token': token,
+            'device_type': Platform.isIOS ? 'ios' : 'android',
+          },
+        );
       } else {
         throw DeviceRegistrationException();
       }
     } catch (e) {
+      print(e.toString());
       throw DeviceRegistrationException();
     }
   }
@@ -74,7 +87,9 @@ final class NotificationRepository {
         follow: true,
         marketing: true,
       ).toJson();
-      final json = jsonDecode(await _notificationApi.createNotificationSettings(data: data)) as Map<String, dynamic>;
+      final json = jsonDecode(
+              await _notificationApi.createNotificationSettings(data: data))
+          as Map<String, dynamic>;
       return NotificationSettingDTO.fromJson(json).toDomain();
     } catch (_) {
       rethrow;
@@ -83,7 +98,9 @@ final class NotificationRepository {
 
   Future<NotificationSetting> fetchSettings() async {
     try {
-      final json = jsonDecode(await _notificationApi.fetchNotificationSettings()) as Map<String, dynamic>;
+      final json =
+          jsonDecode(await _notificationApi.fetchNotificationSettings())
+              as Map<String, dynamic>;
       return NotificationSettingDTO.fromJson(json).toDomain();
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
@@ -96,7 +113,8 @@ final class NotificationRepository {
     }
   }
 
-  Future<NotificationSetting> updateSettings({required NotificationSetting notificationSetting}) async {
+  Future<NotificationSetting> updateSettings(
+      {required NotificationSetting notificationSetting}) async {
     try {
       final json = await _notificationApi.updateNotificationSettings(
         data: notificationSetting.toDTO().toJson(),
@@ -107,12 +125,16 @@ final class NotificationRepository {
     }
   }
 
-  Future<DefaultPage<NotificationModel>> fetchNotificationPage({required int pageNo}) async {
+  Future<DefaultPage<NotificationModel>> fetchNotificationPage(
+      {required int pageNo}) async {
     try {
-      final json = jsonDecode(await _notificationApi.fetchNotifications(pageNo: pageNo)) as Map<String, dynamic>;
+      final json =
+          jsonDecode(await _notificationApi.fetchNotifications(pageNo: pageNo))
+              as Map<String, dynamic>;
       return DefaultPage.fromJson(
         json,
-        (jsonT) => NotificationModelDTO.fromJson(jsonT as Map<String, dynamic>).toDomain(),
+        (jsonT) => NotificationModelDTO.fromJson(jsonT as Map<String, dynamic>)
+            .toDomain(),
       );
     } catch (e) {
       return DefaultPage(count: 0, results: const [], hasNext: false);
@@ -132,6 +154,9 @@ final class NotificationRepository {
   }
 
   Future<bool> readAllNotification() {
-    return _notificationApi.readAllNotifications().then((_) => true).onError((_, __) => false);
+    return _notificationApi
+        .readAllNotifications()
+        .then((_) => true)
+        .onError((_, __) => false);
   }
 }

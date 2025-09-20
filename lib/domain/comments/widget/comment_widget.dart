@@ -20,7 +20,7 @@ class CommentWidget extends StatefulWidget {
   final int objectAuthorId;
   final bool isMyComment;
   final bool isMyObject;
-  final void Function(User user, int id) onTapReply;
+  final void Function(User user, int parentId, int superParentId) onTapReply;
 
   const CommentWidget({
     super.key,
@@ -65,14 +65,15 @@ class _CommentWidgetState extends State<CommentWidget> with TickerProviderStateM
                   itemCount: reCommentPresenters.length,
                   itemBuilder: (context, index) {
                     final presenter = reCommentPresenters[index];
+                    final id = context.read<CommentPresenter>().id;
                     return ChangeNotifierProvider.value(
                       value: presenter,
                       child: ReCommentWidget(
                         objectAuthorId: widget.objectAuthorId,
                         isMyComment: presenter.authorId == AccountRepository.instance.id,
                         isMyObject: widget.isMyObject,
-                        onTapReply: (User user, int id) {
-                          widget.onTapReply.call(user, id);
+                        onTapReply: (User user, int parentId) {
+                          widget.onTapReply.call(user, parentId, id);
                         },
                         onDelete: () => context.read<CommentPresenter>().onTapDeleteReCommentAt(index),
                       ),
@@ -271,7 +272,7 @@ class _CommentWidgetState extends State<CommentWidget> with TickerProviderStateM
                       onTap: () {
                         final author = context.read<CommentPresenter>().author;
                         final id = context.read<CommentPresenter>().id;
-                        widget.onTapReply.call(author, id);
+                        widget.onTapReply.call(author, id, id);
                       },
                       child: Text(
                         '답글 달기',

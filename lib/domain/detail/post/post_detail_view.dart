@@ -51,7 +51,8 @@ class PostDetailView extends StatefulWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => PostDetailPresenter(id: id)),
         ChangeNotifierProvider(
-          create: (_) => CommentsPresenter(objectType: ObjectType.post, objectId: id),
+          create: (_) =>
+              CommentsPresenter(objectType: ObjectType.post, objectId: id),
         ),
       ],
       child: const PostDetailView(),
@@ -62,7 +63,8 @@ class PostDetailView extends StatefulWidget {
   State<PostDetailView> createState() => _PostDetailViewState();
 }
 
-class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<PostDetailView> {
+class _PostDetailViewState extends State<PostDetailView>
+    with CenterDialogMixin<PostDetailView> {
   late final Throttle paginationThrottle;
   late final FocusNode _focusNode;
   late final TextEditingController _textEditingController;
@@ -110,7 +112,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               appBar: _buildTitle(),
               body: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scroll) {
-                  if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent - 300) {
+                  if (scroll.metrics.pixels >
+                      scroll.metrics.maxScrollExtent - 300) {
                     paginationThrottle.setValue(null);
                   }
                   return false;
@@ -140,41 +143,55 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                       ),
                     ),
                     Selector<PostDetailPresenter, BottomButtonInfo>(
-                      selector: (context, presenter) => presenter.bottomButtonInfo,
-                      builder: (context, bottomButtonInfo, child) => buildBottomButtons(
+                      selector: (context, presenter) =>
+                          presenter.bottomButtonInfo,
+                      builder: (context, bottomButtonInfo, child) =>
+                          buildBottomButtons(
                         likeCount: bottomButtonInfo.likeCount,
                         isLiked: bottomButtonInfo.isLiked,
                         isSaved: bottomButtonInfo.isSaved,
                       ),
                     ),
-                    SliverToBoxAdapter(child: Container(height: 12, color: ColorStyles.gray20)),
+                    SliverToBoxAdapter(
+                        child:
+                            Container(height: 12, color: ColorStyles.gray20)),
                     Selector<CommentsPresenter, int>(
                       selector: (context, presenter) => presenter.totalCount,
-                      builder: (context, totalCount, child) => _buildCommentTitle(commentsCount: totalCount),
+                      builder: (context, totalCount, child) =>
+                          _buildCommentTitle(commentsCount: totalCount),
                     ),
                     Selector<CommentsPresenter, List<CommentPresenter>>(
-                      selector: (context, presenter) => presenter.commentPresenters,
+                      selector: (context, presenter) =>
+                          presenter.commentPresenters,
                       builder: (context, commentPresenters, child) {
-                        final isMyObject = context.read<PostDetailPresenter>().isMyObject();
-                        final authorId = context.read<PostDetailPresenter>().authorId ?? 0;
+                        final isMyObject =
+                            context.read<PostDetailPresenter>().isMyObject();
+                        final authorId =
+                            context.read<PostDetailPresenter>().authorId ?? 0;
                         return commentPresenters.isNotEmpty
                             ? SlidableAutoCloseBehavior(
                                 child: SliverList.builder(
                                   itemCount: commentPresenters.length,
                                   itemBuilder: (context, index) {
                                     final presenter = commentPresenters[index];
-                                    final isMyComment = context.read<PostDetailPresenter>().isMine(presenter.author.id);
+                                    final isMyComment = context
+                                        .read<PostDetailPresenter>()
+                                        .isMine(presenter.author.id);
                                     return ChangeNotifierProvider.value(
                                       value: presenter,
                                       child: CommentWidget(
                                         objectAuthorId: authorId,
                                         isMyObject: isMyObject,
                                         isMyComment: isMyComment,
-                                        onTapReply: (User user, int id) {
+                                        onTapReply: (User user, int parentId,
+                                            int superParentId) {
                                           _focusNode.requestFocus();
-                                          context.read<PostDetailPresenter>().selectedReply(
+                                          context
+                                              .read<PostDetailPresenter>()
+                                              .selectedReply(
                                                 user,
-                                                id,
+                                                parentId,
+                                                superParentId,
                                               );
                                         },
                                       ),
@@ -186,7 +203,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                       },
                     ),
                     Selector<CommentsPresenter, bool>(
-                      selector: (context, presenter) => presenter.hasNext && !presenter.isLoading,
+                      selector: (context, presenter) =>
+                          presenter.hasNext && !presenter.isLoading,
                       builder: (context, hasNext, child) => hasNext
                           ? const SliverToBoxAdapter(
                               child: SizedBox(
@@ -208,10 +226,12 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                 child: Padding(
                   padding: MediaQuery.of(context).viewInsets,
                   child: Selector<PostDetailPresenter, CommentTextFieldState>(
-                    selector: (context, presenter) => presenter.commentTextFieldState,
+                    selector: (context, presenter) =>
+                        presenter.commentTextFieldState,
                     builder: (context, state, child) {
                       return _buildBottomTextField(
-                        prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                        prentCommentAuthorNickname:
+                            state.prentCommentAuthorNickname,
                         authorNickname: state.authorNickname,
                       );
                     },
@@ -229,7 +249,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
       leading: const SizedBox.shrink(),
       titleSpacing: 0,
       title: Container(
-        padding: const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
+        padding:
+            const EdgeInsets.only(top: 12, left: 16, right: 16, bottom: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -237,7 +258,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               onTap: () {
                 context.pop();
               },
-              child: SvgPicture.asset('assets/icons/back.svg', fit: BoxFit.cover, height: 24, width: 24),
+              child: SvgPicture.asset('assets/icons/back.svg',
+                  fit: BoxFit.cover, height: 24, width: 24),
             ),
             const Spacer(),
             Text('게시글', style: TextStyles.title02SemiBold),
@@ -249,7 +271,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                   case PostDetailAction.update:
                     final post = context.read<PostDetailPresenter>().post;
                     if (post != null) {
-                      ScreenNavigator.showPostUpdateScreen(context: context, post: post.copyWith());
+                      ScreenNavigator.showPostUpdateScreen(
+                          context: context, post: post.copyWith());
                     }
                     break;
                   case PostDetailAction.delete:
@@ -261,31 +284,39 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                         onDone: () async {
                           try {
                             final context = this.context;
-                            await context.read<PostDetailPresenter>().onDelete();
+                            await context
+                                .read<PostDetailPresenter>()
+                                .onDelete();
                             if (context.mounted) {
-                              EventBus.instance.fire(const MessageEvent(message: '해당 게시글을 삭제했어요.'));
+                              EventBus.instance.fire(const MessageEvent(
+                                  message: '해당 게시글을 삭제했어요.'));
                               context.pop();
                             }
                           } catch (e) {
-                            EventBus.instance.fire(const MessageEvent(message: '게시글 삭제에 실패했어요.'));
+                            EventBus.instance.fire(
+                                const MessageEvent(message: '게시글 삭제에 실패했어요.'));
                           }
                         });
                     break;
                   case PostDetailAction.block:
                     showCenterDialog(
                       title: '이 사용자를 차단하시겠어요?',
-                      content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                      content:
+                          '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
                       cancelText: '취소',
                       doneText: '차단하기',
                       onDone: () async {
                         final context = this.context;
-                        final nickname = context.read<PostDetailPresenter>().authorNickname;
+                        final nickname =
+                            context.read<PostDetailPresenter>().authorNickname;
                         if (nickname != null) {
                           try {
                             await context.read<PostDetailPresenter>().onBlock();
-                            EventBus.instance.fire(MessageEvent(message: '$nickname님을 차단했어요.'));
+                            EventBus.instance.fire(
+                                MessageEvent(message: '$nickname님을 차단했어요.'));
                           } catch (e) {
-                            EventBus.instance.fire(MessageEvent(message: '$nickname님 차단에 실패했어요.'));
+                            EventBus.instance.fire(
+                                MessageEvent(message: '$nickname님 차단에 실패했어요.'));
                           }
                         }
                       },
@@ -293,12 +324,14 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                     break;
                   case PostDetailAction.report:
                     final id = context.read<PostDetailPresenter>().id;
-                    ScreenNavigator.pushToReportScreen(context, id: id, type: 'post');
+                    ScreenNavigator.pushToReportScreen(context,
+                        id: id, type: 'post');
                   default:
                     return;
                 }
               },
-              child: SvgPicture.asset('assets/icons/more.svg', fit: BoxFit.cover, height: 24, width: 24),
+              child: SvgPicture.asset('assets/icons/more.svg',
+                  fit: BoxFit.cover, height: 24, width: 24),
             ),
           ],
         ),
@@ -331,7 +364,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
         },
         child: Container(
           height: 36.w,
-          margin: const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 16),
+          margin:
+              const EdgeInsets.only(left: 16, right: 16, top: 20, bottom: 16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -342,12 +376,15 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      child: Text(nickName, textAlign: TextAlign.start, style: TextStyles.title01SemiBold),
+                      child: Text(nickName,
+                          textAlign: TextAlign.start,
+                          style: TextStyles.title01SemiBold),
                     ),
                     Expanded(
                       child: Text(
                         '$createdAt ・ 조회 $viewCount',
-                        style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50),
+                        style: TextStyles.captionMediumMedium
+                            .copyWith(color: ColorStyles.gray50),
                       ),
                     )
                   ],
@@ -356,7 +393,9 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               if (!context.read<PostDetailPresenter>().isMyObject()) ...[
                 const SizedBox(width: 8),
                 FollowButton(
-                  onTap: () => context.read<PostDetailPresenter>().onTappedFollowButton(),
+                  onTap: () => context
+                      .read<PostDetailPresenter>()
+                      .onTappedFollowButton(),
                   isFollowed: isFollow,
                 ),
               ],
@@ -405,7 +444,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               ),
               childBuilder: (context, index) => ThrottleButton(
                 onTap: () {
-                  ScreenNavigator.showTastedRecordDetail(context: context, id: tastingRecords[index].id);
+                  ScreenNavigator.showTastedRecordDetail(
+                      context: context, id: tastingRecords[index].id);
                 },
                 child: Container(
                   color: ColorStyles.white,
@@ -416,7 +456,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                 ),
               ),
             ),
-          _buildTextBody(title: title, contents: contents, tag: tag, subject: subject),
+          _buildTextBody(
+              title: title, contents: contents, tag: tag, subject: subject),
         ],
       ),
     );
@@ -441,8 +482,11 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           if (tag.isNotEmpty) ...[
             const SizedBox(height: 12, width: double.infinity),
             Text(
-              tag.replaceAll(',', '#').startsWith('#') ? tag.replaceAll(',', '#') : '#${tag.replaceAll(',', '#')}',
-              style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.red),
+              tag.replaceAll(',', '#').startsWith('#')
+                  ? tag.replaceAll(',', '#')
+                  : '#${tag.replaceAll(',', '#')}',
+              style:
+                  TextStyles.labelSmallMedium.copyWith(color: ColorStyles.red),
             ),
           ],
         ],
@@ -453,7 +497,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
   Widget _buildSubject({required PostSubject subject}) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: ColorStyles.black),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20), color: ColorStyles.black),
       child: Row(
         children: [
           SvgPicture.asset(
@@ -466,7 +511,9 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
             width: 12,
           ),
           const SizedBox(width: 2),
-          Text(subject.toString(), style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.white)),
+          Text(subject.toString(),
+              style: TextStyles.labelSmallSemiBold
+                  .copyWith(color: ColorStyles.white)),
         ],
       ),
     );
@@ -479,17 +526,20 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
   }) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 16),
+        padding:
+            const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 16),
         child: Row(
           children: [
             LikeButton(
-              onTap: () => context.read<PostDetailPresenter>().onTappedLikeButton(),
+              onTap: () =>
+                  context.read<PostDetailPresenter>().onTappedLikeButton(),
               isLiked: isLiked,
               likeCount: likeCount,
             ),
             const Spacer(),
             SaveButton(
-              onTap: () => context.read<PostDetailPresenter>().onTappedSaveButton(),
+              onTap: () =>
+                  context.read<PostDetailPresenter>().onTappedSaveButton(),
               isSaved: isSaved,
             ),
           ],
@@ -501,7 +551,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
   Widget _buildCommentTitle({required int commentsCount}) {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 20),
+        padding:
+            const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 20),
         child: Text('댓글 ($commentsCount)', style: TextStyles.title01SemiBold),
       ),
     );
@@ -523,7 +574,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
     );
   }
 
-  Widget _buildBottomTextField({String? prentCommentAuthorNickname, required String authorNickname}) {
+  Widget _buildBottomTextField(
+      {String? prentCommentAuthorNickname, required String authorNickname}) {
     final bool hasParent = prentCommentAuthorNickname != null;
     return Container(
       padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 24),
@@ -545,7 +597,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
             Visibility(
               visible: hasParent,
               child: Container(
-                padding: const EdgeInsets.only(left: 14, top: 16, bottom: 16, right: 14),
+                padding: const EdgeInsets.only(
+                    left: 14, top: 16, bottom: 16, right: 14),
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   color: ColorStyles.gray10,
@@ -554,14 +607,16 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                   children: [
                     Text(
                       '$prentCommentAuthorNickname님에게 답글 남기는 중',
-                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                      style: TextStyles.labelSmallMedium
+                          .copyWith(color: ColorStyles.gray50),
                     ),
                     const Spacer(),
                     ThrottleButton(
                       onTap: () {
                         context.read<PostDetailPresenter>().cancelReply();
                       },
-                      child: SvgPicture.asset('assets/icons/x_round.svg', height: 24, width: 24),
+                      child: SvgPicture.asset('assets/icons/x_round.svg',
+                          height: 24, width: 24),
                     )
                   ],
                 ),
@@ -573,8 +628,10 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               maxLines: null,
               keyboardType: TextInputType.multiline,
               decoration: InputDecoration(
-                hintText: hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
-                hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                hintText:
+                    hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
+                hintStyle: TextStyles.labelSmallMedium
+                    .copyWith(color: ColorStyles.gray40),
                 enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide.none,
                   borderRadius: BorderRadius.zero,
@@ -585,12 +642,16 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                   borderRadius: BorderRadius.zero,
                   gapPadding: 8,
                 ),
-                contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
+                contentPadding: const EdgeInsets.only(
+                    left: 14, top: 8, bottom: 8, right: 8),
                 suffixIcon: Padding(
                   padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
                   child: SendButton(
                     onTap: () {
-                      return context.read<PostDetailPresenter>().createNewComment(content: _textEditingController.text);
+                      return context
+                          .read<PostDetailPresenter>()
+                          .createNewComment(
+                              content: _textEditingController.text);
                     },
                     onComplete: () {
                       _textEditingController.value = TextEditingValue.empty;
@@ -600,8 +661,10 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                     },
                   ),
                 ),
-                suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.w), maxWidth: 63.w),
-                constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+                suffixIconConstraints:
+                    BoxConstraints(maxHeight: max(48, 48.w), maxWidth: 63.w),
+                constraints:
+                    const BoxConstraints(minHeight: 48, maxHeight: 112),
               ),
             ),
           ],
@@ -627,13 +690,16 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(12)),
                   ),
                   child: SafeArea(
                     top: false,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 24),
-                      child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                      child: isMine
+                          ? _buildMineBottomSheet()
+                          : _buildOthersBottomSheet(),
                     ),
                   ),
                 ),
@@ -656,10 +722,12 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '수정하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
               textAlign: TextAlign.center,
             ),
           ),
@@ -670,10 +738,12 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '삭제하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),
           ),
@@ -692,7 +762,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               ),
               child: Text(
                 '닫기',
-                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                style: TextStyles.labelMediumMedium
+                    .copyWith(color: ColorStyles.white),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -713,10 +784,12 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '신고하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
               textAlign: TextAlign.center,
             ),
           ),
@@ -727,10 +800,12 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '차단하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),
           ),
@@ -749,7 +824,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
               ),
               child: Text(
                 '닫기',
-                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                style: TextStyles.labelMediumMedium
+                    .copyWith(color: ColorStyles.white),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -773,7 +849,8 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                 child: Material(
                   color: Colors.transparent,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 24, horizontal: 16),
                     decoration: const BoxDecoration(
                       color: ColorStyles.white,
                       borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -796,15 +873,18 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                                   context.pop();
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 15),
                                   decoration: const BoxDecoration(
                                     color: ColorStyles.gray30,
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8)),
                                   ),
                                   child: Text(
                                     '닫기',
                                     textAlign: TextAlign.center,
-                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
+                                    style: TextStyles.labelMediumMedium
+                                        .copyWith(color: ColorStyles.black),
                                   ),
                                 ),
                               ),
@@ -816,15 +896,18 @@ class _PostDetailViewState extends State<PostDetailView> with CenterDialogMixin<
                                   context.pop();
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 15),
                                   decoration: const BoxDecoration(
                                     color: ColorStyles.black,
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8)),
                                   ),
                                   child: Text(
                                     '확인',
                                     textAlign: TextAlign.center,
-                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                                    style: TextStyles.labelMediumMedium
+                                        .copyWith(color: ColorStyles.white),
                                   ),
                                 ),
                               ),

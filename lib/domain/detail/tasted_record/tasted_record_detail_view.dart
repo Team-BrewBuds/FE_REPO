@@ -50,7 +50,8 @@ class TastedRecordDetailView extends StatefulWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => TastedRecordPresenter(id: id)),
         ChangeNotifierProvider(
-          create: (_) => CommentsPresenter(objectType: ObjectType.tastingRecord, objectId: id),
+          create: (_) => CommentsPresenter(
+              objectType: ObjectType.tastingRecord, objectId: id),
         ),
       ],
       child: const TastedRecordDetailView(),
@@ -120,7 +121,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               appBar: _buildAppbar(),
               body: NotificationListener<ScrollNotification>(
                 onNotification: (ScrollNotification scroll) {
-                  if (scroll.metrics.pixels > scroll.metrics.maxScrollExtent - 300) {
+                  if (scroll.metrics.pixels >
+                      scroll.metrics.maxScrollExtent - 300) {
                     paginationThrottle.setValue(null);
                   }
                   return false;
@@ -129,13 +131,16 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                   slivers: [
                     Selector<TastedRecordPresenter, List<String>>(
                       selector: (context, presenter) => presenter.imageUrlList,
-                      builder: (context, imageUrlList, child) => SliverToBoxAdapter(
+                      builder: (context, imageUrlList, child) =>
+                          SliverToBoxAdapter(
                         child: _buildImageListView(imageUrlList: imageUrlList),
                       ),
                     ),
                     Selector<TastedRecordPresenter, BottomButtonInfo>(
-                      selector: (context, presenter) => presenter.bottomButtonInfo,
-                      builder: (context, bottomButtonInfo, child) => SliverToBoxAdapter(
+                      selector: (context, presenter) =>
+                          presenter.bottomButtonInfo,
+                      builder: (context, bottomButtonInfo, child) =>
+                          SliverToBoxAdapter(
                         child: _buildButtons(
                           likeCount: bottomButtonInfo.likeCount,
                           isLiked: bottomButtonInfo.isLiked,
@@ -151,7 +156,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     ),
                     Selector<TastedRecordPresenter, ProfileInfo>(
                       selector: (context, presenter) => presenter.profileInfo,
-                      builder: (context, profileInfo, child) => SliverToBoxAdapter(
+                      builder: (context, profileInfo, child) =>
+                          SliverToBoxAdapter(
                         child: _buildAuthorProfile(
                           nickName: profileInfo.nickName,
                           authorId: profileInfo.authorId,
@@ -163,7 +169,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     const SliverToBoxAdapter(child: SizedBox(height: 32)),
                     Selector<TastedRecordPresenter, ContentsInfo>(
                       selector: (context, presenter) => presenter.contentsInfo,
-                      builder: (context, contentsInfo, child) => SliverToBoxAdapter(
+                      builder: (context, contentsInfo, child) =>
+                          SliverToBoxAdapter(
                         child: _buildContents(
                           rating: contentsInfo.rating,
                           flavors: contentsInfo.flavors,
@@ -177,7 +184,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     SliverToBoxAdapter(
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 12),
-                        padding: const EdgeInsets.only(top: 20, left: 16, right: 16, bottom: 24),
+                        padding: const EdgeInsets.only(
+                            top: 20, left: 16, right: 16, bottom: 24),
                         decoration: BoxDecoration(
                           color: ColorStyles.gray10,
                           borderRadius: BorderRadius.circular(4),
@@ -185,7 +193,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         child: Column(
                           children: [
                             Selector<TastedRecordPresenter, BeanInfo>(
-                              selector: (context, presenter) => presenter.beanInfo,
+                              selector: (context, presenter) =>
+                                  presenter.beanInfo,
                               builder: (context, beanInfo, child) => BeanDetail(
                                 beanType: beanInfo.beanType.toString(),
                                 country: beanInfo.country,
@@ -198,18 +207,23 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                               ),
                             ),
                             Selector<TastedRecordPresenter, TasteReview?>(
-                              selector: (context, presenter) => presenter.tastingReview,
-                              builder: (context, tastingReview, child) => tastingReview != null
-                                  ? Container(
-                                      margin: const EdgeInsets.only(top: 32),
-                                      child: TasteGraph(
-                                        bodyValue: tastingReview.body,
-                                        acidityValue: tastingReview.acidity,
-                                        bitternessValue: tastingReview.bitterness,
-                                        sweetnessValue: tastingReview.sweetness,
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
+                              selector: (context, presenter) =>
+                                  presenter.tastingReview,
+                              builder: (context, tastingReview, child) =>
+                                  tastingReview != null
+                                      ? Container(
+                                          margin:
+                                              const EdgeInsets.only(top: 32),
+                                          child: TasteGraph(
+                                            bodyValue: tastingReview.body,
+                                            acidityValue: tastingReview.acidity,
+                                            bitternessValue:
+                                                tastingReview.bitterness,
+                                            sweetnessValue:
+                                                tastingReview.sweetness,
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
                             ),
                           ],
                         ),
@@ -218,34 +232,43 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     const SliverToBoxAdapter(child: SizedBox(height: 48)),
                     Selector<CommentsPresenter, int>(
                       selector: (context, presenter) => presenter.totalCount,
-                      builder: (context, totalCount, child) => SliverToBoxAdapter(
+                      builder: (context, totalCount, child) =>
+                          SliverToBoxAdapter(
                         child: _buildCommentTitle(commentsCount: totalCount),
                       ),
                     ),
                     Selector<CommentsPresenter, List<CommentPresenter>>(
-                      selector: (context, presenter) => presenter.commentPresenters,
+                      selector: (context, presenter) =>
+                          presenter.commentPresenters,
                       builder: (context, commentPresenters, child) {
-                        final isMyObject = context.read<TastedRecordPresenter>().isMyObject();
-                        final authorId = context.read<TastedRecordPresenter>().authorId ?? 0;
+                        final isMyObject =
+                            context.read<TastedRecordPresenter>().isMyObject();
+                        final authorId =
+                            context.read<TastedRecordPresenter>().authorId ?? 0;
                         return commentPresenters.isNotEmpty
                             ? SlidableAutoCloseBehavior(
                                 child: SliverList.builder(
                                   itemCount: commentPresenters.length,
                                   itemBuilder: (context, index) {
                                     final presenter = commentPresenters[index];
-                                    final isMyComment =
-                                        context.read<TastedRecordPresenter>().isMine(presenter.author.id);
+                                    final isMyComment = context
+                                        .read<TastedRecordPresenter>()
+                                        .isMine(presenter.author.id);
                                     return ChangeNotifierProvider.value(
                                       value: presenter,
                                       child: CommentWidget(
                                         objectAuthorId: authorId,
                                         isMyObject: isMyObject,
                                         isMyComment: isMyComment,
-                                        onTapReply: (User user, int id) {
+                                        onTapReply: (User user, int parentId,
+                                            int superParentId) {
                                           _focusNode.requestFocus();
-                                          context.read<TastedRecordPresenter>().selectedReply(
+                                          context
+                                              .read<TastedRecordPresenter>()
+                                              .selectedReply(
                                                 user,
-                                                id,
+                                                parentId,
+                                                superParentId,
                                               );
                                         },
                                       ),
@@ -257,7 +280,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       },
                     ),
                     Selector<CommentsPresenter, bool>(
-                      selector: (context, presenter) => presenter.hasNext && !presenter.isLoading,
+                      selector: (context, presenter) =>
+                          presenter.hasNext && !presenter.isLoading,
                       builder: (context, hasNext, child) => hasNext
                           ? const SliverToBoxAdapter(
                               child: SizedBox(
@@ -279,10 +303,12 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                 child: Padding(
                   padding: MediaQuery.of(context).viewInsets,
                   child: Selector<TastedRecordPresenter, CommentTextFieldState>(
-                    selector: (context, presenter) => presenter.commentTextFieldState,
+                    selector: (context, presenter) =>
+                        presenter.commentTextFieldState,
                     builder: (context, state, child) {
                       return _buildBottomTextField(
-                        prentCommentAuthorNickname: state.prentCommentAuthorNickname,
+                        prentCommentAuthorNickname:
+                            state.prentCommentAuthorNickname,
                         authorNickname: state.authorNickname,
                       );
                     },
@@ -323,7 +349,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               onComplete: (result) {
                 switch (result) {
                   case TastedRecordDetailAction.update:
-                    final tastedRecord = context.read<TastedRecordPresenter>().tastedRecord;
+                    final tastedRecord =
+                        context.read<TastedRecordPresenter>().tastedRecord;
                     if (tastedRecord != null) {
                       ScreenNavigator.showTastedRecordUpdateScreen(
                         context: context,
@@ -340,31 +367,42 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                         onDone: () async {
                           try {
                             final context = this.context;
-                            await context.read<TastedRecordPresenter>().onDelete();
+                            await context
+                                .read<TastedRecordPresenter>()
+                                .onDelete();
                             if (context.mounted) {
-                              EventBus.instance.fire(const MessageEvent(message: '해당 시음기록을 삭제했어요.'));
+                              EventBus.instance.fire(const MessageEvent(
+                                  message: '해당 시음기록을 삭제했어요.'));
                               context.pop();
                             }
                           } catch (e) {
-                            EventBus.instance.fire(const MessageEvent(message: '시음기록 삭제에 실패했어요.'));
+                            EventBus.instance.fire(
+                                const MessageEvent(message: '시음기록 삭제에 실패했어요.'));
                           }
                         });
                     break;
                   case TastedRecordDetailAction.block:
                     showCenterDialog(
                       title: '이 사용자를 차단하시겠어요?',
-                      content: '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
+                      content:
+                          '차단된 계정은 회원님의 프로필과 콘텐츠를 볼 수 없으며, 차단 사실은 상대방에게 알려지지 않습니다. 언제든 설정에서 차단을 해제할 수 있습니다.',
                       cancelText: '취소',
                       doneText: '차단하기',
                       onDone: () async {
                         final context = this.context;
-                        final nickname = context.read<TastedRecordPresenter>().authorNickname;
+                        final nickname = context
+                            .read<TastedRecordPresenter>()
+                            .authorNickname;
                         if (nickname != null) {
                           try {
-                            await context.read<TastedRecordPresenter>().onBlock();
-                            EventBus.instance.fire(MessageEvent(message: '$nickname님을 차단했어요.'));
+                            await context
+                                .read<TastedRecordPresenter>()
+                                .onBlock();
+                            EventBus.instance.fire(
+                                MessageEvent(message: '$nickname님을 차단했어요.'));
                           } catch (e) {
-                            EventBus.instance.fire(MessageEvent(message: '$nickname님 차단에 실패했어요.'));
+                            EventBus.instance.fire(
+                                MessageEvent(message: '$nickname님 차단에 실패했어요.'));
                           }
                         }
                       },
@@ -372,7 +410,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     break;
                   case TastedRecordDetailAction.report:
                     final id = context.read<TastedRecordPresenter>().id;
-                    ScreenNavigator.pushToReportScreen(context, id: id, type: 'tasted_record');
+                    ScreenNavigator.pushToReportScreen(context,
+                        id: id, type: 'tasted_record');
                   default:
                     return;
                 }
@@ -398,11 +437,13 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
     );
   }
 
-  Widget _buildBottomTextField({String? prentCommentAuthorNickname, required String authorNickname}) {
+  Widget _buildBottomTextField(
+      {String? prentCommentAuthorNickname, required String authorNickname}) {
     final bool hasParent = prentCommentAuthorNickname != null;
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 24),
+        padding:
+            const EdgeInsets.only(top: 12, right: 16, left: 16, bottom: 24),
         decoration: const BoxDecoration(
           border: Border(top: BorderSide(color: ColorStyles.gray20)),
           color: ColorStyles.white,
@@ -421,16 +462,19 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               Visibility(
                 visible: hasParent,
                 child: Container(
-                  padding: const EdgeInsets.only(left: 14, top: 16, bottom: 16, right: 14),
+                  padding: const EdgeInsets.only(
+                      left: 14, top: 16, bottom: 16, right: 14),
                   decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(24)),
                     color: ColorStyles.gray10,
                   ),
                   child: Row(
                     children: [
                       Text(
                         '$prentCommentAuthorNickname님에게 답글 남기는 중',
-                        style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                        style: TextStyles.labelSmallMedium
+                            .copyWith(color: ColorStyles.gray50),
                       ),
                       const Spacer(),
                       ThrottleButton(
@@ -452,8 +496,10 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
-                  hintText: hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
-                  hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                  hintText:
+                      hasParent ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
+                  hintStyle: TextStyles.labelSmallMedium
+                      .copyWith(color: ColorStyles.gray40),
                   enabledBorder: const OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.zero,
@@ -464,14 +510,16 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     borderRadius: BorderRadius.zero,
                     gapPadding: 8,
                   ),
-                  contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8, right: 8),
+                  contentPadding: const EdgeInsets.only(
+                      left: 14, top: 8, bottom: 8, right: 8),
                   suffixIcon: Padding(
                     padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8),
                     child: SendButton(
                       onTap: () {
                         return context
                             .read<TastedRecordPresenter>()
-                            .createNewComment(content: _textEditingController.text);
+                            .createNewComment(
+                                content: _textEditingController.text);
                       },
                       onComplete: () {
                         _textEditingController.value = TextEditingValue.empty;
@@ -481,8 +529,10 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       },
                     ),
                   ),
-                  suffixIconConstraints: BoxConstraints(maxHeight: max(48, 48.w), maxWidth: 63.w),
-                  constraints: const BoxConstraints(minHeight: 48, maxHeight: 112),
+                  suffixIconConstraints:
+                      BoxConstraints(maxHeight: max(48, 48.w), maxWidth: 63.w),
+                  constraints:
+                      const BoxConstraints(minHeight: 48, maxHeight: 112),
                 ),
               ),
             ],
@@ -514,13 +564,15 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       child: Row(
         children: [
           LikeButton(
-            onTap: () => context.read<TastedRecordPresenter>().onTappedLikeButton(),
+            onTap: () =>
+                context.read<TastedRecordPresenter>().onTappedLikeButton(),
             isLiked: isLiked,
             likeCount: likeCount,
           ),
           const Spacer(),
           SaveButton(
-            onTap: () => context.read<TastedRecordPresenter>().onTappedSaveButton(),
+            onTap: () =>
+                context.read<TastedRecordPresenter>().onTappedSaveButton(),
             isSaved: isSaved,
           ),
         ],
@@ -533,7 +585,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
       padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
       child: Builder(builder: (context) {
         final id = context.read<TastedRecordPresenter>().beanId;
-        final isOfficial = context.read<TastedRecordPresenter>().isOfficial ?? false;
+        final isOfficial =
+            context.read<TastedRecordPresenter>().isOfficial ?? false;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 4,
@@ -552,7 +605,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               ThrottleButton(
                 onTap: () {
                   if (id != null && isOfficial) {
-                    ScreenNavigator.showCoffeeBeanDetail(context: context, id: id);
+                    ScreenNavigator.showCoffeeBeanDetail(
+                        context: context, id: id);
                   }
                 },
                 child: Padding(
@@ -561,7 +615,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                     spacing: 2,
                     children: [
                       Text('원두상세', style: TextStyles.captionSmallMedium),
-                      SvgPicture.asset('assets/icons/arrow.svg', width: 12, height: 12),
+                      SvgPicture.asset('assets/icons/arrow.svg',
+                          width: 12, height: 12),
                     ],
                   ),
                 ),
@@ -607,7 +662,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             ),
             if (!context.read<TastedRecordPresenter>().isMyObject()) ...[
               FollowButton(
-                onTap: () => context.read<TastedRecordPresenter>().onTappedFollowButton(),
+                onTap: () => context
+                    .read<TastedRecordPresenter>()
+                    .onTappedFollowButton(),
                 isFollowed: isFollow,
               ),
             ],
@@ -640,7 +697,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       'assets/icons/star_fill.svg',
                       height: 16,
                       width: 16,
-                      colorFilter: const ColorFilter.mode(ColorStyles.red, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(
+                          ColorStyles.red, BlendMode.srcIn),
                     );
                   } else if (i - rating < 1) {
                     return SvgPicture.asset(
@@ -653,7 +711,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                       'assets/icons/star_fill.svg',
                       height: 16,
                       width: 16,
-                      colorFilter: const ColorFilter.mode(ColorStyles.gray40, BlendMode.srcIn),
+                      colorFilter: const ColorFilter.mode(
+                          ColorStyles.gray40, BlendMode.srcIn),
                     );
                   }
                 },
@@ -678,23 +737,32 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
             children: flavors
                 .map<Widget>(
                   (flavor) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
-                        border: Border.all(color: ColorStyles.gray70, width: 0.8),
-                        borderRadius: const BorderRadius.all(Radius.circular(6))),
-                    child: Text(flavor, style: TextStyles.captionSmallRegular.copyWith(color: ColorStyles.gray70)),
+                        border:
+                            Border.all(color: ColorStyles.gray70, width: 0.8),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(6))),
+                    child: Text(flavor,
+                        style: TextStyles.captionSmallRegular
+                            .copyWith(color: ColorStyles.gray70)),
                   ),
                 )
                 .toList()
               ..addAll(
                 [
                   const Spacer(),
-                  Text(tastedAt, style: TextStyles.captionMediumMedium.copyWith(color: ColorStyles.gray50)),
+                  Text(tastedAt,
+                      style: TextStyles.captionMediumMedium
+                          .copyWith(color: ColorStyles.gray50)),
                 ],
               ),
           ),
           const SizedBox(height: 12),
-          Text(contents, style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black)),
+          Text(contents,
+              style: TextStyles.bodyNarrowRegular
+                  .copyWith(color: ColorStyles.black)),
           const SizedBox(height: 16),
           if (location.isNotEmpty)
             Container(
@@ -713,7 +781,9 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                   const SizedBox(width: 4),
                   Text('장소', style: TextStyles.labelSmallSemiBold),
                   const SizedBox(width: 8),
-                  Text(location, style: TextStyles.bodyNarrowRegular.copyWith(color: ColorStyles.black)),
+                  Text(location,
+                      style: TextStyles.bodyNarrowRegular
+                          .copyWith(color: ColorStyles.black)),
                   const Spacer(),
                 ],
               ),
@@ -766,13 +836,16 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: ColorStyles.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                    borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(12)),
                   ),
                   child: SafeArea(
                     top: false,
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 24),
-                      child: isMine ? _buildMineBottomSheet() : _buildOthersBottomSheet(),
+                      child: isMine
+                          ? _buildMineBottomSheet()
+                          : _buildOthersBottomSheet(),
                     ),
                   ),
                 ),
@@ -795,10 +868,12 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '수정하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
               textAlign: TextAlign.center,
             ),
           ),
@@ -809,10 +884,12 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '삭제하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),
           ),
@@ -831,7 +908,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               ),
               child: Text(
                 '닫기',
-                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                style: TextStyles.labelMediumMedium
+                    .copyWith(color: ColorStyles.white),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -852,10 +930,12 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '신고하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.black),
               textAlign: TextAlign.center,
             ),
           ),
@@ -866,10 +946,12 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
           },
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+            decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
             child: Text(
               '차단하기',
-              style: TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
+              style:
+                  TextStyles.title02SemiBold.copyWith(color: ColorStyles.red),
               textAlign: TextAlign.center,
             ),
           ),
@@ -888,7 +970,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
               ),
               child: Text(
                 '닫기',
-                style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                style: TextStyles.labelMediumMedium
+                    .copyWith(color: ColorStyles.white),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -912,7 +995,8 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                 child: Material(
                   color: Colors.transparent,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 24, horizontal: 16),
                     decoration: const BoxDecoration(
                       color: ColorStyles.white,
                       borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -935,15 +1019,18 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                                   context.pop();
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 15),
                                   decoration: const BoxDecoration(
                                     color: ColorStyles.gray30,
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8)),
                                   ),
                                   child: Text(
                                     '닫기',
                                     textAlign: TextAlign.center,
-                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.black),
+                                    style: TextStyles.labelMediumMedium
+                                        .copyWith(color: ColorStyles.black),
                                   ),
                                 ),
                               ),
@@ -955,15 +1042,18 @@ class _TastedRecordDetailViewState extends State<TastedRecordDetailView>
                                   context.pop();
                                 },
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 15),
                                   decoration: const BoxDecoration(
                                     color: ColorStyles.black,
-                                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8)),
                                   ),
                                   child: Text(
                                     '확인',
                                     textAlign: TextAlign.center,
-                                    style: TextStyles.labelMediumMedium.copyWith(color: ColorStyles.white),
+                                    style: TextStyles.labelMediumMedium
+                                        .copyWith(color: ColorStyles.white),
                                   ),
                                 ),
                               ),

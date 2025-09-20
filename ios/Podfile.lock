@@ -178,7 +178,6 @@ PODS:
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
-  - naveridlogin-sdk-ios (4.2.3)
   - package_info_plus (0.4.5):
     - Flutter
   - path_provider_foundation (0.0.1):
@@ -224,7 +223,6 @@ DEPENDENCIES:
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/darwin`)
   - image_editor_common (from `.symlinks/plugins/image_editor_common/ios`)
   - kakao_flutter_sdk_common (from `.symlinks/plugins/kakao_flutter_sdk_common/ios`)
-  - naveridlogin-sdk-ios
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -253,7 +251,6 @@ SPEC REPOS:
     - libwebp
     - Mantle
     - nanopb
-    - naveridlogin-sdk-ios
     - PromisesObjC
     - SDWebImage
     - SDWebImageWebPCoder
@@ -339,7 +336,6 @@ SPEC CHECKSUMS:
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  naveridlogin-sdk-ios: d9d46d02119d303023d7000cd5963864d5bb89e5
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
@@ -352,6 +348,6 @@ SPEC CHECKSUMS:
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   webview_flutter_wkwebview: 1821ceac936eba6f7984d89a9f3bcb4dea99ebb2
 
-PODFILE CHECKSUM: 26047b44297013b3c27e40d59a3c0ceb5ad11b2a
+PODFILE CHECKSUM: 15c54734162856d1dcd703e0b87875880461acb3
 
 COCOAPODS: 1.16.2

@@ -38,13 +38,16 @@ class CommentsBottomSheet extends StatefulWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<CommentsBottomSheetPresenter>(
-          create: (_) => CommentsBottomSheetPresenter(objectType: objectType, objectId: objectId, author: objectAuthor),
+          create: (_) => CommentsBottomSheetPresenter(
+              objectType: objectType, objectId: objectId, author: objectAuthor),
         ),
         ChangeNotifierProvider<CommentsPresenter>(
-          create: (_) => CommentsPresenter(objectType: objectType, objectId: objectId),
+          create: (_) =>
+              CommentsPresenter(objectType: objectType, objectId: objectId),
         ),
       ],
-      child: CommentsBottomSheet._(maxHeight: maxHeight, initialHeight: initialHeight),
+      child: CommentsBottomSheet._(
+          maxHeight: maxHeight, initialHeight: initialHeight),
     );
   }
 
@@ -53,7 +56,9 @@ class CommentsBottomSheet extends StatefulWidget {
 }
 
 class _CommentsBottomSheetState extends State<CommentsBottomSheet>
-    with ResizableBottomSheetMixin<CommentsBottomSheet>, TickerProviderStateMixin {
+    with
+        ResizableBottomSheetMixin<CommentsBottomSheet>,
+        TickerProviderStateMixin {
   late final SlidableController slidableController;
   late final Throttle<void> paginationThrottle;
   late final TextEditingController _textEditingController;
@@ -94,7 +99,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
 
   @override
   bool onScrollNotification(ScrollNotification notification) {
-    if (notification.metrics.pixels > notification.metrics.maxScrollExtent * 0.7) {
+    if (notification.metrics.pixels >
+        notification.metrics.maxScrollExtent * 0.7) {
       paginationThrottle.setValue(null);
     }
     return false;
@@ -114,10 +120,12 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
   @override
   List<Widget> buildContents(BuildContext context) {
     return [
-      MyRefreshControl(onRefresh: () => context.read<CommentsPresenter>().onRefresh()),
+      MyRefreshControl(
+          onRefresh: () => context.read<CommentsPresenter>().onRefresh()),
       Builder(
         builder: (context) {
-          final isLoading = context.select<CommentsPresenter, bool>((presenter) => presenter.isLoading);
+          final isLoading = context.select<CommentsPresenter, bool>(
+              (presenter) => presenter.isLoading);
           return isLoading
               ? SliverFillRemaining(
                   child: Container(
@@ -132,27 +140,35 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
               : Selector<CommentsPresenter, List<CommentPresenter>>(
                   selector: (context, presenter) => presenter.commentPresenters,
                   builder: (context, commentPresenters, child) {
-                    final isMyObject = context.read<CommentsBottomSheetPresenter>().isMyObject();
-                    final authorId = context.read<CommentsBottomSheetPresenter>().authorId;
+                    final isMyObject = context
+                        .read<CommentsBottomSheetPresenter>()
+                        .isMyObject();
+                    final authorId =
+                        context.read<CommentsBottomSheetPresenter>().authorId;
                     return commentPresenters.isNotEmpty
                         ? SlidableAutoCloseBehavior(
                             child: SliverList.builder(
                               itemCount: commentPresenters.length,
                               itemBuilder: (context, index) {
                                 final presenter = commentPresenters[index];
-                                final isMyComment =
-                                    context.read<CommentsBottomSheetPresenter>().isMine(presenter.author.id);
+                                final isMyComment = context
+                                    .read<CommentsBottomSheetPresenter>()
+                                    .isMine(presenter.author.id);
                                 return ChangeNotifierProvider.value(
                                   value: presenter,
                                   child: CommentWidget(
                                     objectAuthorId: authorId,
                                     isMyObject: isMyObject,
                                     isMyComment: isMyComment,
-                                    onTapReply: (User user, int id) {
+                                    onTapReply: (User user, int parentId,
+                                        int superParentId) {
                                       _textEditingFocusNode.requestFocus();
-                                      context.read<CommentsBottomSheetPresenter>().selectedReply(
+                                      context
+                                          .read<CommentsBottomSheetPresenter>()
+                                          .selectedReply(
                                             user,
-                                            id,
+                                            parentId,
+                                            superParentId,
                                           );
                                     },
                                   ),
@@ -186,11 +202,14 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
     ];
   }
 
-  Widget _buildBottomTextField({String? reCommentAuthorNickname, required String authorNickname}) {
+  Widget _buildBottomTextField(
+      {String? reCommentAuthorNickname, required String authorNickname}) {
     final bool isReply = reCommentAuthorNickname != null;
     return Container(
       padding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 24),
-      decoration: const BoxDecoration(border: Border(top: BorderSide(width: 0.5, color: ColorStyles.gray40))),
+      decoration: const BoxDecoration(
+          border:
+              Border(top: BorderSide(width: 0.5, color: ColorStyles.gray40))),
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(color: ColorStyles.gray40),
@@ -204,7 +223,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
             Visibility(
               visible: isReply,
               child: Container(
-                padding: const EdgeInsets.only(left: 14, top: 16, bottom: 16, right: 14),
+                padding: const EdgeInsets.only(
+                    left: 14, top: 16, bottom: 16, right: 14),
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                   color: ColorStyles.gray10,
@@ -213,12 +233,15 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                   children: [
                     Text(
                       '$reCommentAuthorNickname님에게 답글 남기는 중',
-                      style: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray50),
+                      style: TextStyles.labelSmallMedium
+                          .copyWith(color: ColorStyles.gray50),
                     ),
                     const Spacer(),
                     ThrottleButton(
                       onTap: () {
-                        context.read<CommentsBottomSheetPresenter>().cancelReply();
+                        context
+                            .read<CommentsBottomSheetPresenter>()
+                            .cancelReply();
                       },
                       child: SvgPicture.asset(
                         'assets/icons/x_round.svg',
@@ -239,8 +262,10 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
               cursorColor: ColorStyles.black,
               style: TextStyles.labelSmallMedium,
               decoration: InputDecoration(
-                  hintText: isReply ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
-                  hintStyle: TextStyles.labelSmallMedium.copyWith(color: ColorStyles.gray40),
+                  hintText:
+                      isReply ? '답글 달기...' : '$authorNickname님에게 댓글 추가...',
+                  hintStyle: TextStyles.labelSmallMedium
+                      .copyWith(color: ColorStyles.gray40),
                   enabledBorder: const OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.zero,
@@ -251,15 +276,20 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
                     borderRadius: BorderRadius.zero,
                     gapPadding: 8,
                   ),
-                  contentPadding: const EdgeInsets.only(left: 14, top: 8, bottom: 8),
+                  contentPadding:
+                      const EdgeInsets.only(left: 14, top: 8, bottom: 8),
                   suffixIcon: Padding(
-                      padding: const EdgeInsets.only(top: 8, bottom: 8, right: 8, left: 8),
+                      padding: const EdgeInsets.only(
+                          top: 8, bottom: 8, right: 8, left: 8),
                       child: SendButton(
-                        onTap: () => context.read<CommentsBottomSheetPresenter>().createNewComment(
+                        onTap: () => context
+                            .read<CommentsBottomSheetPresenter>()
+                            .createNewComment(
                               content: _textEditingController.text,
                             ),
                         onError: (message) {
-                          EventBus.instance.fire(MessageEvent(message: message));
+                          EventBus.instance
+                              .fire(MessageEvent(message: message));
                         },
                         onComplete: () {
                           _textEditingController.clear();
@@ -284,7 +314,8 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet>
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 8, bottom: 12),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
+      decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: ColorStyles.gray10))),
       child: Text(
         '댓글',
         style: TextStyles.labelSmallSemiBold.copyWith(color: ColorStyles.black),

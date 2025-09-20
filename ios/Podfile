@@ -30,10 +30,7 @@ target 'Runner' do
   use_frameworks! :linkage => :static
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-
-  # 네이버 로그인 SDK 추가 (최신 버전으로 업데이트)
-# pod 'NaverThirdPartyLogin', :path => "#{File.dirname(__FILE__)}/naveridlogin-sdk-ios"
-  pod 'naveridlogin-sdk-ios'
+  
   pod 'Firebase/CoreOnly'
 
 

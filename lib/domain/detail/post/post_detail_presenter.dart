@@ -49,6 +49,7 @@ final class PostDetailPresenter extends Presenter {
   Post? _post;
   User? _replyUser;
   int? _parentsId;
+  int? _superParentsId;
 
   bool get isEmpty => _isEmpty;
 
@@ -262,15 +263,17 @@ final class PostDetailPresenter extends Presenter {
     return _post?.author.id == AccountRepository.instance.id;
   }
 
-  selectedReply(User user, int id) {
+  selectedReply(User user, int parentId, int superParentId) {
     _replyUser = user;
-    _parentsId = id;
+    _parentsId = parentId;
+    _superParentsId = superParentId;
     notifyListeners();
   }
 
   cancelReply() {
     _replyUser = null;
     _parentsId = null;
+    _superParentsId = null;
     notifyListeners();
   }
 
@@ -280,6 +283,8 @@ final class PostDetailPresenter extends Presenter {
     if (content.containsBadWords) throw const ContainsBadWordsCommentException();
 
     try {
+      final parentId = _parentsId;
+      final superParentId = _superParentsId;
       final newComment = await _commentsRepository.createNewComment(
         feedType: 'post',
         id: id,
@@ -287,13 +292,11 @@ final class PostDetailPresenter extends Presenter {
         parentId: _parentsId,
       );
 
-      final parentId = _parentsId;
-
-      if (parentId != null) {
+      if (parentId != null && superParentId != null) {
         EventBus.instance.fire(
           CreateReCommentEvent(
             senderId: presenterId,
-            parentId: parentId,
+            superParentId: superParentId,
             objectId: id,
             newReComment: newComment,
             objectType: 'post',

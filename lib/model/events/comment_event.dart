@@ -37,14 +37,14 @@ final class CreateCommentEvent implements CommentEvent {
 final class CreateReCommentEvent implements CommentEvent {
   @override
   final String senderId;
-  final int parentId;
+  final int superParentId;
   final int objectId;
   final String objectType;
   final Comment newReComment;
 
   const CreateReCommentEvent({
     required this.senderId,
-    required this.parentId,
+    required this.superParentId,
     required this.objectId,
     required this.objectType,
     required this.newReComment,

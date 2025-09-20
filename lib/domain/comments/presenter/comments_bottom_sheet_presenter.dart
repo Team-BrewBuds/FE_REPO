@@ -19,6 +19,7 @@ final class CommentsBottomSheetPresenter extends Presenter {
   final User _author;
   User? _replyUser;
   int? _parentsId;
+  int? _superParentsId;
 
   int get authorId => _author.id;
 
@@ -51,15 +52,17 @@ final class CommentsBottomSheetPresenter extends Presenter {
     return _author.id == AccountRepository.instance.id;
   }
 
-  selectedReply(User user, int id) {
+  selectedReply(User user, int parentId, int superParentId) {
     _replyUser = user;
-    _parentsId = id;
+    _parentsId = parentId;
+    _superParentsId = superParentId;
     notifyListeners();
   }
 
   cancelReply() {
     _replyUser = null;
     _parentsId = null;
+    _superParentsId = null;
     notifyListeners();
   }
 
@@ -69,6 +72,7 @@ final class CommentsBottomSheetPresenter extends Presenter {
     if (content.containsBadWords) throw const ContainsBadWordsCommentException();
 
     final parentId = _parentsId;
+    final superParentId = _superParentsId;
     try {
       final newComment = await _commentsRepository.createNewComment(
         feedType: _objectType.toString(),
@@ -77,11 +81,11 @@ final class CommentsBottomSheetPresenter extends Presenter {
         parentId: parentId,
       );
 
-      if (parentId != null) {
+      if (parentId != null && superParentId != null) {
         EventBus.instance.fire(
           CreateReCommentEvent(
             senderId: presenterId,
-            parentId: parentId,
+            superParentId: superParentId,
             objectId: _objectId,
             objectType: _objectType.toString(),
             newReComment: newComment,

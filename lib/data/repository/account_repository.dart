@@ -39,6 +39,7 @@ class AccountRepository extends ChangeNotifier {
     _accessToken = await _storage.read(key: 'access') ?? '';
     _refreshToken = await _storage.read(key: 'refresh') ?? '';
     _id = int.tryParse(await _storage.read(key: 'id') ?? '');
+    _isGuest = _id == null;
   }
 
   saveTokenAndIdInMemory({required int id, required String accessToken, required String refreshToken}) {

@@ -60,8 +60,6 @@ void main() async {
     PhotoRepository.instance.initState();
   }
 
-  // await AppRepository.instance.checkUpdateRequired();
-
   KakaoSdk.init(
     nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY'],
     javaScriptAppKey: dotenv.env['KAKAO_JAVASCRIPT'],
@@ -106,7 +104,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      print(await AppRepository.instance.fetchStoreURL());
       AppRepository.instance.checkUpdateRequired();
     });
     super.initState();
