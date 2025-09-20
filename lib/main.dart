@@ -135,7 +135,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void onNeedUpdateEvent(NeedUpdateEvent event) {
-    _showForceUpdateDialog(event.id);
+    _showForceUpdateDialog();
   }
 
   @override
@@ -206,7 +206,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 
-  void _showForceUpdateDialog(String id) {
+  void _showForceUpdateDialog() {
     final currentContext = navigatorKey.currentContext;
     if (currentContext != null) {
       showCupertinoDialog(
